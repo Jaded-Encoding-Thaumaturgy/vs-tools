@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import vapoursynth as vs
 
-from .normalize import normalize_franges
-from ..types import F_VD, FrameRange
 from ..exceptions import CustomValueError
+from ..types import F_VD, FrameRange
+from .normalize import normalize_franges
 
 __all__ = [
     'shift_clip', 'shift_clip_multi',

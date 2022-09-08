@@ -6,8 +6,8 @@ from typing import Sequence, cast, overload
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT
-from .check import disallow_variable_format
 from ..exceptions import CustomValueError
+from .check import disallow_variable_format
 
 __all__ = [
     'Dither',

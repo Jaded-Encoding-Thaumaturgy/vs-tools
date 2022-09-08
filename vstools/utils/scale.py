@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import vapoursynth as vs
 
-from vstools.exceptions.base import CustomValueError
-
 from ..enums import ColorRange, ColorRangeT
+from ..exceptions import CustomValueError
 from ..functions import disallow_variable_format
-from .info import get_depth, get_format
 from ..types import HoldsVideoFormatT
+from .info import get_depth, get_format
 
 __all__ = [
     'scale_8bit', 'scale_thresh', 'scale_value',

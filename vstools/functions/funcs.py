@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, Concatenate
 
-from ..types import T, R, P
+from ..types import P, R, T
 
 __all__ = [
     'iterate', 'fallback'
@@ -10,7 +10,7 @@ __all__ = [
 
 
 def iterate(
-    base: T, function: Callable[Concatenate[T, P], T | R],
+    base: T, function: Callable[Concatenate[T | R, P], T | R],
     count: int, *args: P.args, **kwargs: P.kwargs
 ) -> T | R:
     if count <= 0:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..types import F
-from .base import CustomError, CustomValueError
+from .base import CustomPermissionError, CustomValueError
 
 __all__ = [
     'UndefinedMatrixError',

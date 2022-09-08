@@ -4,9 +4,9 @@ from typing import overload
 
 import vapoursynth as vs
 
-from ..types import HoldsVideoFormatT
 from ..exceptions import CustomValueError
 from ..functions import depth, disallow_variable_format
+from ..types import HoldsVideoFormatT
 from .math import mod_x
 
 __all__ = [
