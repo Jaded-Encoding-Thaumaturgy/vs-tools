@@ -13,7 +13,16 @@ __all__ = [
 ]
 
 
-class CustomError(Exception):
+class CustomErrorMeta(type):
+    def __new__(cls: type[Self], *args: Any) -> Self:
+        obj = type.__new__(cls, *args)
+
+        obj.__module__ = Exception.__module__
+
+        return obj
+
+
+class CustomError(Exception, metaclass=CustomErrorMeta):
     def __init__(
         self, message: SupportsString | None = None, function: SupportsString | F | None = None, **kwargs: Any
     ) -> None:
