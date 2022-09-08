@@ -11,9 +11,19 @@ from ..exceptions import (
 from ..types import MISSING
 from .stubs import _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
-_MatrixYCGCOError = UnsupportedMatrixError(
-    'Matrix YCGCO is no longer supported by VapourSynth starting in R55 (APIv4).', 'Matrix'
-)
+_MatrixYCGCOError: UnsupportedMatrixError | None = None
+
+
+def _MatrixYCGCOErrorGet() -> UnsupportedMatrixError:
+    global _MatrixYCGCOError
+
+    if _MatrixYCGCOError is None:
+        _MatrixYCGCOError = UnsupportedMatrixError(
+            'Matrix YCGCO is no longer supported by VapourSynth starting in R55 (APIv4).', 'Matrix'
+        )
+
+    return _MatrixYCGCOError
+
 
 __all__ = [
     'Matrix', 'Transfer', 'Primaries',
@@ -37,7 +47,7 @@ class Matrix(_MatrixMeta):
             return Matrix.UNKNOWN
 
         if value == 8:
-            raise _MatrixYCGCOError
+            raise _MatrixYCGCOErrorGet()
 
         if Matrix.RGB < value < Matrix.ICTCP:
             raise ReservedMatrixError(f'Matrix({value}) is reserved.')
@@ -67,7 +77,7 @@ class Matrix(_MatrixMeta):
         @classmethod
         @property
         def YCGCO(cls) -> NoReturn:
-            raise _MatrixYCGCOError
+            raise _MatrixYCGCOErrorGet()
 
     BT2020NC = 9
     BT2020C = 10
