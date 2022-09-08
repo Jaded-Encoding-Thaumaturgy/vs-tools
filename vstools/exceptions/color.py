@@ -30,7 +30,7 @@ class UndefinedMatrixError(CustomValueError):
     """Raised when an undefined matrix is passed."""
 
 
-class ReservedMatrixError(PermissionError, CustomError):
+class ReservedMatrixError(CustomPermissionError):
     """Raised when a reserved matrix is requested."""
 
 
@@ -54,7 +54,7 @@ class UndefinedTransferError(CustomValueError):
     """Raised when an undefined transfer is passed."""
 
 
-class ReservedTransferError(PermissionError, CustomError):
+class ReservedTransferError(CustomPermissionError):
     """Raised when a reserved transfer is requested."""
 
 
@@ -78,7 +78,7 @@ class UndefinedPrimariesError(CustomValueError):
     """Raised when an undefined primaries value is passed."""
 
 
-class ReservedPrimariesError(PermissionError, CustomError):
+class ReservedPrimariesError(CustomPermissionError):
     """Raised when reserved primaries are requested."""
 
 

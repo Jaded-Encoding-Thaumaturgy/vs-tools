@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import sys
 from typing import Any
 
-from ..types import F, SupportsString
+from ..types import F, Self, SupportsString
 
 __all__ = [
     'CustomError',
 
     'CustomValueError',
     'CustomKeyError',
-    'CustomTypeError'
+    'CustomTypeError',
+    'CustomRuntimeError',
+    'CustomPermissionError'
 ]
 
 
@@ -52,13 +55,20 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         super().__init__(func_header + formatted)
 
 
-class CustomValueError(ValueError, CustomError):
+class CustomValueError(CustomError, ValueError):
     ...
 
 
-class CustomKeyError(KeyError, CustomError):
+class CustomKeyError(CustomError, KeyError):
     ...
 
 
-class CustomTypeError(TypeError, CustomError):
+class CustomTypeError(CustomError, TypeError):
+    ...
+
+
+class CustomRuntimeError(CustomError, RuntimeError):
+    ...
+
+class CustomPermissionError(CustomError, PermissionError):
     ...
