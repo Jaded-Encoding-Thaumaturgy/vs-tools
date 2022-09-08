@@ -32,7 +32,7 @@ __all__ = [
 
 
 class MissingT:
-    pass
+    ...
 
 
 MISSING = MissingT()

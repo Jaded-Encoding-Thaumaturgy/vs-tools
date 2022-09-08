@@ -9,12 +9,12 @@ from ..types import AnythingElse, F, FrameRange, FrameRangeN, FrameRangesN, Plan
 
 @overload
 def normalise_seq(val: Sequence[AnythingElse], length_max: int = 3) -> list[AnythingElse]:
-    pass
+    ...
 
 
 @overload
 def normalise_seq(val: AnythingElse, length_max: int = 3) -> list[AnythingElse]:
-    pass
+    ...
 
 
 def normalise_seq(val: Any, length_max: int = 3) -> Any:
@@ -42,12 +42,12 @@ def normalise_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 
 @overload
 def to_arr(val: Sequence[AnythingElse]) -> list[AnythingElse]:
-    pass
+    ...
 
 
 @overload
 def to_arr(val: AnythingElse) -> list[AnythingElse]:
-    pass
+    ...
 
 
 def to_arr(val: Any) -> Any:

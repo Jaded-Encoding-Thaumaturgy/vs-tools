@@ -86,45 +86,45 @@ SupportsFloatOrIndex: TypeAlias = SupportsFloat | SupportsIndex
 @runtime_checkable
 class SupportsTrunc(Protocol):
     def __trunc__(self) -> int:
-        pass
+        ...
 
 
 @runtime_checkable
 class SupportsString(Protocol):
     @abstractmethod
     def __str__(self) -> str:
-        pass
+        ...
 
 
 @runtime_checkable
 class SupportsDunderLT(Protocol[T_contra]):
     def __lt__(self, __other: T_contra) -> bool:
-        pass
+        ...
 
 
 @runtime_checkable
 class SupportsDunderGT(Protocol[T_contra]):
     def __gt__(self, __other: T_contra) -> bool:
-        pass
+        ...
 
 
 @runtime_checkable
 class SupportsDunderLE(Protocol[T_contra]):
     def __le__(self, __other: T_contra) -> bool:
-        pass
+        ...
 
 
 @runtime_checkable
 class SupportsDunderGE(Protocol[T_contra]):
     def __ge__(self, __other: T_contra) -> bool:
-        pass
+        ...
 
 
 @runtime_checkable
 class SupportsAllComparisons(
     SupportsDunderLT[Any], SupportsDunderGT[Any], SupportsDunderLE[Any], SupportsDunderGE[Any], Protocol
 ):
-    pass
+    ...
 
 
 SupportsRichComparison: TypeAlias = SupportsDunderLT[Any] | SupportsDunderGT[Any]

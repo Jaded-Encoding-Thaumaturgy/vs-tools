@@ -70,5 +70,6 @@ class CustomTypeError(CustomError, TypeError):
 class CustomRuntimeError(CustomError, RuntimeError):
     ...
 
+
 class CustomPermissionError(CustomError, PermissionError):
     ...
