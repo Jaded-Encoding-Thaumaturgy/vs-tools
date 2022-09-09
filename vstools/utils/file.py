@@ -18,20 +18,43 @@ __all__ = [
 ]
 
 
-def check_perms(file: FilePathType | FileDescriptor, mode: OpenTextMode | OpenBinaryMode):
+def check_perms(
+    file: FilePathType, mode: OpenTextMode | OpenBinaryMode, *, func: FuncExceptT | None = None
+) -> bool:
+    file = Path(file)
+    got_perms = False
+
     mode_i = F_OK
+
+    if func is not None:
+        if not str(file):
+            raise FileNotExistsError(file, func)
 
     for char in 'rbU':
         mode = mode.replace(char, '')
 
-    if not mode:
-        mode_i = R_OK
-    elif 'x' in mode:
-        mode_i = X_OK
-    elif '+' in mode or 'w' in mode:
-        mode_i = W_OK
+    if file.is_file():
+        if not mode:
+            mode_i = R_OK
+        elif 'x' in mode:
+            mode_i = X_OK
+        elif '+' in mode or 'w' in mode:
+            mode_i = W_OK
 
-    return access(file, mode_i)
+        got_perms = access(file, mode_i)
+
+    if func is not None:
+        if not got_perms:
+            raise FilePermissionError(file, func)
+        elif file.is_dir():
+            raise FileIsADirectoryError(file, func)
+        elif not file.exists():
+            if file.parent.exists():
+                raise FileWasNotFoundError(file, func)
+            else:
+                raise FileNotExistsError(file, func)
+
+    return got_perms
 
 
 @overload
@@ -101,21 +124,5 @@ def open_file(
     file: FilePathType | FileDescriptor, mode: Any = 'r+',
     *args: Any, func: FuncExceptT | None = None, **kwargs: Any
 ) -> Any:
-    if not isinstance(file, int):
-        file = Path(str(file))
-
-        if not str(file):
-            raise FileNotExistsError(file, func)
-
-        if file.is_file():
-            if not check_perms(file, mode):
-                raise FilePermissionError(file, func)
-        elif file.is_dir():
-            raise FileIsADirectoryError
-        elif not file.exists():
-            if file.parent.exists():
-                raise FileWasNotFoundError(file, func)
-            else:
-                raise FileNotExistsError(file, func)
-
+    check_perms(file, mode, func=func)
     return open(file, mode, *args, **kwargs)
