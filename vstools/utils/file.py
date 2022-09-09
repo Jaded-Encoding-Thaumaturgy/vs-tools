@@ -5,11 +5,10 @@ from os import F_OK, R_OK, W_OK, X_OK, access
 from pathlib import Path
 from typing import IO, Any, BinaryIO, Literal, overload
 
-from ..enums import FuncExceptT
 from ..exceptions import FileIsADirectoryError, FileNotExistsError, FilePermissionError, FileWasNotFoundError
 from ..types import (
-    FileDescriptor, FileOpener, FilePathType, OpenBinaryMode, OpenBinaryModeReading, OpenBinaryModeUpdating,
-    OpenBinaryModeWriting, OpenTextMode
+    FileDescriptor, FileOpener, FilePathType, FuncExceptT, OpenBinaryMode, OpenBinaryModeReading,
+    OpenBinaryModeUpdating, OpenBinaryModeWriting, OpenTextMode
 )
 
 __all__ = [

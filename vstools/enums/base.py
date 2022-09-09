@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Callable, TypeVar
+from typing import Any
 
 from ..exceptions import NotFoundEnumValue
+from ..types import FuncExceptT, SelfEnum
 
 __all__ = [
-    'FuncExceptT',
     'CustomEnum', 'CustomIntEnum', 'CustomStrEnum'
 ]
-
-FuncExceptT = str | tuple[Callable[..., Any] | str, str]  # type: ignore
 
 
 class CustomEnum(Enum):
@@ -37,9 +35,6 @@ class CustomEnum(Enum):
                 var_name, func_name = func_except, ''
 
             raise NotFoundEnumValue(f'{func_name}{var_name} must be in {readable_enum}.') from None
-
-
-SelfEnum = TypeVar('SelfEnum', bound=Enum)
 
 
 class CustomIntEnum(int, CustomEnum):

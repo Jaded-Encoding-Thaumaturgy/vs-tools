@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, Any, overload
 
 import vapoursynth as vs
 
-from .base import CustomIntEnum, FuncExceptT
+from ..types import FuncExceptT
+from .base import CustomIntEnum
 
 if TYPE_CHECKING:
     from .color import ColorRange, ColorRangeT, Matrix, MatrixT, Primaries, PrimariesT, Transfer, TransferT

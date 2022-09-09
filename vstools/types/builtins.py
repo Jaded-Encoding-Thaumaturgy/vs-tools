@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from abc import abstractmethod
 from typing import (
     Any, Callable, Iterable, ParamSpec, Protocol, Sequence, SupportsFloat, SupportsIndex, Tuple, TypeAlias, TypeVar,
@@ -21,7 +22,7 @@ __all__ = [
 
     'FrameRange', 'FrameRangeN', 'FrameRangesN',
 
-    'Self',
+    'Self', 'SelfEnum',
 
     'SingleOrArr', 'SingleOrArrOpt',
 
@@ -71,6 +72,7 @@ FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
 FrameRangesN: TypeAlias = list[FrameRangeN]
 
 Self = TypeVar('Self')
+SelfEnum = TypeVar('SelfEnum', bound=Enum)
 
 SingleOrArr = Union[T, list[T]]
 SingleOrArrOpt = Union[SingleOrArr[T], None]
