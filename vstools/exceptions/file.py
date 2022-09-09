@@ -3,6 +3,15 @@ from __future__ import annotations
 from .base import CustomError, CustomPermissionError
 
 
+__all__ = [
+    'FileIsADirectoryError',
+    'FileNotExistsError',
+    'FilePermissionError',
+    'FileTypeMismatchError',
+    'FileWasNotFoundError'
+]
+
+
 class FileNotExistsError(CustomError, FileExistsError):
     """Raised when a file doesn't exists"""
 

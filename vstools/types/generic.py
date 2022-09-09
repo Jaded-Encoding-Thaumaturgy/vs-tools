@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, ByteString, Callable, Deque, Mapping, Protocol, Sequence, Set, TypeVar, Union
+from typing import Any, ByteString, Callable, Deque, Mapping, Protocol, Sequence, Set, TypeAlias, TypeVar, Union
 
 import vapoursynth as vs
 
@@ -51,7 +51,7 @@ VideoPropT = Union[
 
 VideoFormatT = Union[int, vs.PresetFormat, vs.VideoFormat]
 
-HoldsVideoFormatT = vs.VideoNode | vs.VideoFrame | vs.VideoFormat | vs.PresetFormat
+HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat, vs.PresetFormat]
 HoldsPropValueT = Union[vs.FrameProps, vs.VideoFrame, vs.AudioFrame, vs.VideoNode, vs.AudioNode]
 
 EnumFuncExceptT = str | tuple[Callable[..., Any] | str, str]  # type: ignore
