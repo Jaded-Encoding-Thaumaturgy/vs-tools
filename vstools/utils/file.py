@@ -7,8 +7,8 @@ from typing import IO, Any, BinaryIO, Literal, overload
 
 from ..exceptions import FileIsADirectoryError, FileNotExistsError, FilePermissionError, FileWasNotFoundError
 from ..types import (
-    FileDescriptor, FileOpener, FilePathType, FuncExceptT, OpenBinaryMode, OpenBinaryModeReading,
-    OpenBinaryModeUpdating, OpenBinaryModeWriting, OpenTextMode
+    FileOpener, FilePathType, FuncExceptT, OpenBinaryMode, OpenBinaryModeReading, OpenBinaryModeUpdating,
+    OpenBinaryModeWriting, OpenTextMode
 )
 
 __all__ = [
@@ -20,7 +20,7 @@ __all__ = [
 def check_perms(
     file: FilePathType, mode: OpenTextMode | OpenBinaryMode, *, func: FuncExceptT | None = None
 ) -> bool:
-    file = Path(file)
+    file = Path(str(file))
     got_perms = False
 
     mode_i = F_OK
@@ -30,14 +30,14 @@ def check_perms(
             raise FileNotExistsError(file, func)
 
     for char in 'rbU':
-        mode = mode.replace(char, '')
+        mode_str = mode.replace(char, '')
 
     if file.is_file():
-        if not mode:
+        if not mode_str:
             mode_i = R_OK
-        elif 'x' in mode:
+        elif 'x' in mode_str:
             mode_i = X_OK
-        elif '+' in mode or 'w' in mode:
+        elif '+' in mode_str or 'w' in mode_str:
             mode_i = W_OK
 
         got_perms = access(file, mode_i)
@@ -58,7 +58,7 @@ def check_perms(
 
 @overload
 def open_file(
-    file: FilePathType | FileDescriptor, mode: OpenTextMode = 'r+', buffering: int = ...,
+    file: FilePathType, mode: OpenTextMode = 'r+', buffering: int = ...,
     encoding: str | None = None, errors: str | None = ..., newline: str | None = ...,
     closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
 ) -> TextIOWrapper:
@@ -67,7 +67,7 @@ def open_file(
 
 @overload
 def open_file(
-    file: FilePathType | FileDescriptor, mode: OpenBinaryMode, buffering: Literal[0],
+    file: FilePathType, mode: OpenBinaryMode, buffering: Literal[0],
     encoding: None = None, errors: None = None, newline: None = ...,
     closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
 ) -> FileIO:
@@ -76,7 +76,7 @@ def open_file(
 
 @overload
 def open_file(
-    file: FilePathType | FileDescriptor, mode: OpenBinaryModeUpdating, buffering: Literal[-1, 1] = ...,
+    file: FilePathType, mode: OpenBinaryModeUpdating, buffering: Literal[-1, 1] = ...,
     encoding: None = None, errors: None = None, newline: None = ...,
     closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
 ) -> BufferedRandom:
@@ -85,7 +85,7 @@ def open_file(
 
 @overload
 def open_file(
-    file: FilePathType | FileDescriptor, mode: OpenBinaryModeWriting, buffering: Literal[-1, 1] = ...,
+    file: FilePathType, mode: OpenBinaryModeWriting, buffering: Literal[-1, 1] = ...,
     encoding: None = None, errors: None = None, newline: None = ...,
     closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
 ) -> BufferedWriter:
@@ -94,7 +94,7 @@ def open_file(
 
 @overload
 def open_file(
-    file: FilePathType | FileDescriptor, mode: OpenBinaryModeReading, buffering: Literal[-1, 1] = ...,
+    file: FilePathType, mode: OpenBinaryModeReading, buffering: Literal[-1, 1] = ...,
     encoding: None = None, errors: None = None, newline: None = ...,
     closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
 ) -> BufferedReader:
@@ -103,7 +103,7 @@ def open_file(
 
 @overload
 def open_file(
-    file: FilePathType | FileDescriptor, mode: OpenBinaryMode, buffering: int = ...,
+    file: FilePathType, mode: OpenBinaryMode, buffering: int = ...,
     encoding: None = None, errors: None = None, newline: None = ...,
     closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
 ) -> BinaryIO:
@@ -112,16 +112,13 @@ def open_file(
 
 @overload
 def open_file(
-    file: FilePathType | FileDescriptor, mode: str, buffering: int = ...,
+    file: FilePathType, mode: str, buffering: int = ...,
     encoding: str | None = ..., errors: str | None = ..., newline: str | None = ...,
     closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
 ) -> IO[Any]:
     ...
 
 
-def open_file(
-    file: FilePathType | FileDescriptor, mode: Any = 'r+',
-    *args: Any, func: FuncExceptT | None = None, **kwargs: Any
-) -> Any:
+def open_file(file: FilePathType, mode: Any = 'r+', *args: Any, func: FuncExceptT | None = None, **kwargs: Any) -> Any:
     check_perms(file, mode, func=func)
     return open(file, mode, *args, **kwargs)
