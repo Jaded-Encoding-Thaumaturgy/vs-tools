@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Concatenate, Generic, Protocol, cast, overload
+from typing import Any, Callable, Concatenate, Generic, Iterable, Protocol, cast, overload
 
 from .builtins import F, P, R, T
 
 __all__ = [
     'copy_signature',
 
-    'inject_self'
+    'inject_self',
+
+    'complex_hash'
 ]
 
 
@@ -46,7 +48,12 @@ self_objects_cache = dict[type[T], T]()
 class inject_self(Generic[T, P, R]):
     def __init__(self, function: Callable[Concatenate[T, P], R], /, *, cache: bool = False) -> None:
         self.function = function
-        self.cache = cache
+        if isinstance(self, cached_inject_self):
+            self.cache = True
+        else:
+            self.cache = cache
+        self.args = tuple[Any]()
+        self.kwargs = dict[str, Any]()
 
     def __get__(
         self, class_obj: T | None, class_type: type[T]
@@ -62,10 +69,10 @@ class inject_self(Generic[T, P, R]):
             elif class_obj is None:
                 if self_objects_cache:
                     if class_type not in self_objects_cache:
-                        self_objects_cache[class_type] = class_type()
+                        self_objects_cache[class_type] = class_type(*self.args, **self.kwargs)
                     obj = self_objects_cache[class_type]
                 else:
-                    obj = class_type()
+                    obj = class_type(*self.args, **self.kwargs)
             else:
                 obj = class_obj
 
@@ -73,6 +80,47 @@ class inject_self(Generic[T, P, R]):
 
         return _wrapper
 
+    @classmethod
+    def with_args(cls, *args: Any, **kwargs: Any) -> Callable[[Callable[Concatenate[T, P], R]], inject_self[T, P, R]]:
+        def _wrapper(function: Callable[Concatenate[T, P], R]) -> inject_self[T, P, R]:
+            inj = cls(function)
+            inj.args = args
+            inj.kwargs = kwargs
+            return inj
+        return _wrapper
+
+
+class cached_inject_self(Generic[T, P, R], inject_self[T, P, R]):  # type: ignore
+    cache = True
+
+
+inject_self.cached = cached_inject_self  # type: ignore
+
+
+class complex_hash(Generic[T]):
+    def __new__(cls, class_type: T) -> T:  # type: ignore
+        class inner_class_type(class_type):  # type: ignore
+            def __hash__(self) -> int:
+                return complex_hash.hash(
+                    self.__class__.__name__, *(
+                        getattr(self, key) for key in self.__annotations__.keys()
+                    )
+                )
+
+        return inner_class_type  # type: ignore
+
     @staticmethod
-    def cached(function: Callable[Concatenate[T, P], R]) -> inject_self[T, P, R]:
-        return inject_self(function, cache=True)
+    def hash(*args: Any) -> int:
+        values = list[str]()
+        for value in args:
+            try:
+                new_hash = hash(value)
+            except TypeError:
+                if isinstance(value, Iterable):
+                    new_hash = complex_hash.hash(*value)
+                else:
+                    new_hash = hash(str(value))
+
+            values.append(str(new_hash))
+
+        return hash('_'.join(values))
