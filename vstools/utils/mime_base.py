@@ -17,11 +17,11 @@ if TYPE_CHECKING:
     class FileTypeBase(FileTypeIndexBase, CustomStrEnum):
         ...
 
-    class FileTypeIndex(FileType):
+    class FileTypeIndex(FileType):  # type: ignore
         def __call__(self, file_type: str | FileType) -> FileTypeIndexWithType:
             ...
 
-    class FileTypeIndexWithType(FileTypeIndex):
+    class FileTypeIndexWithType(FileTypeIndex):  # type: ignore
         file_type: FileType
 else:
     FileTypeBase = CustomStrEnum
