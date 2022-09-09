@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Concatenate, Generic, Iterable, Protocol, cast, overload
 
-from .builtins import F, P, R, T
+from .builtins import P0, R0, T0, F, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -55,9 +55,7 @@ class inject_self(Generic[T, P, R]):
         self.args = tuple[Any]()
         self.kwargs = dict[str, Any]()
 
-    def __get__(
-        self, class_obj: T | None, class_type: type[T]
-    ) -> _injected_self_func[T, P, R]:
+    def __get__(self, class_obj: T | None, class_type: type[T]) -> _injected_self_func[T, P, R]:
         def _wrapper(*args: Any, **kwargs: Any) -> Any:
             if (
                 (is_obj := isinstance(args[0], class_type))
@@ -69,8 +67,9 @@ class inject_self(Generic[T, P, R]):
             elif class_obj is None:
                 if self_objects_cache:
                     if class_type not in self_objects_cache:
-                        self_objects_cache[class_type] = class_type(*self.args, **self.kwargs)
-                    obj = self_objects_cache[class_type]
+                        obj = self_objects_cache[class_type] = class_type(*self.args, **self.kwargs)
+                    else:
+                        obj = self_objects_cache[class_type]
                 else:
                     obj = class_type(*self.args, **self.kwargs)
             else:
@@ -81,12 +80,14 @@ class inject_self(Generic[T, P, R]):
         return _wrapper
 
     @classmethod
-    def with_args(cls, *args: Any, **kwargs: Any) -> Callable[[Callable[Concatenate[T, P], R]], inject_self[T, P, R]]:
-        def _wrapper(function: Callable[Concatenate[T, P], R]) -> inject_self[T, P, R]:
-            inj = cls(function)
+    def with_args(
+        cls, *args: Any, **kwargs: Any
+    ) -> Callable[[Callable[Concatenate[T0, P0], R0]], inject_self[T0, P0, R0]]:
+        def _wrapper(function: Callable[Concatenate[T0, P0], R0]) -> inject_self[T0, P0, R0]:
+            inj = cls(function)  # type: ignore
             inj.args = args
             inj.kwargs = kwargs
-            return inj
+            return inj  # type: ignore
         return _wrapper
 
 
