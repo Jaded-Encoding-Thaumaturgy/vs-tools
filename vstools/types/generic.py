@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, ByteString, Callable, Deque, Mapping, Protocol, Sequence, Set, TypeAlias, TypeVar, Union
+from typing import Any, ByteString, Callable, Deque, Mapping, Protocol, Sequence, Set, TypeVar, Union
 
 import vapoursynth as vs
 
