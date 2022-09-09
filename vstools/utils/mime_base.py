@@ -5,7 +5,9 @@ from typing import TYPE_CHECKING
 from ..enums import CustomStrEnum
 
 __all__ = [
-    'FileTypeBase'
+    'FileTypeBase',
+    'FileTypeIndex',
+    'FileTypeIndexWithType'
 ]
 
 if TYPE_CHECKING:
@@ -25,4 +27,5 @@ if TYPE_CHECKING:
         file_type: FileType
 else:
     FileTypeBase = CustomStrEnum
+    FileTypeIndex = CustomStrEnum
     FileTypeIndexWithType = CustomStrEnum
