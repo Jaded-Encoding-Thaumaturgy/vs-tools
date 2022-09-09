@@ -20,6 +20,9 @@ class CustomErrorMeta(type):
     def __new__(cls: type[Self], *args: Any) -> Self:
         obj = type.__new__(cls, *args)
 
+        if obj.__qualname__.startswith('Custom'):
+            obj.__qualname__ = obj.__qualname__[6:]
+
         if sys.stdout.isatty():
             obj.__qualname__ = f'\033[0;31;1m{obj.__qualname__}\033[0m'  # type: ignore
 
