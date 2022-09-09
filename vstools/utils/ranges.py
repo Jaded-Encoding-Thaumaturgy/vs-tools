@@ -7,6 +7,11 @@ import vapoursynth as vs
 from ..types import FrameRangeN, FrameRangesN
 
 
+__all__ = [
+    'replace_ranges'
+]
+
+
 def replace_ranges(
     clip_a: vs.VideoNode, clip_b: vs.VideoNode,
     ranges: FrameRangeN | FrameRangesN | None,

@@ -6,6 +6,17 @@ import vapoursynth as vs
 
 from ..types import AnythingElse, F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
 
+__all__ = [
+    'normalise_seq',
+    'normalise_planes',
+    'to_arr',
+    'flatten',
+    'arr_to_len',
+    'normalize_franges',
+    'normalize_ranges',
+    'norm_func_name'
+]
+
 
 @overload
 def normalise_seq(val: Sequence[AnythingElse], length_max: int = 3) -> list[AnythingElse]:
