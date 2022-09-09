@@ -132,30 +132,30 @@ class FFProbe:
         )
 
     @overload
-    def _get_stream(
+    def _get_stream(  # type: ignore
         self, filename: str | Path, file_type: FileType | None = FileType.VIDEO,
         *, index: int = 0, func: FuncExceptT | None = None
-    ) -> FFProbeStream:
+    ) -> FFProbeStream | None:
         ...
 
     @overload
     def _get_stream(
         self, filename: str | Path, file_type: FileType | None = FileType.VIDEO,
         *, index: None = None, func: FuncExceptT | None = None
-    ) -> list[FFProbeStream]:
+    ) -> list[FFProbeStream] | None:
         ...
 
     def _get_stream(
         self, filename: str | Path, file_type: FileType | None = FileType.VIDEO,
         *, index: int | None = 0, func: FuncExceptT | None = None
-    ) -> FFProbeStream | list[FFProbeStream]:
-        check_perms(filename, 'r', func=FFProbe.get_stream)
+    ) -> FFProbeStream | list[FFProbeStream] | None:
+        check_perms(filename, 'r', func=func)
 
         if index is not None and index < 0:
-            raise CustomValueError('Stream index must be positive!', FFProbe.get_stream)
+            raise CustomValueError('Stream index must be positive!', func)
 
         if file_type is None:
-            select_streams = ()
+            select_streams = tuple[str]()
         else:
             idx_str = '' if index is None else f':{index}'
             select_streams = ('-select_streams', f'{file_type[0]}{idx_str}')
@@ -174,7 +174,7 @@ class FFProbe:
         ffprobe_data = self.json_decoder.decode(ffprobe_output.stdout)
 
         if 'streams' not in ffprobe_data or not ffprobe_data['streams']:
-            raise CustomRuntimeError(f'No usable {file_type} stream found in {filename}', func)
+            return None
 
         ffprobe_streams: list[dict[str, Any]] = ffprobe_data['streams']
 
@@ -194,12 +194,12 @@ class FFProbe:
     def get_stream(
         self, filename: str | Path, file_type: FileType | None,
         *, index: int = 0, func: FuncExceptT | None = None
-    ) -> FFProbeStream:
+    ) -> FFProbeStream | None:
         return self._get_stream(filename, file_type, index=index, func=func or self.get_stream)
 
     @inject_self
     def get_streams(
         self, filename: str | Path, file_type: FileType | None,
         *, func: FuncExceptT | None = None
-    ) -> list[FFProbeStream]:
-        return self._get_stream(filename, file_type, index=None, func=func or self.get_streams)
+    ) -> list[FFProbeStream] | None:
+        return self._get_stream(filename, file_type, index=None, func=self.get_streams if func is None else func)

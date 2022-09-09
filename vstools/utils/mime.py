@@ -8,10 +8,9 @@ from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeGuard
 
-from ..exceptions import CustomValueError
-from ..types import FuncExceptT, complex_hash, inject_self
-from .file import FilePathType
-from .mime_base import FileTypeBase, FileTypeIndexWithType
+from ..exceptions import CustomRuntimeError, CustomValueError
+from ..types import FilePathType, FuncExceptT, complex_hash, inject_self
+from .mime_base import FileTypeBase, FileTypeIndex, FileTypeIndexWithType
 
 __all__ = [
     'FileSignature',
@@ -134,8 +133,8 @@ class FileType(FileTypeBase):
 
             if fbase == 'index':
                 return FileType.INDEX(ftype)
-            else:
-                return FileType(ftype)
+
+            return FileType(ftype)
 
         return FileType.OTHER
 
@@ -167,7 +166,10 @@ class FileType(FileTypeBase):
                 if stream is None:
                     stream = ffprobe.get_stream(filename, FileType.AUDIO)
 
-                assert stream
+                if not stream:
+                    raise CustomRuntimeError(
+                        f'No usable video/audio stream found in {filename}', func
+                    )
 
                 file_type = stream.codec_type
                 mime = f'{file_type}/{stream.codec_name}'
@@ -192,20 +194,19 @@ class FileType(FileTypeBase):
         return ParsedFile(filename, ext, encoding, file_type, mime)
 
     def is_index(self) -> TypeGuard[FileTypeIndexWithType]:
-        return self is FileType.INDEX and hasattr(self, 'file_type')
+        return self is FileType.INDEX and hasattr(self, 'file_type')  # type: ignore
 
-    if not TYPE_CHECKING:
-        def __call__(self, file_type: str | FileType) -> FileTypeIndexWithType:
-            if self is not FileType.INDEX:
-                raise NotImplementedError
+    def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
+        if self is not FileType.INDEX:
+            raise NotImplementedError
 
-            file_type = FileType(file_type)
+        file_type = FileType(file_type)
 
-            if file_type not in {FileType.VIDEO, FileType.AUDIO}:
-                raise CustomValueError(
-                    'You can only have Video, Audio or Other index file types!', str(FileType.INDEX)
-                )
+        if file_type not in {FileType.VIDEO, FileType.AUDIO}:
+            raise CustomValueError(
+                'You can only have Video, Audio or Other index file types!', str(FileType.INDEX)
+            )
 
-            self.file_type = file_type
+        self.file_type = file_type
 
-            return self
+        return self
