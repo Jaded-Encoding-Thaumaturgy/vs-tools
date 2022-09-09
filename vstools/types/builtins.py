@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from enum import Enum
 from abc import abstractmethod
+from enum import Enum
 from typing import (
     Any, Callable, Iterable, ParamSpec, Protocol, Sequence, SupportsFloat, SupportsIndex, Tuple, TypeAlias, TypeVar,
     Union, overload, runtime_checkable
