@@ -14,7 +14,8 @@ __all__ = [
 
     'F', 'F_VD',
 
-    'P', 'R',
+    'P', 'P0', 'P1', 'P2',
+    'R', 'R0', 'R1', 'R2', 'R_contra',
 
     'Nb',
 
@@ -56,7 +57,14 @@ T2 = TypeVar('T2')
 F = TypeVar('F', bound=Callable[..., Any])
 
 P = ParamSpec('P')
+P0 = ParamSpec('P0')
+P1 = ParamSpec('P1')
+P2 = ParamSpec('P2')
+
 R = TypeVar('R')
+R0 = TypeVar('R0')
+R1 = TypeVar('R1')
+R2 = TypeVar('R2')
 
 
 _KT = TypeVar('_KT')
@@ -65,6 +73,7 @@ _VT_co = TypeVar('_VT_co', covariant=True)
 F_VD = TypeVar('F_VD', bound=Callable[..., vs.VideoNode])
 
 T_contra = TypeVar('T_contra', contravariant=True)
+R_contra = TypeVar('R_contra', contravariant=True)
 
 PlanesT: TypeAlias = int | Sequence[int] | None
 FrameRange: TypeAlias = int | Tuple[int, int] | list[int]
