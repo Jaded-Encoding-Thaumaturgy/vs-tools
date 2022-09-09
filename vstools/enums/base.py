@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any
 
 from ..exceptions import NotFoundEnumValue
-from ..types import FuncExceptT, SelfEnum
+from ..types import EnumFuncExceptT, SelfEnum
 
 __all__ = [
     'CustomEnum', 'CustomIntEnum', 'CustomStrEnum'
@@ -13,7 +13,7 @@ __all__ = [
 
 class CustomEnum(Enum):
     @classmethod
-    def from_param(cls: type[SelfEnum], value: Any, func_except: FuncExceptT | None = None) -> SelfEnum | None:
+    def from_param(cls: type[SelfEnum], value: Any, func_except: EnumFuncExceptT | None = None) -> SelfEnum | None:
         if value is None:
             return None
 

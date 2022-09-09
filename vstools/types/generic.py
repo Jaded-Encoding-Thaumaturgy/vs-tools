@@ -13,7 +13,7 @@ from .builtins import (
 __all__ = [
     'MissingT', 'MISSING',
 
-    'FuncExceptT',
+    'FuncExceptT', 'EnumFuncExceptT',
 
     'VideoPropT',
 
@@ -54,7 +54,8 @@ VideoFormatT = Union[int, vs.PresetFormat, vs.VideoFormat]
 HoldsVideoFormatT = vs.VideoNode | vs.VideoFrame | vs.VideoFormat | vs.PresetFormat
 HoldsPropValueT = Union[vs.FrameProps, vs.VideoFrame, vs.AudioFrame, vs.VideoNode, vs.AudioNode]
 
-FuncExceptT = str | tuple[Callable[..., Any] | str, str]  # type: ignore
+EnumFuncExceptT = str | tuple[Callable[..., Any] | str, str]  # type: ignore
+FuncExceptT = str | Callable[..., Any] | tuple[Callable[..., Any] | str, str]  # type: ignore
 
 
 class VSFunction(Protocol):
