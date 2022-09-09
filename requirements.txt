@@ -1,0 +1,4 @@
+VapourSynth>=59
+vsutil>=0.8.0
+vsexprtools>=1.0.2
+vskernels>=1.2.0
