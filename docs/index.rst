@@ -23,6 +23,15 @@ vstools Documentation
     :target: https://pepy.tech/project/vstools
 
 
+Functions and utils related to VapourSynth.
+
+This module is a collection of functions, utils, types, type-utils,
+and more aimed at helping at having a common ground between VapourSynth packages,
+as well as simplify writing and maintaining them.
+
+Want to contribute to vstools?
+Check out the `how to contribute <contribute>` section!
+
 .. automodule:: vstools
     :members:
     :undoc-members:
@@ -30,10 +39,42 @@ vstools Documentation
 
 .. toctree::
     :maxdepth: 1
+    :caption: Getting started
+
+    getting_started/install
+    getting_started/community
+
+.. toctree::
+    :maxdepth: 1
     :caption: Functions
     :titlesonly:
 
     submodules/enums/base
+    submodules/enums/color
+    submodules/enums/generic
+    submodules/exceptions/base
+    submodules/exceptions/colors
+    submodules/exceptions/enum
+    submodules/exceptions/file
+    submodules/exceptions/generic
+    submodules/functions/check
+    submodules/functions/clip
+    submodules/functions/funcs
+    submodules/functions/heuristics
+    submodules/functions/normalize
+    submodules/functions/utils
+    submodules/types/builtins
+    submodules/types/file
+    submodules/types/generic
+    submodules/types/utils
+    submodules/utils/ffprobe
+    submodules/utils/file
+    submodules/utils/math
+    submodules/utils/mime
+    submodules/utils/misc
+    submodules/utils/props
+    submodules/utils/ranges
+    submodules/utils/scale
 
 
 Special Credits
