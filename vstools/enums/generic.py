@@ -187,7 +187,7 @@ class FieldBased(_FieldBasedMeta):
         """
         Check what field the enum signifies.
 
-        :raise UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
+        :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
         """
         if self.PROGRESSIVE:
             raise UnsupportedFieldBasedError('Progressive video aren\'t field based!', self.field)
