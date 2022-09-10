@@ -7,6 +7,8 @@ from ..types import F
 from .base import CustomKeyError, CustomValueError
 
 __all__ = [
+    'FramesLengthError', 'ClipLengthError',
+
     'VariableFormatError', 'VariableResolutionError',
 
     'FormatsMismatchError', 'FormatsRefClipMismatchError',
@@ -21,6 +23,18 @@ __all__ = [
 
     'InvalidFramerateError'
 ]
+
+
+class FramesLengthError(CustomValueError):
+    def __init__(
+        self, function: str | F, var_name: str, message: str = '"{var_name}" can\'t be greater than the clip length!',
+        **kwargs: Any
+    ) -> None:
+        super().__init__(message, function, var_name=var_name, **kwargs)
+
+
+class ClipLengthError(CustomValueError):
+    ...
 
 
 class VariableFormatError(CustomValueError):

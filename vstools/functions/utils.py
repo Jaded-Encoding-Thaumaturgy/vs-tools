@@ -6,7 +6,7 @@ from typing import Sequence, cast, overload
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT
-from ..exceptions import CustomValueError
+from ..exceptions import CustomValueError, ClipLengthError
 from .check import disallow_variable_format
 
 __all__ = [
@@ -225,7 +225,7 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -
     frame_after_insert = start_frame + insert.num_frames
 
     if frame_after_insert > clip.num_frames:
-        raise CustomValueError('Inserted clip is too long.')
+        raise ClipLengthError('Inserted clip is too long.', insert_clip)
 
     if frame_after_insert == clip.num_frames:
         return pre + insert
