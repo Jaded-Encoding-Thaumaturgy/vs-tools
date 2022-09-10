@@ -4,20 +4,10 @@ from typing import Any, Iterable, Sequence, overload
 
 import vapoursynth as vs
 
-from ..types import AnythingElse, F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
+from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
 
 
-@overload
-def normalise_seq(val: Sequence[AnythingElse], length_max: int = 3) -> list[AnythingElse]:
-    ...
-
-
-@overload
-def normalise_seq(val: AnythingElse, length_max: int = 3) -> list[AnythingElse]:
-    ...
-
-
-def normalise_seq(val: Any, length_max: int = 3) -> Any:
+def normalise_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
     if not isinstance(val, Sequence):
         return [val] * length_max
 
@@ -40,27 +30,22 @@ def normalise_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
     return list(set(sorted(planes)))
 
 
+def to_arr(val: T | Sequence[T]) -> list[T]:
+    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
+
+
 @overload
-def to_arr(val: Sequence[AnythingElse]) -> list[AnythingElse]:
+def flatten(items: T | Iterable[T | Iterable[T | Iterable[T]]]) -> Iterable[T]:
     ...
 
 
 @overload
-def to_arr(val: AnythingElse) -> list[AnythingElse]:
-    ...
-
-
-def to_arr(val: Any) -> Any:
-    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]
-
-
-@overload
-def flatten(items: Iterable[Iterable[AnythingElse]]) -> Iterable[AnythingElse]:
+def flatten(items: T | Iterable[T | Iterable[T]]) -> Iterable[T]:  # type: ignore
     ...
 
 
 @overload
-def flatten(items: Iterable[AnythingElse]) -> Iterable[AnythingElse]:
+def flatten(items: T | Iterable[T]) -> Iterable[T]:  # type: ignore
     ...
 
 
