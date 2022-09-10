@@ -34,7 +34,7 @@ class CustomEnum(Enum):
             else:
                 var_name, func_name = func_except, ''
 
-            raise NotFoundEnumValue(f'{func_name}{var_name} must be in {readable_enum}.') from None
+            raise NotFoundEnumValue(f'{func_name}{var_name} must be in {readable_enum}.', func_except) from None
 
 
 class CustomIntEnum(int, CustomEnum):

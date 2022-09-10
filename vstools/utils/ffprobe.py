@@ -120,7 +120,7 @@ class FFProbe:
         self.bin_path = Path(bin_path)
 
         if not which(str(self.bin_path)):
-            raise FFProbe.FFProbeNotFoundError('FFprobe was not found!')
+            raise FFProbe.FFProbeNotFoundError('FFprobe was not found!', func)
 
         self.json_decoder = JSONDecoder(
             object_pairs_hook=None,

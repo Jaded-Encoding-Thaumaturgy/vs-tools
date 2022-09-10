@@ -80,10 +80,11 @@ def get_prop(
             return default
 
         if isinstance(e, KeyError) or prop is MISSING:
-            raise FramePropError(get_prop, key, 'Key {key} not present in props!')
+            e = FramePropError(get_prop, key, 'Key {key} not present in props!')
         elif isinstance(e, TypeError):
-            raise FramePropError(
-                get_prop, key, f'Key {{key}} did not contain expected type: Expected {t} got {type(prop)}!'
+            e = FramePropError(
+                get_prop, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
+                t=t, prop_t=type(prop)
             )
 
         raise e

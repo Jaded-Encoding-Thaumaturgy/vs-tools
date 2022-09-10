@@ -50,7 +50,9 @@ def padder(
     fmt = get_format(clip)
 
     if (width % (1 << fmt.subsampling_w) != 0) or (height % (1 << fmt.subsampling_h) != 0):
-        raise CustomValueError("padder: 'Values must result in an even resolution when passing a YUV420 clip!'")
+        raise CustomValueError(
+            'Values must result in an even resolution when passing a YUV420 clip!', padder
+        )
 
     reflected = vs.core.resize.Point(
         clip, width, height,
