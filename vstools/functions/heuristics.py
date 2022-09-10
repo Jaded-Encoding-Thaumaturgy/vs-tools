@@ -12,6 +12,15 @@ __all__ = [
 
 
 def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | None = None, prop_in: bool = True) -> dict[str, int]:
+    """
+    Determine the video heuristics from the frame properties.
+
+    :param clip:        Input clip.
+    :param props:       FrameProps object. If None, obtains from input clip.
+                        Default: None.
+    :param prop_in:     Return the `prop_in` parameter. For example, `matrix_in`.
+                        Default: True.
+    """
     heuristics = dict[str, IntEnum]()
 
     if props:

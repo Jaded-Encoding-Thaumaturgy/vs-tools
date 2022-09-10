@@ -4,8 +4,8 @@ vstools.functions.normalize
 
 .. autosummary::
 
-    vstools.functions.normalize.normalise_seq
-    vstools.functions.normalize.normalise_planes
+    vstools.functions.normalize.normalize_seq
+    vstools.functions.normalize.normalize_planes
     vstools.functions.normalize.to_arr
     vstools.functions.normalize.flatten
     vstools.functions.normalize.arr_to_len
