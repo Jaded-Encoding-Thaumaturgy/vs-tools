@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any
 
-from ..types import F
+from ..types import FuncExceptT
 from .base import CustomPermissionError, CustomValueError
 
 __all__ = [
@@ -43,7 +43,7 @@ class InvalidMatrixError(CustomValueError):
     """Raised when an invalid matrix is passed."""
 
     def __init__(
-        self, function: str | F, matrix: int = 2, message: str = 'You can\'t set a matrix of {matrix}!',
+        self, function: FuncExceptT, matrix: int = 2, message: str = 'You can\'t set a matrix of {matrix}!',
         **kwargs: Any
     ) -> None:
         super().__init__(message, function, matrix=matrix, **kwargs)
@@ -68,7 +68,7 @@ class InvalidTransferError(CustomValueError):
     """Raised when an invalid matrix is passed."""
 
     def __init__(
-        self, function: str | F, transfer: int = 2, message: str = 'You can\'t set a transfer of {transfer}!',
+        self, function: FuncExceptT, transfer: int = 2, message: str = 'You can\'t set a transfer of {transfer}!',
         **kwargs: Any
     ) -> None:
         super().__init__(message, function, transfer=transfer, **kwargs)
@@ -93,7 +93,7 @@ class InvalidPrimariesError(CustomValueError):
     """Raised when an invalid matrix is passed."""
 
     def __init__(
-        self, function: str | F, primaries: int = 2, message: str = 'You can\'t set primaries of {primaries}!',
+        self, function: FuncExceptT, primaries: int = 2, message: str = 'You can\'t set primaries of {primaries}!',
         **kwargs: Any
     ) -> None:
         super().__init__(message, function, primaries=primaries, **kwargs)

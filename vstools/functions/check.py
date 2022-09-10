@@ -10,7 +10,7 @@ from ..exceptions import (
     CustomError, FormatsRefClipMismatchError, ResolutionsRefClipMismatchError, VariableFormatError,
     VariableResolutionError
 )
-from ..types import ConstantFormatVideoNode, F
+from ..types import ConstantFormatVideoNode, F, FuncExceptT
 
 __all__ = [
     'disallow_variable_format',
@@ -100,7 +100,7 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None) -> None:
         raise ResolutionsRefClipMismatchError(check_ref_clip)
 
 
-def check_variable_format(clip: vs.VideoNode, function: str | F) -> TypeGuard[ConstantFormatVideoNode]:
+def check_variable_format(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
     """
     Check for variable format and return an error if found.
     :raises VariableFormatError:    The clip is of a variable format.
@@ -111,7 +111,7 @@ def check_variable_format(clip: vs.VideoNode, function: str | F) -> TypeGuard[Co
     return True
 
 
-def check_variable_resolution(clip: vs.VideoNode, function: str | F) -> None:
+def check_variable_resolution(clip: vs.VideoNode, function: FuncExceptT) -> None:
     """
     Check for variable width or height and return an error if found.
     :raises VariableResolutionError:    The clip has a variable resolution.
@@ -120,7 +120,7 @@ def check_variable_resolution(clip: vs.VideoNode, function: str | F) -> None:
         raise VariableResolutionError(function)
 
 
-def check_variable(clip: vs.VideoNode, function: str | F) -> TypeGuard[ConstantFormatVideoNode]:
+def check_variable(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
     """
     Check for variable format and a variable resolution and return an error if found.
     :raises VariableFormatError:        The clip is of a variable format.

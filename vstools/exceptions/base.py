@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-from ..types import F, Self, SupportsString
+from ..types import FuncExceptT, Self, SupportsString
 
 __all__ = [
     'CustomError',
@@ -33,7 +33,7 @@ class CustomErrorMeta(type):
 
 class CustomError(Exception, metaclass=CustomErrorMeta):
     def __init__(
-        self, message: SupportsString | None = None, function: SupportsString | F | None = None, **kwargs: Any
+        self, message: SupportsString | None = None, function: FuncExceptT | None = None, **kwargs: Any
     ) -> None:
         from ..functions import norm_func_name
 
