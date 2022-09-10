@@ -40,8 +40,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
     Normalize a sequence of planes.
 
     :param clip:        Input clip.
-    :param planes:      Array of planes. If None, returns all planes of the format of the input clip
-                        (Y, U, V for YUV; R, G, B for RGB).
+    :param planes:      Array of planes. If None, returns all planes of the input clip's format.
                         Default: None.
     :param pad:         Whether to pad the output list.
                         Default: False.
