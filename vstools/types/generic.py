@@ -45,7 +45,8 @@ VideoPropT = Union[
 
 VideoFormatT = Union[int, vs.PresetFormat, vs.VideoFormat]
 
-HoldsVideoFormatT = vs.VideoNode | vs.VideoFrame | vs.VideoFormat | vs.PresetFormat
+# TODO change to | when mypy fixes bug upstream
+HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat, vs.PresetFormat]
 HoldsPropValueT = Union[vs.FrameProps, vs.VideoFrame, vs.AudioFrame, vs.VideoNode, vs.AudioNode]
 
 EnumFuncExceptT = str | tuple[Callable[..., Any] | str, str]  # type: ignore
