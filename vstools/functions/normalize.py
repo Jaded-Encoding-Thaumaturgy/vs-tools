@@ -121,11 +121,20 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
 
 def norm_func_name(func_name: SupportsString | F) -> str:
-    if callable(func_name):
-        func = func_name
+    if isinstance(func_name, str):
+        return func_name
 
-        func_name = f'{func.__name__}'
+    if not isinstance(func_name, type) and not callable(func_name):
+        return str(func_name)
 
+    func = func_name
+
+    if hasattr(func_name, '__name__'):
+        func_name = func.__name__
+    elif hasattr(func_name, '__qualname__'):
+        func_name = func.__qualname__
+
+    if callable(func):
         if hasattr(func, '__self__'):
             func_name = f'{func.__self__.__name__}.{func_name}'  # type: ignore
 
