@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import Sequence, cast, overload
+from weakref import WeakValueDictionary
 
 import vapoursynth as vs
 
@@ -137,23 +138,25 @@ def depth(
     )
 
 
-_f2c_cache = dict[int, vs.VideoNode]()
+_f2c_cache = WeakValueDictionary[int, vs.VideoNode]()
 
 
 def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
     key = hash((frame.width, frame.height, frame.format.id))
 
-    if key not in _f2c_cache:
-        bc = vs.core.std.BlankClip(
+    if _f2c_cache.get(key, None) is None:
+        _f2c_cache[key] = blank_clip = vs.core.std.BlankClip(
             None, frame.width, frame.height,
             frame.format.id, 1, 1, 1,
             [0] * frame.format.num_planes,
             True
         )
+    else:
+        blank_clip = _f2c_cache[key]
 
     frame_cp = frame.copy()
 
-    return bc.std.ModifyFrame(bc, lambda n, f: frame_cp)
+    return blank_clip.std.ModifyFrame(blank_clip, lambda n, f: frame_cp)
 
 
 @disallow_variable_format
