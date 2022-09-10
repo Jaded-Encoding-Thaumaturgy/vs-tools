@@ -319,17 +319,17 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
 
 
 @disallow_variable_format
-def plane(clip: vs.VideoNode, planeno: int, /, strict: bool = True) -> vs.VideoNode:
+def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNode:
     assert clip.format
 
-    if clip.format.num_planes == 1 and planeno == 0:
+    if clip.format.num_planes == 1 and index == 0:
         return clip
 
     if not strict:
         if clip.format.color_family is vs.RGB:
             clip = clip.std.RemoveFrameProps('_Matrix')
 
-    return vs.core.std.ShufflePlanes(clip, planeno, vs.GRAY)
+    return vs.core.std.ShufflePlanes(clip, index, vs.GRAY)
 
 
 @disallow_variable_format

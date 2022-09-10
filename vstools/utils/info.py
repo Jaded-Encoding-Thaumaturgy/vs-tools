@@ -87,12 +87,12 @@ def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.Vid
     return clip, bits
 
 
-def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, /, planeno: int) -> tuple[int, int]:
+def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, index: int, /) -> tuple[int, int]:
     assert frame.format and frame.width
 
     width, height = frame.width, frame.height
 
-    if planeno != 0:
+    if index != 0:
         width >>= frame.format.subsampling_w
         height >>= frame.format.subsampling_h
 
