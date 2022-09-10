@@ -16,7 +16,13 @@ __all__ = [
 
     'ResolutionsMismatchError', 'ResolutionsRefClipMismatchError',
 
-    'InvalidVideoFormatError', 'InvalidColorFamilyError',
+    'InvalidVideoFormatError',
+    'InvalidColorFamilyError',
+    'InvalidSubsamplingError',
+
+    'UnsupportedVideoFormatError',
+    'UnsupportedColorFamilyError',
+    'UnsupportedSubsamplingError',
 
     'FramePropError',
 
@@ -111,6 +117,23 @@ class InvalidColorFamilyError(CustomValueError):
             if message is not None:
                 kwargs.update(message=message)
             raise InvalidColorFamilyError(func, to_check, correct_list, **kwargs)
+
+
+class UnsupportedSubsamplingError(CustomValueError):
+    """Raised when an undefined subsampling value is passed."""
+
+
+class InvalidSubsamplingError(CustomValueError):
+    """Raised when the given clip has invalid subsampling."""
+
+    def __init__(
+        self, function: FuncExceptT, subsampling: str | HoldsVideoFormatT,
+        message: str = 'The subsampling {subsampling} is not supported!',
+        **kwargs: Any
+    ) -> None:
+        from ..utils import get_format
+        subsampling = subsampling if isinstance(subsampling, str) else get_format(subsampling).name
+        super().__init__(message, function, subsampling=subsampling, **kwargs)
 
 
 class FormatsMismatchError(CustomValueError):
