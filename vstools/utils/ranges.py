@@ -37,6 +37,10 @@ def replace_ranges(
 
     Alias for this function is ``rfs``.
 
+    Optional Dependencies:
+        * `use_plugin=True`:
+        `VapourSynth-RemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
+
     :param clip_a:          Original clip.
     :param clip_b:          Replacement clip.
     :param ranges:          Ranges to replace clip_a (original clip) with clip_b (replacement clip).

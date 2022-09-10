@@ -65,6 +65,9 @@ def padder(
 
     Default mode is `Reflect`. `Filling` can be enabled by setting `reflect=False`.
 
+    Optional Dependencies:
+        * `reflect=False`: `VapourSynth-fillborders <https://github.com/dubhater/vapoursynth-fillborders>`_
+
     For a 4:2:0 clip, the output must be an even resolution.
 
     :param clip:        Input clip.
