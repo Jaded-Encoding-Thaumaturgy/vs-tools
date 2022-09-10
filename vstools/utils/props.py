@@ -46,12 +46,15 @@ def get_prop(
 ) -> T_VP | CT | DT:
     """
     Get FrameProp ``prop`` from frame ``frame`` with expected type ``t`` to satisfy the type checker.
+
     :param frame:               Frame containing props.
     :param key:                 Prop to get.
     :param t:                   type of prop.
     :param cast:                Cast value to this type, if specified.
     :param default:             Fallback value.
+
     :return:                    frame.prop[key].
+
     :raises FramePropError:     ``key`` is not found in props.
     :raises FramePropError:     Returns a prop of the wrong type.
     """
@@ -90,6 +93,16 @@ def get_prop(
 
 
 def merge_clip_props(*clips: vs.VideoNode, main_idx: int = 0) -> vs.VideoNode:
+    """
+    Merge frame properties from an unlimited number of clips.
+
+    The props of the main clips will not be overwritten, but more props can be added to it.
+
+    :param *clips:      Unlimited number of positional clips.
+    :param main_idx:    Index of the main clip to return.
+
+    :return:            Clip with all the frameprops of every given clip merged into it.
+    """
     if len(clips) == 1:
         return clips[0]
 

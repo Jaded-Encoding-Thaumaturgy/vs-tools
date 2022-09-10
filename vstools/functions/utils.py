@@ -349,7 +349,7 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -
 
     :return:                    Clip with frames replaced by the insert clip.
 
-    :raises CustomValueError:    Insert clip is too long and goes beyond the input clip's final frame.
+    :raises CustomValueError:   Insert clip is too long and goes beyond the input clip's final frame.
     """
     if start_frame == 0:
         return insert + clip[insert.num_frames:]

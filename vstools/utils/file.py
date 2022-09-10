@@ -20,6 +20,20 @@ __all__ = [
 def check_perms(
     file: FilePathType, mode: OpenTextMode | OpenBinaryMode, *, func: FuncExceptT | None = None
 ) -> bool:
+    """
+    Confirm whether the user has write/read access to a file.
+
+    :param file:                    Path to file.
+    :param mode:                    Read/Write mode.
+    :param func:                    @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+
+    :param:                         True if the user has write/read access, else False.
+
+    :raises FileNotExistsError:     File could not be found.
+    :raises FilePermissionError:    User does not have access to the file.
+    :raises FileIsADirectoryError:  Given path is a directory, not a file.
+    :raises FileWasNotFoundError:   Parent directories exist, but the given file could not be found.
+    """
     file = Path(str(file))
     got_perms = False
 
@@ -120,5 +134,15 @@ def open_file(
 
 
 def open_file(file: FilePathType, mode: Any = 'r+', *args: Any, func: FuncExceptT | None = None, **kwargs: Any) -> Any:
+    """
+    Open a file.
+
+    :param file:            Path to file.
+    :param mode:            Writing mode.
+    :param *args:           Positional Arguments to pass to ``open``.
+    :param **kwargs:        Keyword Arguments to pass to ``open``.
+
+    :return:                Opened file.
+    """
     check_perms(file, mode, func=func)
     return open(file, mode, *args, **kwargs)

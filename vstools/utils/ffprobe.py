@@ -28,6 +28,8 @@ __all__ = [
 
 
 class FFProbeStreamSideData:
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     side_data_type: str
     displaymatrix: str  #
     rotation: int  #
@@ -35,12 +37,18 @@ class FFProbeStreamSideData:
 
 # TODO
 class FFProbeObjectBase:
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     def __init__(self, ffmpeg_obj: dict[str, Any]) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         for key, value in ffmpeg_obj.items():
             setattr(self, key, value)
 
 
 class FFProbeStreamBase(FFProbeObjectBase):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     index: int
     codec_name: str
     codec_long_name: str
@@ -59,6 +67,8 @@ class FFProbeStreamBase(FFProbeObjectBase):
 
 
 class FFProbeStream(FFProbeStreamBase):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     duration_ts: int | None
     duration: float | None
     bit_rate: int | None
@@ -69,6 +79,8 @@ class FFProbeStream(FFProbeStreamBase):
 
 
 class FFProbeStreamSafe(FFProbeStream):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     duration_ts: int
     duration: float
     bit_rate: int
@@ -79,6 +91,8 @@ class FFProbeStreamSafe(FFProbeStream):
 
 
 class FFProbeVideoStreamBase(FFProbeStreamBase):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     codec_type: Literal[FileType.VIDEO]
     width: int
     height: int
@@ -95,6 +109,8 @@ class FFProbeVideoStreamBase(FFProbeStreamBase):
 
 
 class FFProbeVideoStream(FFProbeStream, FFProbeVideoStreamBase):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     color_space: str | None
     color_transfer: str | None
     color_primaries: str | None
@@ -106,6 +122,8 @@ class FFProbeVideoStream(FFProbeStream, FFProbeVideoStreamBase):
 
 
 class FFProbeVideoStreamSafe(FFProbeStreamSafe, FFProbeVideoStreamBase):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     color_space: str
     color_transfer: str
     color_primaries: str
@@ -117,6 +135,8 @@ class FFProbeVideoStreamSafe(FFProbeStreamSafe, FFProbeVideoStreamBase):
 
 
 class FFProbeAudioStream(FFProbeStream):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     sample_fmt: str
     sample_rate: int
     channels: int
@@ -125,12 +145,17 @@ class FFProbeAudioStream(FFProbeStream):
 
 
 class FFProbe:
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     class FFProbeNotFoundError(CustomRuntimeError):
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         ...
 
     json_decoder: JSONDecoder
 
     def __init__(self, *, func: FuncExceptT | None = None, bin_path: str | Path = 'ffprobe') -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         self.bin_path = Path(bin_path)
 
         if not which(str(self.bin_path)):
@@ -163,6 +188,7 @@ class FFProbe:
         self, filename: str | Path, file_type: FileType | None = FileType.VIDEO,
         *, index: int | None = 0, func: FuncExceptT | None = None
     ) -> FFProbeStream | list[FFProbeStream] | None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         check_perms(filename, 'r', func=func)
 
         if index is not None and index < 0:
@@ -209,6 +235,7 @@ class FFProbe:
         self, filename: str | Path, file_type: FileType | None,
         *, index: int = 0, func: FuncExceptT | None = None
     ) -> FFProbeStream | None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         return self._get_stream(filename, file_type, index=index, func=func or self.get_stream)
 
     @inject_self
@@ -216,4 +243,5 @@ class FFProbe:
         self, filename: str | Path, file_type: FileType | None,
         *, func: FuncExceptT | None = None
     ) -> list[FFProbeStream] | None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         return self._get_stream(filename, file_type, index=None, func=self.get_streams if func is None else func)
