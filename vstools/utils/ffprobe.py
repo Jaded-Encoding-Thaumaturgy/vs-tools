@@ -12,6 +12,21 @@ from ..types import FuncExceptT, inject_self
 from .file import check_perms
 from .mime import FileType
 
+__all__ = [
+    'FFProbe', 'FFProbeNotFoundError',
+
+    'FFProbeStream',
+
+    'FFProbeVideoStream',
+    'FFProbeAudioStream',
+
+    'FFProbeStreamSideData',
+]
+
+
+class FFProbeNotFoundError(CustomRuntimeError):
+    ...
+
 
 class FFProbeStreamSideData:
     side_data_type: str
@@ -111,16 +126,13 @@ class FFProbeAudioStream(FFProbeStream):
 
 
 class FFProbe:
-    class FFProbeNotFoundError(CustomRuntimeError):
-        ...
-
     json_decoder: JSONDecoder
 
     def __init__(self, *, func: FuncExceptT | None = None, bin_path: str | Path = 'ffprobe') -> None:
         self.bin_path = Path(bin_path)
 
         if not which(str(self.bin_path)):
-            raise FFProbe.FFProbeNotFoundError('FFprobe was not found!', func)
+            raise FFProbeNotFoundError('FFprobe was not found!', func)
 
         self.json_decoder = JSONDecoder(
             object_pairs_hook=None,
