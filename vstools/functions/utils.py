@@ -206,7 +206,7 @@ def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
 
     :param frame:       Input frame.
 
-    :return:            1-frame long Video Node of the input frame.
+    :return:            1-frame long VideoNode of the input frame.
     """
     key = hash((frame.width, frame.height, frame.format.id))
 
