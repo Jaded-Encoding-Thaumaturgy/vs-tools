@@ -58,10 +58,6 @@ def flatten(items: Any) -> Any:
             yield val
 
 
-def arr_to_len(array: Sequence[T], length: int = 3) -> list[T]:
-    return (list(array) + [array[-1]] * length)[:length]
-
-
 def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
     if isinstance(franges, int):
         return [franges]
