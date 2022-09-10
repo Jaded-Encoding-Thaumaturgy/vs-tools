@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Sequence, cast, overload
+from typing import Any, Literal, Sequence, cast, overload
+from weakref import WeakValueDictionary
 
 import vapoursynth as vs
 
-from ..enums import ColorRange, ColorRangeT
-from ..exceptions import ClipLengthError, InvalidColorFamilyError
+from ..enums import ColorRange, ColorRangeT, Matrix
+from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
 from .check import disallow_variable_format
 
 __all__ = [
@@ -197,7 +198,7 @@ def depth(
     )
 
 
-_f2c_cache = dict[int, vs.VideoNode]()
+_f2c_cache = WeakValueDictionary[int, vs.VideoNode]()
 
 
 def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
@@ -210,17 +211,19 @@ def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
     """
     key = hash((frame.width, frame.height, frame.format.id))
 
-    if key not in _f2c_cache:
-        bc = vs.core.std.BlankClip(
+    if _f2c_cache.get(key, None) is None:
+        _f2c_cache[key] = blank_clip = vs.core.std.BlankClip(
             None, frame.width, frame.height,
             frame.format.id, 1, 1, 1,
             [0] * frame.format.num_planes,
             True
         )
+    else:
+        blank_clip = _f2c_cache[key]
 
     frame_cp = frame.copy()
 
-    return bc.std.ModifyFrame(bc, lambda n, f: frame_cp)
+    return blank_clip.std.ModifyFrame(blank_clip, lambda n, f: frame_cp)
 
 
 @disallow_variable_format
@@ -351,24 +354,163 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -
     return pre + insert + post
 
 
-def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily = vs.YUV) -> vs.VideoNode:
+@overload
+def join(luma: vs.VideoNode, chroma: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param luma:        Luma clip, GRAY or YUV.
+    :param chroma:      Chroma clip, must be YUV.
+
+    :return:            YUV clip of combined planes.
+    """
+
+
+@overload
+def join(y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param y:           Y plane.
+    :param u:           U plane.
+    :param v:           V plane.
+
+    :return:            YUV clip of combined planes.
+    """
+
+
+@overload
+def join(
+    y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, alpha: vs.VideoNode, family: Literal[vs.ColorFamily.YUV]
+) -> vs.VideoNode:
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param y:           Y plane.
+    :param u:           U plane.
+    :param v:           V plane.
+    :param alpha:       Alpha clip.
+
+    :return:            YUV clip of combined planes with an alpha clip attached.
+    """
+
+
+@overload
+def join(
+    r: vs.VideoNode, g: vs.VideoNode, b: vs.VideoNode, family: Literal[vs.ColorFamily.RGB]
+) -> vs.VideoNode:
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param r:           R plane.
+    :param g:           G plane.
+    :param b:           B plane.
+
+    :return:            RGB clip of combined planes.
+    """
+
+
+@overload
+def join(
+    r: vs.VideoNode, g: vs.VideoNode, b: vs.VideoNode, alpha: vs.VideoNode, family: Literal[vs.ColorFamily.RGB]
+) -> vs.VideoNode:
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param r:           R plane.
+    :param g:           G plane.
+    :param b:           B plane.
+    :param alpha:       Alpha clip.
+
+    :return:            RGB clip of combined planes with an alpha clip attached.
+    """
+
+
+@overload
+def join(*planes: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
     """
     Join a list of planes together to form a single clip.
 
     :param planes:      Planes to combine.
     :param family:      Output clip family.
-                        Default: YUV.
+                        Default: first clip or detected from props if GRAY and len(planes) > 1.
 
     :return:            Clip of combined planes.
     """
-    if len(planes) == 1 and family == vs.GRAY:
+
+
+@overload
+def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily | None = None) -> vs.VideoNode:
+    """
+    Join a list of planes together to form a single clip.
+
+    :param planes:      Planes to combine.
+    :param family:      Output clip family.
+                        Default: first clip or detected from props if GRAY and len(planes) > 1.
+
+    :return:            Clip of combined planes.
+    """
+
+
+def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
+    from ..utils import get_color_family, get_format
+
+    family: vs.ColorFamily | None = kwargs.get('family', None)
+
+    if isinstance(_planes[-1], vs.ColorFamily):
+        family = _planes[-1]
+        _planes = _planes[:-1]
+
+    planes = list[vs.VideoNode](_planes[0] if isinstance(_planes[0], list) else _planes)
+
+    n_clips = len(planes)
+
+    if not n_clips:
+        raise CustomIndexError('Not enough clips/planes passed!', join)
+
+    if n_clips == 1 and (family is None or family is (planes[0].format and planes[0].format.color_family)):
         return planes[0]
 
-    return vs.core.std.ShufflePlanes(planes, [0, 0, 0], family)
+    if family is None:
+        family = get_color_family(planes[0])
+
+    if n_clips == 2:
+        other_family = get_color_family(planes[1])
+
+        if family in {vs.GRAY, vs.YUV}:
+            InvalidColorFamilyError.check(
+                other_family, vs.YUV, join, '"chroma" clip must be {correct} color family, not {wrong}!'
+            )
+
+            if family is vs.GRAY:
+                planes[0] = get_y(planes[0])
+
+            return vs.core.std.ShufflePlanes(planes, [0, 1, 2], other_family)
+
+    if n_clips in {3, 4}:
+        if family is vs.GRAY:
+            for plane in planes[:3]:
+                if (fmt := get_format(plane)).num_planes > 1:
+                    family = fmt.color_family
+                    break
+            else:
+                matrix = Matrix.from_video(planes[0])
+                family = vs.RGB if matrix is Matrix.RGB else vs.YUV
+
+        clip = vs.core.std.ShufflePlanes(planes[:3], [0, 0, 0], family)
+
+        if n_clips == 4:
+            clip = clip.std.ClipToProp(planes[-1], '_Alpha')
+
+        return clip
+    elif n_clips > 4:
+        raise CustomValueError('Too many clips or planes passed!', join)
+
+    raise CustomValueError('Not enough clips or planes passed!', join)
 
 
 @disallow_variable_format
-def plane(clip: vs.VideoNode, index: int, /) -> vs.VideoNode:
+def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNode:
     """
     Extract a plane from the given clip.
 
@@ -377,13 +519,15 @@ def plane(clip: vs.VideoNode, index: int, /) -> vs.VideoNode:
 
     :return:            Grayscale clip of the clip's plane.
     """
+
     assert clip.format
 
     if clip.format.num_planes == 1 and index == 0:
         return clip
 
-    if clip.format.color_family is vs.RGB:
-        clip = clip.std.RemoveFrameProps('_Matrix')
+    if not strict:
+        if clip.format.color_family is vs.RGB:
+            clip = clip.std.RemoveFrameProps('_Matrix')
 
     return vs.core.std.ShufflePlanes(clip, index, vs.GRAY)
 

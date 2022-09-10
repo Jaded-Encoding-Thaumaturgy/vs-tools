@@ -11,7 +11,6 @@ __all__ = [
     'normalize_planes',
     'to_arr',
     'flatten',
-    'arr_to_len',
     'normalize_franges',
     'normalize_ranges',
     'norm_func_name'
@@ -88,15 +87,6 @@ def flatten(items: Any) -> Any:
                 yield sub_x
         else:
             yield val
-
-
-def arr_to_len(array: Sequence[T], length: int = 3) -> list[T]:
-    """
-    Normalize the length of an iterable.
-
-    This will either pad it out to match the given length, or limit the amount of items to length.
-    """
-    return (list(array) + [array[-1]] * length)[:length]
 
 
 def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
