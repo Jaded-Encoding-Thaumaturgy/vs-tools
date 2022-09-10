@@ -24,15 +24,6 @@ class ChromaLocation(_ChromaLocationMeta):
 
     @classmethod
     def _missing_(cls: type[ChromaLocation], value: Any) -> ChromaLocation | None:
-        """
-        @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-
-        :param value:                               Chroma location value.
-
-        :return:                                    ChromaLocation object or None.
-
-        :raises UnsupportedChromaLocationError:     Chroma location is unsupported.
-        """
         if value is None:
             return cls.LEFT
 
@@ -107,15 +98,6 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def _missing_(cls: type[FieldBased], value: Any) -> FieldBased | None:
-        """
-        @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-
-        :param value:                               Field order.
-
-        :return:                                    FieldBased object or None.
-
-        :raises UnsupportedChromaLocationError:     FieldBased is unsupported.
-        """
         if value is None:
             return cls.PROGRESSIVE
 

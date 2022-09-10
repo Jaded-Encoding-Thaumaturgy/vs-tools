@@ -146,7 +146,6 @@ class FileType(FileTypeBase):
 
     @classmethod
     def _missing_(cls, value: Any) -> FileType:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         if value is None:
             return FileType.AUTO
 

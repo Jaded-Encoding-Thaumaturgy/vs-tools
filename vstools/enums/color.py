@@ -15,7 +15,6 @@ _MatrixYCGCOError: UnsupportedMatrixError | None = None
 
 
 def _MatrixYCGCOErrorGet() -> UnsupportedMatrixError:
-    """Raise the Matrix YCOCG error."""
     global _MatrixYCGCOError
 
     if _MatrixYCGCOError is None:
@@ -44,16 +43,6 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def _missing_(cls: type[Matrix], value: Any) -> Matrix | None:
-        """
-        @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-
-        :param value:                   Matrix value.
-
-        :return:                        Matrix object or None.
-
-        :raises ReservedMatrixError:    Matrix is reserved.
-        :raises UnsupportedMatrixError: Matrix is unsupported.
-        """
         if value is None:
             return Matrix.UNKNOWN
 
@@ -88,7 +77,6 @@ class Matrix(_MatrixMeta):
         @classmethod
         @property
         def YCGCO(cls) -> NoReturn:
-            """Raise the relevant YCGCO error."""
             raise _MatrixYCGCOErrorGet()
 
     BT2020NC = 9
@@ -209,16 +197,6 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def _missing_(cls: type[Transfer], value: Any) -> Transfer | None:
-        """
-        @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-
-        :param value:                       Transfer value.
-
-        :return:                            Transfer object or None.
-
-        :raises ReservedTransferError:      Transfer is reserved.
-        :raises UnsupportedTransferError:   Transfer is unsupported.
-        """
         if value is None:
             return Transfer.UNKNOWN
 
@@ -406,16 +384,6 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def _missing_(cls: type[Primaries], value: Any) -> Primaries | None:
-        """
-        @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-
-        :param value:                       Primaries value.
-
-        :return:                            Primaries object or None.
-
-        :raises ReservedPrimariesError:     Primaries is reserved.
-        :raises UnsupportedPrimariesError:  Primaries is unsupported.
-        """
         if value is None:
             return Primaries.UNKNOWN
 
@@ -612,15 +580,6 @@ class ColorRange(_ColorRangeMeta):
 
     @classmethod
     def _missing_(cls: type[ColorRange], value: Any) -> ColorRange | None:
-        """
-        @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-
-        :param value:                       ColorRange value.
-
-        :return:                            ColorRange object or None.
-
-        :raises UnsupportedPrimariesError:  ColorRange is unsupported.
-        """
         if value is None:
             return ColorRange.LIMITED
 
