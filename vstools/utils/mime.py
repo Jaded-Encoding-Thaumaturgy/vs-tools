@@ -148,7 +148,6 @@ class FileType(FileTypeBase):
     if TYPE_CHECKING:
         def __new__(cls, value_or_mime: str | FileType | None = None) -> FileType:
             """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-            ...
 
     @classmethod
     def _missing_(cls, value: Any) -> FileType:
