@@ -615,12 +615,12 @@ class ColorRange(_ColorRangeMeta):
 
     @property
     def value_vs(self) -> int:
-        """Return the VapourSynth value."""
+        """VapourSynth (props) value."""
         return self.value
 
     @property
     def value_zimg(self) -> int:
-        """Returns the zimg value."""
+        """zimg (resize plugin) value."""
         return ~self.value + 2
 
     @property
