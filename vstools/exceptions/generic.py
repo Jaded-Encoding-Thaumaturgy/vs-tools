@@ -56,15 +56,15 @@ class InvalidColorFamilyError(CustomValueError):
         correct: vs.ColorFamily | list[vs.ColorFamily] | vs.VideoFormat | list[vs.VideoFormat] = vs.YUV,
         message: str = 'Input clip must be of {correct} color family, not {wrong}!'
     ) -> None:
-        wrong_str = (
-            wrong if isinstance(wrong, vs.ColorFamily) else wrong.color_family
-        ).name
+        wrong_str = (wrong if isinstance(wrong, vs.ColorFamily) else wrong.color_family).name
+
         correct_str = ', '.join(
             list(set([
                 (c if isinstance(c, vs.ColorFamily) else c.color_family).name
                 for c in (correct if isinstance(correct, list) else [correct])
             ]))
         )
+
         super().__init__(message, function, wrong=wrong_str, correct=correct_str)
 
 

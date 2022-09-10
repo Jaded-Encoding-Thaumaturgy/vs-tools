@@ -29,13 +29,19 @@ __all__ = [
 class UndefinedMatrixError(CustomValueError):
     """Raised when an undefined matrix is passed."""
 
+    ...
+
 
 class ReservedMatrixError(CustomPermissionError):
     """Raised when a reserved matrix is requested."""
 
+    ...
+
 
 class UnsupportedMatrixError(CustomValueError):
     """Raised when an unsupported matrix is passed."""
+
+    ...
 
 
 class InvalidMatrixError(CustomValueError):
@@ -53,13 +59,19 @@ class InvalidMatrixError(CustomValueError):
 class UndefinedTransferError(CustomValueError):
     """Raised when an undefined transfer is passed."""
 
+    ...
+
 
 class ReservedTransferError(CustomPermissionError):
     """Raised when a reserved transfer is requested."""
 
+    ...
+
 
 class UnsupportedTransferError(CustomValueError):
     """Raised when an unsupported transfer is passed."""
+
+    ...
 
 
 class InvalidTransferError(CustomValueError):
@@ -77,13 +89,19 @@ class InvalidTransferError(CustomValueError):
 class UndefinedPrimariesError(CustomValueError):
     """Raised when an undefined primaries value is passed."""
 
+    ...
+
 
 class ReservedPrimariesError(CustomPermissionError):
     """Raised when reserved primaries are requested."""
 
+    ...
+
 
 class UnsupportedPrimariesError(CustomValueError):
     """Raised when a unsupported primaries value is passed."""
+
+    ...
 
 
 class InvalidPrimariesError(CustomValueError):
@@ -100,3 +118,5 @@ class InvalidPrimariesError(CustomValueError):
 
 class UnsupportedColorRangeError(CustomValueError):
     """Raised when a unsupported color range value is passed."""
+
+    ...
