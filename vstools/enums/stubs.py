@@ -185,7 +185,14 @@ if TYPE_CHECKING:
 
         @classmethod  # type: ignore
         def from_param(cls: Any, value: Any, func_except: Any = None) -> FieldBased | None:
-            ...
+            """
+            Determine the Field order through a parameter.
+
+            :param value_or_tff:            Value or FieldBased object.
+            :param func_except:             Exception function.
+
+            :return:                        FieldBased object or None.
+            """
 else:
     _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = CustomIntEnum
     _ChromaLocationMeta = _FieldBasedMeta = CustomIntEnum

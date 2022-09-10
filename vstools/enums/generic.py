@@ -117,14 +117,6 @@ class FieldBased(_FieldBasedMeta):
     if not TYPE_CHECKING:
         @classmethod
         def from_param(cls: Any, value_or_tff: Any, func_except: Any = None) -> FieldBased | None:
-            """
-            Determine the Field order through a parameter.
-
-            :param value_or_tff:            Value or FieldBased object.
-            :param func_except:             Exception function.
-
-            :return:                        FieldBased object or None.
-            """
             if isinstance(value_or_tff, bool):
                 return FieldBased(1 + value_or_tff)
 
