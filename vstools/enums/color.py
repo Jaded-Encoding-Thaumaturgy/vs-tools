@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, NamedTuple, NoReturn, TypeAlias
+from typing import Any, NamedTuple, TypeAlias
 
 import vapoursynth as vs
 
@@ -10,20 +10,6 @@ from ..exceptions import (
 )
 from ..types import MISSING
 from .stubs import _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
-
-_MatrixYCGCOError: UnsupportedMatrixError | None = None
-
-
-def _MatrixYCGCOErrorGet() -> UnsupportedMatrixError:
-    global _MatrixYCGCOError
-
-    if _MatrixYCGCOError is None:
-        _MatrixYCGCOError = UnsupportedMatrixError(
-            'Matrix YCGCO is no longer supported by VapourSynth starting in R55 (APIv4).', 'Matrix'
-        )
-
-    return _MatrixYCGCOError
-
 
 __all__ = [
     'Matrix', 'Transfer', 'Primaries',
@@ -47,7 +33,9 @@ class Matrix(_MatrixMeta):
             return Matrix.UNKNOWN
 
         if value == 8:
-            raise _MatrixYCGCOErrorGet()
+            raise UnsupportedMatrixError(
+                'Matrix YCGCO is no longer supported by VapourSynth starting in R55 (APIv4).', 'Matrix'
+            )
 
         if Matrix.RGB < value < Matrix.ICTCP:
             raise ReservedMatrixError(f'Matrix({value}) is reserved.', cls)
@@ -70,15 +58,6 @@ class Matrix(_MatrixMeta):
     BT601 = BT470BG
     SMPTE170M = 6
     SMPTE240M = 7
-
-    if vs.core.version_number() < 55:
-        YCGCO = 8
-    else:
-        @classmethod
-        @property
-        def YCGCO(cls) -> NoReturn:
-            raise _MatrixYCGCOErrorGet()
-
     BT2020NC = 9
     BT2020C = 10
     SMPTE2085 = 11
