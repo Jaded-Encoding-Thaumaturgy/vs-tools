@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-def normalise_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
+def normalize_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
     if not isinstance(val, Sequence):
         return [val] * length_max
 
