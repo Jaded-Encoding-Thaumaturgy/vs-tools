@@ -382,7 +382,7 @@ class Transfer(_TransferMeta):
     @property
     def value_vs(self) -> int:
         """
-        Return the VapourSynth value.
+        VapourSynth value.
 
         :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
         """
@@ -395,7 +395,7 @@ class Transfer(_TransferMeta):
 
     @property
     def value_libplacebo(self) -> int:
-        """Return the libplacebo value."""
+        """libplacebo value."""
         return _transfer_placebo_map[self]
 
 
@@ -557,30 +557,30 @@ class MatrixCoefficients(NamedTuple):
     @classmethod
     @property
     def SRGB(cls) -> MatrixCoefficients:
-        """Obtain the Matrix Coefficients for SRGB."""
+        """Matrix Coefficients for SRGB."""
         return MatrixCoefficients(0.04045, 12.92, 0.055, 2.4)
 
     @classmethod
     @property
     def BT709(cls) -> MatrixCoefficients:
-        """Obtain the Matrix Coefficients for BT709."""
+        """Matrix Coefficients for BT709."""
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     @property
     def SMPTE240M(cls) -> MatrixCoefficients:
-        """Obtain the Matrix Coefficients for SMPTE240M."""
+        """Matrix Coefficients for SMPTE240M."""
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
     @classmethod
     @property
     def BT2020(cls) -> MatrixCoefficients:
-        """Obtain the Matrix Coefficients for BT2020."""
+        """Matrix Coefficients for BT2020."""
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix) -> MatrixCoefficients:
-        """Obtain the Matrix Coefficients from a Matrix object's value."""
+        """Matrix Coefficients from a Matrix object's value."""
         if matrix not in _matrix_matrixcoeff_map:
             raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
 
@@ -588,7 +588,7 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
-        """Obtain the Matrix Coefficients from a Transfer object's value."""
+        """Matrix Coefficients from a Transfer object's value."""
         if tranfer not in _transfer_matrixcoeff_map:
             raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
 
@@ -596,7 +596,7 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:
-        """Obtain the Matrix Coefficients from a Primaries object's value."""
+        """Matrix Coefficients from a Primaries object's value."""
         if primaries not in _primaries_matrixcoeff_map:
             raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
 
