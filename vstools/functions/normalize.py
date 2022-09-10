@@ -7,7 +7,7 @@ import vapoursynth as vs
 from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
 
 
-def normalise_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
+def normalize_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
     if not isinstance(val, Sequence):
         return [val] * length_max
 
@@ -16,7 +16,7 @@ def normalise_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
     return val[:length_max]
 
 
-def normalise_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = False) -> list[int]:
+def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = False) -> list[int]:
     assert clip.format
 
     if planes is None:
@@ -25,7 +25,7 @@ def normalise_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
         planes = to_arr(planes)
 
     if pad:
-        return normalise_seq(planes, clip.format.num_planes)
+        return normalize_seq(planes, clip.format.num_planes)
 
     return list(set(sorted(planes)))
 
