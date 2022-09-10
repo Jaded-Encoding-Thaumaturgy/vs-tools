@@ -5,7 +5,7 @@ from typing import Any, Iterable
 import vapoursynth as vs
 
 from ..types import FuncExceptT, HoldsVideoFormatT
-from .base import CustomKeyError, CustomValueError
+from .base import CustomKeyError, CustomOverflowError, CustomValueError
 
 __all__ = [
     'FramesLengthError', 'ClipLengthError',
@@ -26,7 +26,7 @@ __all__ = [
 ]
 
 
-class FramesLengthError(CustomValueError):
+class FramesLengthError(CustomOverflowError):
     def __init__(
         self, function: FuncExceptT,
         var_name: str, message: str = '"{var_name}" can\'t be greater than the clip length!',
@@ -35,7 +35,7 @@ class FramesLengthError(CustomValueError):
         super().__init__(message, function, var_name=var_name, **kwargs)
 
 
-class ClipLengthError(CustomValueError):
+class ClipLengthError(CustomOverflowError):
     ...
 
 

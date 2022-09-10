@@ -7,7 +7,7 @@ from shutil import which
 from subprocess import PIPE, run
 from typing import Any, Literal, overload
 
-from ..exceptions import CustomRuntimeError, CustomValueError
+from ..exceptions import CustomRuntimeError, CustomIndexError
 from ..types import FuncExceptT, inject_self
 from .file import check_perms
 from .mime import FileType
@@ -152,7 +152,7 @@ class FFProbe:
         check_perms(filename, 'r', func=func)
 
         if index is not None and index < 0:
-            raise CustomValueError('Stream index must be positive!', func)
+            raise CustomIndexError('Stream index must be positive!', func)
 
         if file_type is None:
             select_streams = tuple[str]()

@@ -9,6 +9,8 @@ __all__ = [
     'CustomError',
 
     'CustomValueError',
+    'CustomIndexError',
+    'CustomOverflowError',
     'CustomKeyError',
     'CustomTypeError',
     'CustomRuntimeError',
@@ -63,6 +65,14 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
 
 class CustomValueError(CustomError, ValueError):
+    ...
+
+
+class CustomIndexError(CustomError, IndexError):
+    ...
+
+
+class CustomOverflowError(CustomError, OverflowError):
     ...
 
 

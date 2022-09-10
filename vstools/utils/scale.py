@@ -3,7 +3,7 @@ from __future__ import annotations
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT
-from ..exceptions import CustomValueError
+from ..exceptions import CustomIndexError
 from ..functions import disallow_variable_format
 from ..types import HoldsVideoFormatT
 from .info import get_depth, get_format
@@ -35,7 +35,7 @@ def scale_thresh(
     fmt = get_format(clip)
 
     if thresh < 0:
-        raise CustomValueError('Thresholds must be positive!', scale_thresh)
+        raise CustomIndexError('Thresholds must be positive!', scale_thresh)
 
     peak = get_peak_value(fmt, False) if peak is None else peak
 
