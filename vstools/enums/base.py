@@ -12,8 +12,20 @@ __all__ = [
 
 
 class CustomEnum(Enum):
+    """Base class for custom enums."""
+
     @classmethod
     def from_param(cls: type[SelfEnum], value: Any, func_except: EnumFuncExceptT | None = None) -> SelfEnum | None:
+        """
+        Return the enum value from a parameter.
+
+        :param value:               Value to return.
+        :param func_except:         Exception function.
+
+        :return:                    Enum value.
+
+        :raise NotFoundEnumValue:   Variable not found in the given enum.
+        """
         if value is None:
             return None
 
@@ -38,8 +50,12 @@ class CustomEnum(Enum):
 
 
 class CustomIntEnum(int, CustomEnum):
+    """Base class for custom int enums."""
+
     ...
 
 
 class CustomStrEnum(str, CustomEnum):
+    """Base class for custom str enums."""
+
     ...
