@@ -218,7 +218,7 @@ if TYPE_CHECKING:
         ) -> FieldBased | None:
             ...
 
-        @classmethod  # type: ignore
+        @classmethod
         def from_param(cls: Any, value_or_tff: Any, func_except: Any = None) -> FieldBased | None:
             """
             Determine the ChromaLocation through a parameter.
