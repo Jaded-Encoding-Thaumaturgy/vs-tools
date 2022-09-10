@@ -79,15 +79,10 @@ class InvalidColorFamilyError(CustomValueError):
         message: str = 'Input clip must be of {correct} color family, not {wrong}!',
         **kwargs: Any
     ) -> None:
-        wrong_str = (
-            wrong if isinstance(wrong, vs.ColorFamily) else wrong.color_family
-        ).name
-        correct_str = ', '.join(
-            list(set([
-                (c if isinstance(c, vs.ColorFamily) else c.color_family).name
-                for c in (correct if isinstance(correct, list) else [correct])
-            ]))
-        )
+        from ..utils import get_color_family
+        from ..functions import to_arr
+        wrong_str = get_color_family(wrong).name
+        correct_str = ', '.join(set(get_color_family(c).name for c in to_arr(correct)))
         super().__init__(message, function, wrong=wrong_str, correct=correct_str, **kwargs)
 
 
