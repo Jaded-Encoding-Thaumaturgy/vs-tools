@@ -19,9 +19,9 @@ def clamp(val: Nb, min_val: Nb, max_val: Nb) -> Nb:
     return min_val if val < min_val else max_val if val > max_val else val
 
 
-def cround(x: float) -> int:
+def cround(x: float, *, eps: float = 1e-6) -> int:
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-    return floor(x + 0.5) if x > 0 else ceil(x - 0.5)
+    return round(x + (eps if x > 0. else - eps))
 
 
 def mod_x(val: int | float, x: int) -> int:
