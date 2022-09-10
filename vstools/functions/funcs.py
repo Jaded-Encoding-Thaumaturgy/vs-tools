@@ -29,6 +29,8 @@ def iterate(
         >>> iterate(5, double, 2)
         20
 
+        >>> iterate(clip, core.std.Maximum, 3, threshold=0.5)
+
     :param base:        Base clip, value, etc. to iterate over.
     :param function:    Function to iterate over the base.
     :param count:       Number of times to execute function.
