@@ -5,6 +5,7 @@ vstools.utils.ffprobe
 .. autosummary::
 
     vstools.utils.ffprobe.FFProbe
+    vstools.utils.ffprobe.FFProbeNotFoundError
     vstools.utils.ffprobe.FFProbeStream
     vstools.utils.ffprobe.FFProbeVideoStream
     vstools.utils.ffprobe.FFProbeAudioStream

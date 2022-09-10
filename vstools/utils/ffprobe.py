@@ -14,7 +14,7 @@ from .mime import FileType
 
 
 __all__ = [
-    'FFProbe',
+    'FFProbe', 'FFProbeNotFoundError',
 
     'FFProbeStream',
 
@@ -23,6 +23,10 @@ __all__ = [
 
     'FFProbeStreamSideData',
 ]
+
+
+class FFProbeNotFoundError(CustomRuntimeError):
+    """Raised when the FFProbe executable was not found in the system"""
 
 
 class FFProbeStreamSideData:
@@ -35,7 +39,6 @@ class FFProbeStreamSideData:
 
 # TODO
 class FFProbeObjectBase:
-
     def __init__(self, ffmpeg_obj: dict[str, Any]) -> None:
         for key, value in ffmpeg_obj.items():
             setattr(self, key, value)
@@ -134,11 +137,6 @@ class FFProbeAudioStream(FFProbeStream):
 class FFProbe:
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-    class FFProbeNotFoundError(CustomRuntimeError):
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
-        ...
-
     json_decoder: JSONDecoder
 
     def __init__(self, *, func: FuncExceptT | None = None, bin_path: str | Path = 'ffprobe') -> None:
@@ -146,7 +144,7 @@ class FFProbe:
         self.bin_path = Path(bin_path)
 
         if not which(str(self.bin_path)):
-            raise FFProbe.FFProbeNotFoundError('FFprobe was not found!', func)
+            raise FFProbeNotFoundError('FFprobe was not found!', func)
 
         self.json_decoder = JSONDecoder(
             object_pairs_hook=None,
@@ -175,7 +173,6 @@ class FFProbe:
         self, filename: str | Path, file_type: FileType | None = FileType.VIDEO,
         *, index: int | None = 0, func: FuncExceptT | None = None
     ) -> FFProbeStream | list[FFProbeStream] | None:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         check_perms(filename, 'r', func=func)
 
         if index is not None and index < 0:
