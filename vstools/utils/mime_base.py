@@ -14,31 +14,17 @@ if TYPE_CHECKING:
     from .mime import FileType
 
     class FileTypeIndexBase:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
         INDEX: FileTypeIndex
 
-        ...
-
     class FileTypeBase(FileTypeIndexBase, CustomStrEnum):
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
         ...
 
     class FileTypeIndex(FileType):  # type: ignore
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
         def __call__(self, file_type: str | FileType) -> FileTypeIndexWithType:
-            """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
-            ...
+            """Instantiate FileType.INDEX with its own sub-FileType"""
 
     class FileTypeIndexWithType(FileTypeIndex):  # type: ignore
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
         file_type: FileType
-
-        ...
 else:
     FileTypeBase = CustomStrEnum
     FileTypeIndex = CustomStrEnum

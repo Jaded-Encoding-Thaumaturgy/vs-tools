@@ -220,7 +220,6 @@ class FileType(FileTypeBase):
         return self is FileType.INDEX and hasattr(self, 'file_type')  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         if self is not FileType.INDEX:
             raise NotImplementedError
 
