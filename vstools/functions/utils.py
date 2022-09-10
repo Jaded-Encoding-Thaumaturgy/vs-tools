@@ -81,7 +81,7 @@ class Dither(str, Enum):
             - Dithering is ALWAYS needed for a range conversion (i.e. full to limited or vice-versa).
             - Dithering is ALWAYS needed to convert a float sample type to an integer sample type.
             - Dithering is needed when upsampling full range content with the exception of 8 -> 16 bit upsampling,
-              as this is simply (0-255) * 257 -> (0-65535).
+              as this is a simple bitshift without rounding, (0-255) * 257 -> (0-65535).
             - Dithering is needed when downsampling limited or full range.
 
         Dithering is theoretically needed when converting from an integer depth greater than 10 to half float,
