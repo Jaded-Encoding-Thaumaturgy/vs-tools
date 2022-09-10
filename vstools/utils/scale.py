@@ -19,7 +19,7 @@ def scale_8bit(clip: HoldsVideoFormatT, value: float, chroma: bool = False) -> f
     """
     Scale to an 8-bit value.
 
-    :param clip:        Input clip.
+    :param clip:        Input clip, frame, or value representing a bitdepth.
     :param value:       Value to scale.
     :param chroma:      Values are chroma ranges, and must be converted as such.
                         Default: False.

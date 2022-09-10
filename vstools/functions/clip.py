@@ -50,13 +50,6 @@ def shift_clip_multi(clip: vs.VideoNode, offsets: FrameRange = (-1, 1)) -> list[
     This will return a clip for every shifting operation performed.
     This is a convenience function that should make handling multiple shifts a lot easier.
 
-    Example:
-
-    .. code-block:: python
-
-        >>> shift_clip_multi(clip, list(range(-3, 3)))
-        [VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode]
-
     :param clip:            Input clip.
     :param offsets:         List of frame ranges for offsetting.
                             A clip will be returned for every offset.

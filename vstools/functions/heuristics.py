@@ -19,6 +19,8 @@ def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | None = None, pro
     :param props:       FrameProps object. If None, obtains from input clip.
                         Default: None.
     :param prop_in:     Return the `prop_in` parameter. For example, `matrix_in`.
+                        For more information, please refer to the
+                        `Resize docs <http://www.vapoursynth.com/doc/functions/video/resize.html>`_.
                         Default: True.
     """
     heuristics = dict[str, IntEnum]()

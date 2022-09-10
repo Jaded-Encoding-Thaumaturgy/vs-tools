@@ -35,18 +35,13 @@ class FFProbeStreamSideData:
 
 # TODO
 class FFProbeObjectBase:
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     def __init__(self, ffmpeg_obj: dict[str, Any]) -> None:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
         for key, value in ffmpeg_obj.items():
             setattr(self, key, value)
 
 
 class FFProbeStreamBase(FFProbeObjectBase):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
     index: int
     codec_name: str
     codec_long_name: str
@@ -77,8 +72,6 @@ class FFProbeStream(FFProbeStreamBase):
 
 
 class FFProbeStreamSafe(FFProbeStream):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
     duration_ts: int
     duration: float
     bit_rate: int
@@ -89,8 +82,6 @@ class FFProbeStreamSafe(FFProbeStream):
 
 
 class FFProbeVideoStreamBase(FFProbeStreamBase):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
     codec_type: Literal[FileType.VIDEO]
     width: int
     height: int
@@ -120,8 +111,6 @@ class FFProbeVideoStream(FFProbeStream, FFProbeVideoStreamBase):
 
 
 class FFProbeVideoStreamSafe(FFProbeStreamSafe, FFProbeVideoStreamBase):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
     color_space: str
     color_transfer: str
     color_primaries: str

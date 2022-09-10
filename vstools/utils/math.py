@@ -15,12 +15,12 @@ __all__ = [
 
 
 def clamp(val: Nb, min_val: Nb, max_val: Nb) -> Nb:
-    """Clamp a value between a min and max value."""
+    """Wrapper around min/max."""
     return min_val if val < min_val else max_val if val > max_val else val
 
 
 def cround(x: float, *, eps: float = 1e-6) -> int:
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Rounding function that accounts for imprecise float calculations."""
     return round(x + (eps if x > 0. else - eps))
 
 

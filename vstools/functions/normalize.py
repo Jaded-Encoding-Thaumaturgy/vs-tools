@@ -32,7 +32,8 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
     Normalize a sequence of planes.
 
     :param clip:        Input clip.
-    :param planes:      Array of planes. If None, returns the maximum amount of planes in the input clip.
+    :param planes:      Array of planes. If None, returns all planes of the format of the input clip
+                        (Y, U, V for YUV; R, G, B for RGB).
                         Default: None.
     :param pad:         Whether to pad the output list.
                         Default: False.
@@ -61,6 +62,11 @@ def flatten(items: T | Iterable[T | Iterable[T | Iterable[T]]]) -> Iterable[T]:
     ...
 
 
+def to_arr(val: Any) -> Any:
+    """Normalize any value into an iterable."""
+    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]
+
+
 @overload
 def flatten(items: T | Iterable[T | Iterable[T]]) -> Iterable[T]:  # type: ignore
     ...
@@ -82,16 +88,17 @@ def flatten(items: Any) -> Any:
 
 
 def arr_to_len(array: Sequence[T], length: int = 3) -> list[T]:
-    """Limit the length of an array by *n* items."""
+    """
+    Normalize the length of an iterable.
+
+    This will either pad it out to match the given length, or limit the amount of items to length.
+    """
     return (list(array) + [array[-1]] * length)[:length]
 
 
 def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
     """
-    Normalize frame ranges to a valid iterable of ranges.
-
-    @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-    Not sure if this is the right way to describe it ^
+    Normalize frame ranges to an iterable of frame numbers.
 
     :param franges:     Frame range or list of frame ranges.
 

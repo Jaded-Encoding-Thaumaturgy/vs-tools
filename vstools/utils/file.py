@@ -135,12 +135,10 @@ def open_file(
 
 def open_file(file: FilePathType, mode: Any = 'r+', *args: Any, func: FuncExceptT | None = None, **kwargs: Any) -> Any:
     """
-    Open a file.
+    Open a file to write to/read from.
 
     :param file:            Path to file.
-    :param mode:            Writing mode.
-    :param *args:           Positional Arguments to pass to ``open``.
-    :param **kwargs:        Keyword Arguments to pass to ``open``.
+    :param mode:            File opening mode.
 
     :return:                Opened file.
     """

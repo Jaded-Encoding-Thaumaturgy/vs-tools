@@ -19,7 +19,7 @@ class CustomEnum(Enum):
         """
         Return the enum value from a parameter.
 
-        :param value:               Value to return.
+        :param value:               Value to instantiate the enum class.
         :param func_except:         Exception function.
 
         :return:                    Enum value.

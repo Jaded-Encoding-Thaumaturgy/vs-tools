@@ -154,14 +154,14 @@ def depth(
     :param sample_type:     Desired sample type of output clip. Allows overriding default float/integer behavior.
                             Accepts ``vapoursynth.SampleType`` enums ``vapoursynth.INTEGER`` and ``vapoursynth.FLOAT``
                             or their values, ``0`` and ``1`` respectively.
-    :param range:           Output pixel range (defaults to input `clip`'s range).
-    :param range_in:        Input pixel range (defaults to input `clip`'s range).
+    :param range_in:       Input pixel range (defaults to input `clip`'s range).
+    :param range_out:       Output pixel range (defaults to input `clip`'s range).
     :param dither_type:     Dithering algorithm. Allows overriding default dithering behavior. See :py:class:`Dither`.
 
                             Defaults to :attr:`Dither.ERROR_DIFFUSION`, or Floyd-Steinberg error diffusion,
                             when downsampling, converting between ranges, or upsampling full range input.
                             Defaults to :attr:`Dither.NONE`, or round to nearest, otherwise.
-                            See :py:func:`Dither.should_dither` docstring for more information.
+                            See :py:func:`Dither.should_dither` for more information.
 
     :return:                Converted clip with desired bit depth and sample type.
                             ``ColorFamily`` will be same as input.
@@ -206,7 +206,7 @@ def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
 
     :param frame:       Input frame.
 
-    :return:            Video Node of the input frame.
+    :return:            1-frame long Video Node of the input frame.
     """
     key = hash((frame.width, frame.height, frame.format.id))
 

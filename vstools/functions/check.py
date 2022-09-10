@@ -61,7 +61,7 @@ def disallow_variable_format(function: F | None = None, /, *, only_first: bool =
     """
     Decorator for disallowing clips with variable formats.
 
-    :param only_first:              Only verify the format of the first input clip.
+    :param only_first:              Only verify the format of the first argument.
                                     Default: False.
 
     :raises VariableFormatError:    A clip with a variable format is found.
@@ -88,7 +88,7 @@ def disallow_variable_resolution(function: F | None = None, /, *, only_first: bo
     """
     Decorator for disallowing clips with variable resolutions.
 
-    :param only_first:                  Only verify the resolution of the first input clip.
+    :param only_first:                  Only verify the resolution of the first argument.
                                         Default: False.
 
     :raises VariableResolutionError:    A clip with a variable resolution is found.

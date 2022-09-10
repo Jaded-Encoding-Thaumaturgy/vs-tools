@@ -29,14 +29,6 @@ def iterate(
         >>> iterate(5, double, 2)
         20
 
-    .. code-block:: python
-
-        >>> def maxm(clip: vs.VideoNode, threshold: float=0, coordinates: list[int]=[1] * 9) -> vs.VideoNode:
-        ...     return clip.std.Maximum(threshold=threshold)
-        ...
-        >>> iterate(clip, maxm, 4, 5, coordinates=[1] * 25)
-        vs.VideoNode
-
     :param base:        Base clip, value, etc. to iterate over.
     :param function:    Function to iterate over the base.
     :param count:       Number of times to execute function.

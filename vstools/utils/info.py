@@ -24,7 +24,7 @@ __all__ = [
 
 
 def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, int, int]:
-    """Get information of a variable resolutin clip or frame."""
+    """Get information of a variable resolution clip or frame."""
     if isinstance(frame, vs.VideoNode) and not (
         frame.width and frame.height and frame.format
     ):
@@ -65,7 +65,7 @@ def get_format(value: int | HoldsVideoFormatT, /, *, sample_type: int | vs.Sampl
 
 
 def get_depth(clip: HoldsVideoFormatT, /) -> int:
-    """Get depth of a given clip."""
+    """Get depth of a given clip or value."""
     return get_format(clip).bits_per_sample
 
 

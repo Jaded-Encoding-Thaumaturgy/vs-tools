@@ -111,7 +111,13 @@ class FileSignatures(list[FileSignature]):
 
     @inject_self
     def parse(self, filename: Path) -> FileSignature | None:
-        """Parse a given file."""
+        """
+        Parse a given file.
+
+        :param filename:        Path to file.
+
+        :return:                The input file's mime signature.
+        """
         with open(filename, 'rb') as file:
             file_bytes = file.read(self.max_signature_len)
 
