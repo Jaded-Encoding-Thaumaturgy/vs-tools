@@ -13,8 +13,3 @@ vstools.utils.mime
     :members:
     :undoc-members:
     :show-inheritance:
-
-.. automodule:: vstools.utils.mime_base
-    :members:
-    :undoc-members:
-    :show-inheritance:
