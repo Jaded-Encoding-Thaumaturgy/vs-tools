@@ -4,11 +4,11 @@ from .base import CustomError, CustomPermissionError
 
 
 __all__ = [
-    'FileIsADirectoryError',
     'FileNotExistsError',
+    'FileWasNotFoundError',
     'FilePermissionError',
     'FileTypeMismatchError',
-    'FileWasNotFoundError'
+    'FileIsADirectoryError'
 ]
 
 

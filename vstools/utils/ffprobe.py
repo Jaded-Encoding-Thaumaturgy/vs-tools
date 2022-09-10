@@ -15,15 +15,13 @@ from .mime import FileType
 
 __all__ = [
     'FFProbe',
-    'FFProbeAudioStream',
-    'FFProbeObjectBase',
+
     'FFProbeStream',
-    'FFProbeStreamBase',
-    'FFProbeStreamSafe',
-    'FFProbeStreamSideData',
+
     'FFProbeVideoStream',
-    'FFProbeVideoStreamBase',
-    'FFProbeVideoStreamSafe'
+    'FFProbeStreamSideData',
+
+    'FFProbeAudioStream'
 ]
 
 
