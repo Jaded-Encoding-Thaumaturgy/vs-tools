@@ -19,9 +19,9 @@ __all__ = [
     'FFProbeStream',
 
     'FFProbeVideoStream',
-    'FFProbeStreamSideData',
+    'FFProbeAudioStream',
 
-    'FFProbeAudioStream'
+    'FFProbeStreamSideData',
 ]
 
 

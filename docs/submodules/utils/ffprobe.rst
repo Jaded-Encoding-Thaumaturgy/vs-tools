@@ -7,8 +7,8 @@ vstools.utils.ffprobe
     vstools.utils.ffprobe.FFProbe
     vstools.utils.ffprobe.FFProbeStream
     vstools.utils.ffprobe.FFProbeVideoStream
-    vstools.utils.ffprobe.FFProbeStreamSideData
     vstools.utils.ffprobe.FFProbeAudioStream
+    vstools.utils.ffprobe.FFProbeStreamSideData
 
 .. automodule:: vstools.utils.ffprobe
     :members:
