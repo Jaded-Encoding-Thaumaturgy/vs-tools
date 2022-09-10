@@ -15,6 +15,7 @@ _MatrixYCGCOError: UnsupportedMatrixError | None = None
 
 
 def _MatrixYCGCOErrorGet() -> UnsupportedMatrixError:
+    """Raise the Matrix YCOCG error."""
     global _MatrixYCGCOError
 
     if _MatrixYCGCOError is None:
@@ -43,6 +44,16 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def _missing_(cls: type[Matrix], value: Any) -> Matrix | None:
+        """
+        @@PLACEHOLDER@@
+
+        :param value:                   Matrix value.
+
+        :return:                        Matrix object or None.
+
+        :raises ReservedMatrixError:    Matrix is reserved.
+        :raises UnsupportedMatrixError: Matrix is unsupported.
+        """
         if value is None:
             return Matrix.UNKNOWN
 
@@ -77,6 +88,7 @@ class Matrix(_MatrixMeta):
         @classmethod
         @property
         def YCGCO(cls) -> NoReturn:
+            """Raise the relevant YCGCO error."""
             raise _MatrixYCGCOErrorGet()
 
     BT2020NC = 9
@@ -88,10 +100,18 @@ class Matrix(_MatrixMeta):
 
     @property
     def is_unknown(self) -> bool:
+        """Check if Matrix is unknown."""
         return self is Matrix.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Matrix:
+        """
+        Guess the matrix based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Matrix object.
+        """
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -112,6 +132,18 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Matrix.UNKNOWN.
+
+        :return:                            Matrix object.
+
+        :raises UndefinedMatrixError:       Matrix is undefined.
+        :raises UndefinedMatrixError:       Matrix can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_Matrix', int, default=MISSING if strict else None)
@@ -129,6 +161,17 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix from a Transfer object.
+
+        :param transfer:                        Transfer object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Transfer.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedTransferError:       Transfer is not supported.
+        """
         if transfer not in _transfer_matrix_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -139,6 +182,17 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix from a Primaries object.
+
+        :param transfer:                        Primaries object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Primaries.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedPrimariesError:      Primaries is not supported.
+        """
         if primaries not in _primaries_matrix_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -155,6 +209,16 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def _missing_(cls: type[Transfer], value: Any) -> Transfer | None:
+        """
+        @@PLACEHOLDER@@
+
+        :param value:                       Transfer value.
+
+        :return:                            Transfer object or None.
+
+        :raises ReservedTransferError:      Transfer is reserved.
+        :raises UnsupportedTransferError:   Transfer is unsupported.
+        """
         if value is None:
             return Transfer.UNKNOWN
 
@@ -209,10 +273,18 @@ class Transfer(_TransferMeta):
 
     @property
     def is_unknown(self) -> bool:
+        """Check if Transfer is unknown."""
         return self is Transfer.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Transfer:
+        """
+        Guess the transfer based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Transfer object.
+        """
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -233,6 +305,18 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Transfer.UNKNOWN.
+
+        :return:                            Transfer object.
+
+        :raises UndefinedTransferError:     Transfer is undefined.
+        :raises UndefinedTransferError:     Transfer can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_Transfer', int, default=MISSING if strict else None)
@@ -250,6 +334,17 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer from a Matrix object.
+
+        :param matrix:                          Matrix object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Matrix.UNKNOWN!
+
+        :return:                                Transfer object.
+
+        :raises UnsupportedMatrixError:         Matrix is not supported.
+        """
         if matrix not in _matrix_transfer_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -260,6 +355,17 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer from a Primaries object.
+
+        :param primaries:                       Primaries object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Primaries.UNKNOWN!
+
+        :return:                                Transfer object.
+
+        :raises UnsupportedPrimariesError:      Primaries is not supported.
+        """
         if primaries not in _primaries_transfer_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -270,10 +376,16 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_libplacebo(self, val: int) -> int:
+        """Obtain the transfer from libplacebo."""
         return _placebo_transfer_map[val]
 
     @property
     def value_vs(self) -> int:
+        """
+        Return the VapourSynth value.
+
+        :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
+        """
         if self >= self.BT601_525:
             raise ReservedTransferError(
                 'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!'
@@ -283,6 +395,7 @@ class Transfer(_TransferMeta):
 
     @property
     def value_libplacebo(self) -> int:
+        """Return the libplacebo value."""
         return _transfer_placebo_map[self]
 
 
@@ -293,6 +406,16 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def _missing_(cls: type[Primaries], value: Any) -> Primaries | None:
+        """
+        @@PLACEHOLDER@@
+
+        :param value:                       Primaries value.
+
+        :return:                            Primaries object or None.
+
+        :raises ReservedPrimariesError:     Primaries is reserved.
+        :raises UnsupportedPrimariesError:  Primaries is unsupported.
+        """
         if value is None:
             return Primaries.UNKNOWN
 
@@ -323,10 +446,18 @@ class Primaries(_PrimariesMeta):
 
     @property
     def is_unknown(self) -> bool:
+        """Check if Primaries is unknown."""
         return self is Primaries.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Primaries:
+        """
+        Guess the primaries based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Primaries object.
+        """
         from ..utils import get_var_infos
 
         fmt, w, h = get_var_infos(frame)
@@ -347,6 +478,18 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Primaries.UNKNOWN.
+
+        :return:                            Primaries object.
+
+        :raises UndefinedPrimariesError:    Primaries is undefined.
+        :raises UndefinedPrimariesError:    Primaries can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_Primaries', int, default=MISSING if strict else None)
@@ -364,6 +507,17 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries from a Matrix object.
+
+        :param matrix:                          Matrix object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Matrix.UNKNOWN!
+
+        :return:                                Primaries object.
+
+        :raises UnsupportedMatrixError:         Matrix is not supported.
+        """
         if matrix not in _matrix_primaries_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -374,6 +528,17 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries from a Transfer object.
+
+        :param transfer:                        Transfer object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Transfer.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedTransferError:       Transfer is not supported.
+        """
         if transfer not in _transfer_primaries_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -392,25 +557,30 @@ class MatrixCoefficients(NamedTuple):
     @classmethod
     @property
     def SRGB(cls) -> MatrixCoefficients:
+        """Obtain the Matrix Coefficients for SRGB."""
         return MatrixCoefficients(0.04045, 12.92, 0.055, 2.4)
 
     @classmethod
     @property
     def BT709(cls) -> MatrixCoefficients:
+        """Obtain the Matrix Coefficients for BT709."""
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     @property
     def SMPTE240M(cls) -> MatrixCoefficients:
+        """Obtain the Matrix Coefficients for SMPTE240M."""
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
     @classmethod
     @property
     def BT2020(cls) -> MatrixCoefficients:
+        """Obtain the Matrix Coefficients for BT2020."""
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix) -> MatrixCoefficients:
+        """Obtain the Matrix Coefficients from a Matrix object's value."""
         if matrix not in _matrix_matrixcoeff_map:
             raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
 
@@ -418,6 +588,7 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
+        """Obtain the Matrix Coefficients from a Transfer object's value."""
         if tranfer not in _transfer_matrixcoeff_map:
             raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
 
@@ -425,6 +596,7 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:
+        """Obtain the Matrix Coefficients from a Primaries object's value."""
         if primaries not in _primaries_matrixcoeff_map:
             raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
 
@@ -438,6 +610,15 @@ class ColorRange(_ColorRangeMeta):
 
     @classmethod
     def _missing_(cls: type[ColorRange], value: Any) -> ColorRange | None:
+        """
+        @@PLACEHOLDER@@
+
+        :param value:                       ColorRange value.
+
+        :return:                            ColorRange object or None.
+
+        :raises UnsupportedPrimariesError:  ColorRange is unsupported.
+        """
         if value is None:
             return ColorRange.LIMITED
 
@@ -451,10 +632,20 @@ class ColorRange(_ColorRangeMeta):
 
     @property
     def is_unknown(self) -> bool:
+        """Check if ColorRange is unknown."""
         return False
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ColorRange:
+        """
+        Obtain the color range of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            Sets the ColorRange as MISSING if prop is not there.
+
+        :return:                            ColorRange object.
+        """
         from ..utils import get_prop
 
         return get_prop(
@@ -463,18 +654,22 @@ class ColorRange(_ColorRangeMeta):
 
     @property
     def value_vs(self) -> int:
+        """Return the VapourSynth value."""
         return self.value
 
     @property
     def value_zimg(self) -> int:
+        """Returns the zimg value."""
         return ~self.value + 2
 
     @property
     def is_limited(self) -> bool:
+        """Check if ColorRange is limited."""
         return bool(self.value)
 
     @property
     def is_full(self) -> bool:
+        """Check if ColorRange is full."""
         return not self.value
 
 
