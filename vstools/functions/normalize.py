@@ -62,17 +62,13 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 
 
 def to_arr(val: T | Sequence[T]) -> list[T]:
+    """Normalize any value into an iterable."""
     return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
 
 
 @overload
 def flatten(items: T | Iterable[T | Iterable[T | Iterable[T]]]) -> Iterable[T]:
     ...
-
-
-def to_arr(val: Any) -> Any:
-    """Normalize any value into an iterable."""
-    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]
 
 
 @overload
