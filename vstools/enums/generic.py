@@ -24,6 +24,15 @@ class ChromaLocation(_ChromaLocationMeta):
 
     @classmethod
     def _missing_(cls: type[ChromaLocation], value: Any) -> ChromaLocation | None:
+        """
+        @@PLACEHOLDER@@
+
+        :param value:                               Chroma location value.
+
+        :return:                                    ChromaLocation object or None.
+
+        :raises UnsupportedChromaLocationError:     Chroma location is unsupported.
+        """
         if value is None:
             return cls.LEFT
 
@@ -45,6 +54,13 @@ class ChromaLocation(_ChromaLocationMeta):
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ChromaLocation:
+        """
+        Guess the chroma location based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            ChromaLocation object.
+        """
         from ..utils import get_var_infos
 
         _, width, _ = get_var_infos(frame)
@@ -56,6 +72,18 @@ class ChromaLocation(_ChromaLocationMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ChromaLocation:
+        """
+        Obtain the chroma location of a clip from the frame properties.
+
+        :param src:                             Input clip, frame, or props.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be an unknown value.
+
+        :return:                                ChromaLocation object.
+
+        :raises UndefinedChromaLocationError:   Chroma location is undefined.
+        :raises UndefinedChromaLocationError:   Chroma location can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_ChromaLocation', int, default=MISSING if strict else None)
@@ -79,11 +107,20 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def _missing_(cls: type[FieldBased], value: Any) -> FieldBased | None:
+        """
+        @@PLACEHOLDER@@
+
+        :param value:                               Field order.
+
+        :return:                                    FieldBased object or None.
+
+        :raises UnsupportedChromaLocationError:     FieldBased is unsupported.
+        """
         if value is None:
             return cls.PROGRESSIVE
 
         if value > cls.TFF:
-            raise UnsupportedChromaLocationError(f'ChromaLocation({value}) is unsupported.')
+            raise UnsupportedFieldBasedError(f'FieldBased({value}) is unsupported.')
 
         return None
 
@@ -98,6 +135,14 @@ class FieldBased(_FieldBasedMeta):
     if not TYPE_CHECKING:
         @classmethod
         def from_param(cls: Any, value_or_tff: Any, func_except: Any = None) -> FieldBased | None:
+            """
+            Determine the Field order through a parameter.
+
+            :param value_or_tff:            Value or FieldBased object.
+            :param func_except:             Exception function.
+
+            :return:                        FieldBased object or None.
+            """
             if isinstance(value_or_tff, bool):
                 return FieldBased(1 + value_or_tff)
 
@@ -105,6 +150,18 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> FieldBased:
+        """
+        Obtain the Field order of a clip from the frame properties.
+
+        :param src:                             Input clip, frame, or props.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be an unknown value.
+
+        :return:                                FieldBased object.
+
+        :raises UndefinedFieldBasedError:       Field order is undefined.
+        :raises UndefinedFieldBasedError:       Field order can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_FieldBased', int, default=MISSING if strict else None)
@@ -122,10 +179,16 @@ class FieldBased(_FieldBasedMeta):
 
     @property
     def is_inter(self) -> bool:
+        """Check whether the value belongs to an interlaced value."""
         return self != FieldBased.PROGRESSIVE
 
     @property
     def field(self) -> int:
+        """
+        Check what field the enum signifies.
+
+        :raise UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
+        """
         if self.PROGRESSIVE:
             raise UnsupportedFieldBasedError('Progressive video aren\'t field based!', self.field)
 
@@ -133,6 +196,7 @@ class FieldBased(_FieldBasedMeta):
 
     @property
     def is_tff(self) -> bool:
+        """Check whether the value is Top-Field-First."""
         return self is self.TFF
 
 
