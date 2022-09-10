@@ -52,10 +52,6 @@ class CustomEnum(Enum):
 class CustomIntEnum(int, CustomEnum):
     """Base class for custom int enums."""
 
-    ...
-
 
 class CustomStrEnum(str, CustomEnum):
     """Base class for custom str enums."""
-
-    ...

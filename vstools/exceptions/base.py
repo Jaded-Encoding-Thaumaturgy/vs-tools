@@ -65,28 +65,18 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 class CustomValueError(CustomError, ValueError):
     """Custom base ValueError class."""
 
-    ...
-
 
 class CustomKeyError(CustomError, KeyError):
     """Custom base KeyError class."""
-
-    ...
 
 
 class CustomTypeError(CustomError, TypeError):
     """Custom base TypeError class."""
 
-    ...
-
 
 class CustomRuntimeError(CustomError, RuntimeError):
     """Custom base RuntimeError class."""
 
-    ...
-
 
 class CustomPermissionError(CustomError, PermissionError):
     """Custom base PermissionError class."""
-
-    ...
