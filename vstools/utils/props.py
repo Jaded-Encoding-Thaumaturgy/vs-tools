@@ -86,6 +86,8 @@ def get_prop(
                 get_prop, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
                 t=t, prop_t=type(prop)
             )
+        else:
+            e = FramePropError(get_prop, key)
 
         raise e
 
