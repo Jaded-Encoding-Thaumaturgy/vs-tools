@@ -386,24 +386,24 @@ def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily = vs.YUV) -> vs.
 
 
 @disallow_variable_format
-def plane(clip: vs.VideoNode, planeno: int, /) -> vs.VideoNode:
+def plane(clip: vs.VideoNode, index: int, /) -> vs.VideoNode:
     """
     Extract a plane from the given clip.
 
     :param clip:        Input clip.
-    :param planeno:     Index of the plane to extract.
+    :param index:       Index of the plane to extract.
 
     :return:            Grayscale clip of the clip's plane.
     """
     assert clip.format
 
-    if clip.format.num_planes == 1 and planeno == 0:
+    if clip.format.num_planes == 1 and index == 0:
         return clip
 
     if clip.format.color_family is vs.RGB:
         clip = clip.std.RemoveFrameProps('_Matrix')
 
-    return vs.core.std.ShufflePlanes(clip, planeno, vs.GRAY)
+    return vs.core.std.ShufflePlanes(clip, index, vs.GRAY)
 
 
 @disallow_variable_format
