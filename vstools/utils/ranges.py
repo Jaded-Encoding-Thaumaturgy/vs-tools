@@ -6,6 +6,10 @@ import vapoursynth as vs
 
 from ..types import FrameRangeN, FrameRangesN
 
+__all__ = [
+    'replace_ranges', 'rfs'
+]
+
 
 def replace_ranges(
     clip_a: vs.VideoNode, clip_b: vs.VideoNode,
@@ -43,3 +47,7 @@ def replace_ranges(
         out = tmp
 
     return out
+
+
+# Aliases
+rfs = replace_ranges
