@@ -59,6 +59,10 @@ class VariableResolutionError(CustomValueError):
         super().__init__(message, function, **kwargs)
 
 
+class UnsupportedVideoFormatError(CustomValueError):
+    """Raised when an undefined video format value is passed."""
+
+
 class InvalidVideoFormatError(CustomValueError):
     """Raised when the given clip has an invalid format."""
 
@@ -69,6 +73,10 @@ class InvalidVideoFormatError(CustomValueError):
     ) -> None:
         from ..utils import get_format
         super().__init__(message, function, format=get_format(format), **kwargs)
+
+
+class UnsupportedColorFamilyError(CustomValueError):
+    """Raised when an undefined color family value is passed."""
 
 
 class InvalidColorFamilyError(CustomValueError):
