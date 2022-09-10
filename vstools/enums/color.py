@@ -33,7 +33,7 @@ __all__ = [
     'ColorRange',
     'ColorRangeT',
 
-    'MatrixCoefficients',
+    'MatrixCoefficients'
 ]
 
 
@@ -549,6 +549,8 @@ class Primaries(_PrimariesMeta):
 
 
 class MatrixCoefficients(NamedTuple):
+    """Class representing Linear <-> Gamma conversion matrix coefficients"""
+
     k0: float
     phi: float
     alpha: float
