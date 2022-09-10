@@ -13,7 +13,7 @@ __all__ = [
     'get_var_infos',
     'get_format',
 
-    'get_depth', 'get_sample_type', 'get_subsampling',
+    'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family',
 
     'expect_bits',
 
@@ -66,8 +66,16 @@ def get_depth(clip: HoldsVideoFormatT, /) -> int:
     return get_format(clip).bits_per_sample
 
 
-def get_sample_type(clip: vs.VideoNode | vs.VideoFrame, /) -> int:
+def get_sample_type(clip: HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
+    if isinstance(clip, vs.SampleType):
+        return clip
     return get_format(clip).sample_type
+
+
+def get_color_family(clip: HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
+    if isinstance(clip, vs.ColorFamily):
+        return clip
+    return get_format(clip).color_family
 
 
 def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.VideoNode, int]:
