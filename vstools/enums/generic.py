@@ -83,7 +83,7 @@ class FieldBased(_FieldBasedMeta):
             return cls.PROGRESSIVE
 
         if value > cls.TFF:
-            raise UnsupportedChromaLocationError(f'ChromaLocation({value}) is unsupported.', cls)
+            raise UnsupportedFieldBasedError(f'FieldBased({value}) is unsupported.', cls)
 
         return None
 
