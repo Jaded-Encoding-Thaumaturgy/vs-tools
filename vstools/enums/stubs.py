@@ -183,7 +183,7 @@ if TYPE_CHECKING:
         ) -> FieldBased | None:
             ...
 
-        @classmethod  # type: ignore
+        @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> FieldBased | None:
             ...
 else:
