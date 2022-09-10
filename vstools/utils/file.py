@@ -58,9 +58,9 @@ def check_perms(
 
 @overload
 def open_file(
-    file: FilePathType, mode: OpenTextMode = 'r+', buffering: int = ...,
+    file: FilePathType, mode: OpenTextMode = 'r', buffering: int = ...,
     encoding: str | None = None, errors: str | None = ..., newline: str | None = ...,
-    closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
+    *, func: FuncExceptT | None = None
 ) -> TextIOWrapper:
     ...
 
@@ -68,8 +68,7 @@ def open_file(
 @overload
 def open_file(
     file: FilePathType, mode: OpenBinaryMode, buffering: Literal[0],
-    encoding: None = None, errors: None = None, newline: None = ...,
-    closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
+    encoding: None = None, *, func: FuncExceptT | None = None
 ) -> FileIO:
     ...
 
@@ -77,8 +76,7 @@ def open_file(
 @overload
 def open_file(
     file: FilePathType, mode: OpenBinaryModeUpdating, buffering: Literal[-1, 1] = ...,
-    encoding: None = None, errors: None = None, newline: None = ...,
-    closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
+    encoding: None = None, *, func: FuncExceptT | None = None
 ) -> BufferedRandom:
     ...
 
@@ -86,8 +84,7 @@ def open_file(
 @overload
 def open_file(
     file: FilePathType, mode: OpenBinaryModeWriting, buffering: Literal[-1, 1] = ...,
-    encoding: None = None, errors: None = None, newline: None = ...,
-    closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
+    encoding: None = None, *, func: FuncExceptT | None = None
 ) -> BufferedWriter:
     ...
 
@@ -95,8 +92,7 @@ def open_file(
 @overload
 def open_file(
     file: FilePathType, mode: OpenBinaryModeReading, buffering: Literal[-1, 1] = ...,
-    encoding: None = None, errors: None = None, newline: None = ...,
-    closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
+    encoding: None = None, *, func: FuncExceptT | None = None
 ) -> BufferedReader:
     ...
 
@@ -104,8 +100,7 @@ def open_file(
 @overload
 def open_file(
     file: FilePathType, mode: OpenBinaryMode, buffering: int = ...,
-    encoding: None = None, errors: None = None, newline: None = ...,
-    closefd: bool = ..., opener: FileOpener | None = ..., *, func: FuncExceptT | None = None
+    encoding: None = None, *, func: FuncExceptT | None = None
 ) -> BinaryIO:
     ...
 
@@ -121,4 +116,4 @@ def open_file(
 
 def open_file(file: FilePathType, mode: Any = 'r+', *args: Any, func: FuncExceptT | None = None, **kwargs: Any) -> Any:
     check_perms(file, mode, func=func)
-    return open(file, mode, *args, **kwargs)
+    return open(file, mode, *args, errors='strict', closefd=True, **kwargs)  # type: ignore
