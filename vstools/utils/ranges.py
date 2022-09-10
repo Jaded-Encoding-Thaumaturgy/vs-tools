@@ -6,6 +6,10 @@ import vapoursynth as vs
 
 from ..types import FrameRangeN, FrameRangesN
 
+__all__ = [
+    'replace_ranges', 'rfs'
+]
+
 
 __all__ = [
     'replace_ranges'

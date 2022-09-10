@@ -12,7 +12,6 @@ from ..types import FuncExceptT, inject_self
 from .file import check_perms
 from .mime import FileType
 
-
 __all__ = [
     'FFProbe', 'FFProbeNotFoundError',
 
