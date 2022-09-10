@@ -26,8 +26,8 @@ def shift_clip(clip: vs.VideoNode, offset: int) -> vs.VideoNode:
     return clip
 
 
-def shift_clip_multi(clip: vs.VideoNode, shift: FrameRange = (-1, 1)) -> list[vs.VideoNode]:
-    ranges = normalize_franges(shift)
+def shift_clip_multi(clip: vs.VideoNode, offsets: FrameRange = (-1, 1)) -> list[vs.VideoNode]:
+    ranges = normalize_franges(offsets)
 
     return [shift_clip(clip, x) for x in ranges]
 
