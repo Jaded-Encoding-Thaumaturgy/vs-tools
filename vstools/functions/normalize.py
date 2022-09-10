@@ -18,13 +18,21 @@ __all__ = [
 ]
 
 
-def normalize_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
+def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
+    """
+    Normalize a sequence of values.
+    :param val:         Input value.
+    :param length:      Amount of items in the output. Default: 3.
+                        If original sequence length is less that this,
+                        the last item will be repeated.
+    :return:            List of normalized values with a set amount of items.
+    """
     if not isinstance(val, Sequence):
-        return [val] * length_max
+        return [val] * length
 
-    val = list(val) + [val[-1]] * (length_max - len(val))
+    val = list(val) + [val[-1]] * (length - len(val))
 
-    return val[:length_max]
+    return val[:length]
 
 
 def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = False) -> list[int]:
