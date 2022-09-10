@@ -6,6 +6,16 @@ import vapoursynth as vs
 
 from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
 
+__all__ = [
+    'normalize_seq',
+    'normalize_planes',
+    'to_arr',
+    'flatten',
+    'normalize_franges',
+    'normalize_ranges',
+    'norm_func_name'
+]
+
 
 def normalize_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
     if not isinstance(val, Sequence):
