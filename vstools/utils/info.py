@@ -4,7 +4,7 @@ from typing import overload
 
 import vapoursynth as vs
 
-from ..exceptions import CustomValueError
+from ..exceptions import UnsupportedSubsamplingError
 from ..functions import depth, disallow_variable_format
 from ..types import HoldsVideoFormatT
 from .math import mod_x
@@ -131,7 +131,7 @@ def get_subsampling(clip: HoldsVideoFormatT, /) -> str | None:
     if fmt.subsampling_w == 0 and fmt.subsampling_h == 0:
         return '444'
 
-    raise CustomValueError('Unknown subsampling.', get_subsampling)
+    raise UnsupportedSubsamplingError('Unknown subsampling.', get_subsampling)
 
 
 @overload
