@@ -232,7 +232,7 @@ def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :return:                    Y plane of the input clip.
 
-    :raises CustomValueError:    Clip is not GRAY or YUV.
+    :raises CustomValueError:   Clip is not GRAY or YUV.
     """
     assert clip.format
 
@@ -251,7 +251,7 @@ def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :return:                    Y plane of the input clip.
 
-    :raises CustomValueError:    Clip is not YUV.
+    :raises CustomValueError:   Clip is not YUV.
     """
     assert clip.format
 
@@ -270,7 +270,7 @@ def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :return:                    V plane of the input clip.
 
-    :raises CustomValueError:    Clip is not YUV.
+    :raises CustomValueError:   Clip is not YUV.
     """
     assert clip.format
 
@@ -289,7 +289,7 @@ def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :return:                    R plane of the input clip.
 
-    :raises CustomValueError:    Clip is not RGB.
+    :raises CustomValueError:   Clip is not RGB.
     """
     assert clip.format
 
@@ -308,7 +308,7 @@ def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :return:                    G plane of the input clip.
 
-    :raises CustomValueError:    Clip is not RGB.
+    :raises CustomValueError:   Clip is not RGB.
     """
     assert clip.format
 
@@ -327,7 +327,7 @@ def get_b(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :return:                    B plane of the input clip.
 
-    :raises CustomValueError:    Clip is not RGB.
+    :raises CustomValueError:   Clip is not RGB.
     """
     assert clip.format
 
