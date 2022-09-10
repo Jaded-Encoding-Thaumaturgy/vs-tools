@@ -28,7 +28,7 @@ class ChromaLocation(_ChromaLocationMeta):
             return cls.LEFT
 
         if value > cls.BOTTOM:
-            raise UnsupportedChromaLocationError(f'ChromaLocation({value}) is unsupported.')
+            raise UnsupportedChromaLocationError(f'ChromaLocation({value}) is unsupported.', cls)
 
         return None
 
@@ -102,7 +102,7 @@ class FieldBased(_FieldBasedMeta):
             return cls.PROGRESSIVE
 
         if value > cls.TFF:
-            raise UnsupportedFieldBasedError(f'FieldBased({value}) is unsupported.')
+            raise UnsupportedFieldBasedError(f'FieldBased({value}) is unsupported.', cls)
 
         return None
 
@@ -172,7 +172,10 @@ class FieldBased(_FieldBasedMeta):
         :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
         """
         if self.PROGRESSIVE:
-            raise UnsupportedFieldBasedError('Progressive video aren\'t field based!', self.field)
+            raise UnsupportedFieldBasedError(
+                'Progressive video aren\'t field based!',
+                f'{self.__class__.__name__}.field'
+            )
 
         return self.value - 1
 

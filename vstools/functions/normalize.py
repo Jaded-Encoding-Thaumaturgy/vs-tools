@@ -4,7 +4,7 @@ from typing import Any, Iterable, Sequence, overload
 
 import vapoursynth as vs
 
-from ..types import AnythingElse, F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
+from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
 
 __all__ = [
     'normalize_seq',
@@ -18,26 +18,7 @@ __all__ = [
 ]
 
 
-@overload
-def normalize_seq(val: Sequence[AnythingElse], length_max: int = 3) -> list[AnythingElse]:
-    ...
-
-
-@overload
-def normalize_seq(val: AnythingElse, length_max: int = 3) -> list[AnythingElse]:
-    ...
-
-
-def normalize_seq(val: Any, length_max: int = 3) -> Any:
-    """
-    Normalize a sequence of values.
-
-    :param val:         Input value.
-    :param length_max:  Maximum amount of items allowed in the output.
-                        Default: 3.
-
-    :return:            List of normalized values with a set amount of items.
-    """
+def normalise_seq(val: T | Sequence[T], length_max: int = 3) -> list[T]:
     if not isinstance(val, Sequence):
         return [val] * length_max
 
@@ -71,28 +52,22 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
     return list(set(sorted(planes)))
 
 
+def to_arr(val: T | Sequence[T]) -> list[T]:
+    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
+
+
 @overload
-def to_arr(val: Sequence[AnythingElse]) -> list[AnythingElse]:
+def flatten(items: T | Iterable[T | Iterable[T | Iterable[T]]]) -> Iterable[T]:
     ...
 
 
 @overload
-def to_arr(val: AnythingElse) -> list[AnythingElse]:
-    ...
-
-
-def to_arr(val: Any) -> Any:
-    """Convert value into an array."""
-    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]
-
-
-@overload
-def flatten(items: Iterable[Iterable[AnythingElse]]) -> Iterable[AnythingElse]:
+def flatten(items: T | Iterable[T | Iterable[T]]) -> Iterable[T]:  # type: ignore
     ...
 
 
 @overload
-def flatten(items: Iterable[AnythingElse]) -> Iterable[AnythingElse]:
+def flatten(items: T | Iterable[T]) -> Iterable[T]:  # type: ignore
     ...
 
 
@@ -190,12 +165,22 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
 
 def norm_func_name(func_name: SupportsString | F) -> str:
-    """Normalize a function's name."""
-    if callable(func_name):
-        func = func_name
+    """Normalize a class, function or other object to obtain its name"""
 
-        func_name = f'{func.__name__}'
+    if isinstance(func_name, str):
+        return func_name
 
+    if not isinstance(func_name, type) and not callable(func_name):
+        return str(func_name)
+
+    func = func_name
+
+    if hasattr(func_name, '__name__'):
+        func_name = func.__name__
+    elif hasattr(func_name, '__qualname__'):
+        func_name = func.__qualname__
+
+    if callable(func):
         if hasattr(func, '__self__'):
             func_name = f'{func.__self__.__name__}.{func_name}'  # type: ignore
 

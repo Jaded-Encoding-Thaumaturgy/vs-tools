@@ -3,12 +3,14 @@ from __future__ import annotations
 import sys
 from typing import Any
 
-from ..types import F, Self, SupportsString
+from ..types import FuncExceptT, Self, SupportsString
 
 __all__ = [
     'CustomError',
 
     'CustomValueError',
+    'CustomIndexError',
+    'CustomOverflowError',
     'CustomKeyError',
     'CustomTypeError',
     'CustomRuntimeError',
@@ -37,16 +39,17 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
     """Custom base exception class."""
 
     def __init__(
-        self, message: SupportsString | None = None, function: SupportsString | F | None = None, **kwargs: Any
+        self, message: SupportsString | None = None, function: FuncExceptT | None = None, **kwargs: Any
     ) -> None:
         from ..functions import norm_func_name
 
         if message is None:
-            return super().__init__()
+            if function is None:
+                return super().__init__()
+
+            message = 'An error occurred!'
 
         message = str(message)
-
-        formatted = message.format(**kwargs)
 
         if function:
             func_name = norm_func_name(function)
@@ -59,11 +62,22 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         else:
             func_header = ''
 
-        super().__init__(func_header + formatted)
+        if kwargs:
+            kwargs = {key: norm_func_name(value) for key, value in kwargs.items()}
+
+        super().__init__((func_header + message).format(**kwargs))
 
 
 class CustomValueError(CustomError, ValueError):
     """Custom base ValueError class."""
+
+
+class CustomIndexError(CustomError, IndexError):
+    ...
+
+
+class CustomOverflowError(CustomError, OverflowError):
+    ...
 
 
 class CustomKeyError(CustomError, KeyError):

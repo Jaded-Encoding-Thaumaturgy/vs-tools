@@ -50,13 +50,13 @@ class Matrix(_MatrixMeta):
             raise _MatrixYCGCOErrorGet()
 
         if Matrix.RGB < value < Matrix.ICTCP:
-            raise ReservedMatrixError(f'Matrix({value}) is reserved.')
+            raise ReservedMatrixError(f'Matrix({value}) is reserved.', cls)
 
         if value > Matrix.ICTCP:
             raise UnsupportedMatrixError(
                 f'Matrix({value}) is current unsupported. '
                 'If you believe this to be in error, please leave an issue '
-                'in the vs-tools GitHub repository.'
+                'in the vs-tools GitHub repository.', cls
             )
 
         return None
@@ -201,13 +201,13 @@ class Transfer(_TransferMeta):
             return Transfer.UNKNOWN
 
         if Transfer.BT709 < value < Transfer.ARIB_B67:
-            raise ReservedTransferError(f'Transfer({value}) is reserved.')
+            raise ReservedTransferError(f'Transfer({value}) is reserved.', cls)
 
         if value > Transfer.ARIB_B67:
             raise UnsupportedTransferError(
                 f'Transfer({value}) is current unsupported. '
                 'If you believe this to be in error, please leave an issue '
-                'in the vs-tools GitHub repository.'
+                'in the vs-tools GitHub repository.', cls
             )
 
         return None
@@ -366,7 +366,8 @@ class Transfer(_TransferMeta):
         """
         if self >= self.BT601_525:
             raise ReservedTransferError(
-                'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!'
+                'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!',
+                f'{self.__class__.__name__}.value_vs'
             )
 
         return self.value
@@ -388,13 +389,13 @@ class Primaries(_PrimariesMeta):
             return Primaries.UNKNOWN
 
         if cls.BT709 < value < cls.EBU3213E:
-            raise ReservedPrimariesError(f'Primaries({value}) is reserved.')
+            raise ReservedPrimariesError(f'Primaries({value}) is reserved.', cls)
 
         if value > cls.EBU3213E:
             raise UnsupportedPrimariesError(
                 f'Primaries({value}) is current unsupported. '
                 'If you believe this to be in error, please leave an issue '
-                'in the vs-tools GitHub repository.'
+                'in the vs-tools GitHub repository.', cls
             )
 
         return None
@@ -584,7 +585,7 @@ class ColorRange(_ColorRangeMeta):
             return ColorRange.LIMITED
 
         if value > ColorRange.LIMITED:
-            raise UnsupportedPrimariesError(f'ColorRange({value}) is unsupported.')
+            raise UnsupportedPrimariesError(f'ColorRange({value}) is unsupported.', cls)
 
         return None
 

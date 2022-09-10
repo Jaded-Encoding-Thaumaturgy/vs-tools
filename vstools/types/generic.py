@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, ByteString, Callable, Deque, Mapping, Protocol, Sequence, Set, TypeVar, Union
+from typing import Any, Callable, Protocol, Sequence, Union
 
 import vapoursynth as vs
 
-from .builtins import (
-    ByteData, ComparatorFunc, F, SingleOrArr, SingleOrArrOpt, SupportsAllComparisons, SupportsDunderGE,
-    SupportsDunderGT, SupportsDunderLE, SupportsDunderLT, SupportsFloatOrIndex, SupportsRichComparison, SupportsString,
-    SupportsTrunc
-)
+from .builtins import F, SingleOrArr, SingleOrArrOpt, SupportsString
 
 __all__ = [
     'MissingT', 'MISSING',
@@ -26,8 +22,6 @@ __all__ = [
     'StrArr', 'StrArrOpt',
 
     'PassthroughC',
-
-    'AnythingElse',
 
     'ConstantFormatVideoNode'
 ]
@@ -68,15 +62,6 @@ StrArr = SingleOrArr[SupportsString]
 StrArrOpt = SingleOrArrOpt[SupportsString]
 
 PassthroughC = Callable[[F], F]
-
-
-AnythingElse = TypeVar(
-    'AnythingElse', bound=Union[
-        type, int, str, None, SupportsFloatOrIndex, ByteData, SupportsAllComparisons,
-        SupportsTrunc, SupportsString, SupportsRichComparison, VSFunction, ComparatorFunc, ByteString,
-        SupportsDunderLT, SupportsDunderGT, SupportsDunderLE, SupportsDunderGE, Set, Mapping, Deque  # type: ignore
-    ]
-)
 
 
 class ConstantFormatVideoNode(vs.VideoNode):

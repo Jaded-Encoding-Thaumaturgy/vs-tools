@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import vapoursynth as vs
 
-from ..exceptions import CustomValueError
+from ..exceptions import FramesLengthError
 from ..types import F_VD, FrameRange
 from .normalize import normalize_franges
 
@@ -32,7 +32,7 @@ def shift_clip(clip: vs.VideoNode, offset: int) -> vs.VideoNode:
     :returns:               Clip that has been shifted forwards or backwards by *n* frames.
     """
     if offset > clip.num_frames - 1:
-        raise CustomValueError('Offset can\'t be greater than the clip length!', shift_clip)
+        raise FramesLengthError(shift_clip, 'offset')
 
     if offset < 0:
         return clip[0] * abs(offset) + clip[:offset]

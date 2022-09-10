@@ -6,7 +6,7 @@ from typing import Sequence, cast, overload
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT
-from ..exceptions import CustomValueError
+from ..exceptions import ClipLengthError, InvalidColorFamilyError
 from .check import disallow_variable_format
 
 __all__ = [
@@ -234,10 +234,7 @@ def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not GRAY or YUV.
     """
-    assert clip.format
-
-    if clip.format.color_family not in (vs.YUV, vs.GRAY):
-        raise CustomValueError('The clip must have a luma plane (GRAY, YUV).')
+    InvalidColorFamilyError.check(clip, [vs.YUV, vs.GRAY], get_y)
 
     return plane(clip, 0)
 
@@ -253,10 +250,7 @@ def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not YUV.
     """
-    assert clip.format
-
-    if clip.format.color_family is not vs.YUV:
-        raise CustomValueError('The clip must be YUV.')
+    InvalidColorFamilyError.check(clip, vs.YUV, get_u)
 
     return plane(clip, 1)
 
@@ -272,10 +266,7 @@ def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not YUV.
     """
-    assert clip.format
-
-    if clip.format.color_family is not vs.YUV:
-        raise CustomValueError('The clip must be YUV.')
+    InvalidColorFamilyError.check(clip, vs.YUV, get_v)
 
     return plane(clip, 2)
 
@@ -291,10 +282,7 @@ def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not RGB.
     """
-    assert clip.format
-
-    if clip.format.color_family is not vs.RGB:
-        raise CustomValueError('The clip must be RGB.')
+    InvalidColorFamilyError.check(clip, vs.RGB, get_r)
 
     return plane(clip, 0)
 
@@ -310,10 +298,7 @@ def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not RGB.
     """
-    assert clip.format
-
-    if clip.format.color_family is not vs.RGB:
-        raise CustomValueError('The clip must be RGB.')
+    InvalidColorFamilyError.check(clip, vs.RGB, get_g)
 
     return plane(clip, 1)
 
@@ -329,10 +314,7 @@ def get_b(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not RGB.
     """
-    assert clip.format
-
-    if clip.format.color_family is not vs.RGB:
-        raise CustomValueError('The clip must be RGB.')
+    InvalidColorFamilyError.check(clip, vs.RGB, get_b)
 
     return plane(clip, 2)
 
@@ -359,7 +341,7 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -
     frame_after_insert = start_frame + insert.num_frames
 
     if frame_after_insert > clip.num_frames:
-        raise CustomValueError('Inserted clip is too long.')
+        raise ClipLengthError('Inserted clip is too long.', insert_clip)
 
     if frame_after_insert == clip.num_frames:
         return pre + insert

@@ -6,7 +6,7 @@ from typing import Callable, TypeVar
 
 import vapoursynth as vs
 
-from ..exceptions import CustomValueError
+from ..exceptions import InvalidSubsamplingError
 from ..functions import disallow_variable_format, disallow_variable_resolution
 from .info import get_format
 
@@ -81,7 +81,9 @@ def padder(
     fmt = get_format(clip)
 
     if (width % (1 << fmt.subsampling_w) != 0) or (height % (1 << fmt.subsampling_h) != 0):
-        raise CustomValueError("padder: 'Values must result in an even resolution when passing a YUV420 clip!'")
+        raise InvalidSubsamplingError(
+            padder, fmt, 'Values must result in a mod congruent to the clip\'s subsampling ({subsampling})!'
+        )
 
     reflected = vs.core.resize.Point(
         clip, width, height,

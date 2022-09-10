@@ -4,7 +4,7 @@ from typing import overload
 
 import vapoursynth as vs
 
-from ..exceptions import CustomValueError
+from ..exceptions import UnsupportedSubsamplingError
 from ..functions import depth, disallow_variable_format
 from ..types import HoldsVideoFormatT
 from .math import mod_x
@@ -13,7 +13,7 @@ __all__ = [
     'get_var_infos',
     'get_format',
 
-    'get_depth', 'get_sample_type', 'get_subsampling',
+    'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family',
 
     'expect_bits',
 
@@ -69,9 +69,18 @@ def get_depth(clip: HoldsVideoFormatT, /) -> int:
     return get_format(clip).bits_per_sample
 
 
-def get_sample_type(clip: vs.VideoNode | vs.VideoFrame, /) -> int:
+def get_sample_type(clip: HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
     """Get sample type of a given clip."""
+    if isinstance(clip, vs.SampleType):
+        return clip
     return get_format(clip).sample_type
+
+
+def get_color_family(clip: HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
+    """Get color family of a given clip."""
+    if isinstance(clip, vs.ColorFamily):
+        return clip
+    return get_format(clip).color_family
 
 
 def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.VideoNode, int]:
@@ -150,7 +159,7 @@ def get_subsampling(clip: HoldsVideoFormatT, /) -> str | None:
     if fmt.subsampling_w == 0 and fmt.subsampling_h == 0:
         return '444'
 
-    raise CustomValueError('Unknown subsampling.', get_subsampling)
+    raise UnsupportedSubsamplingError('Unknown subsampling.', get_subsampling)
 
 
 @overload
