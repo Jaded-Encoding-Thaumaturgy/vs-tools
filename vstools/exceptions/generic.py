@@ -81,11 +81,28 @@ class InvalidColorFamilyError(CustomValueError):
         message: str = 'Input clip must be of {correct} color family, not {wrong}!',
         **kwargs: Any
     ) -> None:
-        from ..utils import get_color_family
         from ..functions import to_arr
+        from ..utils import get_color_family
         wrong_str = get_color_family(wrong).name
-        correct_str = ', '.join(set(get_color_family(c).name for c in to_arr(correct)))
+        correct_str = ', '.join(set(get_color_family(c).name for c in to_arr(correct)))  # type: ignore
         super().__init__(message, function, wrong=wrong_str, correct=correct_str, **kwargs)
+
+    @staticmethod
+    def check(
+        to_check: HoldsVideoFormatT | vs.ColorFamily,
+        correct: HoldsVideoFormatT | vs.ColorFamily | Iterable[HoldsVideoFormatT | vs.ColorFamily],
+        func: FuncExceptT | None = None, message: str | None = None,
+        **kwargs: Any
+    ) -> None:
+        from ..functions import to_arr
+        from ..utils import get_color_family
+        to_check = get_color_family(to_check)
+        correct_list = [get_color_family(c) for c in to_arr(correct)]  # type: ignore
+
+        if to_check not in correct_list:
+            if message is not None:
+                kwargs.update(message=message)
+            raise InvalidColorFamilyError(func, to_check, correct_list, **kwargs)
 
 
 class FormatsMismatchError(CustomValueError):

@@ -6,7 +6,7 @@ from typing import Sequence, cast, overload
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT
-from ..exceptions import CustomValueError, ClipLengthError
+from ..exceptions import ClipLengthError, InvalidColorFamilyError
 from .check import disallow_variable_format
 
 __all__ = [
@@ -158,60 +158,42 @@ def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
 
 @disallow_variable_format
 def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
-    assert clip.format
-
-    if clip.format.color_family not in (vs.YUV, vs.GRAY):
-        raise CustomValueError('The clip must have a luma plane (GRAY, YUV).')
+    InvalidColorFamilyError.check(clip, [vs.YUV, vs.GRAY], get_y)
 
     return plane(clip, 0)
 
 
 @disallow_variable_format
 def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
-    assert clip.format
-
-    if clip.format.color_family is not vs.YUV:
-        raise CustomValueError('The clip must be YUV.')
+    InvalidColorFamilyError.check(clip, vs.YUV, get_u)
 
     return plane(clip, 1)
 
 
 @disallow_variable_format
 def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
-    assert clip.format
-
-    if clip.format.color_family is not vs.YUV:
-        raise CustomValueError('The clip must be YUV.')
+    InvalidColorFamilyError.check(clip, vs.YUV, get_v)
 
     return plane(clip, 2)
 
 
 @disallow_variable_format
 def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
-    assert clip.format
-
-    if clip.format.color_family is not vs.RGB:
-        raise CustomValueError('The clip must be RGB.')
+    InvalidColorFamilyError.check(clip, vs.RGB, get_r)
 
     return plane(clip, 0)
 
 
 @disallow_variable_format
 def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
-    assert clip.format
-
-    if clip.format.color_family is not vs.RGB:
-        raise CustomValueError('The clip must be RGB.')
+    InvalidColorFamilyError.check(clip, vs.RGB, get_g)
 
     return plane(clip, 1)
 
 
 @disallow_variable_format
 def get_b(clip: vs.VideoNode, /) -> vs.VideoNode:
-    assert clip.format
-
-    if clip.format.color_family is not vs.RGB:
-        raise CustomValueError('The clip must be RGB.')
+    InvalidColorFamilyError.check(clip, vs.RGB, get_b)
 
     return plane(clip, 2)
 
