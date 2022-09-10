@@ -38,11 +38,12 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         from ..functions import norm_func_name
 
         if message is None:
-            return super().__init__()
+            if function is None:
+                return super().__init__()
+
+            message = 'An error occurred!'
 
         message = str(message)
-
-        formatted = message.format(**kwargs)
 
         if function:
             func_name = norm_func_name(function)
@@ -55,7 +56,10 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         else:
             func_header = ''
 
-        super().__init__(func_header + formatted)
+        if kwargs:
+            kwargs = {key: norm_func_name(value) for key, value in kwargs.items()}
+
+        super().__init__((func_header + message).format(**kwargs))
 
 
 class CustomValueError(CustomError, ValueError):
