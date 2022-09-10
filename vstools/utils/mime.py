@@ -221,7 +221,7 @@ class FileType(FileTypeBase):
         return ParsedFile(filename, ext, encoding, file_type, mime)
 
     def is_index(self) -> TypeGuard[FileTypeIndexWithType]:
-        """Verify whether the result is of the ``Index`` type."""
+        """Verify whether the FileType is an INDEX that holds its own FileType (e.g. mime: index/video)."""
         return self is FileType.INDEX and hasattr(self, 'file_type')  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
