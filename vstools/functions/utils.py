@@ -53,7 +53,7 @@ class Dither(str, Enum):
         in_fmt: vs.VideoFormat, out_fmt: vs.VideoFormat, /,
         in_range: ColorRange | None = None, out_range: ColorRange | None = None
     ) -> bool:
-        ...
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @overload
     @staticmethod
@@ -62,7 +62,7 @@ class Dither(str, Enum):
         in_sample_type: vs.SampleType | None = None, out_sample_type: vs.SampleType | None = None,
         in_range: ColorRange | None = None, out_range: ColorRange | None = None
     ) -> bool:
-        ...
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @staticmethod  # type: ignore
     def should_dither(

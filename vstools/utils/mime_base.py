@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
     class FileTypeIndexBase:
         INDEX: FileTypeIndex
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     class FileTypeBase(FileTypeIndexBase, CustomStrEnum):
         ...
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
             """Instantiate FileType.INDEX with its own sub-FileType"""
 
     class FileTypeIndexWithType(FileTypeIndex):  # type: ignore
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         file_type: FileType
 else:
     FileTypeBase = CustomStrEnum

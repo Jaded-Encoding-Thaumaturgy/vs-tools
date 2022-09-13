@@ -41,6 +41,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
     def __init__(
         self, message: SupportsString | None = None, function: FuncExceptT | None = None, **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         from ..functions import norm_func_name
 
         if message is None:
@@ -73,11 +74,11 @@ class CustomValueError(CustomError, ValueError):
 
 
 class CustomIndexError(CustomError, IndexError):
-    ...
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
 
 class CustomOverflowError(CustomError, OverflowError):
-    ...
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
 
 class CustomKeyError(CustomError, KeyError):

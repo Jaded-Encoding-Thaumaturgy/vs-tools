@@ -36,7 +36,7 @@ class FFProbeStreamSideData:
     rotation: int  #
 
 
-# TODO
+# TODO add parsing like i'm doing for vsrepo rewrite, with Descriptors
 class FFProbeObjectBase:
     def __init__(self, ffmpeg_obj: dict[str, Any]) -> None:
         for key, value in ffmpeg_obj.items():

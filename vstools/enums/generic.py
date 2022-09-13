@@ -33,11 +33,17 @@ class ChromaLocation(_ChromaLocationMeta):
         return None
 
     LEFT = 0
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     CENTER = 1
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     TOP_LEFT = 2
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     TOP = 3
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BOTTOM_LEFT = 4
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BOTTOM = 5
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @property
     def is_unknown(self) -> bool:
@@ -107,8 +113,11 @@ class FieldBased(_FieldBasedMeta):
         return None
 
     PROGRESSIVE = 0
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BFF = 1
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     TFF = 2
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @property
     def is_unknown(self) -> bool:
@@ -178,4 +187,7 @@ class FieldBased(_FieldBasedMeta):
 
 
 ChromaLocationT = int | vs.ChromaLocation | ChromaLocation
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
 FieldBasedT = int | vs.FieldBased | FieldBased
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""

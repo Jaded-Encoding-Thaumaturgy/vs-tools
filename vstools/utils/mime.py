@@ -137,13 +137,24 @@ class FileType(FileTypeBase):
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     AUTO = 'auto'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     VIDEO = 'video'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     AUDIO = 'audio'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     CHAPTERS = 'chapters'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     if not TYPE_CHECKING:
         INDEX = 'index'
     IMAGE = 'image'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     OTHER = 'other'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     if TYPE_CHECKING:
         def __new__(cls, value_or_mime: str | FileType | None = None) -> FileType:

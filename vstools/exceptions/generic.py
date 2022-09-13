@@ -38,6 +38,7 @@ class FramesLengthError(CustomOverflowError):
         var_name: str, message: str = '"{var_name}" can\'t be greater than the clip length!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, var_name=var_name, **kwargs)
 
 
@@ -52,6 +53,7 @@ class VariableFormatError(CustomValueError):
         self, function: FuncExceptT, message: str = 'Variable-format clips not supported!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, **kwargs)
 
 
@@ -62,6 +64,7 @@ class VariableResolutionError(CustomValueError):
         self, function: FuncExceptT, message: str = 'Variable-resolution clips not supported!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, **kwargs)
 
 
@@ -77,6 +80,7 @@ class InvalidVideoFormatError(CustomValueError):
         message: str = 'The format {format.name} is not supported!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         from ..utils import get_format
         super().__init__(message, function, format=get_format(format), **kwargs)
 
@@ -95,6 +99,7 @@ class InvalidColorFamilyError(CustomValueError):
         message: str = 'Input clip must be of {correct} color family, not {wrong}!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         from ..functions import to_arr
         from ..utils import get_color_family
         wrong_str = get_color_family(wrong).name
@@ -108,6 +113,7 @@ class InvalidColorFamilyError(CustomValueError):
         func: FuncExceptT | None = None, message: str | None = None,
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         from ..functions import to_arr
         from ..utils import get_color_family
         to_check = get_color_family(to_check)
@@ -131,6 +137,7 @@ class InvalidSubsamplingError(CustomValueError):
         message: str = 'The subsampling {subsampling} is not supported!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         from ..utils import get_format
         subsampling = subsampling if isinstance(subsampling, str) else get_format(subsampling).name
         super().__init__(message, function, subsampling=subsampling, **kwargs)
@@ -143,6 +150,7 @@ class FormatsMismatchError(CustomValueError):
         self, function: FuncExceptT, message: str = 'The format of both clips must be equal!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, **kwargs)
 
 
@@ -153,6 +161,7 @@ class FormatsRefClipMismatchError(FormatsMismatchError):
         self, function: FuncExceptT, message: str = 'The format of ref and main clip must be equal!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(function, message, **kwargs)
 
 
@@ -163,6 +172,7 @@ class ResolutionsMismatchError(CustomValueError):
         self, function: FuncExceptT, message: str = 'The resolution of both clips must be equal!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, **kwargs)
 
 
@@ -173,6 +183,7 @@ class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
         self, function: FuncExceptT, message: str = 'The resolution of ref and main clip must be equal!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(function, message, **kwargs)
 
 
@@ -183,6 +194,7 @@ class FramePropError(CustomKeyError):
         self, function: FuncExceptT, key: str, message: str = 'Error while trying to get frame prop "{key}"!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, key=key, **kwargs)
 
 
@@ -193,6 +205,7 @@ class TopFieldFirstError(CustomValueError):
         self, function: FuncExceptT, message: str = 'You must set `tff` for this clip!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, **kwargs)
 
 
@@ -203,4 +216,5 @@ class InvalidFramerateError(CustomValueError):
         self, function: FuncExceptT, clip: vs.VideoNode, message: str = '{fps} clips are not allowed!',
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         super().__init__(message, function, fps=clip.fps, **kwargs)

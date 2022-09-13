@@ -14,6 +14,7 @@ __all__ = [
 
 
 class copy_signature(Generic[F]):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     def __init__(self, target: F) -> None:
         ...
 
@@ -46,7 +47,9 @@ self_objects_cache = dict[type[T], T]()
 
 
 class inject_self(Generic[T, P, R]):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     def __init__(self, function: Callable[Concatenate[T, P], R], /, *, cache: bool = False) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         self.function = function
         if isinstance(self, cached_inject_self):
             self.cache = True
@@ -79,10 +82,13 @@ class inject_self(Generic[T, P, R]):
 
         return _wrapper
 
+    # TODO fix cached typing
+
     @classmethod
     def with_args(
         cls, *args: Any, **kwargs: Any
     ) -> Callable[[Callable[Concatenate[T0, P0], R0]], inject_self[T0, P0, R0]]:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         def _wrapper(function: Callable[Concatenate[T0, P0], R0]) -> inject_self[T0, P0, R0]:
             inj = cls(function)  # type: ignore
             inj.args = args
@@ -99,6 +105,7 @@ inject_self.cached = cached_inject_self  # type: ignore
 
 
 class complex_hash(Generic[T]):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     def __new__(cls, class_type: T) -> T:  # type: ignore
         class inner_class_type(class_type):  # type: ignore
             def __hash__(self) -> int:
@@ -112,6 +119,7 @@ class complex_hash(Generic[T]):
 
     @staticmethod
     def hash(*args: Any) -> int:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         values = list[str]()
         for value in args:
             try:
