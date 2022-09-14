@@ -7,7 +7,7 @@ import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
 from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
-from ..types import HoldsVideoFormatT
+from ..types import HoldsVideoFormatT, VideoFormatT
 from .check import disallow_variable_format
 
 __all__ = [
@@ -50,7 +50,7 @@ class DitherType(CustomStrEnum):
     @overload
     @staticmethod
     def should_dither(
-        in_fmt: HoldsVideoFormatT, out_fmt: HoldsVideoFormatT, /,
+        in_fmt: VideoFormatT | HoldsVideoFormatT, out_fmt: VideoFormatT | HoldsVideoFormatT, /,
         in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None
     ) -> bool:
         ...
@@ -66,7 +66,8 @@ class DitherType(CustomStrEnum):
 
     @staticmethod  # type: ignore
     def should_dither(
-        in_bits_or_fmt: int | HoldsVideoFormatT, out_bits_or_fmt: int | HoldsVideoFormatT, /,
+        in_bits_or_fmt: int | VideoFormatT | HoldsVideoFormatT,
+        out_bits_or_fmt: int | VideoFormatT | HoldsVideoFormatT, /,
         in_sample_type_or_range: vs.SampleType | ColorRangeT | None = None,
         out_sample_type_or_range: vs.SampleType | ColorRangeT | None = None,
         in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None,

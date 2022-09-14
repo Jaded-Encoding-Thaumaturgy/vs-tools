@@ -43,7 +43,7 @@ VideoPropT = Union[
     Callable[..., Any], Sequence[Callable[..., Any]]
 ]
 
-VideoFormatT = Union[int, vs.PresetFormat, vs.VideoFormat]
+VideoFormatT = Union[vs.PresetFormat, vs.VideoFormat]
 
 # TODO change to | when mypy fixes bug upstream
 HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat]

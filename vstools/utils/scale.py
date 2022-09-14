@@ -5,7 +5,7 @@ import vapoursynth as vs
 from ..enums import ColorRange, ColorRangeT
 from ..exceptions import CustomIndexError
 from ..functions import disallow_variable_format
-from ..types import HoldsVideoFormatT
+from ..types import HoldsVideoFormatT, VideoFormatT
 from .info import get_depth, get_format
 
 __all__ = [
@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-def scale_8bit(clip: HoldsVideoFormatT, value: float, chroma: bool = False) -> float:
+def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: float, chroma: bool = False) -> float:
     fmt = get_format(clip)
 
     if fmt.sample_type is vs.FLOAT:
@@ -30,7 +30,7 @@ def scale_8bit(clip: HoldsVideoFormatT, value: float, chroma: bool = False) -> f
 
 
 def scale_thresh(
-    thresh: float, clip: HoldsVideoFormatT, assume: int | None = None, peak: int | float | None = None
+    thresh: float, clip: VideoFormatT | HoldsVideoFormatT, assume: int | None = None, peak: int | float | None = None
 ) -> float:
     fmt = get_format(clip)
 
@@ -50,8 +50,8 @@ def scale_thresh(
 
 def scale_value(
     value: int | float,
-    input_depth: int | HoldsVideoFormatT,
-    output_depth: int | HoldsVideoFormatT,
+    input_depth: int | VideoFormatT | HoldsVideoFormatT,
+    output_depth: int | VideoFormatT | HoldsVideoFormatT,
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
     scale_offsets: bool = False,
@@ -99,7 +99,7 @@ def scale_value(
 
 @disallow_variable_format
 def get_lowest_value(
-    clip_or_depth: int | HoldsVideoFormatT, chroma: bool = False, range: ColorRangeT = ColorRange.FULL
+    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False, range: ColorRangeT = ColorRange.FULL
 ) -> float:
     fmt = get_format(clip_or_depth)
 
@@ -113,7 +113,7 @@ def get_lowest_value(
 
 
 @disallow_variable_format
-def get_neutral_value(clip_or_depth: int | HoldsVideoFormatT, chroma: bool = False) -> float:
+def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False) -> float:
     fmt = get_format(clip_or_depth)
 
     if fmt.sample_type == vs.FLOAT:
@@ -124,7 +124,8 @@ def get_neutral_value(clip_or_depth: int | HoldsVideoFormatT, chroma: bool = Fal
 
 @disallow_variable_format
 def get_peak_value(
-    clip_or_depth: int | HoldsVideoFormatT, chroma: bool = False, range_in: ColorRangeT = ColorRange.FULL
+    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
+    range_in: ColorRangeT = ColorRange.FULL
 ) -> float:
     fmt = get_format(clip_or_depth)
 

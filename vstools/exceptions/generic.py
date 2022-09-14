@@ -4,7 +4,7 @@ from typing import Any, Iterable
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT, HoldsVideoFormatT
+from ..types import FuncExceptT, HoldsVideoFormatT, VideoFormatT
 from .base import CustomKeyError, CustomOverflowError, CustomValueError
 
 __all__ = [
@@ -73,7 +73,7 @@ class InvalidVideoFormatError(CustomValueError):
     """Raised when the given clip has an invalid format."""
 
     def __init__(
-        self, function: FuncExceptT, format: HoldsVideoFormatT,
+        self, function: FuncExceptT, format: VideoFormatT | HoldsVideoFormatT,
         message: str = 'The format {format.name} is not supported!',
         **kwargs: Any
     ) -> None:
@@ -90,8 +90,10 @@ class InvalidColorFamilyError(CustomValueError):
 
     def __init__(
         self, function: FuncExceptT | None,
-        wrong: HoldsVideoFormatT | vs.ColorFamily,
-        correct: HoldsVideoFormatT | vs.ColorFamily | Iterable[HoldsVideoFormatT | vs.ColorFamily] = vs.YUV,
+        wrong: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily,
+        correct: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
+            VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
+        ] = vs.YUV,
         message: str = 'Input clip must be of {correct} color family, not {wrong}!',
         **kwargs: Any
     ) -> None:
@@ -103,8 +105,10 @@ class InvalidColorFamilyError(CustomValueError):
 
     @staticmethod
     def check(
-        to_check: HoldsVideoFormatT | vs.ColorFamily,
-        correct: HoldsVideoFormatT | vs.ColorFamily | Iterable[HoldsVideoFormatT | vs.ColorFamily],
+        to_check: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily,
+        correct: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
+            VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
+        ],
         func: FuncExceptT | None = None, message: str | None = None,
         **kwargs: Any
     ) -> None:
@@ -127,7 +131,7 @@ class InvalidSubsamplingError(CustomValueError):
     """Raised when the given clip has invalid subsampling."""
 
     def __init__(
-        self, function: FuncExceptT, subsampling: str | HoldsVideoFormatT,
+        self, function: FuncExceptT, subsampling: str | VideoFormatT | HoldsVideoFormatT,
         message: str = 'The subsampling {subsampling} is not supported!',
         **kwargs: Any
     ) -> None:

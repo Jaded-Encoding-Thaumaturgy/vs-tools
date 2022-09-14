@@ -6,7 +6,7 @@ import vapoursynth as vs
 
 from ..exceptions import UnsupportedSubsamplingError
 from ..functions import depth, disallow_variable_format
-from ..types import HoldsVideoFormatT
+from ..types import HoldsVideoFormatT, VideoFormatT
 from .math import mod_x
 
 __all__ = [
@@ -35,7 +35,9 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
 
 
 @disallow_variable_format
-def get_format(value: int | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None) -> vs.VideoFormat:
+def get_format(
+    value: int | VideoFormatT | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None
+) -> vs.VideoFormat:
     if sample_type is not None:
         sample_type = vs.SampleType(sample_type)
 
@@ -62,17 +64,17 @@ def get_format(value: int | HoldsVideoFormatT, /, *, sample_type: int | vs.Sampl
     return value.format
 
 
-def get_depth(clip: HoldsVideoFormatT, /) -> int:
+def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
     return get_format(clip).bits_per_sample
 
 
-def get_sample_type(clip: HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
+def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
     if isinstance(clip, vs.SampleType):
         return clip
     return get_format(clip).sample_type
 
 
-def get_color_family(clip: HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
+def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
     if isinstance(clip, vs.ColorFamily):
         return clip
     return get_format(clip).color_family
@@ -107,7 +109,7 @@ def get_resolutions(clip: vs.VideoNode | vs.VideoFrame) -> tuple[tuple[int, int,
     )
 
 
-def get_subsampling(clip: HoldsVideoFormatT, /) -> str | None:
+def get_subsampling(clip: VideoFormatT | HoldsVideoFormatT, /) -> str | None:
     fmt = get_format(clip)
 
     if fmt.color_family != vs.YUV:
