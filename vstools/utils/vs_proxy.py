@@ -96,7 +96,7 @@ class FunctionProxy(FunctionProxyBase):
     def __getattr__(self, name: str) -> Function:
         function = proxy_utils.get_vs_function(self)
 
-        return getattr(function, name)
+        return getattr(function, name)  # type: ignore
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         function = proxy_utils.get_vs_function(self)
@@ -117,7 +117,7 @@ class PluginProxy(PluginProxyBase):
         if name in dir(plugin):
             return FunctionProxy(self, name)
 
-        return getattr(plugin, name)
+        return getattr(plugin, name)  # type: ignore
 
 
 class CoreProxy(CoreProxyBase):
@@ -130,7 +130,7 @@ class CoreProxy(CoreProxyBase):
         if name in dir(core):
             return PluginProxy(self, name)
 
-        return getattr(core, name)
+        return getattr(core, name)  # type: ignore
 
 
 class proxy_utils:
@@ -141,7 +141,7 @@ class proxy_utils:
         if (vs_core := vs_core_ref()) is None:
             raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
 
-        return vs_core
+        return vs_core  # type: ignore
 
     @staticmethod
     def get_vs_function(func: FunctionProxy) -> Function:
@@ -149,15 +149,15 @@ class proxy_utils:
         core, namespace = proxy_utils.get_core(plugin)
         vs_core = proxy_utils.get_vs_core(core)
 
-        return getattr(getattr(vs_core, namespace), func_name)
+        return getattr(getattr(vs_core, namespace), func_name)  # type: ignore
 
     @staticmethod
     def get_plugin(func: FunctionProxy) -> tuple[PluginProxy, str]:
-        return func.__dict__['func_ref']
+        return func.__dict__['func_ref']  # type: ignore
 
     @staticmethod
     def get_core(plugin: PluginProxy) -> tuple[CoreProxy, str]:
-        return plugin.__dict__['plugin_ref']
+        return plugin.__dict__['plugin_ref']  # type: ignore
 
 
 builtins_isinstance = builtins.isinstance
@@ -196,7 +196,7 @@ class VSCoreProxy(CoreProxyBase):
         self._core = core and weakref.ref(core)
 
     def __getattr__(self, name: str) -> Plugin:
-        return getattr(_get_core(self), name)
+        return getattr(_get_core(self), name)  # type: ignore
 
     @property
     def core(self) -> Core:
