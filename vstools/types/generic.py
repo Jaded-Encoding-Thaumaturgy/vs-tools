@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Protocol, Sequence, Union
+from typing import Any, Callable, Protocol, TypeVar, Union
 
 import vapoursynth as vs
 
@@ -11,7 +11,7 @@ __all__ = [
 
     'FuncExceptT', 'EnumFuncExceptT',
 
-    'VideoPropT',
+    'DataType', 'VSMapValue', 'BoundVSMapValue', 'VSMapValueCallback',
 
     'VideoFormatT',
 
@@ -34,14 +34,22 @@ class MissingT:
 MISSING = MissingT()
 
 
-VideoPropT = Union[
-    int, Sequence[int],
-    float, Sequence[float],
-    str, Sequence[str],
-    vs.VideoNode, Sequence[vs.VideoNode],
-    vs.VideoFrame, Sequence[vs.VideoFrame],
-    Callable[..., Any], Sequence[Callable[..., Any]]
+DataType = Union[str, bytes, bytearray, SupportsString]
+
+VSMapValue = Union[
+    SingleOrArr[int],
+    SingleOrArr[float],
+    SingleOrArr[DataType],
+    SingleOrArr[vs.VideoNode],
+    SingleOrArr[vs.VideoFrame],
+    SingleOrArr[vs.AudioNode],
+    SingleOrArr[vs.AudioFrame],
+    SingleOrArr['VSMapValueCallback[Any]']
 ]
+
+BoundVSMapValue = TypeVar('BoundVSMapValue', bound=VSMapValue)
+
+VSMapValueCallback = Callable[..., BoundVSMapValue]
 
 VideoFormatT = Union[vs.PresetFormat, vs.VideoFormat]
 

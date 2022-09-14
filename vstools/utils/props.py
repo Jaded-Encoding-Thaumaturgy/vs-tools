@@ -5,45 +5,49 @@ from typing import Any, TypeVar, overload
 import vapoursynth as vs
 
 from ..exceptions import FramePropError
-from ..types import MISSING, HoldsPropValueT, MissingT, VideoPropT
+from ..types import MISSING, BoundVSMapValue, HoldsPropValueT, MissingT
 
 __all__ = [
     'get_prop',
     'merge_clip_props'
 ]
 
-T_VP = TypeVar('T_VP', bound=VideoPropT)
 DT = TypeVar('DT')
 CT = TypeVar('CT')
 
 
 @overload
-def get_prop(obj: HoldsPropValueT, key: str, t: type[T_VP], cast: None = None, default: MissingT = MISSING) -> T_VP:
-    ...
-
-
-@overload
-def get_prop(obj: HoldsPropValueT, key: str, t: type[T_VP], cast: type[CT], default: MissingT = MISSING) -> CT:
+def get_prop(
+    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: None = None, default: MissingT = MISSING
+) -> BoundVSMapValue:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[T_VP], cast: None = None, default: DT | MissingT = MISSING
-) -> T_VP | DT:
+    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: type[CT], default: MissingT = MISSING
+) -> CT:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[T_VP], cast: type[CT], default: DT | MissingT = MISSING
+    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: None = None, default: DT | MissingT = MISSING
+) -> BoundVSMapValue | DT:
+    ...
+
+
+@overload
+def get_prop(
+    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: type[CT], default: DT | MissingT = MISSING
 ) -> CT | DT:
     ...
 
 
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[T_VP], cast: type[CT] | None = None, default: DT | MissingT = MISSING
-) -> T_VP | CT | DT:
+    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue],
+    cast: type[CT] | None = None, default: DT | MissingT = MISSING
+) -> BoundVSMapValue | CT | DT:
     """
     Get FrameProp ``prop`` from frame ``frame`` with expected type ``t`` to satisfy the type checker.
     :param frame:               Frame containing props.
