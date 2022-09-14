@@ -21,7 +21,7 @@ class copy_signature(Generic[F]):
         return cast(F, wrapped)
 
 
-class _injected_self_func(Generic[T, P, R], Protocol):  # type: ignore
+class injected_self_func(Generic[T, P, R], Protocol):  # type: ignore
     @overload
     @staticmethod
     def __call__(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -45,17 +45,17 @@ class _injected_self_func(Generic[T, P, R], Protocol):  # type: ignore
 self_objects_cache = dict[type[T], T]()
 
 
-class inject_self(Generic[T, P, R]):
+class inject_self_base(Generic[T, P, R]):
     def __init__(self, function: Callable[Concatenate[T, P], R], /, *, cache: bool = False) -> None:
         self.function = function
-        if isinstance(self, cached_inject_self):
+        if isinstance(self, inject_self.cached):
             self.cache = True
         else:
             self.cache = cache
         self.args = tuple[Any]()
         self.kwargs = dict[str, Any]()
 
-    def __get__(self, class_obj: T | None, class_type: type[T]) -> _injected_self_func[T, P, R]:
+    def __get__(self, class_obj: T | None, class_type: type[T]) -> injected_self_func[T, P, R]:
         def _wrapper(*args: Any, **kwargs: Any) -> Any:
             if (
                 (is_obj := isinstance(args[0], class_type))
@@ -91,11 +91,9 @@ class inject_self(Generic[T, P, R]):
         return _wrapper
 
 
-class cached_inject_self(Generic[T, P, R], inject_self[T, P, R]):  # type: ignore
-    cache = True
-
-
-inject_self.cached = cached_inject_self  # type: ignore
+class inject_self(Generic[T, P, R], inject_self_base[T, P, R]):  # type: ignore
+    class cached(Generic[T0, P0, R0], inject_self_base[T0, P0, R0]):  # type: ignore
+        ...
 
 
 class complex_hash(Generic[T]):
