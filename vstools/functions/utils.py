@@ -227,7 +227,7 @@ def join(luma: vs.VideoNode, chroma: vs.VideoNode, family: vs.ColorFamily | None
 
 
 @overload
-def join(y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
+def join(y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, family: Literal[vs.ColorFamily.YUV]) -> vs.VideoNode:
     ...
 
 
