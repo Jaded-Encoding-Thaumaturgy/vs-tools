@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Any, Literal, Sequence, cast, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
 
-from ..enums import ColorRange, ColorRangeT, Matrix
+from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
 from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
 from ..types import HoldsVideoFormatT
 from .check import disallow_variable_format
@@ -28,7 +27,7 @@ __all__ = [
 ]
 
 
-class DitherType(str, Enum):
+class DitherType(CustomStrEnum):
     """
     Enum for `zimg_dither_type_e`.
     """
