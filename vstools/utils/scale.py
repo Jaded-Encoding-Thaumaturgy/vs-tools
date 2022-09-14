@@ -16,6 +16,16 @@ __all__ = [
 
 
 def scale_8bit(clip: HoldsVideoFormatT, value: float, chroma: bool = False) -> float:
+    """
+    Scale to an 8-bit value.
+
+    :param clip:        Input clip, frame, or value representing a bitdepth.
+    :param value:       Value to scale.
+    :param chroma:      Values are chroma ranges, and must be converted as such.
+                        Default: False.
+
+    :return:            Value scaled to 8-bit.
+    """
     fmt = get_format(clip)
 
     if fmt.sample_type is vs.FLOAT:
@@ -32,6 +42,18 @@ def scale_8bit(clip: HoldsVideoFormatT, value: float, chroma: bool = False) -> f
 def scale_thresh(
     thresh: float, clip: HoldsVideoFormatT, assume: int | None = None, peak: int | float | None = None
 ) -> float:
+    """
+    Scale thresholds from float to int or vice versa.
+
+    :param thresh:              Threshold to scale.
+    :param clip:                Input clip.
+    :param assume:              @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+    :param peak:                Peak value of the clip.
+
+    :return:                    Scaled value.
+
+    :raises CustomValueError:   Threshold is not positive.
+    """
     fmt = get_format(clip)
 
     if thresh < 0:
@@ -57,6 +79,7 @@ def scale_value(
     scale_offsets: bool = False,
     chroma: bool = False
 ) -> float:
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     out_value = float(value)
 
     in_fmt = get_format(input_depth)
@@ -101,6 +124,7 @@ def scale_value(
 def get_lowest_value(
     clip_or_depth: int | HoldsVideoFormatT, chroma: bool = False, range: ColorRangeT = ColorRange.FULL
 ) -> float:
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     fmt = get_format(clip_or_depth)
 
     if ColorRange(range).is_limited:
@@ -114,6 +138,7 @@ def get_lowest_value(
 
 @disallow_variable_format
 def get_neutral_value(clip_or_depth: int | HoldsVideoFormatT, chroma: bool = False) -> float:
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     fmt = get_format(clip_or_depth)
 
     if fmt.sample_type == vs.FLOAT:
@@ -126,6 +151,7 @@ def get_neutral_value(clip_or_depth: int | HoldsVideoFormatT, chroma: bool = Fal
 def get_peak_value(
     clip_or_depth: int | HoldsVideoFormatT, chroma: bool = False, range_in: ColorRangeT = ColorRange.FULL
 ) -> float:
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     fmt = get_format(clip_or_depth)
 
     if ColorRange(range_in).is_limited:

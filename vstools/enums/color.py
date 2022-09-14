@@ -18,7 +18,7 @@ __all__ = [
     'ColorRange',
     'ColorRangeT',
 
-    'MatrixCoefficients',
+    'MatrixCoefficients'
 ]
 
 
@@ -50,27 +50,49 @@ class Matrix(_MatrixMeta):
         return None
 
     RGB = 0
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     GBR = RGB
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT709 = 1
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     UNKNOWN = 2
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     FCC = 4
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT470BG = 5
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT601 = BT470BG
     SMPTE170M = 6
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     SMPTE240M = 7
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT2020NC = 9
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT2020C = 10
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     SMPTE2085 = 11
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     CHROMA_DERIVED_NC = 12
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     CHROMA_DERIVED_C = 13
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ICTCP = 14
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @property
     def is_unknown(self) -> bool:
+        """Check if Matrix is unknown."""
         return self is Matrix.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Matrix:
+        """
+        Guess the matrix based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Matrix object.
+        """
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -91,6 +113,18 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Matrix.UNKNOWN.
+
+        :return:                            Matrix object.
+
+        :raises UndefinedMatrixError:       Matrix is undefined.
+        :raises UndefinedMatrixError:       Matrix can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_Matrix', int, default=MISSING if strict else None)
@@ -108,6 +142,17 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix from a Transfer object.
+
+        :param transfer:                        Transfer object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Transfer.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedTransferError:       Transfer is not supported.
+        """
         if transfer not in _transfer_matrix_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -118,6 +163,17 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix from a Primaries object.
+
+        :param transfer:                        Primaries object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Primaries.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedPrimariesError:      Primaries is not supported.
+        """
         if primaries not in _primaries_matrix_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -150,20 +206,35 @@ class Transfer(_TransferMeta):
         return None
 
     BT709 = 1
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     UNKNOWN = 2
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT470M = 4
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT470BG = 5
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT601 = 6
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ST240M = 7
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     LINEAR = 8
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     LOG_100 = 9
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     LOG_316 = 10
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     XVYCC = 11
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     SRGB = 13
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT2020_10bits = 14
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT2020_12bits = 15
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ST2084 = 16
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ARIB_B67 = 18
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     """
     Extra tranfer characterists from libplacebo
@@ -172,26 +243,47 @@ class Transfer(_TransferMeta):
 
     # Standard gamut:
     BT601_525 = 100
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT601_625 = 101
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     EBU_3213 = 102
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     # Wide gamut:
     APPLE = 103
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ADOBE = 104
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     PRO_PHOTO = 105
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     CIE_1931 = 106
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     DCI_P3 = 107
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     DISPLAY_P3 = 108
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     V_GAMUT = 109
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     S_GAMUT = 110
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     FILM_C = 111
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     COUNT = 112
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @property
     def is_unknown(self) -> bool:
+        """Check if Transfer is unknown."""
         return self is Transfer.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Transfer:
+        """
+        Guess the transfer based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Transfer object.
+        """
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -212,6 +304,18 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Transfer.UNKNOWN.
+
+        :return:                            Transfer object.
+
+        :raises UndefinedTransferError:     Transfer is undefined.
+        :raises UndefinedTransferError:     Transfer can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_Transfer', int, default=MISSING if strict else None)
@@ -229,6 +333,17 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer from a Matrix object.
+
+        :param matrix:                          Matrix object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Matrix.UNKNOWN!
+
+        :return:                                Transfer object.
+
+        :raises UnsupportedMatrixError:         Matrix is not supported.
+        """
         if matrix not in _matrix_transfer_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -239,6 +354,17 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer from a Primaries object.
+
+        :param primaries:                       Primaries object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Primaries.UNKNOWN!
+
+        :return:                                Transfer object.
+
+        :raises UnsupportedPrimariesError:      Primaries is not supported.
+        """
         if primaries not in _primaries_transfer_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -249,10 +375,16 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_libplacebo(self, val: int) -> int:
+        """Obtain the transfer from libplacebo."""
         return _placebo_transfer_map[val]
 
     @property
     def value_vs(self) -> int:
+        """
+        VapourSynth value.
+
+        :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
+        """
         if self >= self.BT601_525:
             raise ReservedTransferError(
                 'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!',
@@ -263,6 +395,7 @@ class Transfer(_TransferMeta):
 
     @property
     def value_libplacebo(self) -> int:
+        """libplacebo value."""
         return _transfer_placebo_map[self]
 
 
@@ -289,24 +422,44 @@ class Primaries(_PrimariesMeta):
         return None
 
     BT709 = 1
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     UNKNOWN = 2
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT470M = 4
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT470BG = 5
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ST170M = 6
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ST240M = 7
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     FILM = 8
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT2020 = 9
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ST428 = 10
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ST431_2 = 11
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     ST432_1 = 12
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     EBU3213E = 22
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @property
     def is_unknown(self) -> bool:
+        """Check if Primaries is unknown."""
         return self is Primaries.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Primaries:
+        """
+        Guess the primaries based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Primaries object.
+        """
         from ..utils import get_var_infos
 
         fmt, w, h = get_var_infos(frame)
@@ -327,6 +480,18 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Primaries.UNKNOWN.
+
+        :return:                            Primaries object.
+
+        :raises UndefinedPrimariesError:    Primaries is undefined.
+        :raises UndefinedPrimariesError:    Primaries can not be determined from the frameprops.
+        """
         from ..utils import get_prop
 
         value = get_prop(src, '_Primaries', int, default=MISSING if strict else None)
@@ -344,6 +509,17 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries from a Matrix object.
+
+        :param matrix:                          Matrix object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Matrix.UNKNOWN!
+
+        :return:                                Primaries object.
+
+        :raises UnsupportedMatrixError:         Matrix is not supported.
+        """
         if matrix not in _matrix_primaries_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -354,6 +530,17 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries from a Transfer object.
+
+        :param transfer:                        Transfer object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Transfer.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedTransferError:       Transfer is not supported.
+        """
         if transfer not in _transfer_primaries_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -364,6 +551,8 @@ class Primaries(_PrimariesMeta):
 
 
 class MatrixCoefficients(NamedTuple):
+    """Class representing Linear <-> Gamma conversion matrix coefficients"""
+
     k0: float
     phi: float
     alpha: float
@@ -372,25 +561,30 @@ class MatrixCoefficients(NamedTuple):
     @classmethod
     @property
     def SRGB(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for SRGB."""
         return MatrixCoefficients(0.04045, 12.92, 0.055, 2.4)
 
     @classmethod
     @property
     def BT709(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for BT709."""
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     @property
     def SMPTE240M(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for SMPTE240M."""
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
     @classmethod
     @property
     def BT2020(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for BT2020."""
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix) -> MatrixCoefficients:
+        """Matrix Coefficients from a Matrix object's value."""
         if matrix not in _matrix_matrixcoeff_map:
             raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
 
@@ -398,6 +592,7 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
+        """Matrix Coefficients from a Transfer object's value."""
         if tranfer not in _transfer_matrixcoeff_map:
             raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
 
@@ -405,6 +600,7 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:
+        """Matrix Coefficients from a Primaries object's value."""
         if primaries not in _primaries_matrixcoeff_map:
             raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
 
@@ -427,14 +623,26 @@ class ColorRange(_ColorRangeMeta):
         return None
 
     LIMITED = 1
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     FULL = 0
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @property
     def is_unknown(self) -> bool:
+        """Check if ColorRange is unknown."""
         return False
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ColorRange:
+        """
+        Obtain the color range of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            Sets the ColorRange as MISSING if prop is not there.
+
+        :return:                            ColorRange object.
+        """
         from ..utils import get_prop
 
         return get_prop(
@@ -443,18 +651,22 @@ class ColorRange(_ColorRangeMeta):
 
     @property
     def value_vs(self) -> int:
+        """VapourSynth (props) value."""
         return self.value
 
     @property
     def value_zimg(self) -> int:
+        """zimg (resize plugin) value."""
         return ~self.value + 2
 
     @property
     def is_limited(self) -> bool:
+        """Check if ColorRange is limited."""
         return bool(self.value)
 
     @property
     def is_full(self) -> bool:
+        """Check if ColorRange is full."""
         return not self.value
 
 
@@ -529,6 +741,13 @@ _placebo_transfer_map = {
 }
 
 MatrixT: TypeAlias = int | vs.MatrixCoefficients | Matrix
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
 TransferT: TypeAlias = int | vs.TransferCharacteristics | Transfer
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
 PrimariesT: TypeAlias = int | vs.ColorPrimaries | Primaries
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
 ColorRangeT: TypeAlias = int | vs.ColorRange | ColorRange
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""

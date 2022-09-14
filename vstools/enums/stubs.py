@@ -38,7 +38,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Matrix | None:
-            ...
+            """
+            Determine the Matrix through a parameter.
+
+            :param value:           Value or Matrix object.
+            :param func_except:     Exception function.
+
+            :return:                Matrix object or None.
+            """
 
     class _TransferMeta(CustomIntEnum, vs.TransferCharacteristics):  # type: ignore
         def __new__(cls: type[Transfer], value: TransferT) -> Transfer:  # type: ignore
@@ -67,7 +74,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Transfer | None:
-            ...
+            """
+            Determine the Transfer through a parameter.
+
+            :param value:           Value or Transfer object.
+            :param func_except:     Exception function.
+
+            :return:                Transfer object or None.
+            """
 
     class _PrimariesMeta(CustomIntEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[Primaries], value: PrimariesT) -> Primaries:  # type: ignore
@@ -96,7 +110,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Primaries | None:
-            ...
+            """
+            Determine the Primaries through a parameter.
+
+            :param value:           Value or Primaries object.
+            :param func_except:     Exception function.
+
+            :return:                Primaries object or None.
+            """
 
     class _ColorRangeMeta(CustomIntEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[ColorRange], value: ColorRangeT) -> ColorRange:  # type: ignore
@@ -125,7 +146,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> ColorRange | None:
-            ...
+            """
+            Determine the ColorRange through a parameter.
+
+            :param value:           Value or ColorRange object.
+            :param func_except:     Exception function.
+
+            :return:                ColorRange object or None.
+            """
 
     class _ChromaLocationMeta(CustomIntEnum, vs.ChromaLocation):  # type: ignore
         def __new__(cls: type[ChromaLocation], value: ChromaLocationT) -> ChromaLocation:  # type: ignore
@@ -156,7 +184,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> ChromaLocation | None:
-            ...
+            """
+            Determine the ChromaLocation through a parameter.
+
+            :param value:           Value or ChromaLocation object.
+            :param func_except:     Exception function.
+
+            :return:                ChromaLocation object or None.
+            """
 
     class _FieldBasedMeta(CustomIntEnum, vs.FieldBased):  # type: ignore
         def __new__(cls: type[FieldBased], value: FieldBasedT) -> FieldBased:  # type: ignore
@@ -184,8 +219,16 @@ if TYPE_CHECKING:
             ...
 
         @classmethod
-        def from_param(cls: Any, value: Any, func_except: Any = None) -> FieldBased | None:
-            ...
+        def from_param(cls: Any, value_or_tff: Any, func_except: Any = None) -> FieldBased | None:
+            """
+            Determine the ChromaLocation through a parameter.
+
+            :param value_or_tff:    Value or FieldBased object.
+                                    If it's bool, it specifies for wheter it's tff of bff.
+            :param func_except:     Exception function.
+
+            :return:                FieldBased object or None.
+            """
 else:
     _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = CustomIntEnum
     _ChromaLocationMeta = _FieldBasedMeta = CustomIntEnum

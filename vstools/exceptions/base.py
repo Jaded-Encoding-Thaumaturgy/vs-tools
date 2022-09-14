@@ -19,6 +19,8 @@ __all__ = [
 
 
 class CustomErrorMeta(type):
+    """Custom base exception meta class."""
+
     def __new__(cls: type[Self], *args: Any) -> Self:
         obj = type.__new__(cls, *args)
 
@@ -34,9 +36,12 @@ class CustomErrorMeta(type):
 
 
 class CustomError(Exception, metaclass=CustomErrorMeta):
+    """Custom base exception class."""
+
     def __init__(
         self, message: SupportsString | None = None, function: FuncExceptT | None = None, **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         from ..functions import norm_func_name
 
         if message is None:
@@ -65,28 +70,28 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
 
 class CustomValueError(CustomError, ValueError):
-    ...
+    """Custom base ValueError class."""
 
 
 class CustomIndexError(CustomError, IndexError):
-    ...
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
 
 class CustomOverflowError(CustomError, OverflowError):
-    ...
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
 
 class CustomKeyError(CustomError, KeyError):
-    ...
+    """Custom base KeyError class."""
 
 
 class CustomTypeError(CustomError, TypeError):
-    ...
+    """Custom base TypeError class."""
 
 
 class CustomRuntimeError(CustomError, RuntimeError):
-    ...
+    """Custom base RuntimeError class."""
 
 
 class CustomPermissionError(CustomError, PermissionError):
-    ...
+    """Custom base PermissionError class."""

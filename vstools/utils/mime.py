@@ -21,6 +21,8 @@ __all__ = [
 
 
 class ParsedFile(NamedTuple):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     path: Path
     ext: str
     encoding: str | None
@@ -30,6 +32,8 @@ class ParsedFile(NamedTuple):
 
 @complex_hash
 class FileSignature(NamedTuple):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     file_type: str
     ext: str
     mime: str
@@ -37,6 +41,15 @@ class FileSignature(NamedTuple):
     signatures: list[bytes]
 
     def check_signature(self, file_bytes: bytes | bytearray, /, *, ignore: int = 0) -> int:
+        """
+        Verify the signature of the file.
+
+        :param file_bytes:  @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+        :param ignore:      @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+
+        :return:            @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+        """
+
         for signature in self.signatures:
             signature_len = len(signature)
 
@@ -50,12 +63,15 @@ class FileSignature(NamedTuple):
 
 
 class FileSignatures(list[FileSignature]):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     _file_headers_data: list[FileSignature] | None = None
     file_headers_path = Path(
         path.join(path.dirname(path.abspath(__file__)), '__file_headers.json')
     )
 
     def __init__(self, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False):
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         self.extend(self.load_headers_data(custom_header_data=custom_header_data, force=force))
 
         self.max_signature_len = max(
@@ -65,6 +81,7 @@ class FileSignatures(list[FileSignature]):
     def load_headers_data(
         cls, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False
     ) -> list[FileSignature]:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         if cls._file_headers_data is None or force or custom_header_data:
             header_data: list[dict[str, Any]] = []
 
@@ -94,6 +111,13 @@ class FileSignatures(list[FileSignature]):
 
     @inject_self
     def parse(self, filename: Path) -> FileSignature | None:
+        """
+        Parse a given file.
+
+        :param filename:        Path to file.
+
+        :return:                The input file's mime signature.
+        """
         with open(filename, 'rb') as file:
             file_bytes = file.read(self.max_signature_len)
 
@@ -110,18 +134,31 @@ class FileSignatures(list[FileSignature]):
 
 
 class FileType(FileTypeBase):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     AUTO = 'auto'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     VIDEO = 'video'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     AUDIO = 'audio'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     CHAPTERS = 'chapters'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     if not TYPE_CHECKING:
         INDEX = 'index'
     IMAGE = 'image'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     OTHER = 'other'
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     if TYPE_CHECKING:
         def __new__(cls, value_or_mime: str | FileType | None = None) -> FileType:
-            ...
+            """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @classmethod
     def _missing_(cls, value: Any) -> FileType:
@@ -142,6 +179,7 @@ class FileType(FileTypeBase):
     def parse(
         self, path: FilePathType, *, func: FuncExceptT | None = None, force_ffprobe: bool | None = None
     ) -> ParsedFile:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
         from .ffprobe import FFProbe, FFProbeStream
 
         filename = Path(str(path)).absolute()
@@ -194,6 +232,7 @@ class FileType(FileTypeBase):
         return ParsedFile(filename, ext, encoding, file_type, mime)
 
     def is_index(self) -> TypeGuard[FileTypeIndexWithType]:
+        """Verify whether the FileType is an INDEX that holds its own FileType (e.g. mime: index/video)."""
         return self is FileType.INDEX and hasattr(self, 'file_type')  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
