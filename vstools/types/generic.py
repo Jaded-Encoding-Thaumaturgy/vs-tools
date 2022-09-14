@@ -17,7 +17,7 @@ __all__ = [
 
     'HoldsVideoFormatT', 'HoldsPropValueT',
 
-    'VSFunction',
+    'VSFunction', 'GenericVSFunction',
 
     'StrArr', 'StrArrOpt',
 
@@ -56,6 +56,9 @@ FuncExceptT = str | Callable[..., Any] | tuple[Callable[..., Any] | str, str]  #
 class VSFunction(Protocol):
     def __call__(self, clip: vs.VideoNode, *args: Any, **kwargs: Any) -> vs.VideoNode:
         ...
+
+
+GenericVSFunction = Callable[..., vs.VideoNode]
 
 
 StrArr = SingleOrArr[SupportsString]
