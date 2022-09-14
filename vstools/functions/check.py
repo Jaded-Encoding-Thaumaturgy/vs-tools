@@ -81,7 +81,7 @@ def disallow_variable_resolution(function: F | None = None, /, *, only_first: bo
         return cast(Callable[[F], F], partial(disallow_variable_resolution, only_first=only_first))
 
     return _check_variable(
-        function, 'format', VariableResolutionError, only_first, lambda x: not all({x.width, x.height})
+        function, 'resolution', VariableResolutionError, only_first, lambda x: not all({x.width, x.height})
     )
 
 
