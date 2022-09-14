@@ -11,7 +11,7 @@ from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, In
 from .check import disallow_variable_format
 
 __all__ = [
-    'Dither',
+    'DitherType',
 
     'depth',
 
@@ -27,7 +27,7 @@ __all__ = [
 ]
 
 
-class Dither(str, Enum):
+class DitherType(str, Enum):
     """
     Enum for `zimg_dither_type_e`.
     """
@@ -76,8 +76,8 @@ class Dither(str, Enum):
         in_fmt = get_format(in_bits_or_fmt, sample_type=in_sample_type_or_range)
         out_fmt = get_format(out_bits_or_fmt, sample_type=out_sample_type_or_range)
 
-        in_range = ColorRange.from_param(in_range, (Dither.should_dither, 'in_range'))
-        out_range = ColorRange.from_param(out_range, (Dither.should_dither, 'out_range'))
+        in_range = ColorRange.from_param(in_range, (DitherType.should_dither, 'in_range'))
+        out_range = ColorRange.from_param(out_range, (DitherType.should_dither, 'out_range'))
 
         if out_fmt.sample_type is vs.FLOAT:
             return False
@@ -105,7 +105,7 @@ def depth(
     clip: vs.VideoNode, bitdepth: int, /,
     sample_type: int | vs.SampleType | None = None, *,
     range_in: ColorRangeT | None = None, range_out: ColorRangeT | None = None,
-    dither_type: str | Dither = Dither.AUTO,
+    dither_type: str | DitherType = DitherType.AUTO,
 ) -> vs.VideoNode:
     from ..utils import get_format
 
@@ -122,12 +122,12 @@ def depth(
     ):
         return clip
 
-    dither_type = Dither(dither_type)
+    dither_type = DitherType(dither_type)
 
-    if dither_type is Dither.AUTO:
-        should_dither = Dither.should_dither(in_fmt, out_fmt, range_in, range_out)
+    if dither_type is DitherType.AUTO:
+        should_dither = DitherType.should_dither(in_fmt, out_fmt, range_in, range_out)
 
-        dither_type = Dither.ERROR_DIFFUSION if should_dither else Dither.NONE
+        dither_type = DitherType.ERROR_DIFFUSION if should_dither else DitherType.NONE
 
     new_format = in_fmt.replace(
         bits_per_sample=out_fmt.bits_per_sample, sample_type=out_fmt.sample_type
