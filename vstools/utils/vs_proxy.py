@@ -65,14 +65,14 @@ __all__ = [
     'PythonVSScriptLoggingBridge', 'RawFrame', 'RawNode', 'SampleType', 'StandaloneEnvironmentPolicy',
     'TransferCharacteristics', 'VideoFormat', 'VideoFrame', 'VideoNode', 'VideoOutputTuple',
     'VSScriptEnvironmentPolicy', '__api_version__', '__pyx_capi__', '__version__', '_construct_parameter',
-    '_construct_type', '_CoreProxy', '_try_enable_introspection', 'ccfDisableAutoLoading', 'ccfDisableLibraryUnloading',
+    '_construct_type', '_CoreProxy', 'ccfDisableAutoLoading', 'ccfDisableLibraryUnloading',
     'ccfEnableGraphInspection', 'clear_output', 'clear_outputs', 'construct_signature', 'core', 'fmFrameState',
     'fmParallel', 'fmParallelRequests', 'fmUnordered', 'get_current_environment', 'get_output', 'get_outputs',
     'has_policy', 'register_policy'
 ]
 
 if not TYPE_CHECKING:
-    from vapoursynth import _try_enable_introspection
+    from vapoursynth import _try_enable_introspection  # noqa F401
     __all__.append('_try_enable_introspection')
 
 if TYPE_CHECKING:
