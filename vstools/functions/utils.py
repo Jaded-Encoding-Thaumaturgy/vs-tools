@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Any, Literal, Sequence, cast, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
 
-from ..enums import ColorRange, ColorRangeT, Matrix
+from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
 from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
+from ..types import HoldsVideoFormatT, VideoFormatT
 from .check import disallow_variable_format
 
 __all__ = [
-    'Dither',
+    'DitherType',
 
     'depth',
 
@@ -27,7 +27,7 @@ __all__ = [
 ]
 
 
-class Dither(str, Enum):
+class DitherType(CustomStrEnum):
     """
     Enum for `zimg_dither_type_e`.
     """
@@ -50,8 +50,8 @@ class Dither(str, Enum):
     @overload
     @staticmethod
     def should_dither(
-        in_fmt: vs.VideoFormat, out_fmt: vs.VideoFormat, /,
-        in_range: ColorRange | None = None, out_range: ColorRange | None = None
+        in_fmt: VideoFormatT | HoldsVideoFormatT, out_fmt: VideoFormatT | HoldsVideoFormatT, /,
+        in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None
     ) -> bool:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
@@ -60,16 +60,17 @@ class Dither(str, Enum):
     def should_dither(
         in_bits: int, out_bits: int, /,
         in_sample_type: vs.SampleType | None = None, out_sample_type: vs.SampleType | None = None,
-        in_range: ColorRange | None = None, out_range: ColorRange | None = None
+        in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None
     ) -> bool:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @staticmethod  # type: ignore
     def should_dither(
-        in_bits_or_fmt: int | vs.VideoFormat, out_bits_or_fmt: int | vs.VideoFormat, /,
-        in_sample_type_or_range: vs.SampleType | ColorRange | None = None,
-        out_sample_type_or_range: vs.SampleType | ColorRange | None = None,
-        in_range: int | ColorRange | None = None, out_range: int | ColorRange | None = None,
+        in_bits_or_fmt: int | VideoFormatT | HoldsVideoFormatT,
+        out_bits_or_fmt: int | VideoFormatT | HoldsVideoFormatT, /,
+        in_sample_type_or_range: vs.SampleType | ColorRangeT | None = None,
+        out_sample_type_or_range: vs.SampleType | ColorRangeT | None = None,
+        in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None,
     ) -> bool:
         """
         Automatically determines whether dithering is needed for a given depth/range/sample_type conversion.
@@ -102,8 +103,8 @@ class Dither(str, Enum):
         in_fmt = get_format(in_bits_or_fmt, sample_type=in_sample_type_or_range)
         out_fmt = get_format(out_bits_or_fmt, sample_type=out_sample_type_or_range)
 
-        in_range = ColorRange.from_param(in_range, (Dither.should_dither, 'in_range'))
-        out_range = ColorRange.from_param(out_range, (Dither.should_dither, 'out_range'))
+        in_range = ColorRange.from_param(in_range, (DitherType.should_dither, 'in_range'))
+        out_range = ColorRange.from_param(out_range, (DitherType.should_dither, 'out_range'))
 
         if out_fmt.sample_type is vs.FLOAT:
             return False
@@ -131,7 +132,7 @@ def depth(
     clip: vs.VideoNode, bitdepth: int, /,
     sample_type: int | vs.SampleType | None = None, *,
     range_in: ColorRangeT | None = None, range_out: ColorRangeT | None = None,
-    dither_type: str | Dither = Dither.AUTO,
+    dither_type: str | DitherType = DitherType.AUTO,
 ) -> vs.VideoNode:
     """
     A convenience bitdepth conversion function using only internal plugins.
@@ -182,12 +183,12 @@ def depth(
     ):
         return clip
 
-    dither_type = Dither(dither_type)
+    dither_type = DitherType(dither_type)
 
-    if dither_type is Dither.AUTO:
-        should_dither = Dither.should_dither(in_fmt, out_fmt, range_in, range_out)
+    if dither_type is DitherType.AUTO:
+        should_dither = DitherType.should_dither(in_fmt, out_fmt, range_in, range_out)
 
-        dither_type = Dither.ERROR_DIFFUSION if should_dither else Dither.NONE
+        dither_type = DitherType.ERROR_DIFFUSION if should_dither else DitherType.NONE
 
     new_format = in_fmt.replace(
         bits_per_sample=out_fmt.bits_per_sample, sample_type=out_fmt.sample_type
@@ -367,7 +368,7 @@ def join(luma: vs.VideoNode, chroma: vs.VideoNode, family: vs.ColorFamily | None
 
 
 @overload
-def join(y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
+def join(y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, family: Literal[vs.ColorFamily.YUV]) -> vs.VideoNode:
     """
     Join a list of planes together to form a single RGB clip.
 

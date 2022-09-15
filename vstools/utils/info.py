@@ -6,7 +6,7 @@ import vapoursynth as vs
 
 from ..exceptions import UnsupportedSubsamplingError
 from ..functions import depth, disallow_variable_format
-from ..types import HoldsVideoFormatT
+from ..types import HoldsVideoFormatT, VideoFormatT
 from .math import mod_x
 
 __all__ = [
@@ -36,7 +36,9 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
 
 
 @disallow_variable_format
-def get_format(value: int | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None) -> vs.VideoFormat:
+def get_format(
+    value: int | VideoFormatT | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None
+) -> vs.VideoFormat:
     """Get format of a given value."""
     if sample_type is not None:
         sample_type = vs.SampleType(sample_type)
@@ -64,19 +66,19 @@ def get_format(value: int | HoldsVideoFormatT, /, *, sample_type: int | vs.Sampl
     return value.format
 
 
-def get_depth(clip: HoldsVideoFormatT, /) -> int:
+def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
     """Get depth of a given clip or value."""
     return get_format(clip).bits_per_sample
 
 
-def get_sample_type(clip: HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
+def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
     """Get sample type of a given clip."""
     if isinstance(clip, vs.SampleType):
         return clip
     return get_format(clip).sample_type
 
 
-def get_color_family(clip: HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
+def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
     """Get color family of a given clip."""
     if isinstance(clip, vs.ColorFamily):
         return clip
@@ -126,7 +128,7 @@ def get_resolutions(clip: vs.VideoNode | vs.VideoFrame) -> tuple[tuple[int, int,
     )
 
 
-def get_subsampling(clip: HoldsVideoFormatT, /) -> str | None:
+def get_subsampling(clip: VideoFormatT | HoldsVideoFormatT, /) -> str | None:
     """
     Get the subsampling of a clip as a human-readable name.
 

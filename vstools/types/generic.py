@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Protocol, Sequence, Union
+from typing import Any, Callable, Protocol, TypeVar, Union
 
 import vapoursynth as vs
 
@@ -11,13 +11,13 @@ __all__ = [
 
     'FuncExceptT', 'EnumFuncExceptT',
 
-    'VideoPropT',
+    'DataType', 'VSMapValue', 'BoundVSMapValue', 'VSMapValueCallback',
 
     'VideoFormatT',
 
     'HoldsVideoFormatT', 'HoldsPropValueT',
 
-    'VSFunction',
+    'VSFunction', 'GenericVSFunction',
 
     'StrArr', 'StrArrOpt',
 
@@ -33,22 +33,32 @@ class MissingT:
 
 MISSING = MissingT()
 
-# TODO update with types from vsrepo PR#186
-VideoPropT = Union[
-    int, Sequence[int],
-    float, Sequence[float],
-    str, Sequence[str],
-    vs.VideoNode, Sequence[vs.VideoNode],
-    vs.VideoFrame, Sequence[vs.VideoFrame],
-    Callable[..., Any], Sequence[Callable[..., Any]]
+
+DataType = Union[str, bytes, bytearray, SupportsString]
+
+VSMapValue = Union[
+    SingleOrArr[int],
+    SingleOrArr[float],
+    SingleOrArr[DataType],
+    SingleOrArr[vs.VideoNode],
+    SingleOrArr[vs.VideoFrame],
+    SingleOrArr[vs.AudioNode],
+    SingleOrArr[vs.AudioFrame],
+    SingleOrArr['VSMapValueCallback[Any]']
 ]
 """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-VideoFormatT = Union[int, vs.PresetFormat, vs.VideoFormat]
+BoundVSMapValue = TypeVar('BoundVSMapValue', bound=VSMapValue)
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
+VSMapValueCallback = Callable[..., BoundVSMapValue]
+"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
+VideoFormatT = Union[vs.PresetFormat, vs.VideoFormat]
 """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
 # TODO change to | when mypy fixes bug upstream
-HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat, vs.PresetFormat]
+HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat]
 """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
 HoldsPropValueT = Union[vs.FrameProps, vs.VideoFrame, vs.AudioFrame, vs.VideoNode, vs.AudioNode]
@@ -66,6 +76,9 @@ class VSFunction(Protocol):
 
     def __call__(self, clip: vs.VideoNode, *args: Any, **kwargs: Any) -> vs.VideoNode:
         ...
+
+
+GenericVSFunction = Callable[..., vs.VideoNode]
 
 
 StrArr = SingleOrArr[SupportsString]

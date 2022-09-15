@@ -218,10 +218,10 @@ if TYPE_CHECKING:
         ) -> FieldBased | None:
             ...
 
-        @classmethod
-        def from_param(cls: Any, value_or_tff: Any, func_except: Any = None) -> FieldBased | None:
+        @classmethod  # type: ignore
+        def from_param(cls: Any, value: Any, func_except: Any = None) -> FieldBased | None:
             """
-            Determine the ChromaLocation through a parameter.
+            Determine the type of field through a parameter.
 
             :param value_or_tff:    Value or FieldBased object.
                                     If it's bool, it specifies for wheter it's tff of bff.
