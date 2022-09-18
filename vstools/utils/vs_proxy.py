@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import builtins
 import weakref
+from ctypes import Structure
 from inspect import Parameter
 from logging import NOTSET as LogLevelUnset
 from logging import Handler, LogRecord
@@ -32,7 +33,7 @@ from vapoursynth import (
     Environment, EnvironmentData, EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased, FilterMode, FrameProps,
     FramePtr, Func, FuncData, Function, LogHandle, MatrixCoefficients, MediaType, MessageType, Plugin, PresetFormat,
     RawFrame, RawNode, SampleType, TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple,
-    __api_version__, __pyx_capi__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
+    __api_version__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
     ccfEnableGraphInspection, clear_output, clear_outputs, construct_signature, fmFrameState, fmParallel,
     fmParallelRequests, fmUnordered, get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
@@ -218,6 +219,11 @@ class VSCoreProxy(CoreProxyBase):
 core = VSCoreProxy()
 
 if TYPE_CHECKING:
+    class PyCapsule(Structure):
+        ...
+
+    __pyx_capi__: dict[str, PyCapsule] = ...  # type: ignore
+
     class StandaloneEnvironmentPolicy(EnvironmentPolicy):
         def __init__(self) -> NoReturn:  # type: ignore[misc]
             ...
@@ -284,6 +290,6 @@ if TYPE_CHECKING:
             ...
 else:
     from vapoursynth import (
-        CallbackData, PythonVSScriptLoggingBridge, StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy,
+        CallbackData, PythonVSScriptLoggingBridge, StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy, __pyx_capi__,
         _construct_parameter, _construct_type
     )
