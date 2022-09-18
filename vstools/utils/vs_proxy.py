@@ -3,7 +3,7 @@ from __future__ import annotations
 import builtins
 import weakref
 from types import UnionType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NoReturn
 from weakref import ReferenceType
 
 import vapoursynth as vs
@@ -28,12 +28,11 @@ from vapoursynth import (
     AudioFrame, AudioNode, CallbackData, ChromaLocation, ColorFamily, ColorPrimaries, ColorRange, Core,
     CoreCreationFlags, Environment, EnvironmentData, EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased,
     FilterMode, FrameProps, FramePtr, Func, FuncData, Function, LogHandle, MatrixCoefficients, MediaType, MessageType,
-    Plugin, PresetFormat, PythonVSScriptLoggingBridge, RawFrame, RawNode, SampleType, StandaloneEnvironmentPolicy,
-    TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, VSScriptEnvironmentPolicy,
-    __api_version__, __pyx_capi__, __version__, _construct_parameter, _construct_type, _CoreProxy,
-    ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, clear_output, clear_outputs,
-    construct_signature, fmFrameState, fmParallel, fmParallelRequests, fmUnordered, get_current_environment, get_output,
-    get_outputs, has_policy, register_policy
+    Plugin, PresetFormat, PythonVSScriptLoggingBridge, RawFrame, RawNode, SampleType, TransferCharacteristics,
+    VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __pyx_capi__, __version__,
+    _construct_parameter, _construct_type, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
+    ccfEnableGraphInspection, clear_output, clear_outputs, construct_signature, fmFrameState, fmParallel,
+    fmParallelRequests, fmUnordered, get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -215,3 +214,47 @@ class VSCoreProxy(CoreProxyBase):
 
 
 core = VSCoreProxy()
+
+if TYPE_CHECKING:
+    class StandaloneEnvironmentPolicy(EnvironmentPolicy):
+        def __init__(self) -> NoReturn:  # type: ignore[misc]
+            ...
+
+        def _on_log_message(self, level: MessageType, msg: str) -> None:
+            ...
+
+        def on_policy_registered(self, api: 'EnvironmentPolicyAPI') -> None:
+            ...
+
+        def on_policy_cleared(self) -> None:
+            ...
+
+        def get_current_environment(self) -> EnvironmentData:
+            ...
+
+        def set_environment(self, environment: EnvironmentData | None) -> EnvironmentData:
+            ...
+
+        def is_alive(self, environment: EnvironmentData) -> bool:
+            ...
+
+    class VSScriptEnvironmentPolicy(EnvironmentPolicy):
+        def __init__(self) -> NoReturn:  # type: ignore[misc]
+            ...
+
+        def on_policy_registered(self, policy_api: 'EnvironmentPolicyAPI') -> None:
+            ...
+
+        def on_policy_cleared(self) -> None:
+            ...
+
+        def get_current_environment(self) -> EnvironmentData | None:
+            ...
+
+        def set_environment(self, environment: EnvironmentData | None) -> EnvironmentData | None:
+            ...
+
+        def is_alive(self, environment: EnvironmentData) -> bool:
+            ...
+else:
+    from vapoursynth import StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy
