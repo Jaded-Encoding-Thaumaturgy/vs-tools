@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import builtins
 import weakref
+from inspect import Parameter
 from types import UnionType
 from typing import TYPE_CHECKING, Any, NoReturn
 from weakref import ReferenceType
@@ -29,10 +30,10 @@ from vapoursynth import (
     CoreCreationFlags, Environment, EnvironmentData, EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased,
     FilterMode, FrameProps, FramePtr, Func, FuncData, Function, LogHandle, MatrixCoefficients, MediaType, MessageType,
     Plugin, PresetFormat, PythonVSScriptLoggingBridge, RawFrame, RawNode, SampleType, TransferCharacteristics,
-    VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __pyx_capi__, __version__,
-    _construct_parameter, _construct_type, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
-    ccfEnableGraphInspection, clear_output, clear_outputs, construct_signature, fmFrameState, fmParallel,
-    fmParallelRequests, fmUnordered, get_current_environment, get_output, get_outputs, has_policy, register_policy
+    VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __pyx_capi__, __version__, _CoreProxy,
+    ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, clear_output, clear_outputs,
+    construct_signature, fmFrameState, fmParallel, fmParallelRequests, fmUnordered, get_current_environment, get_output,
+    get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -256,5 +257,14 @@ if TYPE_CHECKING:
 
         def is_alive(self, environment: EnvironmentData) -> bool:
             ...
+
+    def _construct_type(signature: str) -> type:
+        ...
+
+    def _construct_parameter(signature: str) -> Parameter:
+        ...
+
 else:
-    from vapoursynth import StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy
+    from vapoursynth import (
+        StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy, _construct_parameter, _construct_type
+    )
