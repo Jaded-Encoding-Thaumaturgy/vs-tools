@@ -3,8 +3,10 @@ from __future__ import annotations
 import builtins
 import weakref
 from inspect import Parameter
+from logging import NOTSET as LogLevelUnset
+from logging import Handler, LogRecord
 from types import UnionType
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING, Any, Callable, NoReturn
 from weakref import ReferenceType
 
 import vapoursynth as vs
@@ -26,14 +28,13 @@ from vapoursynth import (
     TRANSFER_UNSPECIFIED, UNDEFINED, VIDEO, WIDE_LEFT, WIDE_RIGHT, YUV, YUV410P8, YUV411P8, YUV420P8, YUV420P9,
     YUV420P10, YUV420P12, YUV420P14, YUV420P16, YUV422P8, YUV422P9, YUV422P10, YUV422P12, YUV422P14, YUV422P16,
     YUV440P8, YUV444P8, YUV444P9, YUV444P10, YUV444P12, YUV444P14, YUV444P16, YUV444PH, YUV444PS, AudioChannels,
-    AudioFrame, AudioNode, CallbackData, ChromaLocation, ColorFamily, ColorPrimaries, ColorRange, Core,
-    CoreCreationFlags, Environment, EnvironmentData, EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased,
-    FilterMode, FrameProps, FramePtr, Func, FuncData, Function, LogHandle, MatrixCoefficients, MediaType, MessageType,
-    Plugin, PresetFormat, PythonVSScriptLoggingBridge, RawFrame, RawNode, SampleType, TransferCharacteristics,
-    VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __pyx_capi__, __version__, _CoreProxy,
-    ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, clear_output, clear_outputs,
-    construct_signature, fmFrameState, fmParallel, fmParallelRequests, fmUnordered, get_current_environment, get_output,
-    get_outputs, has_policy, register_policy
+    AudioFrame, AudioNode, ChromaLocation, ColorFamily, ColorPrimaries, ColorRange, Core, CoreCreationFlags,
+    Environment, EnvironmentData, EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased, FilterMode, FrameProps,
+    FramePtr, Func, FuncData, Function, LogHandle, MatrixCoefficients, MediaType, MessageType, Plugin, PresetFormat,
+    RawFrame, RawNode, SampleType, TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple,
+    __api_version__, __pyx_capi__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
+    ccfEnableGraphInspection, clear_output, clear_outputs, construct_signature, fmFrameState, fmParallel,
+    fmParallelRequests, fmUnordered, get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -264,7 +265,25 @@ if TYPE_CHECKING:
     def _construct_parameter(signature: str) -> Parameter:
         ...
 
+    class CallbackData:
+        def __init__(
+            self, node: RawNode, env: EnvironmentData,
+            callback: Callable[[RawFrame | None, Exception | None], None] | None = None
+        ) -> None:
+            ...
+
+        def receive(self, n: int, result: RawFrame | Exception) -> None:
+            ...
+
+    class PythonVSScriptLoggingBridge(Handler):
+
+        def __init__(self, parent: Handler, level: int = LogLevelUnset) -> None:
+            ...
+
+        def emit(self, record: LogRecord) -> None:
+            ...
 else:
     from vapoursynth import (
-        StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy, _construct_parameter, _construct_type
+        CallbackData, PythonVSScriptLoggingBridge, StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy,
+        _construct_parameter, _construct_type
     )
