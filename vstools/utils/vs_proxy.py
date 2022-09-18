@@ -28,11 +28,14 @@ from vapoursynth import (
     TRANSFER_UNSPECIFIED, UNDEFINED, VIDEO, WIDE_LEFT, WIDE_RIGHT, YUV, AudioChannels, AudioFrame, AudioNode,
     ChromaLocation, ColorFamily, ColorPrimaries, ColorRange, Core, CoreCreationFlags, Environment, EnvironmentData,
     EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased, FilterMode, FrameProps, FramePtr, Func, FuncData,
-    Function, LogHandle, MatrixCoefficients, MediaType, MessageType, Plugin, RawFrame, RawNode, SampleType,
-    TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __version__,
-    _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, clear_output,
-    clear_outputs, construct_signature, fmFrameState, fmParallel, fmParallelRequests, fmUnordered,
-    get_current_environment, get_output, get_outputs, has_policy, register_policy, PresetFormat as VSPresetFormat
+    Function, LogHandle, MatrixCoefficients, MediaType, MessageType, Plugin
+)
+from vapoursynth import PresetFormat as VSPresetFormat
+from vapoursynth import (
+    RawFrame, RawNode, SampleType, TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple,
+    __api_version__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
+    ccfEnableGraphInspection, clear_output, clear_outputs, construct_signature, fmFrameState, fmParallel,
+    fmParallelRequests, fmUnordered, get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError

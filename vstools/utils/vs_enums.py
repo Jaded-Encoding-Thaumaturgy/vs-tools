@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
-from vapoursynth import FLOAT, GRAY, INTEGER, RGB, YUV, PresetFormat as VSPresetFormat
+from vapoursynth import FLOAT, GRAY, INTEGER, RGB, YUV
+from vapoursynth import PresetFormat as VSPresetFormat
 
 __all__ = [
     'PresetFormat',
