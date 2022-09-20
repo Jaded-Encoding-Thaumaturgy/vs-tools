@@ -244,6 +244,8 @@ def _get_core(self: VSCoreProxy) -> Core:
 
 
 class VSCoreProxy(CoreProxyBase):
+    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     def __init__(self, core: Core | None = None) -> None:
         self._own_core = core is not None
         self._core = core and weakref.ref(core)
@@ -253,10 +255,14 @@ class VSCoreProxy(CoreProxyBase):
 
     @property
     def core(self) -> Core:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         return _get_core(self)
 
     @property
     def proxied(self) -> CoreProxy:
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         core = _get_core(self)
 
         if not hasattr(self, '_proxied'):
@@ -333,7 +339,6 @@ if TYPE_CHECKING:
             ...
 
     class PythonVSScriptLoggingBridge(Handler):
-
         def __init__(self, parent: Handler, level: int = LogLevelUnset) -> None:
             ...
 
