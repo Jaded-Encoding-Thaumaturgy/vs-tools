@@ -349,30 +349,30 @@ class Transfer(_TransferMeta):
 
     # Standard gamut:
     BT601_525 = 100
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """ITU-R Rec. BT.601 (525-line = NTSC, SMPTE-C)"""
     BT601_625 = 101
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """ITU-R Rec. BT.601 (625-line = PAL, SECAM)"""
     EBU_3213 = 102
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """EBU Tech. 3213-E / JEDEC P22 phosphors"""
     # Wide gamut:
     APPLE = 103
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Apple RGB"""
     ADOBE = 104
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Adobe RGB (1998)"""
     PRO_PHOTO = 105
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """ProPhoto RGB (ROMM)"""
     CIE_1931 = 106
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """CIE 1931 RGB primaries"""
     DCI_P3 = 107
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """DCI-P3 (Digital Cinema)"""
     DISPLAY_P3 = 108
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """DCI-P3 (Digital Cinema) with D65 white point"""
     V_GAMUT = 109
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Panasonic V-Gamut (VARICAM)"""
     S_GAMUT = 110
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Sony S-Gamut"""
     FILM_C = 111
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Traditional film primaries with Illuminant C"""
     COUNT = 112
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
