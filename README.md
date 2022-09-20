@@ -20,6 +20,6 @@ $ pip install vstools
 Or if you want the latest git version, install it with this command:
 
 ```sh
-$ pip install git+https://github.com/Setsugennoao/vs-tools.git
+$ pip install git+https://github.com/Irrational-Encoding-Wizardry/vs-tools.git
 ```
 <br>
