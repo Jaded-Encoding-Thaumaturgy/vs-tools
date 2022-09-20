@@ -504,7 +504,7 @@ class Transfer(_TransferMeta):
 
 
 class Primaries(_PrimariesMeta):
-    """Color primaries (ITU-T H.265)."""
+    """Color primaries ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.3)."""
 
     _value_: int
 
@@ -526,29 +526,160 @@ class Primaries(_PrimariesMeta):
         return None
 
     BT709 = 1
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary      x      y
+    Green     0.3000 0.6000
+    Blue      0.1500 0.0600
+    Red       0.6400 0.3300
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.709-6
+    Rec. ITU-R BT.1361-0 conventional colour gamutsystem and extended colour gamut system (historical)
+    IEC 61966-2-1 sRGB or sYCC
+    IEC 61966-2-4
+    SMPTE RP 177 (1993) Annex B
+    """
     UNKNOWN = 2
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Unspecified Image characteristics are unknown or are determined by the application."""
     BT470M = 4
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary     x      y
+    Green    0.2100 0.7100
+    Blue     0.1400 0.0800
+    Red      0.6700 0.3300
+    White C  0.3100 0.3160
+    ```
+
+    Rec. ITU-R BT.470-6 System M (historical)
+    NTSC Recommendation for transmission
+    standards for colour television (1953)
+    FCC Title 47 Code of Federal Regulations (2003)
+    73.682 (a) (20)
+    """
     BT470BG = 5
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary      x      y
+    Green     0.2900 0.6000
+    Blue      0.1500 0.0600
+    Red       0.6400 0.3300
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.470-6 System B, G (historical)
+    Rec. ITU-R BT.601-7 625
+    Rec. ITU-R BT.1358-0 625 (historical)
+    Rec. ITU-R BT.1700-0 625 PAL and 625
+    SECAM
+    """
     ST170M = 6
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    (Functionally the same as ``Primaries.ST240M``)
+    ```
+    Primary      x      y
+    Green     0.3100 0.5950
+    Blue      0.1550 0.0700
+    Red       0.6300 0.3400
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.601-7 525
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)
+    Rec. ITU-R BT.1700-0 NTSC
+    SMPTE ST 170 (2004)
+    """
     ST240M = 7
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    (Functionally the same as ``Primaries.ST170M``)
+    ```
+    Primary      x      y
+    Green     0.3100 0.5950
+    Blue      0.1550 0.0700
+    Red       0.6300 0.3400
+    White D65 0.3127 0.3290
+    ```
+
+    SMPTE ST 240 (1999, historical)
+    """
     FILM = 8
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary    x      y
+    Green   0.2430 0.6920 #(Wratten 58)
+    Blue    0.1450 0.0490 #(Wratten 47)
+    Red     0.6810 0.3190 #(Wratten 25)
+    White C 0.3100 0.3160
+    ```
+
+    Generic film (colour filters using Illuminant C)
+    """
     BT2020 = 9
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary       x      y
+    Green     0.1700 0.7970
+    Blue      0.1310 0.0460
+    Red       0.7080 0.2920
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.2020-2\n
+    Rec. ITU-R BT.2100-2
+    """
     ST428 = 10
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary        x   y
+    Green    (Y)  0.0 1.0
+    Blue     (Z)  0.0 0.0
+    Red      (X)  1.0 0.0
+    Centre White  1/3 1/3
+    ```
+
+    SMPTE ST 428-1 (2006)\n
+    (CIE 1931 XYZ)
+    """
     ST431_2 = 11
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary    x      y
+    Green   0.2650 0.6900
+    Blue    0.1500 0.0600
+    Red     0.6800 0.3200
+    White   0.3140 0.3510
+    ```
+
+    SMPTE RP 431-2 (2011)\n
+    SMPTE ST 2113 (2019) "P3DCI"
+    """
     ST432_1 = 12
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary      x      y
+    Green     0.2650 0.6900
+    Blue      0.1500 0.0600
+    Red       0.6800 0.3200
+    White D65 0.3127 0.3290
+    ```
+
+    SMPTE EG 432-1 (2010)\n
+    SMPTE ST 2113 (2019) "P3D65"
+    """
     EBU3213E = 22
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ```
+    Primary      x      y
+    Green     0.2950 0.6050
+    Blue      0.1550 0.0770
+    Red       0.6300 0.3400
+    White D65 0.3127 0.3290
+    ```
+
+    EBU Tech. 3213-E (1975)
+    """
 
     @property
     def is_unknown(self) -> bool:
