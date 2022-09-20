@@ -26,6 +26,7 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: float, chroma: boo
 
     :return:            Value scaled to 8-bit.
     """
+
     fmt = get_format(clip)
 
     if fmt.sample_type is vs.FLOAT:
@@ -56,6 +57,7 @@ def scale_thresh(
 
     :raises CustomValueError:   Threshold is not positive.
     """
+
     fmt = get_format(clip)
 
     if thresh < 0:
@@ -94,6 +96,7 @@ def scale_value(
 
     :return:                Scaled value.
     """
+
     out_value = float(value)
 
     in_fmt = get_format(input_depth)

@@ -26,6 +26,7 @@ def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
                         the last item will be repeated.
     :return:            List of normalized values with a set amount of items.
     """
+
     if not isinstance(val, Sequence):
         return [val] * length
 
@@ -46,6 +47,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 
     :return:            Sorted list of planes.
     """
+
     assert clip.format
 
     if planes is None:
@@ -61,6 +63,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 
 def to_arr(val: T | Sequence[T]) -> list[T]:
     """Normalize any value into an iterable."""
+
     return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
 
 
@@ -81,6 +84,7 @@ def flatten(items: T | Iterable[T]) -> Iterable[T]:  # type: ignore
 
 def flatten(items: Any) -> Any:
     """Flatten an array of values."""
+
     for val in items:
         if isinstance(val, Iterable) and not isinstance(val, (str, bytes)):
             for sub_x in flatten(val):
@@ -97,6 +101,7 @@ def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
 
     :return:            List of positive frame ranges.
     """
+
     if isinstance(franges, int):
         return [franges]
 
@@ -135,6 +140,7 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
     :return:            List of positive frame ranges.
     """
+
     ranges = ranges if isinstance(ranges, list) else [ranges]
 
     out = []

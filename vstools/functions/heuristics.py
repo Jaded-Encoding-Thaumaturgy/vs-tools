@@ -24,6 +24,7 @@ def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | None = None, pro
                         `Resize docs <https://www.vapoursynth.com/doc/functions/video/resize.html>`_.
                         Default: True.
     """
+
     heuristics = dict[str, IntEnum]()
 
     if props:

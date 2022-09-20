@@ -34,6 +34,7 @@ def check_perms(
     :raises FileIsADirectoryError:  Given path is a directory, not a file.
     :raises FileWasNotFoundError:   Parent directories exist, but the given file could not be found.
     """
+
     file = Path(str(file))
     got_perms = False
 
@@ -191,4 +192,5 @@ def open_file(file: FilePathType, mode: Any = 'r+', *args: Any, func: FuncExcept
     """
 
     check_perms(file, mode, func=func)
+
     return open(file, mode, *args, errors='strict', closefd=True, **kwargs)  # type: ignore

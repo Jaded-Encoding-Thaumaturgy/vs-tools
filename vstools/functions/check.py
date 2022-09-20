@@ -66,6 +66,7 @@ def disallow_variable_format(function: F | None = None, /, *, only_first: bool =
 
     :raises VariableFormatError:    A clip with a variable format is found.
     """
+
     if function is None:
         return cast(Callable[[F], F], partial(disallow_variable_format, only_first=only_first))
 
@@ -93,6 +94,7 @@ def disallow_variable_resolution(function: F | None = None, /, *, only_first: bo
 
     :raises VariableResolutionError:    A clip with a variable resolution is found.
     """
+
     if function is None:
         return cast(Callable[[F], F], partial(disallow_variable_resolution, only_first=only_first))
 
@@ -117,6 +119,7 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None) -> None:
     :raises FormatsRefClipMismatchError:        The formats of the two clips do not match.
     :raises ResolutionsRefClipMismatchError:    The resolutions of the two clips do not match.
     """
+
     if ref is None:
         return
 
@@ -135,6 +138,7 @@ def check_variable_format(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuar
 
     :raises VariableFormatError:    The clip is of a variable format.
     """
+
     if clip.format is None:
         raise VariableFormatError(function)
 
@@ -147,6 +151,7 @@ def check_variable_resolution(clip: vs.VideoNode, function: FuncExceptT) -> None
 
     :raises VariableResolutionError:    The clip has a variable resolution.
     """
+
     if 0 in (clip.width, clip.height):
         raise VariableResolutionError(function)
 
@@ -158,6 +163,7 @@ def check_variable(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuard[Const
     :raises VariableFormatError:        The clip is of a variable format.
     :raises VariableResolutionError:    The clip has a variable resolution.
     """
+
     check_variable_format(clip, function)
     check_variable_resolution(clip, function)
 

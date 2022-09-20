@@ -110,6 +110,7 @@ def merge_clip_props(*clips: vs.VideoNode, main_idx: int = 0) -> vs.VideoNode:
 
     :return:            First clip with all the frameprops of every other given clip merged into it.
     """
+
     if len(clips) == 1:
         return clips[0]
 

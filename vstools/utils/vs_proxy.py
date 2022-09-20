@@ -256,6 +256,7 @@ class VSCoreProxy(CoreProxyBase):
 
         :return:                            ColorRange object.
         """
+
         self._own_core = core is not None
         self._core = core and weakref.ref(core)
 

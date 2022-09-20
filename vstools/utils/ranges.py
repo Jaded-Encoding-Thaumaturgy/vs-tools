@@ -56,6 +56,7 @@ def replace_ranges(
 
     :return:                Clip with ranges from clip_a replaced with clip_b.
     """
+
     from ..functions import normalize_ranges
 
     if ranges != 0 and not ranges:

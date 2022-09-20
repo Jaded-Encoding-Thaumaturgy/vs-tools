@@ -42,6 +42,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         self, message: SupportsString | None = None, function: FuncExceptT | None = None, **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         from ..functions import norm_func_name
 
         if message is None:

@@ -34,14 +34,19 @@ class ChromaLocation(_ChromaLocationMeta):
 
     LEFT = 0
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     CENTER = 1
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     TOP_LEFT = 2
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     TOP = 3
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     BOTTOM_LEFT = 4
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     BOTTOM = 5
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
@@ -58,6 +63,7 @@ class ChromaLocation(_ChromaLocationMeta):
 
         :return:            ChromaLocation object.
         """
+
         from ..utils import get_var_infos
 
         _, width, _ = get_var_infos(frame)
@@ -81,6 +87,7 @@ class ChromaLocation(_ChromaLocationMeta):
         :raises UndefinedChromaLocationError:   Chroma location is undefined.
         :raises UndefinedChromaLocationError:   Chroma location can not be determined from the frameprops.
         """
+
         from ..utils import get_prop
 
         value = get_prop(src, '_ChromaLocation', int, default=MISSING if strict else None)
@@ -114,8 +121,10 @@ class FieldBased(_FieldBasedMeta):
 
     PROGRESSIVE = 0
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     BFF = 1
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
     TFF = 2
     """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
@@ -145,6 +154,7 @@ class FieldBased(_FieldBasedMeta):
         :raises UndefinedFieldBasedError:       Field order is undefined.
         :raises UndefinedFieldBasedError:       Field order can not be determined from the frameprops.
         """
+
         from ..utils import get_prop
 
         value = get_prop(src, '_FieldBased', int, default=MISSING if strict else None)
@@ -163,6 +173,7 @@ class FieldBased(_FieldBasedMeta):
     @property
     def is_inter(self) -> bool:
         """Check whether the value belongs to an interlaced value."""
+
         return self != FieldBased.PROGRESSIVE
 
     @property
@@ -172,6 +183,7 @@ class FieldBased(_FieldBasedMeta):
 
         :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
         """
+
         if self.PROGRESSIVE:
             raise UnsupportedFieldBasedError(
                 'Progressive video aren\'t field based!',
@@ -183,6 +195,7 @@ class FieldBased(_FieldBasedMeta):
     @property
     def is_tff(self) -> bool:
         """Check whether the value is Top-Field-First."""
+
         return self is self.TFF
 
 

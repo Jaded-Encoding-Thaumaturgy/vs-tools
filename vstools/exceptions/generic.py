@@ -39,6 +39,7 @@ class FramesLengthError(CustomOverflowError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, var_name=var_name, **kwargs)
 
 
@@ -54,6 +55,7 @@ class VariableFormatError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, **kwargs)
 
 
@@ -65,6 +67,7 @@ class VariableResolutionError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, **kwargs)
 
 
@@ -81,7 +84,9 @@ class InvalidVideoFormatError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         from ..utils import get_format
+
         super().__init__(message, function, format=get_format(format), **kwargs)
 
 
@@ -102,10 +107,13 @@ class InvalidColorFamilyError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         from ..functions import to_arr
         from ..utils import get_color_family
+
         wrong_str = get_color_family(wrong).name
         correct_str = ', '.join(set(get_color_family(c).name for c in to_arr(correct)))  # type: ignore
+
         super().__init__(message, function, wrong=wrong_str, correct=correct_str, **kwargs)
 
     @staticmethod
@@ -118,8 +126,10 @@ class InvalidColorFamilyError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         from ..functions import to_arr
         from ..utils import get_color_family
+
         to_check = get_color_family(to_check)
         correct_list = [get_color_family(c) for c in to_arr(correct)]  # type: ignore
 
@@ -142,8 +152,11 @@ class InvalidSubsamplingError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         from ..utils import get_format
+
         subsampling = subsampling if isinstance(subsampling, str) else get_format(subsampling).name
+
         super().__init__(message, function, subsampling=subsampling, **kwargs)
 
 
@@ -155,6 +168,7 @@ class FormatsMismatchError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, **kwargs)
 
 
@@ -166,6 +180,7 @@ class FormatsRefClipMismatchError(FormatsMismatchError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(function, message, **kwargs)
 
 
@@ -177,6 +192,7 @@ class ResolutionsMismatchError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, **kwargs)
 
 
@@ -188,6 +204,7 @@ class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(function, message, **kwargs)
 
 
@@ -199,6 +216,7 @@ class FramePropError(CustomKeyError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, key=key, **kwargs)
 
 
@@ -210,6 +228,7 @@ class TopFieldFirstError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, **kwargs)
 
 
@@ -221,4 +240,5 @@ class InvalidFramerateError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, fps=clip.fps, **kwargs)

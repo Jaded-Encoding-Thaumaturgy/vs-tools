@@ -26,6 +26,7 @@ class CustomEnum(Enum):
 
         :raises NotFoundEnumValue:   Variable not found in the given enum.
         """
+
         if value is None:
             return None
 

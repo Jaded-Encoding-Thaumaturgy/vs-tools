@@ -140,6 +140,7 @@ class FFProbe:
 
     def __init__(self, *, func: FuncExceptT | None = None, bin_path: str | Path = 'ffprobe') -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         self.bin_path = Path(bin_path)
 
         if not which(str(self.bin_path)):
@@ -219,6 +220,7 @@ class FFProbe:
         *, index: int = 0, func: FuncExceptT | None = None
     ) -> FFProbeStream | None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         return self._get_stream(filename, file_type, index=index, func=func or self.get_stream)
 
     @inject_self
@@ -227,4 +229,5 @@ class FFProbe:
         *, func: FuncExceptT | None = None
     ) -> list[FFProbeStream] | None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         return self._get_stream(filename, file_type, index=None, func=self.get_streams if func is None else func)

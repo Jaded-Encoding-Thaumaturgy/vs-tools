@@ -25,6 +25,7 @@ __all__ = [
 
 def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, int, int]:
     """Get information of a variable resolution clip or frame."""
+
     if isinstance(frame, vs.VideoNode) and not (
         frame.width and frame.height and frame.format
     ):
@@ -40,6 +41,7 @@ def get_format(
     value: int | VideoFormatT | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None
 ) -> vs.VideoFormat:
     """Get format of a given value."""
+
     if sample_type is not None:
         sample_type = vs.SampleType(sample_type)
 
@@ -68,20 +70,25 @@ def get_format(
 
 def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
     """Get depth of a given clip or value."""
+
     return get_format(clip).bits_per_sample
 
 
 def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
     """Get sample type of a given clip."""
+
     if isinstance(clip, vs.SampleType):
         return clip
+
     return get_format(clip).sample_type
 
 
 def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
     """Get color family of a given clip."""
+
     if isinstance(clip, vs.ColorFamily):
         return clip
+
     return get_format(clip).color_family
 
 
@@ -98,6 +105,7 @@ def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.Vid
 
     :return:                Tuple containing the clip dithered to the expected depth and the original bitdepth.
     """
+
     bits = get_depth(clip)
 
     if bits != expected_depth:
@@ -108,6 +116,7 @@ def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.Vid
 
 def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, /, index: int) -> tuple[int, int]:
     """Get the size of a given clip's plane."""
+
     assert frame.format and frame.width
 
     width, height = frame.width, frame.height
@@ -121,6 +130,7 @@ def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, /, index: int) -> tuple
 
 def get_resolutions(clip: vs.VideoNode | vs.VideoFrame) -> tuple[tuple[int, int, int], ...]:
     """Get a tuple containing the resolutions of every plane of the given clip."""
+
     assert clip.format
 
     return tuple(
@@ -138,6 +148,7 @@ def get_subsampling(clip: VideoFormatT | HoldsVideoFormatT, /) -> str | None:
 
     :raises CustomValueError:   Unknown subsampling.
     """
+
     fmt = get_format(clip)
 
     if fmt.color_family != vs.YUV:
@@ -191,6 +202,7 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
 
     :return:                Calculated width.
     """
+
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format
         aspect_ratio = ref.width / ref.height
@@ -236,9 +248,12 @@ def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9
 
     :return:                Calculated height.
     """
+
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format
+
         aspect_ratio = ref.height / ref.width
+
         mod = 1 << ref.format.subsampling_h
     else:
         aspect_ratio = ar_or_ref

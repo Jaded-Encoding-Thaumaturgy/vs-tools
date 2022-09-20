@@ -61,6 +61,7 @@ class Matrix(_MatrixMeta):
     SMPTE ST 428-1 (2006)\n
     See ITU-T H.265 Equations E-31 to E-33
     """
+
     GBR = RGB
     BT709 = 1
     """
@@ -73,8 +74,10 @@ class Matrix(_MatrixMeta):
     IEC 61966-2-4 xvYCC709\n
     SMPTE RP 177 (1993) Annex B
     """
+
     UNKNOWN = 2
     """Image characteristics are unknown or are determined by the application"""
+
     FCC = 4
     """
     ```
@@ -83,6 +86,7 @@ class Matrix(_MatrixMeta):
     FCC Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)\n
     See ITU-T H.265 Equations E-28 to E-30
     """
+
     BT470BG = 5
     """
     ```
@@ -97,6 +101,7 @@ class Matrix(_MatrixMeta):
     IEC 61966-2-4 xvYCC601\n
     See ITU-T H.265 Equations E-28 to E-30
     """
+
     BT601 = BT470BG
     SMPTE170M = 6
     """
@@ -110,6 +115,7 @@ class Matrix(_MatrixMeta):
     SMPTE ST 170 (2004)\n
     See ITU-T H.265 Equations E-28 to E-30
     """
+
     SMPTE240M = 7
     """
     ```
@@ -118,6 +124,7 @@ class Matrix(_MatrixMeta):
     SMPTE ST 240 (1999, historical)\n
     See ITU-T H.265 Equations E-28 to E-30
     """
+
     BT2020NC = 9
     """
     ```
@@ -127,6 +134,7 @@ class Matrix(_MatrixMeta):
     Rec. ITU-R BT.2100-2 Y′CbCr\n
     See ITU-T H.265 Equations E-28 to E-30
     """
+
     BT2020C = 10
     """
     ```
@@ -135,6 +143,7 @@ class Matrix(_MatrixMeta):
     Rec. ITU-R BT.2020-2 constant luminance system\n
     See ITU-T H.265 Equations E-49 to E-58
     """
+
     SMPTE2085 = 11
     """
     ```
@@ -143,6 +152,7 @@ class Matrix(_MatrixMeta):
     SMPTE ST 2085 (2015)\n
     See ITU-T H.265 Equations E-59 to E-61
     """
+
     CHROMA_DERIVED_NC = 12
     """
     ```
@@ -152,6 +162,7 @@ class Matrix(_MatrixMeta):
     See ITU-T H.265 Equations E-28 to E-30
 
     """
+
     CHROMA_DERIVED_C = 13
     """
     ```
@@ -160,6 +171,7 @@ class Matrix(_MatrixMeta):
     Chromaticity-derived constant luminance system\n
     See ITU-T H.265 Equations E-49 to E-58
     """
+
     ICTCP = 14
     """
     ```
@@ -173,6 +185,7 @@ class Matrix(_MatrixMeta):
     @property
     def is_unknown(self) -> bool:
         """Check if Matrix is unknown."""
+
         return self is Matrix.UNKNOWN
 
     @classmethod
@@ -184,6 +197,7 @@ class Matrix(_MatrixMeta):
 
         :return:            Matrix object.
         """
+
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -216,6 +230,7 @@ class Matrix(_MatrixMeta):
         :raises UndefinedMatrixError:       Matrix is undefined.
         :raises UndefinedMatrixError:       Matrix can not be determined from the frameprops.
         """
+
         from ..utils import get_prop
 
         value = get_prop(src, '_Matrix', int, default=MISSING if strict else None)
@@ -244,6 +259,7 @@ class Matrix(_MatrixMeta):
 
         :raises UnsupportedTransferError:       Transfer is not supported.
         """
+
         if transfer not in _transfer_matrix_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -265,6 +281,7 @@ class Matrix(_MatrixMeta):
 
         :raises UnsupportedPrimariesError:      Primaries is not supported.
         """
+
         if primaries not in _primaries_matrix_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -304,20 +321,24 @@ class Transfer(_TransferMeta):
     Rec. ITU-R BT.1361-0 conventional\n
     Colour gamut system (historical)
     """
+
     UNKNOWN = 2
     """Image characteristics are unknown or are determined by the application."""
+
     BT470M = 4
     """
     Rec. ITU-R BT.470-6 System M (historical)\n
     NTSC Recommendation for transmission standards for colour television (1953)\n
     FCC, Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)
     """
+
     BT470BG = 5
     """
     Rec. ITU-R BT.470-6 System B, G (historical)\n
     Rec. ITU-R BT.1700-0 625 PAL and\n
     625 SECAM
     """
+
     BT601 = 6
     """
     (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT2020_10bits`,
@@ -327,25 +348,28 @@ class Transfer(_TransferMeta):
     Rec. ITU-R BT.1700-0 NTSC\n
     SMPTE ST 170 (2004)
     """
+
     ST240M = 7
     """SMPTE ST 240 (1999, historical)"""
+
     LINEAR = 8
     """Linear transfer characteristics"""
+
     LOG_100 = 9
-    """
-    Logarithmic transfer characteristic (100:1 range)
-    """
+    """Logarithmic transfer characteristic (100:1 range)"""
+
     LOG_316 = 10
-    """
-    Logarithmic transfer characteristic (100 * sqrt(10):1 range)
-    """
+    """Logarithmic transfer characteristic (100 * sqrt(10):1 range)"""
+
     XVYCC = 11
     """IEC 61966-2-4"""
+
     SRGB = 13
     """
     IEC 61966-2-1 sRGB when matrix is equal to :py:attr:`Matrix.RGB`\n
     IEC 61966-2-1 sYCC when matrix is equal to :py:attr:`Matrix.BT470BG`
     """
+
     BT2020_10bits = 14
     """
     (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
@@ -353,17 +377,20 @@ class Transfer(_TransferMeta):
     Rec. ITU-R BT.2020-2
 
     """
+
     BT2020_12bits = 15
     """
     (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
     and :py:attr:`Transfer.BT2020_10bits`)\n
     Rec. ITU-R BT.2020-2
     """
+
     ST2084 = 16
     """
     SMPTE ST 2084 (2014) for 10, 12, 14, and 16-bit systems\n
     Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system
     """
+
     ARIB_B67 = 18
     """
     Association of Radio Industries and Businesses (ARIB) STD-B67\n
@@ -378,33 +405,45 @@ class Transfer(_TransferMeta):
     # Standard gamut:
     BT601_525 = 100
     """ITU-R Rec. BT.601 (525-line = NTSC, SMPTE-C)"""
+
     BT601_625 = 101
     """ITU-R Rec. BT.601 (625-line = PAL, SECAM)"""
+
     EBU_3213 = 102
     """EBU Tech. 3213-E / JEDEC P22 phosphors"""
+
     # Wide gamut:
     APPLE = 103
     """Apple RGB"""
+
     ADOBE = 104
     """Adobe RGB (1998)"""
+
     PRO_PHOTO = 105
     """ProPhoto RGB (ROMM)"""
+
     CIE_1931 = 106
     """CIE 1931 RGB primaries"""
+
     DCI_P3 = 107
     """DCI-P3 (Digital Cinema)"""
+
     DISPLAY_P3 = 108
     """DCI-P3 (Digital Cinema) with D65 white point"""
+
     V_GAMUT = 109
     """Panasonic V-Gamut (VARICAM)"""
+
     S_GAMUT = 110
     """Sony S-Gamut"""
+
     FILM_C = 111
     """Traditional film primaries with Illuminant C"""
 
     @property
     def is_unknown(self) -> bool:
         """Check if Transfer is unknown."""
+
         return self is Transfer.UNKNOWN
 
     @classmethod
@@ -416,6 +455,7 @@ class Transfer(_TransferMeta):
 
         :return:            Transfer object.
         """
+
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -448,6 +488,7 @@ class Transfer(_TransferMeta):
         :raises UndefinedTransferError:     Transfer is undefined.
         :raises UndefinedTransferError:     Transfer can not be determined from the frameprops.
         """
+
         from ..utils import get_prop
 
         value = get_prop(src, '_Transfer', int, default=MISSING if strict else None)
@@ -476,6 +517,7 @@ class Transfer(_TransferMeta):
 
         :raises UnsupportedMatrixError:         Matrix is not supported.
         """
+
         if matrix not in _matrix_transfer_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -497,6 +539,7 @@ class Transfer(_TransferMeta):
 
         :raises UnsupportedPrimariesError:      Primaries is not supported.
         """
+
         if primaries not in _primaries_transfer_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -508,6 +551,7 @@ class Transfer(_TransferMeta):
     @classmethod
     def from_libplacebo(self, val: int) -> int:
         """Obtain the transfer from libplacebo."""
+
         return _placebo_transfer_map[val]
 
     @property
@@ -517,6 +561,7 @@ class Transfer(_TransferMeta):
 
         :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
         """
+
         if self >= self.BT601_525:
             raise ReservedTransferError(
                 'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!',
@@ -528,6 +573,7 @@ class Transfer(_TransferMeta):
     @property
     def value_libplacebo(self) -> int:
         """libplacebo value."""
+
         return _transfer_placebo_map[self]
 
 
@@ -569,8 +615,10 @@ class Primaries(_PrimariesMeta):
     IEC 61966-2-4
     SMPTE RP 177 (1993) Annex B
     """
+
     UNKNOWN = 2
     """Unspecified Image characteristics are unknown or are determined by the application."""
+
     BT470M = 4
     """
     ```
@@ -587,6 +635,7 @@ class Primaries(_PrimariesMeta):
     FCC Title 47 Code of Federal Regulations (2003)
     73.682 (a) (20)
     """
+
     BT470BG = 5
     """
     ```
@@ -603,6 +652,7 @@ class Primaries(_PrimariesMeta):
     Rec. ITU-R BT.1700-0 625 PAL and 625
     SECAM
     """
+
     ST170M = 6
     """
     (Functionally the same as :py:attr:`Primaries.ST240M`)
@@ -619,6 +669,7 @@ class Primaries(_PrimariesMeta):
     Rec. ITU-R BT.1700-0 NTSC
     SMPTE ST 170 (2004)
     """
+
     ST240M = 7
     """
     (Functionally the same as :py:attr:`Primaries.ST170M`)
@@ -632,6 +683,7 @@ class Primaries(_PrimariesMeta):
 
     SMPTE ST 240 (1999, historical)
     """
+
     FILM = 8
     """
     ```
@@ -644,6 +696,7 @@ class Primaries(_PrimariesMeta):
 
     Generic film (colour filters using Illuminant C)
     """
+
     BT2020 = 9
     """
     ```
@@ -657,6 +710,7 @@ class Primaries(_PrimariesMeta):
     Rec. ITU-R BT.2020-2\n
     Rec. ITU-R BT.2100-2
     """
+
     ST428 = 10
     """
     ```
@@ -670,6 +724,7 @@ class Primaries(_PrimariesMeta):
     SMPTE ST 428-1 (2006)\n
     (CIE 1931 XYZ)
     """
+
     ST431_2 = 11
     """
     ```
@@ -683,6 +738,7 @@ class Primaries(_PrimariesMeta):
     SMPTE RP 431-2 (2011)\n
     SMPTE ST 2113 (2019) "P3DCI"
     """
+
     ST432_1 = 12
     """
     ```
@@ -696,6 +752,7 @@ class Primaries(_PrimariesMeta):
     SMPTE EG 432-1 (2010)\n
     SMPTE ST 2113 (2019) "P3D65"
     """
+
     EBU3213E = 22
     """
     ```
@@ -712,6 +769,7 @@ class Primaries(_PrimariesMeta):
     @property
     def is_unknown(self) -> bool:
         """Check if Primaries is unknown."""
+
         return self is Primaries.UNKNOWN
 
     @classmethod
@@ -723,6 +781,7 @@ class Primaries(_PrimariesMeta):
 
         :return:            Primaries object.
         """
+
         from ..utils import get_var_infos
 
         fmt, w, h = get_var_infos(frame)
@@ -755,6 +814,7 @@ class Primaries(_PrimariesMeta):
         :raises UndefinedPrimariesError:    Primaries is undefined.
         :raises UndefinedPrimariesError:    Primaries can not be determined from the frameprops.
         """
+
         from ..utils import get_prop
 
         value = get_prop(src, '_Primaries', int, default=MISSING if strict else None)
@@ -783,6 +843,7 @@ class Primaries(_PrimariesMeta):
 
         :raises UnsupportedMatrixError:         Matrix is not supported.
         """
+
         if matrix not in _matrix_primaries_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -804,6 +865,7 @@ class Primaries(_PrimariesMeta):
 
         :raises UnsupportedTransferError:       Transfer is not supported.
         """
+
         if transfer not in _transfer_primaries_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -825,29 +887,34 @@ class MatrixCoefficients(NamedTuple):
     @property
     def SRGB(cls) -> MatrixCoefficients:
         """Matrix Coefficients for SRGB."""
+
         return MatrixCoefficients(0.04045, 12.92, 0.055, 2.4)
 
     @classmethod
     @property
     def BT709(cls) -> MatrixCoefficients:
         """Matrix Coefficients for BT709."""
+
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     @property
     def SMPTE240M(cls) -> MatrixCoefficients:
         """Matrix Coefficients for SMPTE240M."""
+
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
     @classmethod
     @property
     def BT2020(cls) -> MatrixCoefficients:
         """Matrix Coefficients for BT2020."""
+
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix) -> MatrixCoefficients:
         """Matrix Coefficients from a Matrix object's value."""
+
         if matrix not in _matrix_matrixcoeff_map:
             raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
 
@@ -856,6 +923,7 @@ class MatrixCoefficients(NamedTuple):
     @classmethod
     def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
         """Matrix Coefficients from a Transfer object's value."""
+
         if tranfer not in _transfer_matrixcoeff_map:
             raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
 
@@ -864,6 +932,7 @@ class MatrixCoefficients(NamedTuple):
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:
         """Matrix Coefficients from a Primaries object's value."""
+
         if primaries not in _primaries_matrixcoeff_map:
             raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
 
@@ -891,6 +960,7 @@ class ColorRange(_ColorRangeMeta):
 
     | This is primarily used with YUV integer formats.
     """
+
     FULL = 0
     """
     Full (PC) dynamic range, 0-255 in 8 bits.
@@ -916,6 +986,7 @@ class ColorRange(_ColorRangeMeta):
 
         :return:                            ColorRange object.
         """
+
         from ..utils import get_prop
 
         return get_prop(
@@ -925,21 +996,25 @@ class ColorRange(_ColorRangeMeta):
     @property
     def value_vs(self) -> int:
         """VapourSynth (props) value."""
+
         return self.value
 
     @property
     def value_zimg(self) -> int:
         """zimg (resize plugin) value."""
+
         return ~self.value + 2
 
     @property
     def is_limited(self) -> bool:
         """Check if ColorRange is limited."""
+
         return bool(self.value)
 
     @property
     def is_full(self) -> bool:
         """Check if ColorRange is full."""
+
         return not self.value
 
 

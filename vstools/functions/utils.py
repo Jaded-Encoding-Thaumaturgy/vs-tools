@@ -28,9 +28,7 @@ __all__ = [
 
 
 class DitherType(CustomStrEnum):
-    """
-    Enum for `zimg_dither_type_e`.
-    """
+    """Enum for `zimg_dither_type_e`."""
 
     AUTO = 'auto'
     """Choose automatically."""
@@ -98,6 +96,7 @@ class DitherType(CustomStrEnum):
 
         :return:                            True if the clip should be dithered, else False.
         """
+
         from ..utils import get_format
 
         in_fmt = get_format(in_bits_or_fmt, sample_type=in_sample_type_or_range)
@@ -168,6 +167,7 @@ def depth(
     :return:                Converted clip with desired bit depth and sample type.
                             ``ColorFamily`` will be same as input.
     """
+
     from ..utils import get_format
 
     in_fmt = get_format(clip)
@@ -210,6 +210,7 @@ def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
 
     :return:            1-frame long VideoNode of the input frame.
     """
+
     key = hash((frame.width, frame.height, frame.format.id))
 
     if _f2c_cache.get(key, None) is None:
@@ -238,6 +239,7 @@ def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not GRAY or YUV.
     """
+
     InvalidColorFamilyError.check(clip, [vs.YUV, vs.GRAY], get_y)
 
     return plane(clip, 0)
@@ -254,6 +256,7 @@ def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not YUV.
     """
+
     InvalidColorFamilyError.check(clip, vs.YUV, get_u)
 
     return plane(clip, 1)
@@ -270,6 +273,7 @@ def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not YUV.
     """
+
     InvalidColorFamilyError.check(clip, vs.YUV, get_v)
 
     return plane(clip, 2)
@@ -286,6 +290,7 @@ def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not RGB.
     """
+
     InvalidColorFamilyError.check(clip, vs.RGB, get_r)
 
     return plane(clip, 0)
@@ -302,6 +307,7 @@ def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not RGB.
     """
+
     InvalidColorFamilyError.check(clip, vs.RGB, get_g)
 
     return plane(clip, 1)
@@ -318,6 +324,7 @@ def get_b(clip: vs.VideoNode, /) -> vs.VideoNode:
 
     :raises CustomValueError:   Clip is not RGB.
     """
+
     InvalidColorFamilyError.check(clip, vs.RGB, get_b)
 
     return plane(clip, 2)
@@ -337,6 +344,7 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -
 
     :raises CustomValueError:   Insert clip is too long and goes beyond the input clip's final frame.
     """
+
     if start_frame == 0:
         return insert + clip[insert.num_frames:]
 
@@ -542,5 +550,7 @@ def split(clip: vs.VideoNode, /) -> list[vs.VideoNode]:
 
     :return:        List of individual planes.
     """
+
     assert clip.format
+
     return [clip] if clip.format.num_planes == 1 else cast(list[vs.VideoNode], clip.std.SplitPlanes())

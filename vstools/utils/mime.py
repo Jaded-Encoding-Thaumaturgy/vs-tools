@@ -72,6 +72,7 @@ class FileSignatures(list[FileSignature]):
 
     def __init__(self, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False):
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         self.extend(self.load_headers_data(custom_header_data=custom_header_data, force=force))
 
         self.max_signature_len = max(
@@ -82,6 +83,7 @@ class FileSignatures(list[FileSignature]):
         cls, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False
     ) -> list[FileSignature]:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         if cls._file_headers_data is None or force or custom_header_data:
             header_data: list[dict[str, Any]] = []
 
@@ -118,6 +120,7 @@ class FileSignatures(list[FileSignature]):
 
         :return:                The input file's mime signature.
         """
+
         with open(filename, 'rb') as file:
             file_bytes = file.read(self.max_signature_len)
 
@@ -180,6 +183,7 @@ class FileType(FileTypeBase):
         self, path: FilePathType, *, func: FuncExceptT | None = None, force_ffprobe: bool | None = None
     ) -> ParsedFile:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         from .ffprobe import FFProbe, FFProbeStream
 
         filename = Path(str(path)).absolute()
@@ -233,6 +237,7 @@ class FileType(FileTypeBase):
 
     def is_index(self) -> TypeGuard[FileTypeIndexWithType]:
         """Verify whether the FileType is an INDEX that holds its own FileType (e.g. mime: index/video)."""
+
         return self is FileType.INDEX and hasattr(self, 'file_type')  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore

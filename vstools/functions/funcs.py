@@ -40,6 +40,7 @@ def iterate(
     :return:            Clip, value, etc. with the given function run over it
                         *n* amount of times based on the given count.
     """
+
     if count <= 0:
         return base
 
@@ -67,4 +68,5 @@ def fallback(value: T | None, fallback_value: T) -> T:
 
     :return:                    Input value or fallback value if input value is None.
     """
+
     return fallback_value if value is None else value

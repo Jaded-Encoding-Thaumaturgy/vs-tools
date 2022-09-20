@@ -31,6 +31,7 @@ def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
 
     :return:            Clip with the framerate converted and frames adjusted as necessary.
     """
+
     src_num, src_den = clip.fps_num, clip.fps_den
     dest_num, dest_den = fps.as_integer_ratio()
 
@@ -78,6 +79,7 @@ def padder(
     :param reflect:     Whether to reflect the padded pixels.
                         Default: True.
     """
+
     width = clip.width + left + right
     height = clip.height + top + bottom
 
@@ -118,5 +120,7 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
 
     :return:            Function matching the sample type of your clip's format.
     """
+
     assert clip.format
+
     return func_float if clip.format.sample_type == vs.FLOAT else func_int

@@ -47,6 +47,7 @@ class InvalidMatrixError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, matrix=matrix, **kwargs)
 
 
@@ -73,6 +74,7 @@ class InvalidTransferError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, transfer=transfer, **kwargs)
 
 
@@ -99,6 +101,7 @@ class InvalidPrimariesError(CustomValueError):
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         super().__init__(message, function, primaries=primaries, **kwargs)
 
 

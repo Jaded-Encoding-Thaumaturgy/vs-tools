@@ -26,7 +26,9 @@ if TYPE_CHECKING:
 
     class FileTypeIndexWithType(FileTypeIndex):  # type: ignore
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+
         file_type: FileType
+        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 else:
     FileTypeBase = CustomStrEnum
     FileTypeIndex = CustomStrEnum

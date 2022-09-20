@@ -31,6 +31,7 @@ def shift_clip(clip: vs.VideoNode, offset: int) -> vs.VideoNode:
 
     :returns:               Clip that has been shifted forwards or backwards by *n* frames.
     """
+
     if offset > clip.num_frames - 1:
         raise FramesLengthError(shift_clip, 'offset')
 
@@ -64,6 +65,7 @@ def shift_clip_multi(clip: vs.VideoNode, offsets: FrameRange = (-1, 1)) -> list[
 
     :return:                A list of clips, the amount determined by the amount of offsets.
     """
+
     ranges = normalize_franges(offsets)
 
     return [shift_clip(clip, x) for x in ranges]
