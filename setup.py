@@ -22,9 +22,9 @@ setuptools.setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     project_urls={
-        'Source Code': 'https://github.com/Setsugennoao/vstools',
-        'Documentation': 'https://vstools.setsugen.dev/en/latest/',
-        'Contact': 'http://fansub.setsugen.dev/discord',
+        'Source Code': 'https://github.com/Irrational-Encoding-Wizardry/vs-tools',
+        'Documentation': 'https://vstools.encoding.moe/en/latest/',
+        'Contact': 'https://discord.gg/qxTxVJGtst',
     },
     install_requires=requirements,
     python_requires='>=3.10',
