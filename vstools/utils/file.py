@@ -25,7 +25,7 @@ def check_perms(
 
     :param file:                    Path to file.
     :param mode:                    Read/Write mode.
-    :param func:                    @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+    :param func:                    Function that this was called from, only useful to *func writers.
 
     :param:                         True if the user has write/read access, else False.
 
