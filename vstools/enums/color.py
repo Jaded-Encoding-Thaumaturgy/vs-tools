@@ -184,7 +184,6 @@ class Transfer(_TransferMeta):
     V_GAMUT = 109
     S_GAMUT = 110
     FILM_C = 111
-    COUNT = 112
 
     @property
     def is_unknown(self) -> bool:
@@ -520,8 +519,7 @@ _transfer_placebo_map = {
     Transfer.DISPLAY_P3: 12,
     Transfer.V_GAMUT: 13,
     Transfer.S_GAMUT: 14,
-    Transfer.FILM_C: 15,
-    Transfer.COUNT: 16
+    Transfer.FILM_C: 15
 }
 
 _placebo_transfer_map = {
