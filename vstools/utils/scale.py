@@ -47,7 +47,8 @@ def scale_thresh(
 
     :param thresh:              Threshold to scale.
     :param clip:                Input clip.
-    :param assume:              @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+    :param assume:              Assumed bit depth of the treshold.
+                                `None` to automatically detect it.
     :param peak:                Peak value of the clip.
 
     :return:                    Scaled value.
@@ -79,7 +80,19 @@ def scale_value(
     scale_offsets: bool = False,
     chroma: bool = False
 ) -> float:
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Returns the peak value for the specified bit depth, or bit depth of the clip/format specified.
+
+    :param value:           Value to scale.
+    :param input_depth:     Input bit depth, or clip, frame, format from where to get it.
+    :param output_depth:    Output bit depth, or clip, frame, format from where to get it.
+    :param range_in:        Color range of the input value
+    :param range_out:       Color range of the desired output.
+    :param scale_offsets:   Whether or not to apply YUV offsets to float chroma and/or TV range integer values.
+    :param chroma:          Whether or not to treat values as chroma values instead of luma.
+
+    :return:                Scaled value.
+    """
     out_value = float(value)
 
     in_fmt = get_format(input_depth)
@@ -124,7 +137,16 @@ def scale_value(
 def get_lowest_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False, range: ColorRangeT = ColorRange.FULL
 ) -> float:
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Returns the lowest value for the specified bit depth, or bit depth of the clip/format specified.
+
+    :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
+    :param chroma:          Whether to get luma (default) or chroma plane value.
+    :param range_in:        Whether to get limited or full range lowest value.
+
+    :return:                Lowest possible value.
+    """
+
     fmt = get_format(clip_or_depth)
 
     if ColorRange(range).is_limited:
@@ -138,7 +160,14 @@ def get_lowest_value(
 
 @disallow_variable_format
 def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False) -> float:
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Returns the mid point value for the specified bit depth, or bit depth of the clip/format specified.
+
+    :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
+    :param chroma:          Whether to get luma (default) or chroma plane value.
+
+    :return:                Neutral value.
+    """
 
     fmt = get_format(clip_or_depth)
 
@@ -153,7 +182,16 @@ def get_peak_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
     range_in: ColorRangeT = ColorRange.FULL
 ) -> float:
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Returns the peak value for the specified bit depth, or bit depth of the clip/format specified.
+
+    :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
+    :param chroma:          Whether to get luma (default) or chroma plane value.
+    :param range_in:        Whether to get limited or full range peak value.
+
+    :return:                Highest possible value.
+    """
+
     fmt = get_format(clip_or_depth)
 
     if ColorRange(range_in).is_limited:
