@@ -191,6 +191,11 @@ class FileType(FileTypeBase):
 
         assert file_type and mime
 
+        if self is not FileType.AUTO and self is not file_type:
+            raise CustomValueError(
+                'FileType mismatch! self is {good}, file is {bad}!', FileType.parse, good=self, bad=file_type
+            )
+
         return ParsedFile(filename, ext, encoding, file_type, mime)
 
     def is_index(self) -> TypeGuard[FileTypeIndexWithType]:
