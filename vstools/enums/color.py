@@ -251,7 +251,7 @@ class Matrix(_MatrixMeta):
 
 
 class Transfer(_TransferMeta):
-    """Transfer characteristics (ITU-T H.265)."""
+    """Transfer characteristics ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.4)."""
 
     _value_: int
 
@@ -273,35 +273,74 @@ class Transfer(_TransferMeta):
         return None
 
     BT709 = 1
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    (Functionally the same as ``Transfer.BT601``, ``Transfer.BT2020_10bits``, and ``Transfer.BT2020_12bits``)\n
+    Rec. ITU-R BT.709-6\n
+    Rec. ITU-R BT.1361-0 conventional\n
+    Colour gamut system (historical)
+    """
     UNKNOWN = 2
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Image characteristics are unknown or are determined by the application."""
     BT470M = 4
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Rec. ITU-R BT.470-6 System M (historical)\n
+    NTSC Recommendation for transmission standards for colour television (1953)\n
+    FCC, Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)
+    """
     BT470BG = 5
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Rec. ITU-R BT.470-6 System B, G (historical)\n
+    Rec. ITU-R BT.1700-0 625 PAL and\n
+    625 SECAM
+    """
     BT601 = 6
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    (Functionally the same as ``Transfer.BT701``, ``Transfer.BT2020_10bits``, and ``Transfer.BT2020_12bits``)\n
+    Rec. ITU-R BT.601-7 525 or 625\n
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
+    Rec. ITU-R BT.1700-0 NTSC\n
+    SMPTE ST 170 (2004)
+    """
     ST240M = 7
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """SMPTE ST 240 (1999, historical)"""
     LINEAR = 8
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Linear transfer characteristics"""
     LOG_100 = 9
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Logarithmic transfer characteristic (100:1 range)
+    """
     LOG_316 = 10
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Logarithmic transfer characteristic (100 * sqrt(10):1 range)
+    """
     XVYCC = 11
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """IEC 61966-2-4"""
     SRGB = 13
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    IEC 61966-2-1 sRGB when matrix is equal to ``Matrix.RGB``\n
+    IEC 61966-2-1 sYCC when matrix is equal to ``Matrix.BT470BG``
+    """
     BT2020_10bits = 14
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    (Functionally the same as ``Transfer.BT701``, ``Transfer.BT601``, and ``Transfer.BT2020_12bits``)\n
+    Rec. ITU-R BT.2020-2
+
+    """
     BT2020_12bits = 15
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    (Functionally the same as ``Transfer.BT701``, ``Transfer.BT601``, and ``Transfer.BT2020_10bits``)\n
+    Rec. ITU-R BT.2020-2
+    """
     ST2084 = 16
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    SMPTE ST 2084 (2014) for 10, 12, 14, and 16-bit systems\n
+    Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system
+    """
     ARIB_B67 = 18
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Association of Radio Industries and Businesses (ARIB) STD-B67\n
+    Rec. ITU-R BT.2100-2 hybrid loggamma (HLG) system
+    """
 
     """
     Extra tranfer characterists from libplacebo
