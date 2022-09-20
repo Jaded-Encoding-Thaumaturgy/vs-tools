@@ -51,7 +51,9 @@ class Matrix(_MatrixMeta):
 
     RGB = 0
     """
-    ``Identity``\n
+    ```
+    # Identity
+    ```\n
     The identity matrix.\n
     Typically used for GBR (often referred to as RGB); however, may also be\n
     used for YZX (often referred to as XYZ)\n
@@ -62,7 +64,9 @@ class Matrix(_MatrixMeta):
     GBR = RGB
     BT709 = 1
     """
-    ``Kr = 0.2126; Kb = 0.0722``\n
+    ```
+    Kr = 0.2126; Kb = 0.0722
+    ```\n
     Rec. ITU-R BT.709-6\n
     Rec. ITU-R BT.1361-0 conventional colour gamut system and extended\n
     colour gamut system (historical)\n
@@ -73,14 +77,18 @@ class Matrix(_MatrixMeta):
     """Image characteristics are unknown or are determined by the application"""
     FCC = 4
     """
-    ``KR = 0.30; KB = 0.11``\n
+    ```
+    KR = 0.30; KB = 0.11
+    ```\n
     FCC Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)\n
     See ITU-T H.265 Equations E-28 to E-30
     """
     BT470BG = 5
     """
-    ``KR = 0.299; KB = 0.114``\n
-    (Functionally the same as ``Matrix.SMPTE170M``)\n
+    ```
+    KR = 0.299; KB = 0.114
+    ```\n
+    (Functionally the same as :py:attr:`Matrix.SMPTE170M`)\n
     Rec. ITU-R BT.470-6 System B, G (historical)\n
     Rec. ITU-R BT.601-7 625\n
     Rec. ITU-R BT.1358-0 625 (historical)\n
@@ -92,8 +100,10 @@ class Matrix(_MatrixMeta):
     BT601 = BT470BG
     SMPTE170M = 6
     """
-    ``KR = 0.299; KB = 0.114``\n
-    (Functionally the same as ``Matrix.BT470BG``)\n
+    ```
+    Kr = 0.299; Kb = 0.114
+    ```
+    (Functionally the same as :py:attr:`Matrix.BT470BG`)\n
     Rec. ITU-R BT.601-7 525\n
     Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
     Rec. ITU-R BT.1700-0 NTSC\n
@@ -102,45 +112,59 @@ class Matrix(_MatrixMeta):
     """
     SMPTE240M = 7
     """
-    ``KR = 0.212; KB = 0.087``\n
+    ```
+    KR = 0.212; KB = 0.087
+    ```\n
     SMPTE ST 240 (1999, historical)\n
     See ITU-T H.265 Equations E-28 to E-30
     """
     BT2020NC = 9
     """
-    ``KR = 0.2627; KB = 0.0593 ``\n
+    ```
+    KR = 0.2627; KB = 0.0593
+    ```\n
     Rec. ITU-R BT.2020-2 non-constant luminance system\n
     Rec. ITU-R BT.2100-2 Y′CbCr\n
     See ITU-T H.265 Equations E-28 to E-30
     """
     BT2020C = 10
     """
-    ``KR = 0.2627; KB = 0.0593``\n
+    ```
+    KR = 0.2627; KB = 0.0593
+    ```\n
     Rec. ITU-R BT.2020-2 constant luminance system\n
     See ITU-T H.265 Equations E-49 to E-58
     """
     SMPTE2085 = 11
     """
-    ``Y′D′ZD′X``\n
+    ```
+    # Y′D′ZD′X
+    ```\n
     SMPTE ST 2085 (2015)\n
     See ITU-T H.265 Equations E-59 to E-61
     """
     CHROMA_DERIVED_NC = 12
     """
-    ``See ITU-T H.265 Equations E-22 to E-27``\n
+    ```
+    # See ITU-T H.265 Equations E-22 to E-27
+    ```\n
     Chromaticity-derived non-constant luminance system\n
     See ITU-T H.265 Equations E-28 to E-30
 
     """
     CHROMA_DERIVED_C = 13
     """
-    ``See ITU-T H.265 Equations E-22 to E-27``\n
+    ```
+    # See ITU-T H.265 Equations E-22 to E-27
+    ```\n
     Chromaticity-derived constant luminance system\n
     See ITU-T H.265 Equations E-49 to E-58
     """
     ICTCP = 14
     """
-    ``ICtCp``\n
+    ```
+    ICtCp
+    ```\n
     Rec. ITU-R BT.2100-2 ICTCP\n
     See ITU-T H.265 Equations E-62 to E-64 for `transfer_characteristics` value 16 (PQ)\n
     See ITU-T H.265 Equations E-65 to E-67 for `transfer_characteristics` value 18 (HLG)
@@ -274,7 +298,8 @@ class Transfer(_TransferMeta):
 
     BT709 = 1
     """
-    (Functionally the same as ``Transfer.BT601``, ``Transfer.BT2020_10bits``, and ``Transfer.BT2020_12bits``)\n
+    (Functionally the same as :py:attr:`Transfer.BT601`, :py:attr:`Transfer.BT2020_10bits`,
+    and :py:attr:`Transfer.BT2020_12bits`)\n
     Rec. ITU-R BT.709-6\n
     Rec. ITU-R BT.1361-0 conventional\n
     Colour gamut system (historical)
@@ -295,7 +320,8 @@ class Transfer(_TransferMeta):
     """
     BT601 = 6
     """
-    (Functionally the same as ``Transfer.BT701``, ``Transfer.BT2020_10bits``, and ``Transfer.BT2020_12bits``)\n
+    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT2020_10bits`,
+    and :py:attr:`Transfer.BT2020_12bits`)\n
     Rec. ITU-R BT.601-7 525 or 625\n
     Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
     Rec. ITU-R BT.1700-0 NTSC\n
@@ -317,18 +343,20 @@ class Transfer(_TransferMeta):
     """IEC 61966-2-4"""
     SRGB = 13
     """
-    IEC 61966-2-1 sRGB when matrix is equal to ``Matrix.RGB``\n
-    IEC 61966-2-1 sYCC when matrix is equal to ``Matrix.BT470BG``
+    IEC 61966-2-1 sRGB when matrix is equal to :py:attr:`Matrix.RGB`\n
+    IEC 61966-2-1 sYCC when matrix is equal to :py:attr:`Matrix.BT470BG`
     """
     BT2020_10bits = 14
     """
-    (Functionally the same as ``Transfer.BT701``, ``Transfer.BT601``, and ``Transfer.BT2020_12bits``)\n
+    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
+    and :py:attr:`Transfer.BT2020_12bits`)\n
     Rec. ITU-R BT.2020-2
 
     """
     BT2020_12bits = 15
     """
-    (Functionally the same as ``Transfer.BT701``, ``Transfer.BT601``, and ``Transfer.BT2020_10bits``)\n
+    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
+    and :py:attr:`Transfer.BT2020_10bits`)\n
     Rec. ITU-R BT.2020-2
     """
     ST2084 = 16
@@ -577,7 +605,7 @@ class Primaries(_PrimariesMeta):
     """
     ST170M = 6
     """
-    (Functionally the same as ``Primaries.ST240M``)
+    (Functionally the same as :py:attr:`Primaries.ST240M`)
     ```
     Primary      x      y
     Green     0.3100 0.5950
@@ -593,7 +621,7 @@ class Primaries(_PrimariesMeta):
     """
     ST240M = 7
     """
-    (Functionally the same as ``Primaries.ST170M``)
+    (Functionally the same as :py:attr:`Primaries.ST170M`)
     ```
     Primary      x      y
     Green     0.3100 0.5950
