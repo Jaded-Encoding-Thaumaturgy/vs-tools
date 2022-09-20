@@ -244,9 +244,18 @@ def _get_core(self: VSCoreProxy) -> Core:
 
 
 class VSCoreProxy(CoreProxyBase):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Class for wrapping a VapourSynth core."""
 
     def __init__(self, core: Core | None = None) -> None:
+        """
+        Obtain the color range of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            Sets the ColorRange as MISSING if prop is not there.
+
+        :return:                            ColorRange object.
+        """
         self._own_core = core is not None
         self._core = core and weakref.ref(core)
 
@@ -255,13 +264,16 @@ class VSCoreProxy(CoreProxyBase):
 
     @property
     def core(self) -> Core:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """The underlying VapourSynth Core instance."""
 
         return _get_core(self)
 
     @property
     def proxied(self) -> CoreProxy:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """
+        Proxied Core where plugins and functions are lazily retrieved,
+        so it's safe to hold a reference of anything from this.
+        """
 
         core = _get_core(self)
 
