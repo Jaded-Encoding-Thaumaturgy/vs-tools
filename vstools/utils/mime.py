@@ -80,7 +80,8 @@ class FileSignatures(list[FileSignature]):
                 set(
                     FileSignature(
                         info['file_type'], info['ext'], info['mime'], info['offset'],
-                        [bytes.fromhex(signature) for signature in info['signatures']]
+                        # This is so when checking a file head we first compare the most specific and long signatures
+                        sorted([bytes.fromhex(signature) for signature in info['signatures']], reverse=True)
                     ) for info in header_data
                 )
             )
