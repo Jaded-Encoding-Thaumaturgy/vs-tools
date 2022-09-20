@@ -43,12 +43,12 @@ class InvalidMatrixError(CustomValueError):
     """Raised when an invalid matrix is passed."""
 
     def __init__(
-        self, function: FuncExceptT, matrix: int = 2, message: str = 'You can\'t set a matrix of {matrix}!',
+        self, func: FuncExceptT, matrix: int = 2, message: str = 'You can\'t set a matrix of {matrix}!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-        super().__init__(message, function, matrix=matrix, **kwargs)
+        super().__init__(message, func, matrix=matrix, **kwargs)
 
 
 ########################################################
@@ -70,12 +70,12 @@ class InvalidTransferError(CustomValueError):
     """Raised when an invalid matrix is passed."""
 
     def __init__(
-        self, function: FuncExceptT, transfer: int = 2, message: str = 'You can\'t set a transfer of {transfer}!',
+        self, func: FuncExceptT, transfer: int = 2, message: str = 'You can\'t set a transfer of {transfer}!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-        super().__init__(message, function, transfer=transfer, **kwargs)
+        super().__init__(message, func, transfer=transfer, **kwargs)
 
 
 ########################################################
@@ -97,12 +97,12 @@ class InvalidPrimariesError(CustomValueError):
     """Raised when an invalid matrix is passed."""
 
     def __init__(
-        self, function: FuncExceptT, primaries: int = 2, message: str = 'You can\'t set primaries of {primaries}!',
+        self, func: FuncExceptT, primaries: int = 2, message: str = 'You can\'t set primaries of {primaries}!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-        super().__init__(message, function, primaries=primaries, **kwargs)
+        super().__init__(message, func, primaries=primaries, **kwargs)
 
 
 ########################################################

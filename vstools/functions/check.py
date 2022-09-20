@@ -33,13 +33,13 @@ def _check_variable(
     def _wrapper(*args: Any, **kwargs: Any) -> Any:
         for obj in args[:1] if only_first else [*args, *kwargs.values()]:
             if _check(obj):
-                raise error(function=function)
+                raise error(func=function)
 
         if not only_first:
             for name, param in inspect.signature(function).parameters.items():
                 if param.default is not inspect.Parameter.empty and _check(param.default):
                     raise error(
-                        message=f'Variable-{vname} clip not allowed in default argument `{name}`.', function=function
+                        message=f'Variable-{vname} clip not allowed in default argument `{name}`.', func=function
                     )
 
         return function(*args, **kwargs)
@@ -81,7 +81,7 @@ def disallow_variable_resolution(*, only_first: bool = False) -> Callable[[F], F
 
 
 @overload
-def disallow_variable_resolution(function: F | None = None, /) -> F:
+def disallow_variable_resolution(func: F | None = None, /) -> F:
     ...
 
 
@@ -132,7 +132,7 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None) -> None:
         raise ResolutionsRefClipMismatchError(check_ref_clip)
 
 
-def check_variable_format(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
+def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
     """
     Check for variable format and return an error if found.
 
@@ -140,12 +140,12 @@ def check_variable_format(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuar
     """
 
     if clip.format is None:
-        raise VariableFormatError(function)
+        raise VariableFormatError(func)
 
     return True
 
 
-def check_variable_resolution(clip: vs.VideoNode, function: FuncExceptT) -> None:
+def check_variable_resolution(clip: vs.VideoNode, func: FuncExceptT) -> None:
     """
     Check for variable width or height and return an error if found.
 
@@ -153,10 +153,10 @@ def check_variable_resolution(clip: vs.VideoNode, function: FuncExceptT) -> None
     """
 
     if 0 in (clip.width, clip.height):
-        raise VariableResolutionError(function)
+        raise VariableResolutionError(func)
 
 
-def check_variable(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
+def check_variable(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
     """
     Check for variable format and a variable resolution and return an error if found.
 
@@ -164,7 +164,7 @@ def check_variable(clip: vs.VideoNode, function: FuncExceptT) -> TypeGuard[Const
     :raises VariableResolutionError:    The clip has a variable resolution.
     """
 
-    check_variable_format(clip, function)
-    check_variable_resolution(clip, function)
+    check_variable_format(clip, func)
+    check_variable_resolution(clip, func)
 
     return True

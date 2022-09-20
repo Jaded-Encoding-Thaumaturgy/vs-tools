@@ -39,22 +39,22 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
     """Custom base exception class."""
 
     def __init__(
-        self, message: SupportsString | None = None, function: FuncExceptT | None = None, **kwargs: Any
+        self, message: SupportsString | None = None, func: FuncExceptT | None = None, **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
         from ..functions import norm_func_name
 
         if message is None:
-            if function is None:
+            if func is None:
                 return super().__init__()
 
             message = 'An error occurred!'
 
         message = str(message)
 
-        if function:
-            func_name = norm_func_name(function)
+        if func:
+            func_name = norm_func_name(func)
             func_header = f'({func_name})'
 
             if sys.stdout.isatty():
