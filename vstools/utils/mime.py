@@ -104,7 +104,8 @@ class FileSignatures(list[FileSignature]):
                 set(
                     FileSignature(
                         info['file_type'], info['ext'], info['mime'], info['offset'],
-                        [bytes.fromhex(signature) for signature in info['signatures']]
+                        # This is so when checking a file head we first compare the most specific and long signatures
+                        sorted([bytes.fromhex(signature) for signature in info['signatures']], reverse=True)
                     ) for info in header_data
                 )
             )
@@ -242,6 +243,11 @@ class FileType(FileTypeBase):
         encoding = encodings_map.get(filename.suffix, None)
 
         assert file_type and mime
+
+        if self is not FileType.AUTO and self is not file_type:
+            raise CustomValueError(
+                'FileType mismatch! self is {good}, file is {bad}!', FileType.parse, good=self, bad=file_type
+            )
 
         return ParsedFile(filename, ext, encoding, file_type, mime)
 
