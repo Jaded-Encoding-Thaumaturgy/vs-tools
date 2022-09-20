@@ -40,7 +40,8 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: float, chroma: boo
 
 
 def scale_thresh(
-    thresh: float, clip: VideoFormatT | HoldsVideoFormatT, assume: int | None = None, peak: int | float | None = None
+    thresh: float, clip: VideoFormatT | HoldsVideoFormatT,
+    assume: int | None = None, peak: int | float | None = None
 ) -> float:
     """
     Scale thresholds from float to int or vice versa.
@@ -122,7 +123,7 @@ def scale_value(
         elif range_out.is_full and range_in.is_limited:
             out_value -= 16 << (in_fmt.bits_per_sample - 8)
 
-    value *= output_peak / input_peak
+    out_value *= output_peak / input_peak
 
     if scale_offsets:
         if in_fmt.sample_type is vs.FLOAT and chroma:
@@ -130,12 +131,13 @@ def scale_value(
         elif range_in.is_full and range_out.is_limited:
             out_value += 16 << (out_fmt.bits_per_sample - 8)
 
-    return value
+    return out_value
 
 
 @disallow_variable_format
 def get_lowest_value(
-    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False, range: ColorRangeT = ColorRange.FULL
+    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
+    range_in: ColorRangeT = ColorRange.FULL
 ) -> float:
     """
     Returns the lowest value for the specified bit depth, or bit depth of the clip/format specified.
@@ -149,7 +151,7 @@ def get_lowest_value(
 
     fmt = get_format(clip_or_depth)
 
-    if ColorRange(range).is_limited:
+    if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 16, chroma)
 
     if chroma and fmt.sample_type == vs.FLOAT:
