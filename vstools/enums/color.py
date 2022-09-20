@@ -1013,13 +1013,13 @@ _placebo_transfer_map = {
 }
 
 MatrixT: TypeAlias = int | vs.MatrixCoefficients | Matrix
-"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+"""Type alias for values that can be used to initialize a :py:attr:`Matrix`"""
 
 TransferT: TypeAlias = int | vs.TransferCharacteristics | Transfer
-"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+"""Type alias for values that can be used to initialize a :py:attr:`Transfer`"""
 
 PrimariesT: TypeAlias = int | vs.ColorPrimaries | Primaries
-"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+"""Type alias for values that can be used to initialize a :py:attr:`Primaries`"""
 
 ColorRangeT: TypeAlias = int | vs.ColorRange | ColorRange
-"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+"""Type alias for values that can be used to initialize a :py:attr:`ColorRange`"""
