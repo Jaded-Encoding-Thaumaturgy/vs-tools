@@ -21,7 +21,7 @@ __all__ = [
 
 
 class ParsedFile(NamedTuple):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Structure for file info."""
 
     path: Path
     ext: str
@@ -32,7 +32,7 @@ class ParsedFile(NamedTuple):
 
 @complex_hash
 class FileSignature(NamedTuple):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Child structure of FileSignatures, holding info of certain types of files and their signatures."""
 
     file_type: str
     ext: str
@@ -44,10 +44,10 @@ class FileSignature(NamedTuple):
         """
         Verify the signature of the file.
 
-        :param file_bytes:  @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
-        :param ignore:      @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+        :param file_bytes:  Header bytes of the file to be checked.
+        :param ignore:      If a found signature is shorter than this length, it will be ignored.
 
-        :return:            @@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS
+        :return:            Length of the found signature.
         """
 
         for signature in self.signatures:
@@ -63,7 +63,7 @@ class FileSignature(NamedTuple):
 
 
 class FileSignatures(list[FileSignature]):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Structure wrapping a json file holding all file signatures."""
 
     _file_headers_data: list[FileSignature] | None = None
     file_headers_path = Path(
@@ -71,8 +71,6 @@ class FileSignatures(list[FileSignature]):
     )
 
     def __init__(self, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False):
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
         self.extend(self.load_headers_data(custom_header_data=custom_header_data, force=force))
 
         self.max_signature_len = max(
@@ -82,7 +80,14 @@ class FileSignatures(list[FileSignature]):
     def load_headers_data(
         cls, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False
     ) -> list[FileSignature]:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """
+        Load file signatures from json file. This is cached unless ``custom_header_data`` is set.
+
+        :param custom_header_data:  Custom header data path file or custom list of already parsed FileSignature.
+        :param force:               Ignore cache and reload header data from disk.
+
+        :return:                    List of parsed FileSignature from json file.
+        """
 
         if cls._file_headers_data is None or force or custom_header_data:
             header_data: list[dict[str, Any]] = []
@@ -137,31 +142,27 @@ class FileSignatures(list[FileSignature]):
 
 
 class FileType(FileTypeBase):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Enum for file types and mime types."""
 
     AUTO = 'auto'
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Special file type for :py:attr:`FileType.parse`."""
 
     VIDEO = 'video'
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """File type for video files."""
 
     AUDIO = 'audio'
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """File type for audio files."""
 
     CHAPTERS = 'chapters'
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """File type for chapters files."""
 
     if not TYPE_CHECKING:
         INDEX = 'index'
     IMAGE = 'image'
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """File type for image files."""
 
     OTHER = 'other'
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
-    if TYPE_CHECKING:
-        def __new__(cls, value_or_mime: str | FileType | None = None) -> FileType:
-            """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """File type for generic files, like applications."""
 
     @classmethod
     def _missing_(cls, value: Any) -> FileType:
@@ -182,7 +183,16 @@ class FileType(FileTypeBase):
     def parse(
         self, path: FilePathType, *, func: FuncExceptT | None = None, force_ffprobe: bool | None = None
     ) -> ParsedFile:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """
+        Parse infos from a file. If the FileType is different than AUTO, this function will throw if the file
+        is a different FileType than what this method was called on.
+
+        :param path:        Path of the file to be parsed.
+        :param func:        Function that this was called from, only useful to *func writers.
+        :force_ffprobe:     Only rely on ffprobe to parse the file info.
+
+        :return:            ParsedFile object, holding the file's info.
+        """
 
         from .ffprobe import FFProbe, FFProbeStream
 
