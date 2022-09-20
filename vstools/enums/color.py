@@ -23,7 +23,7 @@ __all__ = [
 
 
 class Matrix(_MatrixMeta):
-    """Matrix coefficients (ITU-T H.265 Table E.5)."""
+    """Matrix coefficients ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.5)."""
 
     _value_: int
 
@@ -50,34 +50,101 @@ class Matrix(_MatrixMeta):
         return None
 
     RGB = 0
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``Identity``\n
+    The identity matrix.\n
+    Typically used for GBR (often referred to as RGB); however, may also be\n
+    used for YZX (often referred to as XYZ)\n
+    IEC 61966-2-1 sRGB\n
+    SMPTE ST 428-1 (2006)\n
+    See ITU-T H.265 Equations E-31 to E-33
+    """
     GBR = RGB
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
     BT709 = 1
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``Kr = 0.2126; Kb = 0.0722``\n
+    Rec. ITU-R BT.709-6\n
+    Rec. ITU-R BT.1361-0 conventional colour gamut system and extended\n
+    colour gamut system (historical)\n
+    IEC 61966-2-4 xvYCC709\n
+    SMPTE RP 177 (1993) Annex B
+    """
     UNKNOWN = 2
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Image characteristics are unknown or are determined by the application"""
     FCC = 4
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``KR = 0.30; KB = 0.11``\n
+    FCC Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
     BT470BG = 5
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``KR = 0.299; KB = 0.114``\n
+    (Functionally the same as ``Matrix.SMPTE170M``)\n
+    Rec. ITU-R BT.470-6 System B, G (historical)\n
+    Rec. ITU-R BT.601-7 625\n
+    Rec. ITU-R BT.1358-0 625 (historical)\n
+    Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\n
+    IEC 61966-2-1 sYCC\n
+    IEC 61966-2-4 xvYCC601\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
     BT601 = BT470BG
     SMPTE170M = 6
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``KR = 0.299; KB = 0.114``\n
+    (Functionally the same as ``Matrix.BT470BG``)\n
+    Rec. ITU-R BT.601-7 525\n
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
+    Rec. ITU-R BT.1700-0 NTSC\n
+    SMPTE ST 170 (2004)\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
     SMPTE240M = 7
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``KR = 0.212; KB = 0.087``\n
+    SMPTE ST 240 (1999, historical)\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
     BT2020NC = 9
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``KR = 0.2627; KB = 0.0593 ``\n
+    Rec. ITU-R BT.2020-2 non-constant luminance system\n
+    Rec. ITU-R BT.2100-2 Y′CbCr\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
     BT2020C = 10
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``KR = 0.2627; KB = 0.0593``\n
+    Rec. ITU-R BT.2020-2 constant luminance system\n
+    See ITU-T H.265 Equations E-49 to E-58
+    """
     SMPTE2085 = 11
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``Y′D′ZD′X``\n
+    SMPTE ST 2085 (2015)\n
+    See ITU-T H.265 Equations E-59 to E-61
+    """
     CHROMA_DERIVED_NC = 12
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``See ITU-T H.265 Equations E-22 to E-27``\n
+    Chromaticity-derived non-constant luminance system\n
+    See ITU-T H.265 Equations E-28 to E-30
+
+    """
     CHROMA_DERIVED_C = 13
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``See ITU-T H.265 Equations E-22 to E-27``\n
+    Chromaticity-derived constant luminance system\n
+    See ITU-T H.265 Equations E-49 to E-58
+    """
     ICTCP = 14
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    ``ICtCp``\n
+    Rec. ITU-R BT.2100-2 ICTCP\n
+    See ITU-T H.265 Equations E-62 to E-64 for `transfer_characteristics` value 16 (PQ)\n
+    See ITU-T H.265 Equations E-65 to E-67 for `transfer_characteristics` value 18 (HLG)
+    """
 
     @property
     def is_unknown(self) -> bool:
