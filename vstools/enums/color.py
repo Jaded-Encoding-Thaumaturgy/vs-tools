@@ -871,7 +871,7 @@ class MatrixCoefficients(NamedTuple):
 
 
 class ColorRange(_ColorRangeMeta):
-    """Full or limited range (PC/TV range). Primarily used with YUV formats."""
+    """Pixel Range ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Equations E-10 through E-20"""
 
     _value_: int
 
@@ -886,9 +886,19 @@ class ColorRange(_ColorRangeMeta):
         return None
 
     LIMITED = 1
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Studio (TV) legal range, 16-235 in 8 bits.
+
+    | This is primarily used with YUV integer formats.
+    """
     FULL = 0
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Full (PC) dynamic range, 0-255 in 8 bits.
+
+
+    | Note that float clips should always be FULL range!\n
+    | RGB clips will always be FULL range!
+    """
 
     @property
     def is_unknown(self) -> bool:
