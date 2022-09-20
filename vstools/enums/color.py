@@ -137,7 +137,7 @@ class Transfer(_TransferMeta):
         if value is None:
             return Transfer.UNKNOWN
 
-        if Transfer.BT709 < value < Transfer.ARIB_B67:
+        if Transfer.BT709 < value < Transfer.ARIB_B67 or value == 0:
             raise ReservedTransferError(f'Transfer({value}) is reserved.', cls)
 
         if value > Transfer.ARIB_B67:
