@@ -260,7 +260,7 @@ class Transfer(_TransferMeta):
         if value is None:
             return Transfer.UNKNOWN
 
-        if Transfer.BT709 < value < Transfer.ARIB_B67:
+        if Transfer.BT709 < value < Transfer.ARIB_B67 or value == 0:
             raise ReservedTransferError(f'Transfer({value}) is reserved.', cls)
 
         if value > Transfer.ARIB_B67:
@@ -373,8 +373,6 @@ class Transfer(_TransferMeta):
     """Sony S-Gamut"""
     FILM_C = 111
     """Traditional film primaries with Illuminant C"""
-    COUNT = 112
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
     @property
     def is_unknown(self) -> bool:
@@ -838,8 +836,7 @@ _transfer_placebo_map = {
     Transfer.DISPLAY_P3: 12,
     Transfer.V_GAMUT: 13,
     Transfer.S_GAMUT: 14,
-    Transfer.FILM_C: 15,
-    Transfer.COUNT: 16
+    Transfer.FILM_C: 15
 }
 
 _placebo_transfer_map = {
