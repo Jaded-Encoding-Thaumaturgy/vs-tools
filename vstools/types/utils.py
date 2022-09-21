@@ -14,10 +14,33 @@ __all__ = [
 
 
 class copy_signature(Generic[F]):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Type util to copy the signature of one function to another function.\n
+    Especially useful for passthrough functions.
+    ```
+    class SomeClass:
+        def __init__(
+            self, some: Any, complex: Any, /, *args: Any,
+            long: Any, signature: Any, **kwargs: Any
+        ) -> None:
+            ...
+
+    class SomeClassChild(SomeClass):
+        @copy_signature(SomeClass.__init__)
+        def __init__(*args: Any, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            # do some other thing
+
+    class Example(SomeClass):
+        @copy_signature(SomeClass.__init__)
+        def __init__(*args: Any, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            # another thing
+    ```
+    """
 
     def __init__(self, target: F) -> None:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """Copy the signature of ``target``."""
 
     def __call__(self, wrapped: Callable[..., Any]) -> F:
         return cast(F, wrapped)
@@ -48,10 +71,13 @@ self_objects_cache = dict[type[T], T]()
 
 
 class inject_self_base(Generic[T, P, R]):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
     def __init__(self, function: Callable[Concatenate[T, P], R], /, *, cache: bool = False) -> None:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """
+        Wrap ``function`` to always have a self provided to it.
+
+        :param function:    Method to wrap.
+        :param cache:       Whether to cache the self object.
+        """
 
         self.function = function
         if isinstance(self, inject_self.cached):
@@ -89,7 +115,7 @@ class inject_self_base(Generic[T, P, R]):
     def with_args(
         cls, *args: Any, **kwargs: Any
     ) -> Callable[[Callable[Concatenate[T0, P0], R0]], inject_self[T0, P0, R0]]:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """Provide custom args to instantiate the ``self`` object with."""
 
         def _wrapper(function: Callable[Concatenate[T0, P0], R0]) -> inject_self[T0, P0, R0]:
             inj = cls(function)  # type: ignore
@@ -100,16 +126,23 @@ class inject_self_base(Generic[T, P, R]):
 
 
 class inject_self(Generic[T, P, R], inject_self_base[T, P, R]):  # type: ignore
+    """Wrap a method so it always has a constructed ``self`` provided to it."""
+
     class cached(Generic[T0, P0, R0], inject_self_base[T0, P0, R0]):  # type: ignore
-        ...
+        """
+        Wrap a method so it always has a constructed ``self`` provided to it.
+        Once ``self`` is constructed, it will be reused. 
+        """
 
 
 class complex_hash(Generic[T]):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """
+    Decorator for classes to add a ``__hash__`` method to them.
+
+    Especially useful for NamedTuples.
+    """
 
     def __new__(cls, class_type: T) -> T:  # type: ignore
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
-
         class inner_class_type(class_type):  # type: ignore
             def __hash__(self) -> int:
                 return complex_hash.hash(
@@ -122,7 +155,13 @@ class complex_hash(Generic[T]):
 
     @staticmethod
     def hash(*args: Any) -> int:
-        """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+        """
+        Recursively hash every unhashable object in ``*args``.
+
+        :param *args:   Objects to be hashed.
+
+        :return:        Hash of all the combined objects' hashes.
+        """
 
         values = list[str]()
         for value in args:
