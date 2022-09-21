@@ -23,18 +23,19 @@ class CustomEnum(Enum):
         try:
             return cls(value)
         except ValueError:
-            readable_enum = ', '.join([repr(i) for i in cls])
+            ...
 
-            if not isinstance(func_except, str):
-                from ..functions import norm_func_name
+        if not isinstance(func_except, str):
+            func_name, var_name = func_except
+        else:
+            var_name, func_name = func_except, ''
 
-                func_name, var_name = func_except
-
-                func_name = norm_func_name(func_name)
-            else:
-                var_name, func_name = func_except, ''
-
-            raise NotFoundEnumValue(f'{func_name}{var_name} must be in {readable_enum}.', func_except) from None
+        raise NotFoundEnumValue(
+            'Value for "{var_name}" argument must be a valid {enum_name}.\n'
+            'It can be a value in [{readable_enum}].', func_name,
+            var_name=var_name, enum_name=cls,
+            readable_enum=iter([f'{x.name} ({x.value})' for x in cls])
+        )
 
 
 class CustomIntEnum(int, CustomEnum):
