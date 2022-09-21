@@ -93,7 +93,7 @@ def some_enum_usage(my_epic_matrix: MatrixT) -> None:
 some_enum_usage(999)
 ```
 If an error occurs, this will print a clear error ->\n
-NotFoundEnumValue: (test) Value for "my_epic_matrix" argument must be a valid Matrix.\n
+NotFoundEnumValue: (some_enum_usage) Value for "my_epic_matrix" argument must be a valid Matrix.\n
 It can be a value in [RGB (0), BT709 (1), ..., ICTCP (14)].
 """
 
