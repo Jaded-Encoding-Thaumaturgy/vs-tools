@@ -131,7 +131,7 @@ class inject_self(Generic[T, P, R], inject_self_base[T, P, R]):  # type: ignore
     class cached(Generic[T0, P0, R0], inject_self_base[T0, P0, R0]):  # type: ignore
         """
         Wrap a method so it always has a constructed ``self`` provided to it.
-        Once ``self`` is constructed, it will be reused. 
+        Once ``self`` is constructed, it will be reused.
         """
 
 
