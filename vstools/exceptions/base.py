@@ -98,28 +98,28 @@ SelfError = TypeVar('SelfError', bound=CustomError)
 
 
 class CustomValueError(CustomError, ValueError):
-    """Custom base ValueError class."""
+    """Thrown when a specified value is invalid."""
 
 
 class CustomIndexError(CustomError, IndexError):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Thrown when an index or generic numeric value is out of bound."""
 
 
 class CustomOverflowError(CustomError, OverflowError):
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """Thrown when a value is out of range. e.g. temporal radius too big."""
 
 
 class CustomKeyError(CustomError, KeyError):
-    """Custom base KeyError class."""
+    """Thrown when tring to access an non-existant key."""
 
 
 class CustomTypeError(CustomError, TypeError):
-    """Custom base TypeError class."""
+    """Thrown when a passed argument is of wrong type."""
 
 
 class CustomRuntimeError(CustomError, RuntimeError):
-    """Custom base RuntimeError class."""
+    """Thrown when a runtime error occurs."""
 
 
 class CustomPermissionError(CustomError, PermissionError):
-    """Custom base PermissionError class."""
+    """Thrown when the user can't perform an action."""
