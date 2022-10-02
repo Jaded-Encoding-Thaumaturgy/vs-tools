@@ -6,7 +6,7 @@ from ..enums import ColorRange, ColorRangeT
 from ..exceptions import CustomIndexError
 from ..functions import disallow_variable_format
 from ..types import HoldsVideoFormatT, VideoFormatT
-from .info import get_depth, get_format
+from .info import get_depth, get_video_format
 
 __all__ = [
     'scale_8bit', 'scale_thresh', 'scale_value',
@@ -16,7 +16,7 @@ __all__ = [
 
 
 def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: float, chroma: bool = False) -> float:
-    fmt = get_format(clip)
+    fmt = get_video_format(clip)
 
     if fmt.sample_type is vs.FLOAT:
         value /= 255
@@ -33,7 +33,7 @@ def scale_thresh(
     thresh: float, clip: VideoFormatT | HoldsVideoFormatT,
     assume: int | None = None, peak: int | float | None = None
 ) -> float:
-    fmt = get_format(clip)
+    fmt = get_video_format(clip)
 
     if thresh < 0:
         raise CustomIndexError('Thresholds must be positive!', scale_thresh)
@@ -60,8 +60,8 @@ def scale_value(
 ) -> float:
     out_value = float(value)
 
-    in_fmt = get_format(input_depth)
-    out_fmt = get_format(output_depth)
+    in_fmt = get_video_format(input_depth)
+    out_fmt = get_video_format(output_depth)
 
     if in_fmt.sample_type is vs.FLOAT:
         range_in = ColorRange.FULL
@@ -103,7 +103,7 @@ def get_lowest_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
     range_in: ColorRangeT = ColorRange.FULL
 ) -> float:
-    fmt = get_format(clip_or_depth)
+    fmt = get_video_format(clip_or_depth)
 
     if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 16, chroma)
@@ -116,7 +116,7 @@ def get_lowest_value(
 
 @disallow_variable_format
 def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False) -> float:
-    fmt = get_format(clip_or_depth)
+    fmt = get_video_format(clip_or_depth)
 
     if fmt.sample_type == vs.FLOAT:
         return 0. if chroma else 0.5
@@ -129,7 +129,7 @@ def get_peak_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
     range_in: ColorRangeT = ColorRange.FULL
 ) -> float:
-    fmt = get_format(clip_or_depth)
+    fmt = get_video_format(clip_or_depth)
 
     if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 240 if chroma else 235, chroma)

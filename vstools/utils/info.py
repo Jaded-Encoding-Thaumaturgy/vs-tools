@@ -11,7 +11,7 @@ from .math import mod_x
 
 __all__ = [
     'get_var_infos',
-    'get_format',
+    'get_video_format',
 
     'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family',
 
@@ -35,7 +35,7 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
 
 
 @disallow_variable_format
-def get_format(
+def get_video_format(
     value: int | VideoFormatT | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None
 ) -> vs.VideoFormat:
     if sample_type is not None:
@@ -65,19 +65,19 @@ def get_format(
 
 
 def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
-    return get_format(clip).bits_per_sample
+    return get_video_format(clip).bits_per_sample
 
 
 def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
     if isinstance(clip, vs.SampleType):
         return clip
-    return get_format(clip).sample_type
+    return get_video_format(clip).sample_type
 
 
 def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
     if isinstance(clip, vs.ColorFamily):
         return clip
-    return get_format(clip).color_family
+    return get_video_format(clip).color_family
 
 
 def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.VideoNode, int]:
@@ -110,7 +110,7 @@ def get_resolutions(clip: vs.VideoNode | vs.VideoFrame) -> tuple[tuple[int, int,
 
 
 def get_subsampling(clip: VideoFormatT | HoldsVideoFormatT, /) -> str | None:
-    fmt = get_format(clip)
+    fmt = get_video_format(clip)
 
     if fmt.color_family != vs.YUV:
         return None

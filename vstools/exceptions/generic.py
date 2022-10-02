@@ -77,8 +77,8 @@ class InvalidVideoFormatError(CustomValueError):
         message: str = 'The format {format.name} is not supported!',
         **kwargs: Any
     ) -> None:
-        from ..utils import get_format
-        super().__init__(message, func, format=get_format(format), **kwargs)
+        from ..utils import get_video_format
+        super().__init__(message, func, format=get_video_format(format), **kwargs)
 
 
 class UnsupportedColorFamilyError(CustomValueError):
@@ -135,8 +135,8 @@ class InvalidSubsamplingError(CustomValueError):
         message: str = 'The subsampling {subsampling} is not supported!',
         **kwargs: Any
     ) -> None:
-        from ..utils import get_format
-        subsampling = subsampling if isinstance(subsampling, str) else get_format(subsampling).name
+        from ..utils import get_video_format
+        subsampling = subsampling if isinstance(subsampling, str) else get_video_format(subsampling).name
         super().__init__(message, func, subsampling=subsampling, **kwargs)
 
 

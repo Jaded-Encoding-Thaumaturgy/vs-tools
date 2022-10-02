@@ -72,10 +72,10 @@ class DitherType(CustomStrEnum):
         out_sample_type_or_range: vs.SampleType | ColorRangeT | None = None,
         in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None,
     ) -> bool:
-        from ..utils import get_format
+        from ..utils import get_video_format
 
-        in_fmt = get_format(in_bits_or_fmt, sample_type=in_sample_type_or_range)
-        out_fmt = get_format(out_bits_or_fmt, sample_type=out_sample_type_or_range)
+        in_fmt = get_video_format(in_bits_or_fmt, sample_type=in_sample_type_or_range)
+        out_fmt = get_video_format(out_bits_or_fmt, sample_type=out_sample_type_or_range)
 
         in_range = ColorRange.from_param(in_range, (DitherType.should_dither, 'in_range'))
         out_range = ColorRange.from_param(out_range, (DitherType.should_dither, 'out_range'))
@@ -108,10 +108,10 @@ def depth(
     range_in: ColorRangeT | None = None, range_out: ColorRangeT | None = None,
     dither_type: str | DitherType = DitherType.AUTO,
 ) -> vs.VideoNode:
-    from ..utils import get_format
+    from ..utils import get_video_format
 
-    in_fmt = get_format(clip)
-    out_fmt = get_format(bitdepth, sample_type=sample_type)
+    in_fmt = get_video_format(clip)
+    out_fmt = get_video_format(bitdepth, sample_type=sample_type)
 
     range_out = ColorRange.from_param(range_out)
     range_in = ColorRange.from_param(range_in)
@@ -263,7 +263,7 @@ def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily | None = None) -
 
 
 def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
-    from ..utils import get_color_family, get_format
+    from ..utils import get_color_family, get_video_format
 
     family: vs.ColorFamily | None = kwargs.get('family', None)
 
@@ -300,7 +300,7 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
     if n_clips in {3, 4}:
         if family is vs.GRAY:
             for plane in planes[:3]:
-                if (fmt := get_format(plane)).num_planes > 1:
+                if (fmt := get_video_format(plane)).num_planes > 1:
                     family = fmt.color_family
                     break
             else:
