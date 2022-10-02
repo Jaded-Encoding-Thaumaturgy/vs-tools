@@ -17,6 +17,7 @@ __all__ = [
     'CustomKeyError',
     'CustomTypeError',
     'CustomRuntimeError',
+    'CustomNotImplementedError',
     'CustomPermissionError'
 ]
 
@@ -116,6 +117,10 @@ class CustomTypeError(CustomError, TypeError):
 
 
 class CustomRuntimeError(CustomError, RuntimeError):
+    ...
+
+
+class CustomNotImplementedError(CustomError, NotImplementedError):
     ...
 
 
