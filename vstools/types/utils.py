@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Concatenate, Generic, Iterable, Protocol, cast, overload
 
-from .builtins import P0, R0, T0, F, P, R, T
+from .builtins import F0, P0, R0, T0, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -13,12 +13,12 @@ __all__ = [
 ]
 
 
-class copy_signature(Generic[F]):
-    def __init__(self, target: F) -> None:
+class copy_signature(Generic[F0]):
+    def __init__(self, target: F0) -> None:
         ...
 
-    def __call__(self, wrapped: Callable[..., Any]) -> F:
-        return cast(F, wrapped)
+    def __call__(self, wrapped: Callable[..., Any]) -> F0:
+        return cast(F0, wrapped)
 
 
 class injected_self_func(Generic[T, P, R], Protocol):  # type: ignore
