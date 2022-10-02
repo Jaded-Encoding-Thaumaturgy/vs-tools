@@ -1,6 +1,7 @@
 from . import vs_proxy as vapoursynth
 from .ffprobe import *  # noqa: F401, F403
 from .file import *  # noqa: F401, F403
+from .funcs import *  # noqa: F401, F403
 from .info import *  # noqa: F401, F403
 from .math import *  # noqa: F401, F403
 from .mime import *  # noqa: F401, F403
