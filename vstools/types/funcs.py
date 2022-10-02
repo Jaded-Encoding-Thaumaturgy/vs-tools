@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Iterable, List, overload
 
 import vapoursynth as vs
 
-from .generic import SupportsString
+from .builtins import SupportsString
 
 __all__ = [
     'StrList'
@@ -40,4 +40,9 @@ class StrList(List[SupportsString]):
     def __str__(self) -> str:
         from ..functions import flatten
 
-        return ' '.join(filter(None, (str(x).strip() for x in flatten(self) if x is not None)))
+        return ' '.join(
+            filter(
+                None,
+                (str(x).strip() for x in flatten(self) if x is not None)  # type: ignore[var-annotated,arg-type]
+            )
+        )

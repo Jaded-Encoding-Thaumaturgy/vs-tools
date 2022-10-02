@@ -47,14 +47,15 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         super().__init__(message)
 
     def __call__(
-        self: SelfError, message: SupportsString | None = MISSING, func: FuncExceptT | None = MISSING, **kwargs: Any
+        self: SelfError, message: SupportsString | None = MISSING,
+        func: FuncExceptT | None = MISSING, **kwargs: Any  # type: ignore[assignment]
     ) -> SelfError:
         err = deepcopy(self)
 
         if message is not MISSING:
             err.message = message
 
-        if func is not MISSING:
+        if func is not MISSING:  # type: ignore[comparison-overlap]
             err.func = func
 
         return err
@@ -64,9 +65,10 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         message = self.message
 
-        if message is self.func is None:
-            return super().__init__()
-        elif not message:
+        if message is None and self.func is None:
+            return str(self)
+
+        if not message:
             message = 'An error occurred!'
 
         func_header = norm_func_name(self.func).strip() if self.func else 'Unknown'
