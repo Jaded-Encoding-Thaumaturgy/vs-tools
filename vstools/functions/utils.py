@@ -13,7 +13,7 @@ from .check import disallow_variable_format
 __all__ = [
     'DitherType',
 
-    'depth',
+    'depth', 'depth_func',
 
     'frame2clip',
 
@@ -337,3 +337,6 @@ def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNod
 def split(clip: vs.VideoNode, /) -> list[vs.VideoNode]:
     assert clip.format
     return [clip] if clip.format.num_planes == 1 else cast(list[vs.VideoNode], clip.std.SplitPlanes())
+
+
+depth_func = depth
