@@ -14,6 +14,7 @@ from ..types import FilePathType, FuncExceptT, complex_hash, inject_self
 from .mime_base import FileTypeBase, FileTypeIndex, FileTypeIndexWithType
 
 __all__ = [
+    'IndexingType',
     'FileSignature',
     'FileSignatures',
     'FileType',
