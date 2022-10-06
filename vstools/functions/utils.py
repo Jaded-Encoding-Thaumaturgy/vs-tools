@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import string
 from typing import Any, Literal, Sequence, cast, overload
 from weakref import WeakValueDictionary
 
@@ -11,6 +12,8 @@ from ..types import HoldsVideoFormatT, VideoFormatT
 from .check import disallow_variable_format
 
 __all__ = [
+    'EXPR_VARS',
+
     'DitherType',
 
     'depth', 'depth_func',
@@ -25,6 +28,9 @@ __all__ = [
     'plane',
     'join', 'split',
 ]
+
+
+EXPR_VARS = (alph := list(string.ascii_lowercase))[(idx := alph.index('x')):] + alph[:idx]
 
 
 class DitherType(CustomStrEnum):
