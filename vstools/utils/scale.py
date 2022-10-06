@@ -15,18 +15,18 @@ __all__ = [
 ]
 
 
-def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: float, chroma: bool = False) -> float:
+def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool = False) -> float:
     fmt = get_video_format(clip)
 
     if fmt.sample_type is vs.FLOAT:
-        value /= 255
+        out = value / 255
 
         if chroma:
-            value -= .5
-    else:
-        value = float(int(value) << get_depth(fmt) - 8)
+            out -= .5
 
-    return value
+        return out
+
+    return value << get_depth(fmt) - 8
 
 
 def scale_thresh(
