@@ -8,6 +8,7 @@ from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeGuard
 
+from ..enums import CustomStrEnum
 from ..exceptions import CustomRuntimeError, CustomValueError
 from ..types import FilePathType, FuncExceptT, complex_hash, inject_self
 from .mime_base import FileTypeBase, FileTypeIndex, FileTypeIndexWithType
@@ -18,6 +19,11 @@ __all__ = [
     'FileType',
     'ParsedFile'
 ]
+
+
+class IndexingType(CustomStrEnum):
+    DGI = '.dgi'
+    LWI = '.lwi'
 
 
 class ParsedFile(NamedTuple):
