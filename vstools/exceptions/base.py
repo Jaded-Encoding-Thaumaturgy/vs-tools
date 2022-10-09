@@ -29,7 +29,7 @@ class CustomErrorMeta(type):
         if obj.__qualname__.startswith('Custom'):  # type: ignore
             obj.__qualname__ = obj.__qualname__[6:]  # type: ignore
 
-        if sys.stdout.isatty():
+        if sys.stdout and sys.stdout.isatty():
             obj.__qualname__ = f'\033[0;31;1m{obj.__qualname__}\033[0m'  # type: ignore
 
         obj.__module__ = Exception.__module__
@@ -74,7 +74,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         func_header = norm_func_name(self.func).strip() if self.func else 'Unknown'
 
-        if sys.stdout.isatty():
+        if sys.stdout and sys.stdout.isatty():
             func_header = f'\033[0;36m{func_header}\033[0m'
 
         func_header = f'({func_header})'
