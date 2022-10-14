@@ -44,7 +44,7 @@ def scale_thresh(
         return thresh
 
     if assume:
-        return round(thresh / ((1 << assume) - 1) * peak)
+        return round(thresh / (get_peak_value(assume) * peak))
 
     return round(thresh * peak)
 
