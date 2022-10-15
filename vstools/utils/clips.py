@@ -51,13 +51,17 @@ def finalize_clip(
 
 @overload
 def finalize_output(
-    *, bits: int | None = 10, clamp_tv_range: bool = True, func: FuncExceptT | None = None
-) -> Callable[[F_VD], F_VD]:
+    function: None = None, /, *, bits: int | None = 10,
+    clamp_tv_range: bool = True, func: FuncExceptT | None = None
+) -> Callable[[F_VD], F_VD] | F_VD:
     ...
 
 
 @overload
-def finalize_output(function: F_VD | None, /, *, func: FuncExceptT | None = None) -> F_VD:
+def finalize_output(
+    function: F_VD, /, *, bits: int | None = 10,
+    clamp_tv_range: bool = True, func: FuncExceptT | None = None
+) -> F_VD:
     ...
 
 
@@ -68,7 +72,7 @@ def finalize_output(
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],
-            partial(finalize_output, bits=bits, clamp_tv_range=clamp_tv_range)
+            partial(finalize_output, bits=bits, clamp_tv_range=clamp_tv_range, func=func)
         )
 
     @wraps(function)
@@ -101,11 +105,12 @@ def initialize_clip(
 
 @overload
 def initialize_input(
-    *, bits: int = ...,
+    function: None = None, /, *, bits: int = 16,
     matrix: MatrixT = Matrix.BT709,
     transfer: TransferT = Transfer.BT709,
     primaries: PrimariesT = Primaries.BT709,
     chroma_location: ChromaLocationT = ChromaLocation.LEFT,
+    color_range: ColorRangeT = ColorRange.LIMITED,
     field_based: FieldBasedT = FieldBased.PROGRESSIVE,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD]:
@@ -113,7 +118,16 @@ def initialize_input(
 
 
 @overload
-def initialize_input(function: F_VD | None, /, *, func: FuncExceptT | None = None) -> F_VD:
+def initialize_input(
+    function: F_VD, /, *, bits: int = 16,
+    matrix: MatrixT = Matrix.BT709,
+    transfer: TransferT = Transfer.BT709,
+    primaries: PrimariesT = Primaries.BT709,
+    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
+    color_range: ColorRangeT = ColorRange.LIMITED,
+    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
+    func: FuncExceptT | None = None
+) -> F_VD:
     ...
 
 
