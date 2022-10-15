@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from typing import NamedTuple
+
 from .base import CustomIntEnum, CustomStrEnum
 
 __all__ = [
     'Direction',
     'Dar',
-    'Region'
+    'Region',
+    'Resolution'
 ]
 
 
@@ -30,3 +33,11 @@ class Region(CustomStrEnum):
     NTSC = 'NTSC'
     NTSCJ = 'NTSCJ'
     PAL = 'PAL'
+
+
+class Resolution(NamedTuple):
+    """Tuple representing a resolution."""
+
+    width: int
+
+    height: int
