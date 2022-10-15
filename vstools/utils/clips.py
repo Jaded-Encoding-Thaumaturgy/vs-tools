@@ -34,10 +34,18 @@ def finalize_clip(
         bits = get_depth(clip)
 
     if clamp_tv_range:
-        clip = clip.std.Expr([
-            f'x {16 << (bits - 8)} max {235 << (bits - 8)} min',
-            f'x {16 << (bits - 8)} max {240 << (bits - 8)} min'
-        ])
+        low_luma, high_luma = scale_8bit(clip, 16), scale_8bit(clip, 235)
+        low_chroma, high_chroma = scale_8bit(clip, 16, True), scale_8bit(clip, 240, True)
+
+        if hasattr(vs.core, 'akarin'):
+            clip = clip.akarin.Expr([
+                f'x {low_luma} {high_luma} clamp', f'x {low_chroma} {high_chroma} clamp'
+            ])
+        else:
+            clip = clip.std.Expr([
+                f'x {low_luma} max {high_luma} min', f'x {low_chroma} max {high_chroma} min'
+            ])
+
     return clip
 
 
