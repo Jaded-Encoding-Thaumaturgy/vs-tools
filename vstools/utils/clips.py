@@ -19,12 +19,11 @@ __all__ = [
     'finalize_clip',
     'finalize_output',
     'initialize_clip',
-    'initialize_input'
+    'initialize_input',
+    'chroma_injector',
     'allow_variable_clip'
 ]
 
-
-# Original from vardefunc, thanks Vardë
 
 def finalize_clip(
     clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
@@ -186,6 +185,99 @@ def initialize_input(
         )
 
     return cast(F_VD, _wrapper)
+
+
+@overload
+def chroma_injector(
+    function: None = None, *,
+    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.proxied.resize.Bicubic,
+    func: FuncExceptT | None = None
+) -> Callable[[F_VD], F_VD]:
+    ...
+
+
+@overload
+def chroma_injector(
+    function: F_VD, *,
+    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.proxied.resize.Bicubic,
+    func: FuncExceptT | None = None
+) -> F_VD:
+    ...
+
+
+def chroma_injector(
+    function: F_VD | None = None, *,
+    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.proxied.resize.Bicubic,
+    func: FuncExceptT | None = None
+) -> Callable[[F_VD], F_VD] | F_VD:
+    if function is None:
+        return cast(
+            Callable[[F_VD], F_VD],
+            partial(chroma_injector, scaler=scaler, func=func)
+        )
+
+    @wraps(function)
+    def inner(_chroma: vs.VideoNode, clip: vs.VideoNode, *args: Any, **kwargs: Any) -> vs.VideoNode:
+        assert function
+
+        _cached_clips = dict[str, vs.VideoNode]()
+
+        def upscale_chroma(n: int, f: vs.VideoFrame) -> vs.VideoNode:
+            key = f'{f.width}_{f.height}_{f.format.id}'
+
+            if key not in _cached_clips:
+                fmt = vs.core.query_video_format(
+                    vs.YUV, f.format.sample_type, f.format.bits_per_sample
+                ) if out_fmt is None else out_fmt
+
+                _cached_clips[key] = join(
+                    y.resize.Point(f.width, f.height, f.format.id),
+                    scaler(_chroma, f.width, f.height, fmt.id),
+                    vs.YUV
+                )
+
+            return _cached_clips[key]
+
+        fmt = get_video_format(clip)
+        out_fmt: vs.VideoFormat | None = None
+
+        if clip.format is not None:
+            InvalidColorFamilyError.check(clip, (vs.GRAY, vs.YUV), func or chroma_injector)
+
+            in_fmt = vs.core.query_video_format(vs.GRAY, fmt.sample_type, fmt.bits_per_sample)
+            out_fmt = vs.core.query_video_format(vs.YUV, fmt.sample_type, fmt.bits_per_sample)
+
+            y = allow_variable_clip(get_y, format=in_fmt)(clip)
+        else:
+            y = allow_variable_clip(get_y)(clip)
+
+        if y.width != 0 and y.height != 0 and out_fmt is not None:
+            clip_in = join(y, scaler(_chroma, y.width, y.height, out_fmt.id), vs.YUV)
+        else:
+            clip_in = (
+                y.resize.Point(format=out_fmt.id) if out_fmt is not None else y
+            ).std.FrameEval(upscale_chroma, y)
+
+        result = function(clip_in, *args, **kwargs)
+
+        if result.format is None:
+            return allow_variable_clip(get_y)(result)
+
+        InvalidColorFamilyError.check(
+            result, (vs.GRAY, vs.YUV), chroma_injector,
+            'Can only decorate function returning clips having {correct} color family!'
+        )
+
+        if result.format.color_family == vs.GRAY:
+            return result
+
+        res_fmt = vs.core.query_video_format(
+            vs.GRAY, result.format.sample_type, result.format.bits_per_sample
+        )
+
+        return allow_variable_clip(get_y, format=res_fmt)(result)
+
+    return cast(F_VD, inner)
 
 
 @overload
