@@ -2,24 +2,25 @@ from __future__ import annotations
 
 import inspect
 from functools import partial, wraps
-from typing import Any, Callable, cast, overload
-
-import vapoursynth as vs
+from typing import Any, Callable, Concatenate, cast, overload
 
 from ..enums import (
     ChromaLocation, ChromaLocationT, ColorRange, ColorRangeT, FieldBased, FieldBasedT, Matrix, MatrixT, Primaries,
     PrimariesT, Transfer, TransferT
 )
-from ..exceptions import CustomValueError
-from ..functions import depth
-from ..types import F_VD, FuncExceptT
-from .info import get_depth
+from ..exceptions import CustomValueError, InvalidColorFamilyError
+from ..functions import depth, get_y, join
+from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P
+from . import vs_proxy as vs
+from .info import get_depth, get_video_format, get_w
+from .scale import scale_8bit
 
 __all__ = [
     'finalize_clip',
     'finalize_output',
     'initialize_clip',
     'initialize_input'
+    'allow_variable_clip'
 ]
 
 
@@ -185,3 +186,74 @@ def initialize_input(
         )
 
     return cast(F_VD, _wrapper)
+
+
+@overload
+def allow_variable_clip(
+    function: None = None,
+    width: int | None = None, height: int | None = None, format: int | HoldsVideoFormatT | None = None,
+    func: FuncExceptT | None = None
+) -> Callable[
+    [Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]],
+    Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]
+]:
+    ...
+
+
+@overload
+def allow_variable_clip(
+    function: Callable[Concatenate[vs.VideoNode, P], vs.VideoNode],
+    width: int | None = None, height: int | None = None, format: int | HoldsVideoFormatT | None = None,
+    func: FuncExceptT | None = None
+) -> Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]:
+    ...
+
+
+def allow_variable_clip(
+    function: Callable[Concatenate[vs.VideoNode, P], vs.VideoNode] | None = None,
+    width: int | None = None, height: int | None = None, format: int | HoldsVideoFormatT | None = None,
+    func: FuncExceptT | None = None
+) -> Callable[
+    [Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]],
+    Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]
+] | Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]:
+    if function is None:
+        return cast(
+            Callable[
+                [Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]],
+                Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]
+            ], partial(chroma_injector, width=width, height=height, format=format, func=func)
+        )
+
+    wrapped_function = function
+
+    out_fmt = None if format is None else get_video_format(format).id
+
+    if height is not None and width:
+        width = get_w(height, )
+
+    @wraps(function)
+    def inner2(clip: vs.VideoNode, *args: P.args, **kwargs: P.kwargs) -> vs.VideoNode:
+        if out_fmt:
+            clip_out = clip.resize.Point(format=out_fmt)
+
+            def frameeval_wrapper(n: int, f: vs.VideoFrame) -> vs.VideoNode:
+                return wrapped_function(
+                    clip.resize.Point(f.width, f.height, f.format.id), *args, **kwargs
+                ).resize.Point(format=out_fmt)
+        else:
+            clip_out = clip
+
+            def frameeval_wrapper(n: int, f: vs.VideoFrame) -> vs.VideoNode:
+                return wrapped_function(
+                    clip.resize.Point(f.width, f.height, f.format.id), *args, **kwargs
+                )
+
+        if width is not None or height is not None:
+            clip_out = clip_out.resize.Point(
+                width or clip_out.width, height or clip_out.height
+            )
+
+        return vs.core.std.FrameEval(clip_out, frameeval_wrapper, clip)
+
+    return cast(Callable[Concatenate[vs.VideoNode, P], vs.VideoNode], inner2)
