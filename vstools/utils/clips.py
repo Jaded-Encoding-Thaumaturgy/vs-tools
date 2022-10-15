@@ -181,7 +181,7 @@ def initialize_input(
                 return function(*args, **kwargs2 | {name: initialize_clip(param.default, **init_args)})
 
         raise CustomValueError(
-            'initialize_input: None VideoNode found in positional, keyword nor default arguments!'
+            'No VideoNode found in positional, keyword nor default arguments!', func or initialize_input
         )
 
     return cast(F_VD, _wrapper)
