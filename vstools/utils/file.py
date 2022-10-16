@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import sys
+import ctypes
 from io import BufferedRandom, BufferedReader, BufferedWriter, FileIO, TextIOWrapper
-from os import F_OK, R_OK, W_OK, X_OK, access
+from os import F_OK, R_OK, W_OK, X_OK, access, path, getenv
 from pathlib import Path
 from typing import IO, Any, BinaryIO, Literal, overload
 
@@ -12,9 +14,29 @@ from ..types import (
 )
 
 __all__ = [
+    'get_user_data_dir',
+
     'check_perms',
     'open_file'
 ]
+
+
+def get_user_data_dir() -> Path:
+    if sys.platform == 'win32':
+        buf = ctypes.create_unicode_buffer(1024)
+        ctypes.windll.shell32.SHGetFolderPathW(None, 28, None, 0, buf)
+
+        if any([ord(c) > 255 for c in buf]):
+            buf2 = ctypes.create_unicode_buffer(1024)
+            if ctypes.windll.kernel32.GetShortPathNameW(buf.value, buf2, 1024):
+                buf = buf2
+
+        return Path(path.normpath(buf.value))
+
+    if sys.platform == 'darwin':  # type: ignore[unreachable]
+        return Path(path.expanduser('~/Library/Application Support/'))
+
+    return Path(getenv('XDG_DATA_HOME', path.expanduser("~/.local/share")))
 
 
 def check_perms(
