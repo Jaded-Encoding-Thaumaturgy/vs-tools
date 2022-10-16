@@ -93,9 +93,16 @@ def initialize_clip(
     field_based: FieldBasedT = FieldBased.PROGRESSIVE,
     *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
+    matrix = Matrix.from_param(matrix)
+    transfer = Transfer.from_param(transfer)
+    primaries = Primaries.from_param(primaries)
+    chroma_location = ChromaLocation.from_param(chroma_location)
+    color_range = ColorRange.from_param(color_range)
+    field_based = FieldBased.from_param(field_based)
+
     clip = clip.std.SetFrameProps(
-        _Matrix=matrix, _Transfer=transfer, _Primaries=primaries,
-        _ChromaLocation=chroma_location, _ColorRange=color_range
+        _Matrix=matrix.value, _Transfer=transfer.value, _Primaries=primaries.value,
+        _ChromaLocation=chroma_location.value, _ColorRange=color_range.value
     )
 
     clip = FieldBased.ensure_presence(clip, field_based, func)
