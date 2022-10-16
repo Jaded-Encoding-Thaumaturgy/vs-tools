@@ -146,7 +146,7 @@ class FieldBased(_FieldBasedMeta):
     ) -> vs.VideoNode:
         value = FieldBased.from_param(tff, func) or FieldBased.from_video(clip, True)
 
-        return clip.std.SetFieldBased(value.field)
+        return clip.std.SetFieldBased(value.value)
 
 
 ChromaLocationT = int | vs.ChromaLocation | ChromaLocation
