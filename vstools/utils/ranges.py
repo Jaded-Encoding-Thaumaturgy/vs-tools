@@ -1,12 +1,13 @@
 from __future__ import annotations
-from typing import Iterable, overload
 
 import warnings
+from typing import Iterable, overload
 
 import vapoursynth as vs
 
-from ..types import FrameRangeN, FrameRangesN
 from ..exceptions import CustomIndexError
+from ..functions import check_ref_clip
+from ..types import FrameRangeN, FrameRangesN
 
 __all__ = [
     'replace_ranges', 'rfs',
@@ -18,12 +19,16 @@ __all__ = [
 def replace_ranges(
     clip_a: vs.VideoNode, clip_b: vs.VideoNode,
     ranges: FrameRangeN | FrameRangesN | None,
-    exclusive: bool = False, use_plugin: bool = True
+    exclusive: bool = False, use_plugin: bool = True,
+    mismatch: bool = False
 ) -> vs.VideoNode:
     from ..functions import normalize_ranges
 
     if ranges != 0 and not ranges:
         return clip_a
+
+    if not mismatch:
+        check_ref_clip(clip_a, clip_b)
 
     if clip_a.num_frames != clip_b.num_frames:
         warnings.warn(
@@ -35,7 +40,7 @@ def replace_ranges(
 
     if use_plugin and hasattr(vs.core, 'remap'):
         return vs.core.remap.ReplaceFramesSimple(
-            clip_a, clip_b, mismatch=True,
+            clip_a, clip_b, mismatch=mismatch,
             mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in nranges)
         )
 
@@ -44,10 +49,13 @@ def replace_ranges(
 
     for start, end in nranges:
         tmp = clip_b[start:end + shift]
+
         if start != 0:
-            tmp = out[: start] + tmp
+            tmp = vs.core.std.Splice([out[: start], tmp], mismatch)
+
         if end < out.num_frames - 1:
-            tmp = tmp + out[end + shift:]
+            tmp = vs.core.std.Splice([tmp, out[end + shift:]], mismatch)
+
         out = tmp
 
     return out
