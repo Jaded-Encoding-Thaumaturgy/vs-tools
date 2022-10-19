@@ -20,11 +20,13 @@ __all__ = [
 def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
     """
     Normalize a sequence of values.
-    :param val:         Input value.
-    :param length:      Amount of items in the output. Default: 3.
-                        If original sequence length is less that this,
-                        the last item will be repeated.
-    :return:            List of normalized values with a set amount of items.
+
+    :param val:     Input value.
+    :param length:  Amount of items in the output. Default: 3.
+                    If original sequence length is less that this,
+                    the last item will be repeated.
+
+    :return:        List of normalized values with a set amount of items.
     """
 
     if not isinstance(val, Sequence):
