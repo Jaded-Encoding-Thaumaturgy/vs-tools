@@ -193,6 +193,8 @@ class complex_hash(Generic[T]):
 
 @lru_cache
 def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[type[T]]:
+    """@@PLACEHOLDER@@"""
+
     def _subclasses(cls: type[T]) -> Generator[type[T], None, None]:
         for subclass in cls.__subclasses__():
             yield from _subclasses(subclass)

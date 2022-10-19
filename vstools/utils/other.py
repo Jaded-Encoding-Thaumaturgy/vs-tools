@@ -15,3 +15,4 @@ IS_DOCS = not TYPE_CHECKING and (
     # in conf.py you can do builtins.__sphinx_build__ = True to be 100% sure
     or ('__sphinx_build__' in builtins and builtins.__sphinx_build__)
 )
+"""@@PLACEHOLDER@@"""

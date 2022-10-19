@@ -22,6 +22,8 @@ __all__ = [
 
 
 def get_user_data_dir() -> Path:
+    """@@PLACEHOLDER@@"""
+
     if sys.platform == 'win32':
         buf = ctypes.create_unicode_buffer(1024)
         ctypes.windll.shell32.SHGetFolderPathW(None, 28, None, 0, buf)

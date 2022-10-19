@@ -23,6 +23,7 @@ class FPSColumn(ProgressColumn):
 
 def get_render_progress() -> Progress:
     """Return render progress."""
+
     return Progress(
         TextColumn("{task.description}"),
         BarColumn(),

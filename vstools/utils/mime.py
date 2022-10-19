@@ -23,18 +23,32 @@ __all__ = [
 
 
 class IndexingType(CustomStrEnum):
+    """@@PLACEHOLDER@@"""
+
     DGI = '.dgi'
+    """@@PLACEHOLDER@@"""
+
     LWI = '.lwi'
+    """@@PLACEHOLDER@@"""
 
 
 class ParsedFile(NamedTuple):
     """Structure for file info."""
 
     path: Path
+    """@@PLACEHOLDER@@"""
+
     ext: str
+    """@@PLACEHOLDER@@"""
+
     encoding: str | None
+    """@@PLACEHOLDER@@"""
+
     file_type: FileType
+    """@@PLACEHOLDER@@"""
+
     mime: str
+    """@@PLACEHOLDER@@"""
 
 
 @complex_hash
@@ -42,10 +56,19 @@ class FileSignature(NamedTuple):
     """Child structure of FileSignatures, holding info of certain types of files and their signatures."""
 
     file_type: str
+    """@@PLACEHOLDER@@"""
+
     ext: str
+    """@@PLACEHOLDER@@"""
+
     mime: str
+    """@@PLACEHOLDER@@"""
+
     offset: int
+    """@@PLACEHOLDER@@"""
+
     signatures: list[bytes]
+    """@@PLACEHOLDER@@"""
 
     def check_signature(self, file_bytes: bytes | bytearray, /, *, ignore: int = 0) -> int:
         """
@@ -76,8 +99,11 @@ class FileSignatures(list[FileSignature]):
     file_headers_path = Path(
         path.join(path.dirname(path.abspath(__file__)), '__file_headers.json')
     )
+    """@@PLACEHOLDER@@"""
 
     def __init__(self, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False):
+        """@@PLACEHOLDER@@"""
+
         self.extend(self.load_headers_data(custom_header_data=custom_header_data, force=force))
 
         self.max_signature_len = max(
@@ -267,6 +293,8 @@ class FileType(FileTypeBase):
         return self in {FileType.INDEX, FileType.INDEX_AUDIO, FileType.INDEX_VIDEO}  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
+        """@@PLACEHOLDER@@"""
+
         if self is not FileType.INDEX:
             raise NotImplementedError
 

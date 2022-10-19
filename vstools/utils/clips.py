@@ -28,6 +28,8 @@ __all__ = [
 def finalize_clip(
     clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
+    """@@PLACEHOLDER@@"""
+
     if bits:
         clip = depth(clip, bits)
     else:
@@ -69,6 +71,8 @@ def finalize_output(
     function: F_VD | None = None, /, *, bits: int | None = 10,
     clamp_tv_range: bool = True, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
+    """@@PLACEHOLDER@@"""
+
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],
@@ -93,6 +97,8 @@ def initialize_clip(
     field_based: FieldBasedT = FieldBased.PROGRESSIVE,
     *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
+    """@@PLACEHOLDER@@"""
+
     matrix = Matrix.from_param(matrix)
     transfer = Transfer.from_param(transfer)
     primaries = Primaries.from_param(primaries)
@@ -217,6 +223,8 @@ def chroma_injector(
     scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.proxied.resize.Bicubic,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
+    """@@PLACEHOLDER@@"""
+
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],
@@ -316,6 +324,8 @@ def allow_variable_clip(
     [Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]],
     Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]
 ] | Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]:
+    """@@PLACEHOLDER@@"""
+
     if function is None:
         return cast(
             Callable[

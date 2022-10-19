@@ -12,6 +12,8 @@ __all__ = [
 
 
 class StrList(List[SupportsString]):
+    """@@PLACEHOLDER@@"""
+
     if TYPE_CHECKING:
         @overload
         def __init__(self, __iterable: Iterable[SupportsString | None] = []) -> None:
@@ -26,7 +28,7 @@ class StrList(List[SupportsString]):
 
     @property
     def string(self) -> str:
-        pass
+        ...
 
     @string.getter
     def string(self) -> str:

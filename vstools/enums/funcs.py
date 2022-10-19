@@ -8,6 +8,13 @@ __all__ = [
 
 
 class ConvMode(CustomStrEnum):
+    """@@PLACEHOLDER@@"""
+
     SQUARE = 'hv'
+    """@@PLACEHOLDER@@"""
+
     VERTICAL = 'v'
+    """@@PLACEHOLDER@@"""
+
     HORIZONTAL = 'h'
+    """@@PLACEHOLDER@@"""

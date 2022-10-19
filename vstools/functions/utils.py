@@ -31,6 +31,7 @@ __all__ = [
 
 
 EXPR_VARS = (alph := list(string.ascii_lowercase))[(idx := alph.index('x')):] + alph[:idx]
+"""@@PLACEHOLDER@@"""
 
 
 class DitherType(CustomStrEnum):

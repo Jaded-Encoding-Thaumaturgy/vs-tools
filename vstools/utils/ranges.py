@@ -59,6 +59,7 @@ def replace_ranges(
                                 * None as second value of tuple: Last frame in clip_b
     :param exclusive:       Use exclusive ranges (Default: False).
     :param use_plugin:      Use the ReplaceFramesSimple plugin for the rfs call (Default: True).
+    @@PLACEHOLDER@@
 
     :return:                Clip with ranges from clip_a replaced with clip_b.
     """

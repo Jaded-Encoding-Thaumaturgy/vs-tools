@@ -45,6 +45,8 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
     def __init__(
         self, message: SupportsString | None = None, func: FuncExceptT | None = None, **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@"""
+
         self.message = message
         self.func = func
         self.kwargs = kwargs
@@ -125,7 +127,7 @@ class CustomRuntimeError(CustomError, RuntimeError):
 
 
 class CustomNotImplementedError(CustomError, NotImplementedError):
-    ...
+    """@@PLACEHOLDER@@"""
 
 
 class CustomPermissionError(CustomError, PermissionError):

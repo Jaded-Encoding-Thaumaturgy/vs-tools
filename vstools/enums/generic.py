@@ -204,6 +204,8 @@ class FieldBased(_FieldBasedMeta):
         tff: bool | int | FieldBased | None,
         func: FuncExceptT | None = None
     ) -> vs.VideoNode:
+        """@@PLACEHOLDER@@"""
+
         value = FieldBased.from_param(tff, func) or FieldBased.from_video(clip, True)
 
         return clip.std.SetFieldBased(value.value)

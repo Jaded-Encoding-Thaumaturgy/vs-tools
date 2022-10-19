@@ -44,7 +44,7 @@ class FramesLengthError(CustomOverflowError):
 
 
 class ClipLengthError(CustomOverflowError):
-    ...
+    """@@PLACEHOLDER@@"""
 
 
 class VariableFormatError(CustomValueError):
