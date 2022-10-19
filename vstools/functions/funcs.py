@@ -21,15 +21,11 @@ def iterate(
 
     Examples:
 
-    .. code-block:: python
-
-        >>> def double(x: int) -> int:
-        ...    return x * 2
-        ...
-        >>> iterate(5, double, 2)
+    >>> iterate(5, lambda x: x * 2, 2)
         20
 
-        >>> iterate(clip, core.std.Maximum, 3, threshold=0.5)
+    >>> iterate(clip, core.std.Maximum, 3, threshold=0.5)
+        VideoNode
 
     :param base:        Base clip, value, etc. to iterate over.
     :param function:    Function to iterate over the base.
