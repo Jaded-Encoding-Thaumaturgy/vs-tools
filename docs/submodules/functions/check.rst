@@ -1,6 +1,6 @@
-=======================
-vstools.functions.check
-=======================
+======
+Checks
+======
 
 .. automodule:: vstools.functions.check
     :members:

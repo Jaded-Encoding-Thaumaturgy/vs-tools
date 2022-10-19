@@ -1,6 +1,6 @@
-===================
-vstools.utils.props
-===================
+===========
+Frame Props
+===========
 
 .. automodule:: vstools.utils.props
     :members:

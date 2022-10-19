@@ -1,6 +1,6 @@
-===================
-vstools.enums.color
-===================
+======
+Colors
+======
 
 .. automodule:: vstools.enums.color
     :members:

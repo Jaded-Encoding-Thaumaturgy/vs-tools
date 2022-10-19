@@ -1,6 +1,6 @@
-===========================
-vstools.functions.normalize
-===========================
+=============
+Normalization
+=============
 
 .. automodule:: vstools.functions.normalize
     :members:

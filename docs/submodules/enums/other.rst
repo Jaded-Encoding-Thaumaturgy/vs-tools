@@ -1,6 +1,6 @@
-===================
-vstools.enums.other
-===================
+=============
+Miscellaneous
+=============
 
 .. automodule:: vstools.enums.other
     :members:

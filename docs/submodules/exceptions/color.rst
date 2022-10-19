@@ -1,6 +1,6 @@
-========================
-vstools.exceptions.color
-========================
+======
+Colors
+======
 
 .. automodule:: vstools.exceptions.color
     :members:

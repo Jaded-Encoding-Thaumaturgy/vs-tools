@@ -1,6 +1,6 @@
-=======================
-vstools.exceptions.file
-=======================
+=====
+Files
+=====
 
 .. automodule:: vstools.exceptions.file
     :members:

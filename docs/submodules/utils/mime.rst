@@ -1,6 +1,6 @@
-==================
-vstools.utils.mime
-==================
+==========
+Mime Types
+==========
 
 .. automodule:: vstools.utils.mime
     :members:

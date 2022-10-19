@@ -1,6 +1,6 @@
-=======================
-vstools.exceptions.enum
-=======================
+=====
+Enums
+=====
 
 .. automodule:: vstools.exceptions.enum
     :members:

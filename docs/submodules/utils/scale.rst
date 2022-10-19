@@ -1,6 +1,6 @@
-===================
-vstools.utils.scale
-===================
+=============
+Value Scaling
+=============
 
 .. automodule:: vstools.utils.scale
     :members:

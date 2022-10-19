@@ -1,6 +1,6 @@
-======================
-vstools.types.builtins
-======================
+========
+Builtins
+========
 
 .. automodule:: vstools.types.builtins
     :members:

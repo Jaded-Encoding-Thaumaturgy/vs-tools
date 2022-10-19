@@ -1,6 +1,6 @@
-==================
-vstools.utils.file
-==================
+=====
+Files
+=====
 
 .. automodule:: vstools.utils.file
     :members:

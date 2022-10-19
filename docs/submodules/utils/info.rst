@@ -1,6 +1,6 @@
-==================
-vstools.utils.info
-==================
+====
+Info
+====
 
 .. automodule:: vstools.utils.info
     :members:

@@ -1,6 +1,6 @@
-=====================
-vstools.utils.ffprobe
-=====================
+=======
+FFProbe
+=======
 
 .. automodule:: vstools.utils.ffprobe
     :members:

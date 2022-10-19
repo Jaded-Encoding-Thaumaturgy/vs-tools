@@ -1,6 +1,6 @@
-====================
-vstools.utils.ranges
-====================
+======
+Ranges
+======
 
 .. automodule:: vstools.utils.ranges
     :members:

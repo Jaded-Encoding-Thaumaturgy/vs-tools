@@ -1,6 +1,6 @@
-==========================
-vstools.exceptions.generic
-==========================
+=======
+Generic
+=======
 
 .. automodule:: vstools.exceptions.generic
     :members:

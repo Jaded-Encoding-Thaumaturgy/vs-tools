@@ -1,6 +1,6 @@
-=====================
-vstools.enums.generic
-=====================
+=============
+Generic Props
+=============
 
 .. automodule:: vstools.enums.generic
     :members:

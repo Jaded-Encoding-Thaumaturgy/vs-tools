@@ -1,6 +1,6 @@
-==================
-vstools.utils.misc
-==================
+=============
+Miscellaneous
+=============
 
 .. automodule:: vstools.utils.misc
     :members:

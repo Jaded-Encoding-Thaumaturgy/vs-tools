@@ -1,6 +1,6 @@
-============================
-vstools.functions.heuristics
-============================
+==========
+Heuristics
+==========
 
 .. automodule:: vstools.functions.heuristics
     :members:

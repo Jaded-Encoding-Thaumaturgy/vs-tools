@@ -1,6 +1,6 @@
-==================
-vstools.utils.math
-==================
+====
+Math
+====
 
 .. automodule:: vstools.utils.math
     :members:
