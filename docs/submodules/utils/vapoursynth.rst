@@ -1,5 +1,5 @@
 ===========
-Vapoursynth
+VapourSynth
 ===========
 
 .. automodule:: vstools.utils.vs_proxy
