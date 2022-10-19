@@ -1,6 +1,6 @@
-=====
-Bases
-=====
+================
+Base Exceptions
+================
 
 .. automodule:: vstools.exceptions.base
     :members:

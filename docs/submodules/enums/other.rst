@@ -1,6 +1,6 @@
-=============
-Miscellaneous
-=============
+================
+Other Exceptions
+================
 
 .. automodule:: vstools.enums.other
     :members:

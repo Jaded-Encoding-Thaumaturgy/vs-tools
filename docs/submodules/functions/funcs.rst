@@ -1,6 +1,6 @@
-=========
-Functions
-=========
+=================
+Generic Functions
+=================
 
 .. automodule:: vstools.functions.funcs
     :members:

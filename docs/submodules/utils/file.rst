@@ -1,6 +1,6 @@
-=====
-Files
-=====
+============
+File Parsing
+============
 
 .. automodule:: vstools.utils.file
     :members:

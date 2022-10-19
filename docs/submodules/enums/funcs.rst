@@ -1,6 +1,6 @@
-=========
-Functions
-=========
+===============
+Functions Enums
+===============
 
 .. automodule:: vstools.enums.funcs
     :members:

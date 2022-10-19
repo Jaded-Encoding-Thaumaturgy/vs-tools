@@ -1,6 +1,6 @@
-=======
-Generic
-=======
+=============
+Generic Types
+=============
 
 .. automodule:: vstools.types.generic
     :members:

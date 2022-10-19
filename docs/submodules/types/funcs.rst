@@ -1,6 +1,6 @@
-=========
-Functions
-=========
+=================
+Class Decorations
+=================
 
 .. automodule:: vstools.types.funcs
     :members:
