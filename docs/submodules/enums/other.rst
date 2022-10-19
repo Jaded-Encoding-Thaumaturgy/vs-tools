@@ -1,6 +1,6 @@
-=====================
+===================
 vstools.enums.other
-=====================
+===================
 
 .. automodule:: vstools.enums.other
     :members:

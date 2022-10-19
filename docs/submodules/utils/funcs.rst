@@ -1,6 +1,6 @@
-==================
+===================
 vstools.utils.funcs
-==================
+===================
 
 .. automodule:: vstools.utils.funcs
     :members:

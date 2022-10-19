@@ -1,6 +1,6 @@
-===========================
+==========================
 vstools.functions.progress
-===========================
+==========================
 
 .. automodule:: vstools.functions.progress
     :members:

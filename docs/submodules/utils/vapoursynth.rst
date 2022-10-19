@@ -1,6 +1,6 @@
-===================
+=========================
 vstools.utils.vapoursynth
-===================
+=========================
 
 .. automodule:: vstools.utils.vs_proxy
     :members:

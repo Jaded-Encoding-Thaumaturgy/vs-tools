@@ -1,6 +1,6 @@
-=====================
+===================
 vstools.utils.clips
-=====================
+===================
 
 .. automodule:: vstools.utils.clips
     :members:
