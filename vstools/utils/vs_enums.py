@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 from vapoursynth import FLOAT, GRAY, INTEGER, RGB, YUV
 from vapoursynth import PresetFormat as VSPresetFormat
 
+from .other import IS_DOCS
+
 __all__ = [
     'PresetFormat',
     'GRAY8', 'GRAY9', 'GRAY10', 'GRAY11', 'GRAY12', 'GRAY13', 'GRAY14', 'GRAY15', 'GRAY16', 'GRAY17', 'GRAY18',
@@ -42,6 +44,8 @@ __all__ = [
 
 
 def MAKE_VIDEO_ID(colorFamily: int, sampleType: int, bitsPerSample: int, subSamplingW: int, subSamplingH: int) -> int:
+    if IS_DOCS:
+        return 0
     return colorFamily << 28 | sampleType << 24 | bitsPerSample << 16 | subSamplingW << 8 | subSamplingH << 0
 
 
