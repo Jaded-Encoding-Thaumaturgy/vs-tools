@@ -10,11 +10,11 @@ vstools Documentation
 .. image:: https://img.shields.io/pypi/v/vstools
     :target: https://pypi.org/project/vstools/
 
-.. image:: https://img.shields.io/github/commits-since/Setsugennoao/vs-tools/latest
-    :target: https://github.com/Setsugennoao/vs-tools/commits/master
+.. image:: https://img.shields.io/github/commits-since/Irrational-Encoding-Wizardry/vs-tools/latest
+    :target: https://github.com/Irrational-Encoding-Wizardry/vs-tools/commits/master
 
 .. image:: https://img.shields.io/pypi/l/vstools
-    :target: https://github.com/Setsugennoao/vs-tools/blob/master/LICENSE
+    :target: https://github.com/Irrational-Encoding-Wizardry/vs-tools/blob/master/LICENSE
 
 .. image:: https://img.shields.io/discord/856381934052704266?label=discord
     :target: https://discord.gg/qxTxVJGtst
@@ -80,7 +80,7 @@ Check out the `how to contribute <contribute>` section!
 Special Credits
 ---------------
 | A special thanks to every contributor who has contributed to vstools.
-| `A comprehensive list of contributors can be found here. <https://github.com/Setsugennoao/vs-tools/graphs/contributors>`_
+| `A comprehensive list of contributors can be found here. <https://github.com/Irrational-Encoding-Wizardry/vs-tools/graphs/contributors>`_
 
 
 .. toctree::

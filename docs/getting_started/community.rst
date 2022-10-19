@@ -19,7 +19,7 @@ Contributing
 
 .. _contribute:
 
-The easiest way to contribute is to simply send in a `pull request <https://github.com/Setsugennoao/vs-tools/pulls>`_!
+The easiest way to contribute is to simply send in a `pull request <https://github.com/Irrational-Encoding-Wizardry/vs-tools/pulls>`_!
 Please keep your changes to a minimum. The following contributions will be automatically rejected:
 
 PRs that
