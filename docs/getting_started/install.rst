@@ -7,6 +7,7 @@ Installation
 There are two common ways to install vstools.
 
 The first is to install the latest release build through `pypi <https://pypi.org/project/vstools/>`_.
+
 You can use pip to do this, as demonstrated below:
 
 
@@ -14,13 +15,13 @@ You can use pip to do this, as demonstrated below:
 
     pip install vstools --no-cache-dir -U
 
-This ensures that any previous versions will be overwritten
-and vstools will be upgraded if you had already previously installed it.
+This ensures that any previous versions will be overwritten and vstools will be upgraded if you had already previously installed it.
+
+------------------
 
 The second method is to build the latest version from git.
-This will be less stable,
-but will feature the most up-to-date features,
-as well as accurately reflect the documentation.
+
+This will be less stable, but will feature the most up-to-date features, as well as accurately reflect the documentation.
 
 .. code-block:: console
 
