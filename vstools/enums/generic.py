@@ -33,22 +33,22 @@ class ChromaLocation(_ChromaLocationMeta):
         return None
 
     LEFT = 0
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     CENTER = 1
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     TOP_LEFT = 2
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     TOP = 3
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     BOTTOM_LEFT = 4
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     BOTTOM = 5
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     @property
     def is_unknown(self) -> bool:
@@ -120,13 +120,13 @@ class FieldBased(_FieldBasedMeta):
         return None
 
     PROGRESSIVE = 0
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     BFF = 1
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     TFF = 2
-    """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+    """@@PLACEHOLDER@@"""
 
     @property
     def is_unknown(self) -> bool:
@@ -212,7 +212,7 @@ class FieldBased(_FieldBasedMeta):
 
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
-"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+"""@@PLACEHOLDER@@"""
 
 FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]
-"""@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
+"""@@PLACEHOLDER@@"""
