@@ -37,13 +37,12 @@ def replace_ranges(
         * ``replace_ranges(black, white, [(None, None)])``: replace the entire clip with ``white``
         * ``replace_ranges(black, white, [(0, None)])``: same as previous
         * ``replace_ranges(black, white, [(200, None)])``: replace 200 until the end with ``white``
-        * ``replace_ranges(black, white, [(200, -1)])``: replace 200 until the end with ``white``,
-            leaving 1 frame of ``black``
+        * ``replace_ranges(black, white, [(200, -1)])``: replace 200 until the end with ``white``, leaving 1 frame of ``black``
 
     Alias for this function is ``rfs``.
 
     Optional Dependencies:
-        * `use_plugin=True`: `<https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
+        * `use_plugin=True`: `VSRemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
 
     :param clip_a:      Original clip.
     :param clip_b:      Replacement clip.
