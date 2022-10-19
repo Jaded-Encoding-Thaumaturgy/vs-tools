@@ -53,10 +53,10 @@ def shift_clip_multi(clip: vs.VideoNode, offsets: FrameRange = (-1, 1)) -> list[
 
 
     Example:
-    .. code-block:: python
-        >>> shift_clip_multi(clip, (-3, 3))
-            -3         -2         -1          0         +1         +2         +3
+
+    >>> shift_clip_multi(clip, (-3, 3))
         [VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode]
+            -3         -2         -1          0         +1         +2         +3
 
     :param clip:            Input clip.
     :param offsets:         List of frame ranges for offsetting.
