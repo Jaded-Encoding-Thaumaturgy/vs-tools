@@ -1,8 +1,8 @@
 =========================
-vstools.exceptions.colors
+vstools.exceptions.color
 =========================
 
-.. automodule:: vstools.exceptions.colors
+.. automodule:: vstools.exceptions.color
     :members:
     :undoc-members:
     :show-inheritance:
