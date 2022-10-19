@@ -46,45 +46,106 @@ Check out the `how to contribute <contribute>` section!
 
 .. toctree::
     :maxdepth: 1
+    :caption: Changelogs
+
+    changelogs/changelogs
+
+.. raw:: html
+
+    <hr>
+    <div class="toctree-wrapper">
+        <p class="caption" style="display: flex;justify-content: center;">User API</p>
+    </div>
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Utils
+    :titlesonly:
+
+    submodules/utils/clips
+    submodules/utils/info
+    submodules/utils/misc
+    submodules/utils/ranges
+    submodules/utils/scale
+    submodules/utils/vapoursynth
+
+.. toctree::
+    :maxdepth: 1
     :caption: Functions
     :titlesonly:
 
-    submodules/enums/base
+    submodules/functions/clip
+    submodules/functions/funcs
+    submodules/functions/utils
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Enums
+    :titlesonly:
+
     submodules/enums/color
     submodules/enums/funcs
     submodules/enums/generic
+
+.. raw:: html
+
+    <hr>
+    <div class="toctree-wrapper">
+        <p class="caption" style="display: flex;justify-content: center;">Developer API</p>
+    </div>
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Dev/Utils
+    :titlesonly:
+
+    submodules/utils/ffprobe
+    submodules/utils/file
+    submodules/utils/funcs
+    submodules/utils/math
+    submodules/utils/mime
+    submodules/utils/other
+    submodules/utils/props
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Dev/Functions
+    :titlesonly:
+
+    submodules/functions/check
+    submodules/functions/heuristics
+    submodules/functions/normalize
+    submodules/functions/progress
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Dev/Enums
+    :titlesonly:
+
+    submodules/enums/base
     submodules/enums/other
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Dev/Exceptions
+    :titlesonly:
+
     submodules/exceptions/base
     submodules/exceptions/color
     submodules/exceptions/enum
     submodules/exceptions/file
     submodules/exceptions/generic
-    submodules/functions/check
-    submodules/functions/clip
-    submodules/functions/funcs
-    submodules/functions/heuristics
-    submodules/functions/normalize
-    submodules/functions/progress
-    submodules/functions/utils
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Dev/Types
+    :titlesonly:
+
     submodules/types/builtins
     submodules/types/file
     submodules/types/funcs
     submodules/types/generic
     submodules/types/utils
-    submodules/utils/clips
-    submodules/utils/ffprobe
-    submodules/utils/file
-    submodules/utils/funcs
-    submodules/utils/info
-    submodules/utils/math
-    submodules/utils/mime
-    submodules/utils/misc
-    submodules/utils/other
-    submodules/utils/props
-    submodules/utils/ranges
-    submodules/utils/scale
-    submodules/utils/vapoursynth
-
 
 Special Credits
 ---------------
@@ -92,8 +153,3 @@ Special Credits
 | `A comprehensive list of contributors can be found here. <https://github.com/Irrational-Encoding-Wizardry/vs-tools/graphs/contributors>`_
 
 
-.. toctree::
-    :maxdepth: 1
-    :caption: Changelogs
-
-    changelogs/changelogs
