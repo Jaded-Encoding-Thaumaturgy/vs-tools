@@ -51,9 +51,11 @@ Check out the `how to contribute <contribute>` section!
 
     submodules/enums/base
     submodules/enums/color
+    submodules/enums/funcs
     submodules/enums/generic
+    submodules/enums/other
     submodules/exceptions/base
-    submodules/exceptions/colors
+    submodules/exceptions/color
     submodules/exceptions/enum
     submodules/exceptions/file
     submodules/exceptions/generic
@@ -62,19 +64,26 @@ Check out the `how to contribute <contribute>` section!
     submodules/functions/funcs
     submodules/functions/heuristics
     submodules/functions/normalize
+    submodules/functions/progress
     submodules/functions/utils
     submodules/types/builtins
     submodules/types/file
+    submodules/types/funcs
     submodules/types/generic
     submodules/types/utils
+    submodules/utils/clips
     submodules/utils/ffprobe
     submodules/utils/file
+    submodules/utils/funcs
+    submodules/utils/info
     submodules/utils/math
     submodules/utils/mime
     submodules/utils/misc
+    submodules/utils/other
     submodules/utils/props
     submodules/utils/ranges
     submodules/utils/scale
+    submodules/utils/vapoursynth
 
 
 Special Credits
