@@ -1,19 +1,22 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Concatenate, Generic, Iterable, Protocol, cast, overload
+from functools import lru_cache
+from typing import Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
 
-from .builtins import P0, R0, T0, F, P, R, T
+from .builtins import F0, P0, R0, T0, P, R, T
 
 __all__ = [
     'copy_signature',
 
     'inject_self',
 
-    'complex_hash'
+    'complex_hash',
+
+    'get_subclasses'
 ]
 
 
-class copy_signature(Generic[F]):
+class copy_signature(Generic[F0]):
     """
     Type util to copy the signature of one function to another function.\n
     Especially useful for passthrough functions.
@@ -39,14 +42,14 @@ class copy_signature(Generic[F]):
     ```
     """
 
-    def __init__(self, target: F) -> None:
+    def __init__(self, target: F0) -> None:
         """Copy the signature of ``target``."""
 
-    def __call__(self, wrapped: Callable[..., Any]) -> F:
-        return cast(F, wrapped)
+    def __call__(self, wrapped: Callable[..., Any]) -> F0:
+        return cast(F0, wrapped)
 
 
-class injected_self_func(Generic[T, P, R], Protocol):  # type: ignore
+class injected_self_func(Generic[T, P, R], Protocol):
     @overload
     @staticmethod
     def __call__(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -59,7 +62,17 @@ class injected_self_func(Generic[T, P, R], Protocol):  # type: ignore
 
     @overload
     @staticmethod
+    def __call__(self: T, _self: T, *args: P.args, **kwargs: P.kwargs) -> R:
+        ...
+
+    @overload
+    @staticmethod
     def __call__(cls: type[T], *args: P.args, **kwargs: P.kwargs) -> R:
+        ...
+
+    @overload
+    @staticmethod
+    def __call__(cls: type[T], _cls: type[T], *args: P.args, **kwargs: P.kwargs) -> R:
         ...
 
     @staticmethod  # type: ignore
@@ -176,3 +189,15 @@ class complex_hash(Generic[T]):
             values.append(str(new_hash))
 
         return hash('_'.join(values))
+
+
+@lru_cache
+def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[type[T]]:
+    def _subclasses(cls: type[T]) -> Generator[type[T], None, None]:
+        for subclass in cls.__subclasses__():
+            yield from _subclasses(subclass)
+            if subclass in exclude:
+                continue
+            yield subclass
+
+    return list(set(_subclasses(family)))

@@ -8,16 +8,23 @@ from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeGuard
 
+from ..enums import CustomStrEnum
 from ..exceptions import CustomRuntimeError, CustomValueError
 from ..types import FilePathType, FuncExceptT, complex_hash, inject_self
 from .mime_base import FileTypeBase, FileTypeIndex, FileTypeIndexWithType
 
 __all__ = [
+    'IndexingType',
     'FileSignature',
     'FileSignatures',
     'FileType',
     'ParsedFile'
 ]
+
+
+class IndexingType(CustomStrEnum):
+    DGI = '.dgi'
+    LWI = '.lwi'
 
 
 class ParsedFile(NamedTuple):
@@ -159,6 +166,9 @@ class FileType(FileTypeBase):
 
     if not TYPE_CHECKING:
         INDEX = 'index'
+        INDEX_AUDIO = f'{INDEX}_{AUDIO}'
+        INDEX_VIDEO = f'{INDEX}_{VIDEO}'
+
     IMAGE = 'image'
     """File type for image files."""
 
@@ -254,7 +264,7 @@ class FileType(FileTypeBase):
     def is_index(self) -> TypeGuard[FileTypeIndexWithType]:
         """Verify whether the FileType is an INDEX that holds its own FileType (e.g. mime: index/video)."""
 
-        return self is FileType.INDEX and hasattr(self, 'file_type')  # type: ignore
+        return self in {FileType.INDEX, FileType.INDEX_AUDIO, FileType.INDEX_VIDEO}  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
         if self is not FileType.INDEX:
@@ -262,11 +272,20 @@ class FileType(FileTypeBase):
 
         file_type = FileType(file_type)
 
-        if file_type not in {FileType.VIDEO, FileType.AUDIO}:
-            raise CustomValueError(
-                'You can only have Video, Audio or Other index file types!', str(FileType.INDEX)
-            )
+        if file_type in {FileType.AUDIO, FileType.VIDEO}:
+            if file_type is FileType.AUDIO:
+                return FileType.INDEX_AUDIO  # type: ignore
 
-        self.file_type = file_type
+            if file_type is FileType.VIDEO:
+                return FileType.INDEX_VIDEO  # type: ignore
 
-        return self
+        raise CustomValueError(
+            'You can only have Video, Audio or Other index file types!', str(FileType.INDEX)
+        )
+
+
+for _fty, _ftyp in [
+    (FileType.AUDIO, FileType.INDEX_AUDIO),  # type: ignore
+    (FileType.VIDEO, FileType.INDEX_VIDEO)  # type: ignore
+]:
+    setattr(_ftyp, 'file_type', _fty)

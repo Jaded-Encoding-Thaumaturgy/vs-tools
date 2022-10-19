@@ -8,7 +8,7 @@ import vapoursynth as vs
 
 from ..exceptions import InvalidSubsamplingError
 from ..functions import disallow_variable_format, disallow_variable_resolution
-from .info import get_format
+from .info import get_video_format
 
 __all__ = [
     'change_fps',
@@ -83,7 +83,7 @@ def padder(
     width = clip.width + left + right
     height = clip.height + top + bottom
 
-    fmt = get_format(clip)
+    fmt = get_video_format(clip)
 
     if (width % (1 << fmt.subsampling_w) != 0) or (height % (1 << fmt.subsampling_h) != 0):
         raise InvalidSubsamplingError(

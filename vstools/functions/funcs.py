@@ -44,10 +44,12 @@ def iterate(
     if count <= 0:
         return base
 
-    def _iterate(x: T | R, n: int) -> T | R:
-        return n and _iterate(function(x, *args, **kwargs), n - 1) or x
+    result: T | R = base
 
-    return _iterate(base, count)
+    for _ in range(count):
+        result = function(result, *args, **kwargs)
+
+    return result
 
 
 def fallback(value: T | None, fallback_value: T) -> T:

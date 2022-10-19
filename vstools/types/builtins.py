@@ -12,7 +12,7 @@ import vapoursynth as vs
 __all__ = [
     'T', 'T0', 'T1', 'T2', 'T_contra',
 
-    'F', 'F_VD',
+    'F', 'F0', 'F1', 'F2', 'F_VD',
 
     'P', 'P0', 'P1', 'P2',
     'R', 'R0', 'R1', 'R2', 'R_contra',
@@ -55,6 +55,9 @@ T1 = TypeVar('T1')
 T2 = TypeVar('T2')
 
 F = TypeVar('F', bound=Callable[..., Any])
+F0 = TypeVar('F0', bound=Callable[..., Any])
+F1 = TypeVar('F1', bound=Callable[..., Any])
+F2 = TypeVar('F2', bound=Callable[..., Any])
 
 P = ParamSpec('P')
 P0 = ParamSpec('P0')

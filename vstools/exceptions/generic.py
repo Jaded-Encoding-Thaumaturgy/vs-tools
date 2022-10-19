@@ -85,9 +85,9 @@ class InvalidVideoFormatError(CustomValueError):
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-        from ..utils import get_format
+        from ..utils import get_video_format
 
-        super().__init__(message, func, format=get_format(format), **kwargs)
+        super().__init__(message, func, format=get_video_format(format), **kwargs)
 
 
 class UnsupportedColorFamilyError(CustomValueError):
@@ -153,10 +153,9 @@ class InvalidSubsamplingError(CustomValueError):
     ) -> None:
         """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-        from ..utils import get_format
+        from ..utils import get_video_format
 
-        subsampling = subsampling if isinstance(subsampling, str) else get_format(subsampling).name
-        super().__init__(message, func, subsampling=subsampling, **kwargs)
+        subsampling = subsampling if isinstance(subsampling, str) else get_video_format(subsampling).name
 
 
 class FormatsMismatchError(CustomValueError):

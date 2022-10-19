@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, NamedTuple, TypeAlias
+from typing import Any, NamedTuple, TypeAlias, Union
 
 import vapoursynth as vs
 
@@ -1087,14 +1087,15 @@ _placebo_transfer_map = {
     value: key for key, value in _transfer_placebo_map.items()
 }
 
-MatrixT: TypeAlias = int | vs.MatrixCoefficients | Matrix
+
+MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
 """Type alias for values that can be used to initialize a :py:attr:`Matrix`"""
 
-TransferT: TypeAlias = int | vs.TransferCharacteristics | Transfer
+TransferT: TypeAlias = Union[int, vs.TransferCharacteristics, Transfer]
 """Type alias for values that can be used to initialize a :py:attr:`Transfer`"""
 
-PrimariesT: TypeAlias = int | vs.ColorPrimaries | Primaries
+PrimariesT: TypeAlias = Union[int, vs.ColorPrimaries, Primaries]
 """Type alias for values that can be used to initialize a :py:attr:`Primaries`"""
 
-ColorRangeT: TypeAlias = int | vs.ColorRange | ColorRange
+ColorRangeT: TypeAlias = Union[int, vs.ColorRange, ColorRange]
 """Type alias for values that can be used to initialize a :py:attr:`ColorRange`"""

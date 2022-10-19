@@ -6,7 +6,7 @@ from ..enums import ColorRange, ColorRangeT
 from ..exceptions import CustomIndexError
 from ..functions import disallow_variable_format
 from ..types import HoldsVideoFormatT, VideoFormatT
-from .info import get_depth, get_format
+from .info import get_depth, get_video_format
 
 __all__ = [
     'scale_8bit', 'scale_thresh', 'scale_value',
@@ -27,17 +27,17 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: float, chroma: boo
     :return:            Value scaled to 8-bit.
     """
 
-    fmt = get_format(clip)
+    fmt = get_video_format(clip)
 
     if fmt.sample_type is vs.FLOAT:
-        value /= 255
+        out = value / 255
 
         if chroma:
-            value -= .5
-    else:
-        value = float(int(value) << get_depth(fmt) - 8)
+            out -= .5
 
-    return value
+        return out
+
+    return value << get_depth(fmt) - 8
 
 
 def scale_thresh(
@@ -58,7 +58,7 @@ def scale_thresh(
     :raises CustomValueError:   Threshold is not positive.
     """
 
-    fmt = get_format(clip)
+    fmt = get_video_format(clip)
 
     if thresh < 0:
         raise CustomIndexError('Thresholds must be positive!', scale_thresh)
@@ -69,7 +69,7 @@ def scale_thresh(
         return thresh
 
     if assume:
-        return round(thresh / ((1 << assume) - 1) * peak)
+        return round(thresh / (get_peak_value(assume) * peak))
 
     return round(thresh * peak)
 
@@ -99,8 +99,8 @@ def scale_value(
 
     out_value = float(value)
 
-    in_fmt = get_format(input_depth)
-    out_fmt = get_format(output_depth)
+    in_fmt = get_video_format(input_depth)
+    out_fmt = get_video_format(output_depth)
 
     if in_fmt.sample_type is vs.FLOAT:
         range_in = ColorRange.FULL
@@ -152,7 +152,7 @@ def get_lowest_value(
     :return:                Lowest possible value.
     """
 
-    fmt = get_format(clip_or_depth)
+    fmt = get_video_format(clip_or_depth)
 
     if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 16, chroma)
@@ -174,7 +174,7 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chr
     :return:                Neutral value.
     """
 
-    fmt = get_format(clip_or_depth)
+    fmt = get_video_format(clip_or_depth)
 
     if fmt.sample_type == vs.FLOAT:
         return 0. if chroma else 0.5
@@ -197,7 +197,7 @@ def get_peak_value(
     :return:                Highest possible value.
     """
 
-    fmt = get_format(clip_or_depth)
+    fmt = get_video_format(clip_or_depth)
 
     if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 240 if chroma else 235, chroma)

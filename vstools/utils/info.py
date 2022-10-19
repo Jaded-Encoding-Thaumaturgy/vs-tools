@@ -11,7 +11,7 @@ from .math import mod_x
 
 __all__ = [
     'get_var_infos',
-    'get_format',
+    'get_video_format',
 
     'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family',
 
@@ -37,7 +37,7 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
 
 
 @disallow_variable_format
-def get_format(
+def get_video_format(
     value: int | VideoFormatT | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None
 ) -> vs.VideoFormat:
     """Get format of a given value."""
@@ -71,7 +71,7 @@ def get_format(
 def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
     """Get depth of a given clip or value."""
 
-    return get_format(clip).bits_per_sample
+    return get_video_format(clip).bits_per_sample
 
 
 def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
@@ -80,7 +80,7 @@ def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -
     if isinstance(clip, vs.SampleType):
         return clip
 
-    return get_format(clip).sample_type
+    return get_video_format(clip).sample_type
 
 
 def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
@@ -89,7 +89,7 @@ def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /)
     if isinstance(clip, vs.ColorFamily):
         return clip
 
-    return get_format(clip).color_family
+    return get_video_format(clip).color_family
 
 
 def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.VideoNode, int]:
@@ -149,7 +149,7 @@ def get_subsampling(clip: VideoFormatT | HoldsVideoFormatT, /) -> str | None:
     :raises CustomValueError:   Unknown subsampling.
     """
 
-    fmt = get_format(clip)
+    fmt = get_video_format(clip)
 
     if fmt.color_family != vs.YUV:
         return None

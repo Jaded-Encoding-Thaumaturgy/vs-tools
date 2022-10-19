@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 import vapoursynth as vs
 
 from ..exceptions import (
     UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
 )
-from ..types import MISSING
+from ..types import MISSING, FuncExceptT
 from .stubs import _ChromaLocationMeta, _FieldBasedMeta
 
 __all__ = [
@@ -198,9 +198,19 @@ class FieldBased(_FieldBasedMeta):
 
         return self is self.TFF
 
+    @classmethod
+    def ensure_presence(
+        cls, clip: vs.VideoNode,
+        tff: bool | int | FieldBased | None,
+        func: FuncExceptT | None = None
+    ) -> vs.VideoNode:
+        value = FieldBased.from_param(tff, func) or FieldBased.from_video(clip, True)
 
-ChromaLocationT = int | vs.ChromaLocation | ChromaLocation
+        return clip.std.SetFieldBased(value.value)
+
+
+ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
 """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
 
-FieldBasedT = int | vs.FieldBased | FieldBased
+FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]
 """@@PLACEHOLDER@@ PLEASE REPORT THIS IF YOU SEE THIS"""
