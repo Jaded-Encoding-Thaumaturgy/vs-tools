@@ -43,25 +43,24 @@ def replace_ranges(
     Alias for this function is ``rfs``.
 
     Optional Dependencies:
-        * `use_plugin=True`:
-        `VapourSynth-RemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
+        * `use_plugin=True`: `<https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
 
-    :param clip_a:          Original clip.
-    :param clip_b:          Replacement clip.
-    :param ranges:          Ranges to replace clip_a (original clip) with clip_b (replacement clip).
-                            Integer values in the list indicate single frames,
-                            Tuple values indicate inclusive ranges.
-                            Negative integer values will be wrapped around based on clip_b's length.
-                            None values are context dependent:
-                                * None provided as sole value to ranges: no-op
-                                * Single None value in list: Last frame in clip_b
-                                * None as first value of tuple: 0
-                                * None as second value of tuple: Last frame in clip_b
-    :param exclusive:       Use exclusive ranges (Default: False).
-    :param use_plugin:      Use the ReplaceFramesSimple plugin for the rfs call (Default: True).
-    @@PLACEHOLDER@@
+    :param clip_a:      Original clip.
+    :param clip_b:      Replacement clip.
+    :param ranges:      Ranges to replace clip_a (original clip) with clip_b (replacement clip).
+                        Integer values in the list indicate single frames,
+                        Tuple values indicate inclusive ranges.
+                        Negative integer values will be wrapped around based on clip_b's length.
+                        None values are context dependent:
+                            * None provided as sole value to ranges: no-op
+                            * Single None value in list: Last frame in clip_b
+                            * None as first value of tuple: 0
+                            * None as second value of tuple: Last frame in clip_b
+    :param exclusive:   Use exclusive ranges (Default: False).
+    :param use_plugin:  Use the ReplaceFramesSimple plugin for the rfs call (Default: True).
+    :param mismatch:    Accept format or resolution mismatch between clips.
 
-    :return:                Clip with ranges from clip_a replaced with clip_b.
+    :return:            Clip with ranges from clip_a replaced with clip_b.
     """
 
     from ..functions import normalize_ranges
