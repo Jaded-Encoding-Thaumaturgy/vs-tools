@@ -168,7 +168,7 @@ class FileType(FileTypeBase):
             mime = header.mime
             ext = f'.{header.ext}'
         else:
-            stream: FFProbeStream | None
+            stream: FFProbeStream | None = None
             ffprobe = FFProbe(func=func)
 
             try:
