@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from functools import lru_cache
 from typing import Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
 
 from .builtins import F0, P0, R0, T0, P, R, T
@@ -138,7 +137,6 @@ class complex_hash(Generic[T]):
         return hash('_'.join(values))
 
 
-@lru_cache
 def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[type[T]]:
     def _subclasses(cls: type[T]) -> Generator[type[T], None, None]:
         for subclass in cls.__subclasses__():
