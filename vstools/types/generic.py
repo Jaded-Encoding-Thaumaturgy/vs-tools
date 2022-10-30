@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Protocol, TypeVar, Union
-
+from typing import Any, Callable, Literal, Protocol, TypeVar, Union
+from enum import Enum, auto
 import vapoursynth as vs
 
 from .builtins import F, SingleOrArr, SingleOrArrOpt, SupportsString
@@ -27,11 +27,12 @@ __all__ = [
 ]
 
 
-class MissingT:
-    ...
+class MissingTBase(Enum):
+    MissingT = auto()
 
 
-MISSING = MissingT()
+MissingT = Literal[MissingTBase.MissingT]
+MISSING = MissingTBase.MissingT
 
 
 DataType = Union[str, bytes, bytearray, SupportsString]
