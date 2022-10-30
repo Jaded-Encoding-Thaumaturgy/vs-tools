@@ -124,6 +124,9 @@ class FileType(FileTypeBase):
     CHAPTERS = 'chapters'
     if not TYPE_CHECKING:
         INDEX = 'index'
+        INDEX_AUDIO = f'{INDEX}_{AUDIO}'
+        INDEX_VIDEO = f'{INDEX}_{VIDEO}'
+
     IMAGE = 'image'
     OTHER = 'other'
 
@@ -165,7 +168,7 @@ class FileType(FileTypeBase):
             mime = header.mime
             ext = f'.{header.ext}'
         else:
-            stream: FFProbeStream | None
+            stream: FFProbeStream | None = None
             ffprobe = FFProbe(func=func)
 
             try:
@@ -179,7 +182,7 @@ class FileType(FileTypeBase):
                         f'No usable video/audio stream found in {filename}', func
                     )
 
-                file_type = stream.codec_type
+                file_type = FileType(stream.codec_type)
                 mime = f'{file_type}/{stream.codec_name}'
             except Exception as e:
                 if force_ffprobe:
@@ -207,7 +210,7 @@ class FileType(FileTypeBase):
         return ParsedFile(filename, ext, encoding, file_type, mime)
 
     def is_index(self) -> TypeGuard[FileTypeIndexWithType]:
-        return self is FileType.INDEX and hasattr(self, 'file_type')  # type: ignore
+        return self in {FileType.INDEX, FileType.INDEX_AUDIO, FileType.INDEX_VIDEO}  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
         if self is not FileType.INDEX:
@@ -215,11 +218,20 @@ class FileType(FileTypeBase):
 
         file_type = FileType(file_type)
 
-        if file_type not in {FileType.VIDEO, FileType.AUDIO}:
-            raise CustomValueError(
-                'You can only have Video, Audio or Other index file types!', str(FileType.INDEX)
-            )
+        if file_type in {FileType.AUDIO, FileType.VIDEO}:
+            if file_type is FileType.AUDIO:
+                return FileType.INDEX_AUDIO  # type: ignore
 
-        self.file_type = file_type
+            if file_type is FileType.VIDEO:
+                return FileType.INDEX_VIDEO  # type: ignore
 
-        return self
+        raise CustomValueError(
+            'You can only have Video, Audio or Other index file types!', str(FileType.INDEX)
+        )
+
+
+for _fty, _ftyp in [
+    (FileType.AUDIO, FileType.INDEX_AUDIO),  # type: ignore
+    (FileType.VIDEO, FileType.INDEX_VIDEO)  # type: ignore
+]:
+    setattr(_ftyp, 'file_type', _fty)

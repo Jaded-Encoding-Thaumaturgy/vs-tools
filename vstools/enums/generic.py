@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 import vapoursynth as vs
 
@@ -146,8 +146,8 @@ class FieldBased(_FieldBasedMeta):
     ) -> vs.VideoNode:
         value = FieldBased.from_param(tff, func) or FieldBased.from_video(clip, True)
 
-        return clip.std.SetFieldBased(value.field)
+        return clip.std.SetFieldBased(value.value)
 
 
-ChromaLocationT = int | vs.ChromaLocation | ChromaLocation
-FieldBasedT = int | vs.FieldBased | FieldBased
+ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
+FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]

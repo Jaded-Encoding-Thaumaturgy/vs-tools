@@ -30,6 +30,8 @@ __all__ = [
     'SimpleByteData', 'SimpleByteDataArray',
     'ByteData',
 
+    'KwargsT',
+
     'SupportsTrunc',
 
     'SupportsString',
@@ -95,6 +97,8 @@ SimpleByteDataArray = Union[SimpleByteData, Sequence[SimpleByteData]]
 ByteData: TypeAlias = SupportsFloat | SupportsIndex | SimpleByteData | memoryview
 
 SupportsFloatOrIndex: TypeAlias = SupportsFloat | SupportsIndex
+
+KwargsT = dict[str, Any]
 
 
 @runtime_checkable

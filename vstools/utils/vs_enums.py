@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 from vapoursynth import FLOAT, GRAY, INTEGER, RGB, YUV
 from vapoursynth import PresetFormat as VSPresetFormat
 
+from .other import IS_DOCS
+
 __all__ = [
     'PresetFormat',
     'GRAY8', 'GRAY9', 'GRAY10', 'GRAY11', 'GRAY12', 'GRAY13', 'GRAY14', 'GRAY15', 'GRAY16', 'GRAY17', 'GRAY18',
@@ -42,6 +44,8 @@ __all__ = [
 
 
 def MAKE_VIDEO_ID(colorFamily: int, sampleType: int, bitsPerSample: int, subSamplingW: int, subSamplingH: int) -> int:
+    if IS_DOCS:
+        return 0
     return colorFamily << 28 | sampleType << 24 | bitsPerSample << 16 | subSamplingW << 8 | subSamplingH << 0
 
 
@@ -270,31 +274,31 @@ class PresetFormat(PresetFormatBase):
 
     ################################################
 
-    RGB24 = MAKE_VIDEO_ID(RGB, INTEGER, 24, 0, 0)  # type: ignore[misc,assignment]
-    RGB27 = MAKE_VIDEO_ID(RGB, INTEGER, 27, 0, 0)  # type: ignore[misc,assignment]
-    RGB30 = MAKE_VIDEO_ID(RGB, INTEGER, 30, 0, 0)  # type: ignore[misc,assignment]
-    RGB33 = MAKE_VIDEO_ID(RGB, INTEGER, 33, 0, 0)
-    RGB36 = MAKE_VIDEO_ID(RGB, INTEGER, 36, 0, 0)  # type: ignore[misc,assignment]
-    RGB39 = MAKE_VIDEO_ID(RGB, INTEGER, 39, 0, 0)
-    RGB42 = MAKE_VIDEO_ID(RGB, INTEGER, 42, 0, 0)  # type: ignore[misc,assignment]
-    RGB45 = MAKE_VIDEO_ID(RGB, INTEGER, 45, 0, 0)
-    RGB48 = MAKE_VIDEO_ID(RGB, INTEGER, 48, 0, 0)  # type: ignore[misc,assignment]
-    RGB51 = MAKE_VIDEO_ID(RGB, INTEGER, 51, 0, 0)
-    RGB54 = MAKE_VIDEO_ID(RGB, INTEGER, 54, 0, 0)
-    RGB57 = MAKE_VIDEO_ID(RGB, INTEGER, 57, 0, 0)
-    RGB60 = MAKE_VIDEO_ID(RGB, INTEGER, 60, 0, 0)
-    RGB63 = MAKE_VIDEO_ID(RGB, INTEGER, 63, 0, 0)
-    RGB66 = MAKE_VIDEO_ID(RGB, INTEGER, 66, 0, 0)
-    RGB69 = MAKE_VIDEO_ID(RGB, INTEGER, 69, 0, 0)
-    RGB72 = MAKE_VIDEO_ID(RGB, INTEGER, 72, 0, 0)
-    RGB75 = MAKE_VIDEO_ID(RGB, INTEGER, 75, 0, 0)
-    RGB78 = MAKE_VIDEO_ID(RGB, INTEGER, 78, 0, 0)
-    RGB81 = MAKE_VIDEO_ID(RGB, INTEGER, 81, 0, 0)
-    RGB84 = MAKE_VIDEO_ID(RGB, INTEGER, 84, 0, 0)
-    RGB87 = MAKE_VIDEO_ID(RGB, INTEGER, 87, 0, 0)
-    RGB90 = MAKE_VIDEO_ID(RGB, INTEGER, 90, 0, 0)
-    RGB93 = MAKE_VIDEO_ID(RGB, INTEGER, 93, 0, 0)
-    RGB96 = MAKE_VIDEO_ID(RGB, INTEGER, 96, 0, 0)
+    RGB24 = MAKE_VIDEO_ID(RGB, INTEGER, 8, 0, 0)  # type: ignore[misc,assignment]
+    RGB27 = MAKE_VIDEO_ID(RGB, INTEGER, 9, 0, 0)  # type: ignore[misc,assignment]
+    RGB30 = MAKE_VIDEO_ID(RGB, INTEGER, 10, 0, 0)  # type: ignore[misc,assignment]
+    RGB33 = MAKE_VIDEO_ID(RGB, INTEGER, 11, 0, 0)
+    RGB36 = MAKE_VIDEO_ID(RGB, INTEGER, 12, 0, 0)  # type: ignore[misc,assignment]
+    RGB39 = MAKE_VIDEO_ID(RGB, INTEGER, 13, 0, 0)
+    RGB42 = MAKE_VIDEO_ID(RGB, INTEGER, 14, 0, 0)  # type: ignore[misc,assignment]
+    RGB45 = MAKE_VIDEO_ID(RGB, INTEGER, 15, 0, 0)
+    RGB48 = MAKE_VIDEO_ID(RGB, INTEGER, 16, 0, 0)  # type: ignore[misc,assignment]
+    RGB51 = MAKE_VIDEO_ID(RGB, INTEGER, 17, 0, 0)
+    RGB54 = MAKE_VIDEO_ID(RGB, INTEGER, 18, 0, 0)
+    RGB57 = MAKE_VIDEO_ID(RGB, INTEGER, 19, 0, 0)
+    RGB60 = MAKE_VIDEO_ID(RGB, INTEGER, 20, 0, 0)
+    RGB63 = MAKE_VIDEO_ID(RGB, INTEGER, 21, 0, 0)
+    RGB66 = MAKE_VIDEO_ID(RGB, INTEGER, 22, 0, 0)
+    RGB69 = MAKE_VIDEO_ID(RGB, INTEGER, 23, 0, 0)
+    RGB72 = MAKE_VIDEO_ID(RGB, INTEGER, 24, 0, 0)
+    RGB75 = MAKE_VIDEO_ID(RGB, INTEGER, 25, 0, 0)
+    RGB78 = MAKE_VIDEO_ID(RGB, INTEGER, 26, 0, 0)
+    RGB81 = MAKE_VIDEO_ID(RGB, INTEGER, 27, 0, 0)
+    RGB84 = MAKE_VIDEO_ID(RGB, INTEGER, 28, 0, 0)
+    RGB87 = MAKE_VIDEO_ID(RGB, INTEGER, 29, 0, 0)
+    RGB90 = MAKE_VIDEO_ID(RGB, INTEGER, 30, 0, 0)
+    RGB93 = MAKE_VIDEO_ID(RGB, INTEGER, 31, 0, 0)
+    RGB96 = MAKE_VIDEO_ID(RGB, INTEGER, 32, 0, 0)
 
     RGBH = MAKE_VIDEO_ID(RGB, FLOAT, 16, 0, 0)  # type: ignore[misc,assignment]
     RGBS = MAKE_VIDEO_ID(RGB, FLOAT, 32, 0, 0)  # type: ignore[misc,assignment]

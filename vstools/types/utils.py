@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Concatenate, Generic, Iterable, Protocol, cast, overload
+from typing import Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
 
 from .builtins import F0, P0, R0, T0, P, R, T
 
@@ -9,7 +9,9 @@ __all__ = [
 
     'inject_self',
 
-    'complex_hash'
+    'complex_hash',
+
+    'get_subclasses'
 ]
 
 
@@ -133,3 +135,14 @@ class complex_hash(Generic[T]):
             values.append(str(new_hash))
 
         return hash('_'.join(values))
+
+
+def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[type[T]]:
+    def _subclasses(cls: type[T]) -> Generator[type[T], None, None]:
+        for subclass in cls.__subclasses__():
+            yield from _subclasses(subclass)
+            if subclass in exclude:
+                continue
+            yield subclass
+
+    return list(set(_subclasses(family)))
