@@ -80,7 +80,7 @@ def get_prop(
 
         return cast(prop)  # type: ignore
     except BaseException as e:
-        if not isinstance(default, MissingT):
+        if default is not MISSING:
             return default
 
         if isinstance(e, KeyError) or prop is MISSING:

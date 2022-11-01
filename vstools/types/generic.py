@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, Protocol, TypeVar, Union
+from typing import Any, Callable, Literal, Protocol, TypeAlias, TypeVar, Union
 from enum import Enum, auto
 import vapoursynth as vs
 
@@ -31,7 +31,7 @@ class MissingTBase(Enum):
     MissingT = auto()
 
 
-MissingT = Literal[MissingTBase.MissingT]
+MissingT: TypeAlias = Literal[MissingTBase.MissingT]
 MISSING = MissingTBase.MissingT
 
 
