@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Callable, Concatenate, overload
 
 from ..exceptions import CustomRuntimeError
-from ..types import P, R, T, MissingT, MISSING
+from ..types import P, R, T, MissingT, MISSING, KwargsT
 
 __all__ = [
-    'iterate', 'fallback'
+    'iterate', 'fallback', 'kwargs_fallback'
 ]
 
 
@@ -67,3 +67,45 @@ def fallback(value: T | None, *fallbacks: T | None, default: T = fallback_missin
         return MISSING
 
     raise CustomRuntimeError('You need to specify a default/fallback value!')
+
+
+@overload
+def kwargs_fallback(
+    input_value: T | None, kwargs: tuple[KwargsT, str], fallback: T
+) -> T:
+    ...
+
+
+@overload
+def kwargs_fallback(
+    input_value: T | None, kwargs: tuple[KwargsT, str], fallback0: T | None, default: T
+) -> T:
+    ...
+
+
+@overload
+def kwargs_fallback(
+    input_value: T | None, kwargs: tuple[KwargsT, str], fallback0: T | None, fallback1: T | None,
+    default: T
+) -> T:
+    ...
+
+
+@overload
+def kwargs_fallback(
+    input_value: T | None, kwargs: tuple[KwargsT, str], *fallbacks: T | None
+) -> T | MissingT:
+    ...
+
+
+@overload
+def kwargs_fallback(
+    input_value: T | None, kwargs: tuple[KwargsT, str], *fallbacks: T | None, default: T
+) -> T:
+    ...
+
+
+def kwargs_fallback(  # type: ignore
+    value: T | None, kwargs: tuple[KwargsT, str], *fallbacks: T | None, default: T = fallback_missing  # type: ignore
+) -> T | MissingT:
+    return fallback(value, kwargs[0].get(kwargs[1], None), *fallbacks, default=default)
