@@ -3,7 +3,7 @@ from __future__ import annotations
 import builtins
 import weakref
 from ctypes import Structure
-from inspect import Parameter
+from inspect import Parameter, Signature
 from logging import NOTSET as LogLevelUnset
 from logging import Handler, LogRecord
 from types import UnionType
@@ -34,8 +34,8 @@ from vapoursynth import PresetFormat as VSPresetFormat
 from vapoursynth import (
     RawFrame, RawNode, SampleType, TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple,
     __api_version__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
-    ccfEnableGraphInspection, clear_output, clear_outputs, construct_signature, fmFrameState, fmParallel,
-    fmParallelRequests, fmUnordered, get_current_environment, get_output, get_outputs, has_policy, register_policy
+    ccfEnableGraphInspection, clear_output, clear_outputs, fmFrameState, fmParallel, fmParallelRequests, fmUnordered,
+    get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -322,6 +322,9 @@ if TYPE_CHECKING:
     def _construct_parameter(signature: str) -> Parameter:
         ...
 
+    def construct_signature(signature: str, return_signature: str, injected: str | None = None) -> Signature:
+        ...
+
     class CallbackData:
         def __init__(
             self, node: RawNode, env: EnvironmentData,
@@ -342,5 +345,5 @@ if TYPE_CHECKING:
 else:
     from vapoursynth import (
         CallbackData, PythonVSScriptLoggingBridge, StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy, __pyx_capi__,
-        _construct_parameter, _construct_type
+        _construct_parameter, _construct_type, construct_signature
     )
