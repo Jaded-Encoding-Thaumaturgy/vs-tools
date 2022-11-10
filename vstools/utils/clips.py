@@ -84,7 +84,7 @@ def finalize_output(
 
 
 def initialize_clip(
-    clip: vs.VideoNode, bits: int = 16,
+    clip: vs.VideoNode, bits: int | None = 16,
     matrix: MatrixT = Matrix.BT709,
     transfer: TransferT = Transfer.BT709,
     primaries: PrimariesT = Primaries.BT709,
@@ -107,12 +107,15 @@ def initialize_clip(
 
     clip = FieldBased.ensure_presence(clip, field_based, func)
 
+    if bits is None:
+        return clip
+
     return depth(clip, bits)
 
 
 @overload
 def initialize_input(
-    function: None = None, /, *, bits: int = 16,
+    function: None = None, /, *, bits: int | None = 16,
     matrix: MatrixT = Matrix.BT709,
     transfer: TransferT = Transfer.BT709,
     primaries: PrimariesT = Primaries.BT709,
@@ -126,7 +129,7 @@ def initialize_input(
 
 @overload
 def initialize_input(
-    function: F_VD, /, *, bits: int = 16,
+    function: F_VD, /, *, bits: int | None = 16,
     matrix: MatrixT = Matrix.BT709,
     transfer: TransferT = Transfer.BT709,
     primaries: PrimariesT = Primaries.BT709,
@@ -139,7 +142,7 @@ def initialize_input(
 
 
 def initialize_input(
-    function: F_VD | None = None, /, *, bits: int = 16,
+    function: F_VD | None = None, /, *, bits: int | None = 16,
     matrix: MatrixT = Matrix.BT709,
     transfer: TransferT = Transfer.BT709,
     primaries: PrimariesT = Primaries.BT709,
