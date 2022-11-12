@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, Iterator, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from ..types import MISSING, FuncExceptT, Self, SupportsString
 
@@ -80,7 +80,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         return err
 
     def __str__(self) -> str:
-        from ..functions import norm_func_name
+        from ..functions import norm_display_name, norm_func_name
 
         message = self.message
 
@@ -101,11 +101,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         if kwargs:
             kwargs = {
-                key: (
-                    ', '.join(norm_func_name(v) for v in value)
-                    if isinstance(value, Iterator) else
-                    norm_func_name(value)
-                ) for key, value in kwargs.items()
+                key: norm_display_name(value) for key, value in kwargs.items()
             }
 
         return f'{func_header} {self.message!s}'.format(**kwargs)

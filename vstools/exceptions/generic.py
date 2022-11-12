@@ -100,9 +100,13 @@ class InvalidColorFamilyError(CustomValueError):
     ) -> None:
         from ..functions import to_arr
         from ..utils import get_color_family
+
         wrong_str = get_color_family(wrong).name
-        correct_str = ', '.join(set(get_color_family(c).name for c in to_arr(correct)))  # type: ignore
-        super().__init__(message, func, wrong=wrong_str, correct=correct_str, **kwargs)
+
+        super().__init__(
+            message, func, wrong=wrong_str,
+            correct=iter(set(get_color_family(c).name for c in to_arr(correct))), **kwargs
+        )
 
     @staticmethod
     def check(
@@ -225,7 +229,5 @@ class InvalidFramerateError(CustomValueError):
 
         if to_check not in correct_list:
             raise InvalidFramerateError(
-                func, to_check, message, wrong=f'{to_check.numerator}/{to_check.denominator}',
-                correct=', '.join([f'{f.numerator}/{f.denominator}' for f in set(correct_list)]),
-                **kwargs
+                func, to_check, message, wrong=to_check, correct=iter(set(correct_list)), **kwargs
             )
