@@ -225,7 +225,9 @@ class InvalidFramerateError(CustomValueError):
         from ..utils import get_framerate
 
         to_check = get_framerate(to_check)
-        correct_list = [get_framerate(c) for c in to_arr(correct)]  # type: ignore
+        correct_list = [
+            get_framerate(c) for c in ([correct] if isinstance(correct, tuple) else to_arr(correct))  # type: ignore
+        ]
 
         if to_check not in correct_list:
             raise InvalidFramerateError(
