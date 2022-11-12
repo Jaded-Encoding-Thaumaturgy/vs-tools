@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from fractions import Fraction
 from typing import Any, Iterable
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT, HoldsVideoFormatT, VideoFormatT
+from ..types import FuncExceptT, HoldsVideoFormatT, SupportsString, VideoFormatT
 from .base import CustomKeyError, CustomOverflowError, CustomValueError
 
 __all__ = [
@@ -204,7 +205,27 @@ class InvalidFramerateError(CustomValueError):
     """Raised when the given clip has an invalid framerate."""
 
     def __init__(
-        self, func: FuncExceptT, clip: vs.VideoNode, message: str = '{fps} clips are not allowed!',
+        self, func: FuncExceptT, clip: vs.VideoNode | Fraction, message: str = '{fps} clips are not allowed!',
         **kwargs: Any
     ) -> None:
-        super().__init__(message, func, fps=clip.fps, **kwargs)
+        super().__init__(message, func, fps=clip.fps if isinstance(clip, vs.VideoNode) else clip, **kwargs)
+
+    @staticmethod
+    def check(
+        func: FuncExceptT, to_check: vs.VideoNode | Fraction | tuple[int, int] | float,
+        correct: vs.VideoNode | Fraction | tuple[int, int] | float | Iterable[
+            vs.VideoNode | Fraction | tuple[int, int] | float
+        ], message: SupportsString = 'Input clip must have {correct} framerate, not {wrong}!', **kwargs: Any
+    ) -> None:
+        from ..functions import to_arr
+        from ..utils import get_framerate
+
+        to_check = get_framerate(to_check)
+        correct_list = [get_framerate(c) for c in to_arr(correct)]  # type: ignore
+
+        if to_check not in correct_list:
+            raise InvalidFramerateError(
+                func, message=message, wrong=f'{to_check.numerator}/{to_check.denominator}',
+                correct=', '.join([f'{f.numerator}/{f.denominator}' for f in set(correct_list)]),
+                **kwargs
+            )
