@@ -24,17 +24,23 @@ __all__ = [
 
 class CustomErrorMeta(type):
     def __new__(cls: type[Self], *args: Any) -> Self:
-        obj = type.__new__(cls, *args)
+        return CustomErrorMeta.setup_exception(type.__new__(cls, *args))
 
-        if obj.__qualname__.startswith('Custom'):  # type: ignore
-            obj.__qualname__ = obj.__qualname__[6:]  # type: ignore
+    @staticmethod
+    def setup_exception(exception: Self, override: Exception | None = None) -> Self:
+        if override:
+            exception.__name__ = override.__name__
+            exception.__qualname__ = override.__qualname__
+
+        if exception.__qualname__.startswith('Custom'):  # type: ignore
+            exception.__qualname__ = exception.__qualname__[6:]  # type: ignore
 
         if sys.stdout and sys.stdout.isatty():
-            obj.__qualname__ = f'\033[0;31;1m{obj.__qualname__}\033[0m'  # type: ignore
+            exception.__qualname__ = f'\033[0;31;1m{exception.__qualname__}\033[0m'  # type: ignore
 
-        obj.__module__ = Exception.__module__
+        exception.__module__ = Exception.__module__
 
-        return obj
+        return exception
 
 
 class CustomError(Exception, metaclass=CustomErrorMeta):
@@ -47,11 +53,11 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         super().__init__(message)
 
-    def __class_getitem__(self, exception: Exception) -> CustomError:
+    def __class_getitem__(self, exception: type[Exception]) -> CustomError:
         class inner_exception(CustomError, exception):
             ...
 
-        return inner_exception
+        return CustomErrorMeta.setup_exception(inner_exception, exception)
 
     def __call__(
         self: SelfError, message: SupportsString | None = MISSING,
