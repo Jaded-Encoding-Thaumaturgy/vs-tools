@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import overload
 
 import vapoursynth as vs
+from fractions import Fraction
 
 from ..exceptions import UnsupportedSubsamplingError
 from ..functions import depth, disallow_variable_format
@@ -13,7 +14,7 @@ __all__ = [
     'get_var_infos',
     'get_video_format',
 
-    'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family',
+    'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family', 'get_framerate',
 
     'expect_bits',
 
@@ -78,6 +79,19 @@ def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /)
     if isinstance(clip, vs.ColorFamily):
         return clip
     return get_video_format(clip).color_family
+
+
+def get_framerate(clip: vs.VideoNode | Fraction | tuple[int, int] | float) -> Fraction:
+    if isinstance(clip, vs.VideoNode):
+        return clip.fps
+
+    if isinstance(clip, Fraction):
+        return clip
+
+    if isinstance(clip, tuple):
+        return Fraction(*clip)
+
+    return Fraction(clip)
 
 
 def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.VideoNode, int]:
