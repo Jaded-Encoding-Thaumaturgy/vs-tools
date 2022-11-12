@@ -41,7 +41,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 
 
 def to_arr(val: T | Sequence[T]) -> list[T]:
-    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
+    return list(val) if type(val) in {list, range, zip, set, map, enumerate} else [val]  # type: ignore
 
 
 @overload
