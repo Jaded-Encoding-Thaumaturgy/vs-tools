@@ -47,6 +47,12 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         super().__init__(message)
 
+    def __class_getitem__(self, exception: Exception) -> CustomError:
+        class inner_exception(CustomError, exception):
+            ...
+
+        return inner_exception
+
     def __call__(
         self: SelfError, message: SupportsString | None = MISSING,
         func: FuncExceptT | None = MISSING, **kwargs: Any  # type: ignore[assignment]
