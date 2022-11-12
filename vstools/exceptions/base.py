@@ -27,7 +27,11 @@ class CustomErrorMeta(type):
     @staticmethod
     def setup_exception(exception: Self, override: Exception | None = None) -> Self:
         if override:
-            exception.__name__ = override.__name__
+            if override.__name__.startswith('Custom'):  # type: ignore
+                exception.__name__ = override.__name__
+            else:
+                exception.__name__ = f'Custom{override.__name__}'
+
             exception.__qualname__ = override.__qualname__
 
         if exception.__qualname__.startswith('Custom'):  # type: ignore
@@ -55,11 +59,11 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         super().__init__(message)
 
-    def __class_getitem__(self, exception: type[Exception]) -> CustomError:
-        class inner_exception(CustomError, exception):
+    def __class_getitem__(cls, exception: type[Exception]) -> CustomError:
+        class inner_exception(cls, exception):
             ...
 
-        return CustomErrorMeta.setup_exception(inner_exception, exception)
+        return type(cls).setup_exception(inner_exception, exception)
 
     def __call__(
         self: SelfError, message: SupportsString | None = MISSING,
@@ -80,11 +84,11 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         message = self.message
 
-        if message is None and self.func is None:
-            return str(self)
-
         if not message:
             message = 'An error occurred!'
+
+            if self.func is None:
+                return message
 
         func_header = norm_func_name(self.func).strip() if self.func else 'Unknown'
 
