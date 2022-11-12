@@ -24,7 +24,7 @@ class CustomImportError(CustomError, ImportError):
 
 
 class DependencyNotFoundError(CustomImportError):
-    """Raised when there's an optional dependency """
+    """Raised when there's a missing optional dependency."""
 
     def __init__(
         self, func: FuncExceptT, package: str, reason: str | None = None,
