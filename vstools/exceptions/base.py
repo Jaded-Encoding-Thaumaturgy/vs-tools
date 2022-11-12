@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import sys
 from copy import deepcopy
-from typing import Any, Iterator, TypeVar
+from typing import TYPE_CHECKING, Any, Iterator, TypeVar
 
-from ..types import MISSING
-
-from ..types import FuncExceptT, Self, SupportsString
+from ..types import MISSING, FuncExceptT, Self, SupportsString
 
 __all__ = [
     'CustomError',
@@ -41,6 +39,10 @@ class CustomErrorMeta(type):
         exception.__module__ = Exception.__module__
 
         return exception
+
+    if TYPE_CHECKING:
+        def __getitem__(self, exception: type[Exception]) -> CustomError:
+            ...
 
 
 class CustomError(Exception, metaclass=CustomErrorMeta):
