@@ -225,7 +225,7 @@ class InvalidFramerateError(CustomValueError):
 
         if to_check not in correct_list:
             raise InvalidFramerateError(
-                func, message=message, wrong=f'{to_check.numerator}/{to_check.denominator}',
+                func, to_check, message, wrong=f'{to_check.numerator}/{to_check.denominator}',
                 correct=', '.join([f'{f.numerator}/{f.denominator}' for f in set(correct_list)]),
                 **kwargs
             )
