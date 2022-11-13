@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import overload
+from typing import Any, overload
 
 import vapoursynth as vs
 from fractions import Fraction
@@ -94,11 +94,11 @@ def get_framerate(clip: vs.VideoNode | Fraction | tuple[int, int] | float) -> Fr
     return Fraction(clip)
 
 
-def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.VideoNode, int]:
+def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16, **kwargs: Any) -> tuple[vs.VideoNode, int]:
     bits = get_depth(clip)
 
     if bits != expected_depth:
-        clip = depth(clip, expected_depth)
+        clip = depth(clip, expected_depth, **kwargs)
 
     return clip, bits
 
