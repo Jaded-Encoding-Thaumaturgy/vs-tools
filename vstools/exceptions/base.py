@@ -104,15 +104,15 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         if not message:
             message = f'An error occurred!{reason}'
 
-            if self.func is None:
-                return message
+        if self.func:
+            func_header = norm_func_name(self.func).strip()
 
-        func_header = norm_func_name(self.func).strip() if self.func else 'Unknown'
+            if sys.stdout and sys.stdout.isatty():
+                func_header = f'\033[0;36m{func_header}\033[0m'
 
-        if sys.stdout and sys.stdout.isatty():
-            func_header = f'\033[0;36m{func_header}\033[0m'
-
-        func_header = f'({func_header})'
+            func_header = f'({func_header}) '
+        else:
+            func_header = ''
 
         kwargs = self.kwargs.copy()
 
@@ -121,7 +121,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
                 key: norm_display_name(value) for key, value in kwargs.items()
             }
 
-        return f'{func_header} {self.message!s}{reason}'.format(**kwargs).strip()
+        return f'{func_header}{self.message!s}{reason}'.format(**kwargs).strip()
 
 
 SelfError = TypeVar('SelfError', bound=CustomError)
