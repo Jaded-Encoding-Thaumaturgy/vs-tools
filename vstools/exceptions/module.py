@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from typing import Any
 
 from .base import CustomError
@@ -27,17 +26,8 @@ class DependencyNotFoundError(CustomImportError):
     """Raised when there's a missing optional dependency."""
 
     def __init__(
-        self, func: FuncExceptT, package: str, reason: str | None = None,
+        self, func: FuncExceptT, package: str,
         message: SupportsString = "Missing dependency '{package}'!",
         **kwargs: Any
     ) -> None:
-
-        if reason:
-            reason = f'({reason})'
-
-            if sys.stdout and sys.stdout.isatty():
-                reason = f'\033[0;33m{reason}\033[0m'
-
-            message = f'{message} {reason}'
-
         super().__init__(func, package, message, **kwargs)

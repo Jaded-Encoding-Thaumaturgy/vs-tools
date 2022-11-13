@@ -51,10 +51,12 @@ class CustomErrorMeta(type):
 
 class CustomError(Exception, metaclass=CustomErrorMeta):
     def __init__(
-        self, message: SupportsString | None = None, func: FuncExceptT | None = None, **kwargs: Any
+        self, message: SupportsString | None = None, func: FuncExceptT | None = None,
+        reason: SupportsString | FuncExceptT | None = None, **kwargs: Any
     ) -> None:
         self.message = message
         self.func = func
+        self.reason = reason
         self.kwargs = kwargs
 
         super().__init__(message)
@@ -67,7 +69,8 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
     def __call__(
         self: SelfError, message: SupportsString | None = MISSING,
-        func: FuncExceptT | None = MISSING, **kwargs: Any  # type: ignore[assignment]
+        func: FuncExceptT | None = MISSING, reason: SupportsString | FuncExceptT | None = MISSING,
+        **kwargs: Any
     ) -> SelfError:
         err = deepcopy(self)
 
@@ -77,6 +80,11 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         if func is not MISSING:  # type: ignore[comparison-overlap]
             err.func = func
 
+        if reason is not MISSING:  # type: ignore[comparison-overlap]
+            err.reason = reason
+
+        err.kwargs |= kwargs
+
         return err
 
     def __str__(self) -> str:
@@ -84,8 +92,17 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         message = self.message
 
+        if self.reason:
+            reason = f'({norm_display_name(self.reason)})'
+
+            if sys.stdout and sys.stdout.isatty():
+                reason = f'\033[0;33m{reason}\033[0m'
+            reason = f' {reason}'
+        else:
+            reason = ''
+
         if not message:
-            message = 'An error occurred!'
+            message = f'An error occurred!{reason}'
 
             if self.func is None:
                 return message
@@ -104,7 +121,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
                 key: norm_display_name(value) for key, value in kwargs.items()
             }
 
-        return f'{func_header} {self.message!s}'.format(**kwargs)
+        return f'{func_header} {self.message!s}{reason}'.format(**kwargs).strip()
 
 
 SelfError = TypeVar('SelfError', bound=CustomError)
