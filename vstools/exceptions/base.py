@@ -92,17 +92,8 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         message = self.message
 
-        if self.reason:
-            reason = f'({norm_display_name(self.reason)})'
-
-            if sys.stdout and sys.stdout.isatty():
-                reason = f'\033[0;33m{reason}\033[0m'
-            reason = f' {reason}'
-        else:
-            reason = ''
-
         if not message:
-            message = f'An error occurred!{reason}'
+            message = 'An error occurred!'
 
         if self.func:
             func_header = norm_func_name(self.func).strip()
@@ -120,6 +111,15 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
             kwargs = {
                 key: norm_display_name(value) for key, value in kwargs.items()
             }
+
+        if self.reason:
+            reason = f'({norm_display_name(self.reason)})'
+
+            if sys.stdout and sys.stdout.isatty():
+                reason = f'\033[0;33m{reason}\033[0m'
+            reason = f' {reason}'
+        else:
+            reason = ''
 
         return f'{func_header}{self.message!s}{reason}'.format(**kwargs).strip()
 
