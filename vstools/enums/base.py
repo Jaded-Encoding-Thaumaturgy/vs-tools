@@ -13,6 +13,10 @@ __all__ = [
 
 class CustomEnum(Enum):
     @classmethod
+    def _missing_(cls: type[SelfEnum], value: Any) -> SelfEnum:
+        return cls.from_param(value)
+
+    @classmethod
     def from_param(cls: type[SelfEnum], value: Any, func_except: EnumFuncExceptT | None = None) -> SelfEnum | None:
         if value is None:
             return None
