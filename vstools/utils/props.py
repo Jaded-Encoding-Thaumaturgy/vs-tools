@@ -5,7 +5,7 @@ from typing import Any, TypeVar, overload
 import vapoursynth as vs
 
 from ..exceptions import FramePropError
-from ..types import MISSING, BoundVSMapValue, HoldsPropValueT, MissingT
+from ..types import MISSING, BoundVSMapValue, HoldsPropValueT, MissingT, FuncExceptT
 from ..enums import PropEnum
 
 __all__ = [
@@ -19,14 +19,16 @@ CT = TypeVar('CT')
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: None = None, default: MissingT = MISSING
+    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: None = None, default: MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> BoundVSMapValue:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: type[CT], default: MissingT = MISSING
+    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: type[CT], default: MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> CT:
     ...
 
@@ -34,7 +36,8 @@ def get_prop(
 @overload
 def get_prop(
     obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
-    cast: None = None, default: DT | MissingT = MISSING
+    cast: None = None, default: DT | MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> BoundVSMapValue | DT:
     ...
 
@@ -42,26 +45,35 @@ def get_prop(
 @overload
 def get_prop(
     obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
-    cast: type[CT], default: DT | MissingT = MISSING
+    cast: type[CT], default: DT | MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> CT | DT:
     ...
 
 
 def get_prop(
     obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
-    cast: type[CT] | None = None, default: DT | MissingT = MISSING
+    cast: type[CT] | None = None, default: DT | MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> BoundVSMapValue | CT | DT:
     """
     Get FrameProp ``prop`` from frame ``frame`` with expected type ``t`` to satisfy the type checker.
+
     :param frame:               Frame containing props.
     :param key:                 Prop to get.
     :param t:                   type of prop.
     :param cast:                Cast value to this type, if specified.
     :param default:             Fallback value.
+
     :return:                    frame.prop[key].
+
     :raises FramePropError:     ``key`` is not found in props.
     :raises FramePropError:     Returns a prop of the wrong type.
     """
+
+    from ..functions import fallback
+
+    func = fallback(func, get_prop)
 
     if isinstance(obj, (vs.VideoNode, vs.AudioNode)):
         props = obj.get_frame(0).props
@@ -90,14 +102,14 @@ def get_prop(
             return default
 
         if isinstance(e, KeyError) or prop is MISSING:
-            e = FramePropError(get_prop, key, 'Key {key} not present in props!')
+            e = FramePropError(func, key, 'Key {key} not present in props!')
         elif isinstance(e, TypeError):
             e = FramePropError(
-                get_prop, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
+                func, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
                 t=t, prop_t=type(prop)
             )
         else:
-            e = FramePropError(get_prop, key)
+            e = FramePropError(func, key)
 
         raise e
 
