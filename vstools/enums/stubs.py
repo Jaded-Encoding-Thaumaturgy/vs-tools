@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, Any, TypeVar, overload, Iterable
 
 import vapoursynth as vs
 
@@ -23,6 +23,37 @@ class PropEnum(CustomIntEnum):
     @classproperty
     def prop_key(cls) -> str:
         return f'_{cls.__name__}'
+
+    if TYPE_CHECKING:
+        def __new__(  # type: ignore
+            cls: type[SelfPropEnum], value: int | SelfPropEnum | vs.VideoNode | vs.VideoFrame | vs.FrameProps
+        ) -> SelfPropEnum:
+            ...
+
+        @overload
+        @classmethod
+        def from_param(  # type: ignore
+            cls: type[SelfPropEnum], value: None, func_except: FuncExceptT | None = None
+        ) -> None:
+            ...
+
+        @overload
+        @classmethod
+        def from_param(  # type: ignore
+            cls: type[SelfPropEnum], value: int | SelfPropEnum, func_except: FuncExceptT | None = None
+        ) -> SelfPropEnum:
+            ...
+
+        @overload
+        @classmethod
+        def from_param(  # type: ignore
+            cls: type[SelfPropEnum], value: int | SelfPropEnum | None, func_except: FuncExceptT | None = None
+        ) -> SelfPropEnum | None:
+            ...
+
+        @classmethod
+        def from_param(cls: Any, value: Any, func_except: Any = None) -> SelfPropEnum | None:
+            ...
 
 
 if TYPE_CHECKING:
