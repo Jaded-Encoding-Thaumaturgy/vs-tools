@@ -71,6 +71,17 @@ class PropEnum(CustomIntEnum):
     ) -> SelfPropEnum:
         raise NotImplementedError
 
+    @classmethod
+    def ensure_presence(
+        cls: type[SelfPropEnum], clip: vs.VideoNode, value: int | SelfPropEnum | None, func: FuncExceptT | None = None
+    ) -> vs.VideoNode:
+        enum_value = cls.from_param(value, func) or cls.from_video(clip, True)
+
+        return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
+
+
+SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
+
 
 if TYPE_CHECKING:
     from .color import ColorRange, ColorRangeT, Matrix, MatrixT, Primaries, PrimariesT, Transfer, TransferT
@@ -251,6 +262,21 @@ if TYPE_CHECKING:
         @classmethod  # type: ignore
         def from_param(cls: Any, value: Any, func_except: Any = None) -> FieldBased | None:
             ...
+
+        @classmethod
+        def ensure_presence(
+            cls, clip: vs.VideoNode, tff: bool | int | FieldBasedT | None, func: FuncExceptT | None = None
+        ) -> vs.VideoNode:
+            ...
 else:
     _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = PropEnum
-    _ChromaLocationMeta = _FieldBasedMeta = PropEnum
+    _ChromaLocationMeta = PropEnum
+
+    class _FieldBasedMeta(PropEnum):
+        @classmethod
+        def ensure_presence(
+            cls, clip: vs.VideoNode, tff: bool | int | FieldBased | None, func: FuncExceptT | None = None
+        ) -> vs.VideoNode:
+            value = cls.from_param(tff, func) or cls.from_video(clip, True)
+
+            return clip.std.SetFieldBased(value.value)

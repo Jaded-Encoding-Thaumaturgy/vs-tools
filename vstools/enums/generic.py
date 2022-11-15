@@ -7,7 +7,7 @@ import vapoursynth as vs
 from ..exceptions import (
     UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
 )
-from ..types import MISSING, FuncExceptT
+from ..types import MISSING
 from .stubs import _ChromaLocationMeta, _FieldBasedMeta
 
 __all__ = [
@@ -137,16 +137,6 @@ class FieldBased(_FieldBasedMeta):
     @property
     def is_tff(self) -> bool:
         return self is self.TFF
-
-    @classmethod
-    def ensure_presence(
-        cls, clip: vs.VideoNode,
-        tff: bool | int | FieldBased | None,
-        func: FuncExceptT | None = None
-    ) -> vs.VideoNode:
-        value = FieldBased.from_param(tff, func) or FieldBased.from_video(clip, True)
-
-        return clip.std.SetFieldBased(value.value)
 
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
