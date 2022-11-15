@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from functools import partial
 from typing import Sequence
+from math import ceil, log
 
 from ..types import Nb
 
@@ -10,7 +11,9 @@ __all__ = [
 
     'cround',
 
-    'mod_x', 'mod2', 'mod4', 'mod8'
+    'mod_x', 'mod2', 'mod4', 'mod8',
+
+    'next_power_of_x', 'next_power_of_2'
 ]
 
 
@@ -35,3 +38,22 @@ mod2 = partial(mod_x, x=2)
 mod4 = partial(mod_x, x=4)
 
 mod8 = partial(mod_x, x=8)
+
+
+def next_power_of_2(x: float) -> int:
+    x = cround(x)
+
+    if x == 0:
+        return 1
+
+    if x & (x - 1) == 0:
+        return x
+
+    while x & (x - 1) > 0:
+        x &= (x - 1)
+
+    return x << 1
+
+
+def next_power_of_y(x: float, y: int) -> int:
+    return 1 if x == 0 else y ** ceil(log(x, y))
