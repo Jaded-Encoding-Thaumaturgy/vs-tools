@@ -20,6 +20,10 @@ __all__ = [
 
 
 class PropEnum(CustomIntEnum):
+    @classmethod
+    def is_unknown(cls: type[SelfPropEnum], value: int | SelfPropEnum) -> bool:
+        return False
+
     @classproperty
     def prop_key(cls) -> str:
         return f'_{cls.__name__}'

@@ -71,9 +71,9 @@ class Matrix(_MatrixMeta):
     CHROMA_DERIVED_C = 13
     ICTCP = 14
 
-    @property
-    def is_unknown(self) -> bool:
-        return self is Matrix.UNKNOWN
+    @classmethod
+    def is_unknown(cls, value: int | Matrix) -> bool:
+        return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Matrix:
@@ -195,9 +195,9 @@ class Transfer(_TransferMeta):
     S_GAMUT = 110
     FILM_C = 111
 
-    @property
-    def is_unknown(self) -> bool:
-        return self is Transfer.UNKNOWN
+    @classmethod
+    def is_unknown(cls, value: int | Transfer) -> bool:
+        return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Transfer:
@@ -314,9 +314,9 @@ class Primaries(_PrimariesMeta):
     ST432_1 = 12
     EBU3213E = 22
 
-    @property
-    def is_unknown(self) -> bool:
-        return self is Primaries.UNKNOWN
+    @classmethod
+    def is_unknown(cls, value: int | Primaries) -> bool:
+        return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Primaries:
@@ -445,10 +445,6 @@ class ColorRange(_ColorRangeMeta):
 
     LIMITED = 1
     FULL = 0
-
-    @property
-    def is_unknown(self) -> bool:
-        return False
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ColorRange:

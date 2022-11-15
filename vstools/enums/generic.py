@@ -39,10 +39,6 @@ class ChromaLocation(_ChromaLocationMeta):
     BOTTOM_LEFT = 4
     BOTTOM = 5
 
-    @property
-    def is_unknown(self) -> bool:
-        return False
-
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ChromaLocation:
         from ..utils import get_var_infos
@@ -92,10 +88,6 @@ class FieldBased(_FieldBasedMeta):
     PROGRESSIVE = 0
     BFF = 1
     TFF = 2
-
-    @property
-    def is_unknown(self) -> bool:
-        return False
 
     if not TYPE_CHECKING:
         @classmethod
