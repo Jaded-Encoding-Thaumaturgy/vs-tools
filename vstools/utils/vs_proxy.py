@@ -171,8 +171,8 @@ class PluginProxy(PluginProxyBase):
 
 
 class CoreProxy(CoreProxyBase):
-    def __init__(self, core: Core) -> None:
-        self.__dict__['vs_core_ref'] = weakref.ref(core)
+    def __init__(self, core: Core, vs_proxy: VSCoreProxy) -> None:
+        self.__dict__['vs_core_ref'] = (weakref.ref(core), vs_proxy)
 
     def __getattr__(self, name: str) -> Plugin:
         core = proxy_utils.get_vs_core(self)
@@ -186,10 +186,14 @@ class CoreProxy(CoreProxyBase):
 class proxy_utils:
     @staticmethod
     def get_vs_core(core: CoreProxy) -> Core:
-        vs_core_ref = core.__dict__['vs_core_ref']
+        vs_core_ref, vs_proxy = core.__dict__['vs_core_ref']
 
         if (vs_core := vs_core_ref()) is None:
-            raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
+            if object.__getattribute__(vs_proxy, '_own_core'):
+                raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
+            else:
+                vs_core = _get_core(vs_proxy)
+                core.__dict__['vs_core_ref'] = (weakref.ref(vs_core), vs_proxy)
 
         return vs_core  # type: ignore
 
@@ -260,7 +264,7 @@ class VSCoreProxy(CoreProxyBase):
         core = _get_core(self)
 
         if not hasattr(self, '_proxied'):
-            self._proxied = out_core = CoreProxy(core)
+            self._proxied = out_core = CoreProxy(core, self)
         else:
             out_core = object.__getattribute__(self, '_proxied')
 
@@ -268,6 +272,7 @@ class VSCoreProxy(CoreProxyBase):
 
 
 core = VSCoreProxy()
+
 
 if TYPE_CHECKING:
     class PyCapsule(Structure):
