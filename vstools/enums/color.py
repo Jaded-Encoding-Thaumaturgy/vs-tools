@@ -121,6 +121,9 @@ class Matrix(_MatrixMeta):
 
         return _primaries_matrix_map[primaries]
 
+    def as_string(self) -> str:
+        return _matrix_name_map.get(self, super().as_string())
+
 
 class Transfer(_TransferMeta):
     """Transfer characteristics (ITU-T H.265)."""
@@ -252,6 +255,9 @@ class Transfer(_TransferMeta):
     def value_libplacebo(self) -> int:
         return _transfer_placebo_map[self]
 
+    def as_string(self) -> str:
+        return _transfer_name_map.get(self, super().as_string())
+
 
 class Primaries(_PrimariesMeta):
     """Color primaries (ITU-T H.265)."""
@@ -342,6 +348,9 @@ class Primaries(_PrimariesMeta):
             return cls(transfer.value)
 
         return _transfer_primaries_map[transfer]
+
+    def as_string(self) -> str:
+        return _primaries_name_map.get(self, super().as_string())
 
 
 class MatrixCoefficients(NamedTuple):
@@ -506,6 +515,56 @@ _transfer_placebo_map = {
 
 _placebo_transfer_map = {
     value: key for key, value in _transfer_placebo_map.items()
+}
+
+_matrix_name_map = {
+    Matrix.RGB: 'rgb',
+    Matrix.BT709: '709',
+    Matrix.UNKNOWN: 'unspec',
+    Matrix.FCC: 'fcc',
+    Matrix.BT470BG: '470bg',
+    Matrix.SMPTE170M: '170m',
+    Matrix.SMPTE240M: '240m',
+    Matrix.BT2020NC: 'ycgco',
+    Matrix.BT2020C: '2020ncl',
+    Matrix.SMPTE2085: '2020cl',
+    Matrix.CHROMA_DERIVED_NC: 'chromancl',
+    Matrix.CHROMA_DERIVED_C: 'chromacl',
+    Matrix.ICTCP: 'ictcp'
+}
+
+_transfer_name_map = {
+    Transfer.BT709: '709',
+    Transfer.UNKNOWN: 'unspec',
+    Transfer.BT470M: '470m',
+    Transfer.BT470BG: '470bg',
+    Transfer.BT601: '601',
+    Transfer.ST240M: '240m',
+    Transfer.LINEAR: 'linear',
+    Transfer.LOG_100: 'log100',
+    Transfer.LOG_316: 'log316',
+    Transfer.XVYCC: 'xvycc',
+    Transfer.SRGB: 'srgb',
+    Transfer.BT2020_10bits: '2020_10',
+    Transfer.BT2020_12bits: '2020_12',
+    Transfer.ST2084: 'st2084',
+    Transfer.ARIB_B67: 'std-b67'
+}
+
+
+_primaries_name_map = {
+    Primaries.BT709: '709',
+    Primaries.UNKNOWN: 'unspec',
+    Primaries.BT470M: '470m',
+    Primaries.BT470BG: '470bg',
+    Primaries.ST170M: '170m',
+    Primaries.ST240M: '240m',
+    Primaries.FILM: 'film',
+    Primaries.BT2020: '2020',
+    Primaries.ST428: 'st428',
+    Primaries.ST431_2: 'st431-2',
+    Primaries.ST432_1: 'st432-1',
+    Primaries.EBU3213E: 'jedec-p22'
 }
 
 MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
