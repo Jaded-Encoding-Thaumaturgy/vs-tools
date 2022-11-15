@@ -82,7 +82,7 @@ def get_prop(
     else:
         props = obj
 
-    if isinstance(key, PropEnum):
+    if issubclass(key, PropEnum):
         key = key.prop_key
 
     prop: Any = MISSING

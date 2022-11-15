@@ -115,7 +115,7 @@ def _base_from_video(
 
     value = get_prop(src, cls, int, default=MISSING if strict else None)
 
-    if value is None or cls.is_unkown(value):
+    if value is None or cls.is_unknown(value):
         if strict:
             raise exception('{class_name} is undefined.', func, class_name=cls, reason=value)
 
