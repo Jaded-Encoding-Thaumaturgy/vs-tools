@@ -56,6 +56,12 @@ class PropEnum(CustomIntEnum):
             ...
 
     @classmethod
+    def _missing_(cls: type[SelfPropEnum], value: int | SelfPropEnum | None) -> SelfPropEnum | None:
+        if isinstance(value, vs.VideoNode | vs.VideoFrame | vs.FrameProps):
+            return cls.from_video(value, True)
+        return super(PropEnum).from_param(value)
+
+    @classmethod
     def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
         raise NotImplementedError
 

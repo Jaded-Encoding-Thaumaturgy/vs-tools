@@ -31,8 +31,12 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def _missing_(cls: type[Matrix], value: Any) -> Matrix | None:
+        value = super()._missing_(value)
+
         if value is None:
             return Matrix.UNKNOWN
+        elif isinstance(value, cls):
+            return value
 
         if value == 8:
             raise UnsupportedMatrixError(
@@ -136,8 +140,12 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def _missing_(cls: type[Transfer], value: Any) -> Transfer | None:
+        value = super()._missing_(value)
+
         if value is None:
             return Transfer.UNKNOWN
+        elif isinstance(value, cls):
+            return value
 
         if Transfer.BT709 < value < Transfer.ARIB_B67 or value == 0:
             raise ReservedTransferError(f'Transfer({value}) is reserved.', cls)
@@ -274,8 +282,12 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def _missing_(cls: type[Primaries], value: Any) -> Primaries | None:
+        value = super()._missing_(value)
+
         if value is None:
             return Primaries.UNKNOWN
+        elif isinstance(value, cls):
+            return value
 
         if cls.BT709 < value < cls.EBU3213E:
             raise ReservedPrimariesError(f'Primaries({value}) is reserved.', cls)
@@ -419,8 +431,12 @@ class ColorRange(_ColorRangeMeta):
 
     @classmethod
     def _missing_(cls: type[ColorRange], value: Any) -> ColorRange | None:
+        value = super()._missing_(value)
+
         if value is None:
             return ColorRange.LIMITED
+        elif isinstance(value, cls):
+            return value
 
         if value > ColorRange.LIMITED:
             raise UnsupportedPrimariesError(f'ColorRange({value}) is unsupported.', cls)
