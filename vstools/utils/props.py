@@ -6,6 +6,7 @@ import vapoursynth as vs
 
 from ..exceptions import FramePropError
 from ..types import MISSING, BoundVSMapValue, HoldsPropValueT, MissingT
+from ..enums import PropEnum
 
 __all__ = [
     'get_prop',
@@ -18,34 +19,36 @@ CT = TypeVar('CT')
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: None = None, default: MissingT = MISSING
+    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: None = None, default: MissingT = MISSING
 ) -> BoundVSMapValue:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: type[CT], default: MissingT = MISSING
+    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: type[CT], default: MissingT = MISSING
 ) -> CT:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: None = None, default: DT | MissingT = MISSING
+    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
+    cast: None = None, default: DT | MissingT = MISSING
 ) -> BoundVSMapValue | DT:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: type[CT], default: DT | MissingT = MISSING
+    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
+    cast: type[CT], default: DT | MissingT = MISSING
 ) -> CT | DT:
     ...
 
 
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue],
+    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
     cast: type[CT] | None = None, default: DT | MissingT = MISSING
 ) -> BoundVSMapValue | CT | DT:
     """
@@ -66,6 +69,9 @@ def get_prop(
         props = obj.props
     else:
         props = obj
+
+    if isinstance(key, PropEnum):
+        key = key.prop_key
 
     prop: Any = MISSING
 
