@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from ..exceptions import NotFoundEnumValue
+from ..exceptions import NotFoundEnumValue, CustomValueError
 from ..types import EnumFuncExceptT, SelfEnum
 
 __all__ = [
@@ -22,7 +22,13 @@ class CustomEnum(Enum):
             return None
 
         if func_except is None:
-            return cls(value)
+            func_except = cls.from_param
+
+        if isinstance(value, cls):
+            return value
+
+        if value is cls:
+            raise CustomValueError('You must select a memeber, not pass the enum!', func_except)
 
         try:
             return cls(value)
