@@ -91,8 +91,10 @@ def initialize_clip(
     chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
     color_range: ColorRangeT | None = ColorRange.LIMITED,
     field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
-    *, func: FuncExceptT | None = None
+    strict: bool = False, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
+    func = fallback(func, initialize_clip)
+
     values: list[tuple[PropEnum, int | PropEnum | None]] = [
         (Matrix, matrix),
         (Transfer, transfer),
@@ -103,9 +105,9 @@ def initialize_clip(
     ]
 
     clip = PropEnum.ensure_presences(clip, [
-        cls if value is None else cls.from_param(value, func)
+        (cls if strict else cls.from_video(clip, False, func)) if value is None else cls.from_param(value, func)
         for cls, value in values
-    ], func or initialize_clip)
+    ], func)
 
     if bits is None:
         return clip
