@@ -7,6 +7,7 @@ import vapoursynth as vs
 from ..exceptions import (
     UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
 )
+from ..types import FuncExceptT
 from .stubs import _base_from_video, _ChromaLocationMeta, _FieldBasedMeta
 
 __all__ = [
@@ -50,8 +51,10 @@ class ChromaLocation(_ChromaLocationMeta):
         return ChromaLocation.LEFT
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ChromaLocation:
-        return _base_from_video(cls, src, UndefinedChromaLocationError, strict)
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> ChromaLocation:
+        return _base_from_video(cls, src, UndefinedChromaLocationError, strict, func)
 
 
 class FieldBased(_FieldBasedMeta):
@@ -84,8 +87,10 @@ class FieldBased(_FieldBasedMeta):
             return super().from_param(value_or_tff)
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> FieldBased:
-        return _base_from_video(cls, src, UndefinedFieldBasedError, strict)
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> FieldBased:
+        return _base_from_video(cls, src, UndefinedFieldBasedError, strict, func)
 
     @property
     def is_inter(self) -> bool:

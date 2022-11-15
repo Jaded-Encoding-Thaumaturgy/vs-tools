@@ -73,7 +73,7 @@ class PropEnum(CustomIntEnum):
 
     @classmethod
     def from_video(
-        cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> SelfPropEnum:
         raise NotImplementedError
 
@@ -105,18 +105,22 @@ SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
 
 
 def _base_from_video(
-    cls: SelfPropEnum, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[Exception], strict: bool
+    cls: SelfPropEnum, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[Exception], strict: bool,
+    func: FuncExceptT | None = None
 ) -> SelfPropEnum:
     from ..utils import get_prop
+    from ..functions import fallback
+
+    func = fallback(func, cls.from_video)
 
     value = get_prop(src, cls, int, default=MISSING if strict else None)
 
     if value is None or cls.is_unkown(value):
         if strict:
-            raise exception('{class_name} is undefined.', cls.from_video, class_name=cls, reason=value)
+            raise exception('{class_name} is undefined.', func, class_name=cls, reason=value)
 
         if isinstance(src, vs.FrameProps):
-            raise exception('Can\'t determine {class_name} from FrameProps.', cls.from_video, class_name=cls)
+            raise exception('Can\'t determine {class_name} from FrameProps.', func, class_name=cls)
 
         return cls.from_res(src)
 

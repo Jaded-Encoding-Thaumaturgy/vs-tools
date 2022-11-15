@@ -4,6 +4,7 @@ from typing import NamedTuple
 
 import vapoursynth as vs
 
+from ..types import FuncExceptT
 from .base import CustomIntEnum, CustomStrEnum
 
 __all__ = [
@@ -29,7 +30,9 @@ class Dar(CustomStrEnum):
     SQUARE = 'square'
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Dar:
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> Dar:
         from ..exceptions import CustomValueError, FramePropError
         from ..utils import get_prop
 

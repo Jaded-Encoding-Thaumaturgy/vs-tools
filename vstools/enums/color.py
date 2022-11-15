@@ -8,7 +8,7 @@ from ..exceptions import (
     ReservedMatrixError, ReservedPrimariesError, ReservedTransferError, UndefinedMatrixError, UndefinedPrimariesError,
     UndefinedTransferError, UnsupportedMatrixError, UnsupportedPrimariesError, UnsupportedTransferError
 )
-from ..types import MISSING
+from ..types import MISSING, FuncExceptT
 from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
@@ -96,8 +96,10 @@ class Matrix(_MatrixMeta):
         return Matrix.BT2020NC
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Matrix:
-        return _base_from_video(cls, src, UndefinedMatrixError, strict)
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> Matrix:
+        return _base_from_video(cls, src, UndefinedMatrixError, strict, func)
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Matrix:
@@ -207,8 +209,10 @@ class Transfer(_TransferMeta):
         return Transfer.ST2084
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Transfer:
-        return _base_from_video(cls, src, UndefinedTransferError, strict)
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> Transfer:
+        return _base_from_video(cls, src, UndefinedTransferError, strict, func)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Transfer:
@@ -313,8 +317,10 @@ class Primaries(_PrimariesMeta):
         return Primaries.BT2020
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Primaries:
-        return _base_from_video(cls, src, UndefinedPrimariesError, strict)
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> Primaries:
+        return _base_from_video(cls, src, UndefinedPrimariesError, strict, func)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Primaries:
@@ -408,12 +414,12 @@ class ColorRange(_ColorRangeMeta):
     FULL = 0
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ColorRange:
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> ColorRange:
         from ..utils import get_prop
 
-        return get_prop(
-            src, '_ColorRange', int, ColorRange, MISSING if strict else ColorRange.LIMITED
-        )
+        return get_prop(src, '_ColorRange', int, ColorRange, MISSING if strict else ColorRange.LIMITED)
 
     @property
     def value_vs(self) -> int:
