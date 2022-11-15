@@ -4,9 +4,9 @@ from typing import Any, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..exceptions import FramePropError
-from ..types import MISSING, BoundVSMapValue, HoldsPropValueT, MissingT, FuncExceptT
 from ..enums import PropEnum
+from ..exceptions import FramePropError
+from ..types import MISSING, BoundVSMapValue, FuncExceptT, HoldsPropValueT, MissingT, SupportsString
 
 __all__ = [
     'get_prop',
@@ -19,23 +19,22 @@ CT = TypeVar('CT')
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: None = None, default: MissingT = MISSING,
-    func: FuncExceptT | None = None
-) -> BoundVSMapValue:
+        obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+        cast: None = None, default: MissingT = MISSING, func: FuncExceptT | None = None) -> BoundVSMapValue:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue], cast: type[CT], default: MissingT = MISSING,
-    func: FuncExceptT | None = None
-) -> CT:
+        obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+        cast: type[CT],
+        default: MissingT = MISSING, func: FuncExceptT | None = None) -> CT:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
     cast: None = None, default: DT | MissingT = MISSING,
     func: FuncExceptT | None = None
 ) -> BoundVSMapValue | DT:
@@ -44,7 +43,7 @@ def get_prop(
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
     cast: type[CT], default: DT | MissingT = MISSING,
     func: FuncExceptT | None = None
 ) -> CT | DT:
@@ -52,7 +51,7 @@ def get_prop(
 
 
 def get_prop(
-    obj: HoldsPropValueT, key: str | PropEnum, t: type[BoundVSMapValue],
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
     cast: type[CT] | None = None, default: DT | MissingT = MISSING,
     func: FuncExceptT | None = None
 ) -> BoundVSMapValue | CT | DT:
@@ -82,8 +81,10 @@ def get_prop(
     else:
         props = obj
 
-    if issubclass(key, PropEnum):
+    if not isinstance(key, str) and issubclass(key, PropEnum):
         key = key.prop_key
+    else:
+        key = str(key)
 
     prop: Any = MISSING
 
