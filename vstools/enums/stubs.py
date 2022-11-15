@@ -55,6 +55,16 @@ class PropEnum(CustomIntEnum):
         def from_param(cls: Any, value: Any, func_except: Any = None) -> SelfPropEnum | None:
             ...
 
+    @classmethod
+    def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
+        raise NotImplementedError
+
+    @classmethod
+    def from_video(
+        cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False
+    ) -> SelfPropEnum:
+        raise NotImplementedError
+
 
 if TYPE_CHECKING:
     from .color import ColorRange, ColorRangeT, Matrix, MatrixT, Primaries, PrimariesT, Transfer, TransferT
