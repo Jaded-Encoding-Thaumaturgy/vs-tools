@@ -6,7 +6,7 @@ from typing import Any, Callable, Concatenate, cast, overload
 
 from ..enums import (
     ChromaLocation, ChromaLocationT, ColorRange, ColorRangeT, FieldBased, FieldBasedT, Matrix, MatrixT, Primaries,
-    PrimariesT, Transfer, TransferT
+    PrimariesT, Transfer, TransferT, PropEnum
 )
 from ..exceptions import CustomValueError, InvalidColorFamilyError
 from ..functions import depth, get_y, join
@@ -85,27 +85,27 @@ def finalize_output(
 
 def initialize_clip(
     clip: vs.VideoNode, bits: int | None = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
     *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
-    matrix = Matrix.from_param(matrix)
-    transfer = Transfer.from_param(transfer)
-    primaries = Primaries.from_param(primaries)
-    chroma_location = ChromaLocation.from_param(chroma_location)
-    color_range = ColorRange.from_param(color_range)
-    field_based = FieldBased.from_param(field_based)
+    values: list[tuple[PropEnum, int | PropEnum | None]] = [
+        (Matrix, matrix),
+        (Transfer, transfer),
+        (Primaries, primaries),
+        (ChromaLocation, chroma_location),
+        (ColorRange, color_range),
+        (FieldBased, field_based)
+    ]
 
-    clip = clip.std.SetFrameProps(
-        _Matrix=matrix.value, _Transfer=transfer.value, _Primaries=primaries.value,
-        _ChromaLocation=chroma_location.value, _ColorRange=color_range.value
-    )
-
-    clip = FieldBased.ensure_presence(clip, field_based, func)
+    clip = PropEnum.ensure_presences(clip, [
+        cls if value is None else cls.from_param(value, func)
+        for cls, value in values
+    ], func or initialize_clip)
 
     if bits is None:
         return clip
