@@ -118,12 +118,12 @@ def initialize_clip(
 @overload
 def initialize_input(
     function: None = None, /, *, bits: int | None = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD]:
     ...
@@ -132,26 +132,26 @@ def initialize_input(
 @overload
 def initialize_input(
     function: F_VD, /, *, bits: int | None = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
-    func: FuncExceptT | None = None
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    strict: bool = False, func: FuncExceptT | None = None
 ) -> F_VD:
     ...
 
 
 def initialize_input(
     function: F_VD | None = None, /, *, bits: int | None = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
-    func: FuncExceptT | None = None
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    strict: bool = False, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     """
     Decorator implementation of ``initialize_clip``
@@ -161,7 +161,7 @@ def initialize_input(
             Callable[[F_VD], F_VD],
             partial(
                 initialize_input, bits=bits, matrix=matrix, transfer=transfer,
-                primaries=primaries, field_based=field_based, func=func
+                primaries=primaries, field_based=field_based, strict=strict, func=func
             )
         )
 
@@ -169,7 +169,7 @@ def initialize_input(
         bits=bits,
         matrix=matrix, transfer=transfer, primaries=primaries,
         chroma_location=chroma_location, color_range=color_range,
-        func=func
+        strict=strict, func=func
     )
 
     @wraps(function)
