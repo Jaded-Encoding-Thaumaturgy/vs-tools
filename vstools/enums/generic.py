@@ -79,6 +79,8 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def _missing_(cls: type[FieldBased], value: Any) -> FieldBased | None:
+        value = super()._missing_(value)
+
         if value is None:
             return cls.PROGRESSIVE
 
