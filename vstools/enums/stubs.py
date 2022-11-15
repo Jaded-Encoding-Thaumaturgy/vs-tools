@@ -4,14 +4,32 @@ from typing import TYPE_CHECKING, Any, overload
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT
+from ..types import FuncExceptT, classproperty
 from .base import CustomIntEnum
+
+__all__ = [
+    'PropEnum',
+
+    '_MatrixMeta',
+    '_TransferMeta',
+    '_PrimariesMeta',
+    '_ColorRangeMeta',
+    '_ChromaLocationMeta',
+    '_FieldBasedMeta'
+]
+
+
+class PropEnum(CustomIntEnum):
+    @classproperty
+    def prop_key(cls) -> str:
+        return f'_{cls.__name__}'
+
 
 if TYPE_CHECKING:
     from .color import ColorRange, ColorRangeT, Matrix, MatrixT, Primaries, PrimariesT, Transfer, TransferT
     from .generic import ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
 
-    class _MatrixMeta(CustomIntEnum, vs.MatrixCoefficients):  # type: ignore
+    class _MatrixMeta(PropEnum, vs.MatrixCoefficients):  # type: ignore
         def __new__(cls: type[Matrix], value: MatrixT) -> Matrix:  # type: ignore
             ...
 
@@ -40,7 +58,7 @@ if TYPE_CHECKING:
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Matrix | None:
             ...
 
-    class _TransferMeta(CustomIntEnum, vs.TransferCharacteristics):  # type: ignore
+    class _TransferMeta(PropEnum, vs.TransferCharacteristics):  # type: ignore
         def __new__(cls: type[Transfer], value: TransferT) -> Transfer:  # type: ignore
             ...
 
@@ -69,7 +87,7 @@ if TYPE_CHECKING:
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Transfer | None:
             ...
 
-    class _PrimariesMeta(CustomIntEnum, vs.ColorPrimaries):  # type: ignore
+    class _PrimariesMeta(PropEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[Primaries], value: PrimariesT) -> Primaries:  # type: ignore
             ...
 
@@ -98,7 +116,7 @@ if TYPE_CHECKING:
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Primaries | None:
             ...
 
-    class _ColorRangeMeta(CustomIntEnum, vs.ColorPrimaries):  # type: ignore
+    class _ColorRangeMeta(PropEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[ColorRange], value: ColorRangeT) -> ColorRange:  # type: ignore
             ...
 
@@ -127,7 +145,7 @@ if TYPE_CHECKING:
         def from_param(cls: Any, value: Any, func_except: Any = None) -> ColorRange | None:
             ...
 
-    class _ChromaLocationMeta(CustomIntEnum, vs.ChromaLocation):  # type: ignore
+    class _ChromaLocationMeta(PropEnum, vs.ChromaLocation):  # type: ignore
         def __new__(cls: type[ChromaLocation], value: ChromaLocationT) -> ChromaLocation:  # type: ignore
             ...
 
@@ -158,7 +176,7 @@ if TYPE_CHECKING:
         def from_param(cls: Any, value: Any, func_except: Any = None) -> ChromaLocation | None:
             ...
 
-    class _FieldBasedMeta(CustomIntEnum, vs.FieldBased):  # type: ignore
+    class _FieldBasedMeta(PropEnum, vs.FieldBased):  # type: ignore
         def __new__(cls: type[FieldBased], value: FieldBasedT) -> FieldBased:  # type: ignore
             ...
 
@@ -187,5 +205,5 @@ if TYPE_CHECKING:
         def from_param(cls: Any, value: Any, func_except: Any = None) -> FieldBased | None:
             ...
 else:
-    _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = CustomIntEnum
-    _ChromaLocationMeta = _FieldBasedMeta = CustomIntEnum
+    _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = PropEnum
+    _ChromaLocationMeta = _FieldBasedMeta = PropEnum

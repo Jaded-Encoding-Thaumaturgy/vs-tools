@@ -9,9 +9,11 @@ from ..exceptions import (
     UndefinedTransferError, UnsupportedMatrixError, UnsupportedPrimariesError, UnsupportedTransferError
 )
 from ..types import MISSING
-from .stubs import _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
+from .stubs import PropEnum, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
+    'PropEnum',
+
     'Matrix', 'Transfer', 'Primaries',
     'MatrixT', 'TransferT', 'PrimariesT',
 
