@@ -288,6 +288,7 @@ class Primaries(_PrimariesMeta):
     FILM = 8
     BT2020 = 9
     ST428 = 10
+    XYZ = ST428
     ST431_2 = 11
     ST432_1 = 12
     EBU3213E = 22
