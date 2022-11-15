@@ -9,7 +9,7 @@ from ..exceptions import (
     UndefinedTransferError, UnsupportedMatrixError, UnsupportedPrimariesError, UnsupportedTransferError
 )
 from ..types import MISSING
-from .stubs import PropEnum, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
+from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
     'PropEnum',
@@ -97,20 +97,7 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Matrix:
-        from ..utils import get_prop
-
-        value = get_prop(src, '_Matrix', int, default=MISSING if strict else None)
-
-        if value is None or value == Matrix.UNKNOWN:
-            if strict:
-                raise UndefinedMatrixError(f'Matrix({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedMatrixError('Can\'t determine matrix from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedMatrixError, strict)
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Matrix:
@@ -221,20 +208,7 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Transfer:
-        from ..utils import get_prop
-
-        value = get_prop(src, '_Transfer', int, default=MISSING if strict else None)
-
-        if value is None or value == Transfer.UNKNOWN:
-            if strict:
-                raise UndefinedTransferError(f'Transfer({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedTransferError('Can\'t determine transfer from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedTransferError, strict)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Transfer:
@@ -340,20 +314,7 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Primaries:
-        from ..utils import get_prop
-
-        value = get_prop(src, '_Primaries', int, default=MISSING if strict else None)
-
-        if value is None or value == Primaries.UNKNOWN:
-            if strict:
-                raise UndefinedPrimariesError(f'Primaries({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedPrimariesError('Can\'t determine primaries from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedPrimariesError, strict)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Primaries:

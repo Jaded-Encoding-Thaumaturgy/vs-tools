@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar, overload, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT, classproperty
+from ..types import MISSING, FuncExceptT, classproperty
 from .base import CustomIntEnum
 
 __all__ = [
     'PropEnum',
+
+    '_base_from_video',
 
     '_MatrixMeta',
     '_TransferMeta',
@@ -100,6 +102,25 @@ class PropEnum(CustomIntEnum):
 
 
 SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
+
+
+def _base_from_video(
+    cls: SelfPropEnum, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[Exception], strict: bool
+) -> SelfPropEnum:
+    from ..utils import get_prop
+
+    value = get_prop(src, cls, int, default=MISSING if strict else None)
+
+    if value is None or cls.is_unkown(value):
+        if strict:
+            raise exception('{class_name} is undefined.', cls.from_video, class_name=cls, reason=value)
+
+        if isinstance(src, vs.FrameProps):
+            raise exception('Can\'t determine {class_name} from FrameProps.', cls.from_video, class_name=cls)
+
+        return cls.from_res(src)
+
+    return cls(value)
 
 
 if TYPE_CHECKING:

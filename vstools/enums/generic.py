@@ -7,8 +7,7 @@ import vapoursynth as vs
 from ..exceptions import (
     UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
 )
-from ..types import MISSING
-from .stubs import _ChromaLocationMeta, _FieldBasedMeta
+from .stubs import _base_from_video, _ChromaLocationMeta, _FieldBasedMeta
 
 __all__ = [
     'ChromaLocation', 'ChromaLocationT',
@@ -52,20 +51,7 @@ class ChromaLocation(_ChromaLocationMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ChromaLocation:
-        from ..utils import get_prop
-
-        value = get_prop(src, '_ChromaLocation', int, default=MISSING if strict else None)
-
-        if value is None:
-            if strict:
-                raise UndefinedChromaLocationError(f'ChromaLocation({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedChromaLocationError('Can\'t determine chroma location from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedChromaLocationError, strict)
 
 
 class FieldBased(_FieldBasedMeta):
@@ -99,20 +85,7 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> FieldBased:
-        from ..utils import get_prop
-
-        value = get_prop(src, '_FieldBased', int, default=MISSING if strict else None)
-
-        if value is None:
-            if strict:
-                raise UndefinedFieldBasedError(f'FieldBased({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedFieldBasedError('Can\'t determine field type from FrameProps.', cls.from_video)
-
-            return FieldBased.PROGRESSIVE
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedFieldBasedError, strict)
 
     @property
     def is_inter(self) -> bool:
