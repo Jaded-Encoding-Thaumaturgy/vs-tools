@@ -79,6 +79,21 @@ class PropEnum(CustomIntEnum):
 
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
 
+    @staticmethod
+    def ensure_presences(
+        clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
+    ) -> vs.VideoNode:
+        return clip.std.SetFrameProps(**{
+            value.prop_key: value.value
+            for value in [
+                cls if isinstance(cls, PropEnum) else cls.from_video(clip, True)
+                for cls in prop_enums
+            ]
+        })
+
+    def as_string(self) -> str:
+        return self._name_.lower()
+
 
 SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
 
