@@ -6,10 +6,10 @@ from typing import Any, Callable, Concatenate, cast, overload
 
 from ..enums import (
     ChromaLocation, ChromaLocationT, ColorRange, ColorRangeT, FieldBased, FieldBasedT, Matrix, MatrixT, Primaries,
-    PrimariesT, Transfer, TransferT, PropEnum
+    PrimariesT, PropEnum, Transfer, TransferT
 )
 from ..exceptions import CustomValueError, InvalidColorFamilyError
-from ..functions import depth, get_y, join
+from ..functions import check_variable, depth, fallback, get_y, join
 from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P
 from . import vs_proxy as vs
 from .info import get_depth, get_video_format, get_w
@@ -28,6 +28,8 @@ __all__ = [
 def finalize_clip(
     clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
+    assert check_variable(clip, func)
+
     if bits:
         clip = depth(clip, bits)
     else:
