@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from inspect import isclass
 from typing import Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
 
-from .builtins import F0, P0, R0, T0, P, R, T
+from .builtins import F0, P0, P1, R0, R1, T0, T1, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -11,7 +12,9 @@ __all__ = [
 
     'complex_hash',
 
-    'get_subclasses'
+    'get_subclasses',
+
+    'classproperty'
 ]
 
 
@@ -146,3 +149,89 @@ def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[typ
             yield subclass
 
     return list(set(_subclasses(family)))
+
+
+class classproperty(Generic[T, P, R, P0, R0, P1, R1]):
+    fget: Callable[[Any], Any] | None
+    fset: Callable[[Any, Any], None] | None
+    fdel: Callable[[Any], None] | None
+
+    __isabstractmethod__: bool = False
+
+    class metaclass(type):
+        def __setattr__(self, key, value):
+            if key in self.__dict__:
+                obj = self.__dict__.get(key)
+
+            if obj and type(obj) is classproperty:
+                return obj.__set__(self, value)
+
+            return super(classproperty.metaclass, self).__setattr__(key, value)
+
+    def __init__(
+        self,
+        fget: Callable[P, R] | None = None,
+        fset: Callable[[T0, T1], None] | None = None,
+        fdel: Callable[P0, None] | None = None,
+        doc: str | None = None,
+    ) -> None:
+        if not isinstance(fget, (classmethod, staticmethod)):
+            fget = classmethod(fget)
+
+        self.fget = fget
+        self.fset = fset
+        self.fdel = fdel
+        self.doc = doc
+
+    def _wrap(self, func: Callable[P1, R1]) -> Callable[P1, R1]:
+        if not isinstance(func, (classmethod, staticmethod)):
+            func = classmethod(func)
+
+        return func
+
+    def getter(self, __fget: Callable[P, R]) -> classproperty:
+        self.fget = self._wrap(__fget)
+
+        return self
+
+    def setter(self, __fset: Callable[[T0, T1], None]) -> classproperty:
+        self.fset = self._wrap(__fset)
+
+        return self
+
+    def deleter(self, __fdel: Callable[P0, None]) -> classproperty:
+        self.fdel = self._wrap(__fdel)
+
+        return self
+
+    def __get__(self, __obj: Any, __type: type | None = ...) -> R:
+        if __type is None:
+            __type = type(__obj)
+
+        return self.fget.__get__(__obj, __type)()
+
+    def __set__(self, __obj: Any, __value: T1) -> None:
+        from ..exceptions import CustomError
+
+        if not self.fset:
+            raise CustomError[AttributeError]("Can't set attribute")
+
+        if isclass(__obj):
+            type_, __obj = __obj, None
+        else:
+            type_ = type(__obj)
+
+        return self.fset.__get__(__obj, type_)(__value)
+
+    def __delete__(self, __obj: Any) -> None:
+        from ..exceptions import CustomError
+
+        if not self.fdel:
+            raise CustomError[AttributeError]("Can't delete attribute")
+
+        if isclass(__obj):
+            type_, __obj = __obj, None
+        else:
+            type_ = type(__obj)
+
+        return self.fset.__delete__(__obj, type_)(__obj)
