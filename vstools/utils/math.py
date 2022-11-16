@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Sequence
 from math import ceil, log
+from typing import Sequence
 
 from ..types import Nb
 
@@ -13,7 +13,7 @@ __all__ = [
 
     'mod_x', 'mod2', 'mod4', 'mod8',
 
-    'next_power_of_x', 'next_power_of_2'
+    'next_power_of_y', 'next_power_of_2'
 ]
 
 
