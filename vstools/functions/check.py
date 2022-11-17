@@ -93,16 +93,16 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExcept
     if ref is None:
         return
 
-    func = fallback(func, check_ref_clip)
+    func = fallback(func, check_ref_clip)  # type: ignore
 
-    assert check_variable(src, func)
-    assert check_variable(ref, func)
+    assert check_variable(src, func)  # type: ignore
+    assert check_variable(ref, func)  # type: ignore
 
     if ref.format.id != src.format.id:
-        raise FormatsRefClipMismatchError(func)
+        raise FormatsRefClipMismatchError(func)  # type: ignore
 
     if ref.width != src.width or ref.height != src.height:
-        raise ResolutionsRefClipMismatchError(func)
+        raise ResolutionsRefClipMismatchError(func)  # type: ignore
 
 
 def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
