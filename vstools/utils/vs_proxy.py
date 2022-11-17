@@ -220,7 +220,7 @@ builtins_isinstance = builtins.isinstance
 def vstools_isinstance(
     __obj: object, __class_or_tuple: type | UnionType | tuple[type | UnionType | tuple[Any, ...], ...]
 ) -> bool:
-    if __class_or_tuple in {_CoreProxy, Core} and builtins_isinstance(__obj, CoreProxy):
+    if __class_or_tuple in (_CoreProxy, Core) and builtins_isinstance(__obj, CoreProxy):
         return True
 
     if __class_or_tuple is VSPresetFormat and builtins_isinstance(__obj, PresetFormat):
