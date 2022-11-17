@@ -30,7 +30,7 @@ class copy_signature(Generic[F0]):
         return cast(F0, wrapped)
 
 
-class injected_self_func(Generic[T, P, R], Protocol):
+class injected_self_func(Generic[T, P, R], Protocol):  # type: ignore[misc]
     @overload
     @staticmethod
     def __call__(*args: P.args, **kwargs: P.kwargs) -> R:
