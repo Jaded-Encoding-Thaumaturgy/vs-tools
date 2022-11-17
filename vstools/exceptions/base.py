@@ -4,7 +4,7 @@ import sys
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from ..types import MISSING, FuncExceptT, Self, SupportsString
+from ..types import MISSING, FuncExceptT, SupportsString
 
 __all__ = [
     'CustomError',
@@ -20,25 +20,32 @@ __all__ = [
 ]
 
 
+if TYPE_CHECKING:
+    class ExceptionT(Exception, type):
+        ...
+else:
+    ExceptionT = Exception
+
+
 class CustomErrorMeta(type):
-    def __new__(cls: type[Self], *args: Any) -> Self:
-        return CustomErrorMeta.setup_exception(type.__new__(cls, *args))
+    def __new__(cls: type[SelfCustomErrorMeta], *args: Any) -> SelfCustomErrorMeta:
+        return CustomErrorMeta.setup_exception(type.__new__(cls, *args))  # type: ignore
 
     @staticmethod
-    def setup_exception(exception: Self, override: Exception | None = None) -> Self:
+    def setup_exception(exception: SelfCustomErrorMeta, override: ExceptionT | None = None) -> SelfCustomErrorMeta:
         if override:
-            if override.__name__.startswith('Custom'):  # type: ignore
+            if override.__name__.startswith('Custom'):
                 exception.__name__ = override.__name__
             else:
                 exception.__name__ = f'Custom{override.__name__}'
 
             exception.__qualname__ = override.__qualname__
 
-        if exception.__qualname__.startswith('Custom'):  # type: ignore
-            exception.__qualname__ = exception.__qualname__[6:]  # type: ignore
+        if exception.__qualname__.startswith('Custom'):
+            exception.__qualname__ = exception.__qualname__[6:]
 
         if sys.stdout and sys.stdout.isatty():
-            exception.__qualname__ = f'\033[0;31;1m{exception.__qualname__}\033[0m'  # type: ignore
+            exception.__qualname__ = f'\033[0;31;1m{exception.__qualname__}\033[0m'
 
         exception.__module__ = Exception.__module__
 
@@ -49,7 +56,10 @@ class CustomErrorMeta(type):
             ...
 
 
-class CustomError(Exception, metaclass=CustomErrorMeta):
+SelfCustomErrorMeta = TypeVar('SelfCustomErrorMeta', bound=CustomErrorMeta)
+
+
+class CustomError(ExceptionT, metaclass=CustomErrorMeta):
     def __init__(
         self, message: SupportsString | None = None, func: FuncExceptT | None = None,
         reason: SupportsString | FuncExceptT | None = None, **kwargs: Any
@@ -61,15 +71,15 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
 
         super().__init__(message)
 
-    def __class_getitem__(cls, exception: type[Exception]) -> CustomError:
-        class inner_exception(cls, exception):
+    def __class_getitem__(cls, exception: type[ExceptionT]) -> CustomError:
+        class inner_exception(cls, exception):  # type: ignore
             ...
 
-        return type(cls).setup_exception(inner_exception, exception)
+        return CustomErrorMeta.setup_exception(inner_exception, exception)  # type: ignore
 
     def __call__(
         self: SelfError, message: SupportsString | None = MISSING,
-        func: FuncExceptT | None = MISSING, reason: SupportsString | FuncExceptT | None = MISSING,
+        func: FuncExceptT | None = MISSING, reason: SupportsString | FuncExceptT | None = MISSING,  # type: ignore
         **kwargs: Any
     ) -> SelfError:
         err = deepcopy(self)
@@ -80,7 +90,7 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         if func is not MISSING:  # type: ignore[comparison-overlap]
             err.func = func
 
-        if reason is not MISSING:  # type: ignore[comparison-overlap]
+        if reason is not MISSING:
             err.reason = reason
 
         err.kwargs |= kwargs
