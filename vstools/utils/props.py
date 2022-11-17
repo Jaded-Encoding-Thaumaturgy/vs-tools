@@ -19,16 +19,17 @@ CT = TypeVar('CT')
 
 @overload
 def get_prop(
-        obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-        cast: None = None, default: MissingT = MISSING, func: FuncExceptT | None = None) -> BoundVSMapValue:
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+    cast: None = None, default: MissingT = MISSING, func: FuncExceptT | None = None  # type: ignore
+) -> BoundVSMapValue:
     ...
 
 
 @overload
 def get_prop(
-        obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-        cast: type[CT],
-        default: MissingT = MISSING, func: FuncExceptT | None = None) -> CT:
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+    cast: type[CT], default: MissingT = MISSING, func: FuncExceptT | None = None  # type: ignore
+) -> CT:
     ...
 
 
@@ -72,16 +73,16 @@ def get_prop(
 
     from ..functions import fallback
 
-    func = fallback(func, get_prop)
+    func: FuncExceptT = fallback(func, get_prop)  # type: ignore
 
-    if isinstance(obj, (vs.VideoNode, vs.AudioNode)):
-        props = obj.get_frame(0).props
-    elif isinstance(obj, (vs.VideoFrame, vs.AudioFrame)):
-        props = obj.props
+    if isinstance(obj, vs.RawNode):
+        props = obj.get_frame(0).props  # type: ignore
+    elif isinstance(obj, vs.RawFrame):
+        props = obj.props  # type: ignore
     else:
         props = obj
 
-    if not isinstance(key, str) and issubclass(key, PropEnum):
+    if isinstance(key, type) and issubclass(key, PropEnum):
         key = key.prop_key
     else:
         key = str(key)
@@ -103,14 +104,14 @@ def get_prop(
             return default
 
         if isinstance(e, KeyError) or prop is MISSING:
-            e = FramePropError(func, key, 'Key {key} not present in props!')
+            e = FramePropError(func, key, 'Key {key} not present in props!')  # type: ignore
         elif isinstance(e, TypeError):
             e = FramePropError(
-                func, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
+                func, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',  # type: ignore
                 t=t, prop_t=type(prop)
             )
         else:
-            e = FramePropError(func, key)
+            e = FramePropError(func, key)  # type: ignore
 
         raise e
 
