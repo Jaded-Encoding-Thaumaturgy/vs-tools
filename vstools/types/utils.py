@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from inspect import isclass
+from inspect import Signature, isclass
 from typing import (
     TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
 )
@@ -75,14 +75,24 @@ class inject_self_base(Generic[T, P, R]):
         self.kwargs = dict[str, Any]()
 
     def __get__(self, class_obj: T | None, class_type: type[T]) -> injected_self_func[T, P, R]:
+        signature = Signature.from_callable(self.function, follow_wrapped=True, eval_str=True)
+        first_key = next(iter(list(signature.parameters.keys())), None)
+
         def _wrapper(*args: Any, **kwargs: Any) -> Any:
+            first_arg = (args[0] if args else None) or (kwargs.get(first_key, None) if first_key else None)
+
             if (
-                (is_obj := isinstance(args[0], class_type))
-                or isinstance(args[0], type(class_type))
-                or args[0] is class_type
+                first_arg and (
+                    (is_obj := isinstance(first_arg, class_type))
+                    or isinstance(first_arg, type(class_type))
+                    or first_arg is class_type
+                )
             ):
-                obj = args[0] if is_obj else args[0]()
-                args = args[1:]
+                obj = first_arg if is_obj else first_arg()
+                if args:
+                    args = args[1:]
+                elif kwargs and first_key:
+                    kwargs.pop(first_key)
             elif class_obj is None:
                 if self_objects_cache:
                     if class_type not in self_objects_cache:
