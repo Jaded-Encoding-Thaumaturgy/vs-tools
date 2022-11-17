@@ -243,7 +243,7 @@ class classproperty(Generic[T, P, R, P0, R0, P1, R1]):
 
 class KwargsNotNone(KwargsT):
     if not TYPE_CHECKING:
-        def __init__(*args: Any, **kwargs: Any) -> KwargsNotNone:
+        def __new__(cls, *args: Any, **kwargs: Any) -> KwargsNotNone:
             return KwargsT(**{
                 key: value for key, value in KwargsT(*args, **kwargs).items()
                 if value is not value
