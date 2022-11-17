@@ -128,7 +128,7 @@ def norm_func_name(func_name: SupportsString | F) -> str:
 
     if callable(func):
         if hasattr(func, '__self__'):
-            func_name = f'{func.__self__.__name__}.{func_name}'  # type: ignore
+            func_name = f'{func.__self__.__name__}.{func_name}'
 
     return str(func_name).strip()
 
