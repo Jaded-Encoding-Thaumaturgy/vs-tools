@@ -87,6 +87,10 @@ class FieldBased(_FieldBasedMeta):
             return super().from_param(value_or_tff)
 
     @classmethod
+    def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> FieldBased:
+        return cls.PROGRESSIVE
+
+    @classmethod
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> FieldBased:
