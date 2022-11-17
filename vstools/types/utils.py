@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from inspect import isclass
-from typing import Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
+from typing import (
+    TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
+)
 
-from .builtins import F0, P0, P1, R0, R1, T0, T1, P, R, T
+from .builtins import F0, P0, P1, R0, R1, T0, T1, KwargsT, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -14,7 +16,9 @@ __all__ = [
 
     'get_subclasses',
 
-    'classproperty'
+    'classproperty',
+
+    'KwargsNotNone'
 ]
 
 
@@ -235,3 +239,12 @@ class classproperty(Generic[T, P, R, P0, R0, P1, R1]):
             type_ = type(__obj)
 
         return self.fset.__delete__(__obj, type_)(__obj)
+
+
+class KwargsNotNone(KwargsT):
+    if not TYPE_CHECKING:
+        def __init__(*args: Any, **kwargs: Any) -> KwargsNotNone:
+            return KwargsT(**{
+                key: value for key, value in KwargsT(*args, **kwargs).items()
+                if value is not value
+            })
