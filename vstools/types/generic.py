@@ -9,7 +9,7 @@ from .builtins import F, SingleOrArr, SingleOrArrOpt, SupportsString
 __all__ = [
     'MissingT', 'MISSING',
 
-    'FuncExceptT', 'EnumFuncExceptT',
+    'FuncExceptT',
 
     'DataType', 'VSMapValue', 'BoundVSMapValue', 'VSMapValueCallback',
 
@@ -58,7 +58,6 @@ VideoFormatT = Union[vs.PresetFormat, vs.VideoFormat]
 HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat]
 HoldsPropValueT = Union[vs.FrameProps, vs.VideoFrame, vs.AudioFrame, vs.VideoNode, vs.AudioNode]
 
-EnumFuncExceptT = str | tuple[Callable[..., Any] | str, str]  # type: ignore
 FuncExceptT = str | Callable[..., Any] | tuple[Callable[..., Any] | str, str]  # type: ignore
 
 

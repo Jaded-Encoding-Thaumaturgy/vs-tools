@@ -1,23 +1,24 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, TypeVar
 
-from ..exceptions import NotFoundEnumValue, CustomValueError
-from ..types import EnumFuncExceptT, SelfEnum
+from ..exceptions import CustomValueError, NotFoundEnumValue
+from ..types import FuncExceptT
 
 __all__ = [
+    'SelfEnum',
     'CustomEnum', 'CustomIntEnum', 'CustomStrEnum'
 ]
 
 
 class CustomEnum(Enum):
     @classmethod
-    def _missing_(cls: type[SelfEnum], value: Any) -> SelfEnum:
+    def _missing_(cls: type[SelfEnum], value: Any) -> SelfEnum | None:
         return cls.from_param(value)
 
     @classmethod
-    def from_param(cls: type[SelfEnum], value: Any, func_except: EnumFuncExceptT | None = None) -> SelfEnum | None:
+    def from_param(cls: type[SelfEnum], value: Any, func_except: FuncExceptT | None = None) -> SelfEnum | None:
         if value is None:
             return None
 
@@ -35,10 +36,10 @@ class CustomEnum(Enum):
         except ValueError:
             ...
 
-        if not isinstance(func_except, str):
+        if isinstance(func_except, tuple):
             func_name, var_name = func_except
         else:
-            var_name, func_name = func_except, ''
+            func_name, var_name = func_except, ''
 
         raise NotFoundEnumValue(
             'Value for "{var_name}" argument must be a valid {enum_name}.\n'
@@ -54,3 +55,6 @@ class CustomIntEnum(int, CustomEnum):
 
 class CustomStrEnum(str, CustomEnum):
     ...
+
+
+SelfEnum = TypeVar('SelfEnum', bound=CustomEnum)

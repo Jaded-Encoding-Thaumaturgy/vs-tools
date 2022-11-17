@@ -28,32 +28,32 @@ class PropEnum(CustomIntEnum):
         return False
 
     @classproperty
-    def prop_key(cls) -> str:
+    def prop_key(cls: type[SelfPropEnum]) -> str:  # type: ignore
         return f'_{cls.__name__}'
 
     if TYPE_CHECKING:
-        def __new__(  # type: ignore
+        def __new__(
             cls: type[SelfPropEnum], value: int | SelfPropEnum | vs.VideoNode | vs.VideoFrame | vs.FrameProps
         ) -> SelfPropEnum:
             ...
 
         @overload
         @classmethod
-        def from_param(  # type: ignore
+        def from_param(
             cls: type[SelfPropEnum], value: None, func_except: FuncExceptT | None = None
         ) -> None:
             ...
 
         @overload
         @classmethod
-        def from_param(  # type: ignore
+        def from_param(
             cls: type[SelfPropEnum], value: int | SelfPropEnum, func_except: FuncExceptT | None = None
         ) -> SelfPropEnum:
             ...
 
         @overload
         @classmethod
-        def from_param(  # type: ignore
+        def from_param(
             cls: type[SelfPropEnum], value: int | SelfPropEnum | None, func_except: FuncExceptT | None = None
         ) -> SelfPropEnum | None:
             ...
@@ -63,10 +63,10 @@ class PropEnum(CustomIntEnum):
             ...
 
     @classmethod
-    def _missing_(cls: type[SelfPropEnum], value: int | SelfPropEnum | None) -> SelfPropEnum | None:
+    def _missing_(cls: type[SelfPropEnum], value: Any) -> SelfPropEnum | None:
         if isinstance(value, vs.VideoNode | vs.VideoFrame | vs.FrameProps):
             return cls.from_video(value, True)
-        return super(PropEnum).from_param(value)
+        return super().from_param(value)
 
     @classmethod
     def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
@@ -74,7 +74,8 @@ class PropEnum(CustomIntEnum):
 
     @classmethod
     def from_video(
-        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+        cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False,
+        func: FuncExceptT | None = None
     ) -> SelfPropEnum:
         raise NotImplementedError
 
@@ -91,7 +92,7 @@ class PropEnum(CustomIntEnum):
         clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
     ) -> vs.VideoNode:
         return clip.std.SetFrameProps(**{
-            value.prop_key: value.value
+            value.prop_key: value.value  # type: ignore
             for value in [
                 cls if isinstance(cls, PropEnum) else cls.from_video(clip, True)
                 for cls in prop_enums
@@ -112,20 +113,20 @@ def _base_from_video(
     from ..utils import get_prop
     from ..functions import fallback
 
-    func = fallback(func, cls.from_video)
+    func = fallback(func, cls.from_video)  # type: ignore
 
     value = get_prop(src, cls, int, default=MISSING if strict else None)
 
-    if value is None or cls.is_unknown(value):
+    if value is None or cls.is_unknown(value):  # type: ignore
         if strict:
             raise exception('{class_name} is undefined.', func, class_name=cls, reason=value)
 
         if isinstance(src, vs.FrameProps):
             raise exception('Can\'t determine {class_name} from FrameProps.', func, class_name=cls)
 
-        return cls.from_res(src)
+        return cls.from_res(src)  # type: ignore
 
-    return cls(value)
+    return cls(value)  # type: ignore
 
 
 if TYPE_CHECKING:

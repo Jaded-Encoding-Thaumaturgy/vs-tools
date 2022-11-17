@@ -44,11 +44,11 @@ class Dar(CustomStrEnum):
                     '', '', 'SAR props not found! Make sure your video indexing plugin sets them!'
                 )
 
-            return Dar.WIDESCREEN
+            return Dar.WIDE
 
         match sar:
-            case (11, 10) | (9, 8): return Dar.FULLSCREEN
-            case (33, 40) | (27, 32): return Dar.WIDESCREEN
+            case (11, 10) | (9, 8): return Dar.FULL
+            case (33, 40) | (27, 32): return Dar.WIDE
 
         raise CustomValueError("Could not calculate DAR. Please set the DAR manually.")
 

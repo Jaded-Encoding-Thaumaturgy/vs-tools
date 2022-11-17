@@ -23,7 +23,7 @@ __all__ = [
 
     'FrameRange', 'FrameRangeN', 'FrameRangesN',
 
-    'Self', 'SelfEnum',
+    'Self',
 
     'SingleOrArr', 'SingleOrArrOpt',
 
@@ -86,7 +86,6 @@ FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
 FrameRangesN: TypeAlias = list[FrameRangeN]
 
 Self = TypeVar('Self')
-SelfEnum = TypeVar('SelfEnum', bound=Enum)
 
 SingleOrArr = Union[T, list[T]]
 SingleOrArrOpt = Union[SingleOrArr[T], None]

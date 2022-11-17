@@ -8,7 +8,7 @@ from ..exceptions import (
     ReservedMatrixError, ReservedPrimariesError, ReservedTransferError, UndefinedMatrixError, UndefinedPrimariesError,
     UndefinedTransferError, UnsupportedMatrixError, UnsupportedPrimariesError, UnsupportedTransferError
 )
-from ..types import MISSING, FuncExceptT
+from ..types import MISSING, FuncExceptT, classproperty
 from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
@@ -359,23 +359,19 @@ class MatrixCoefficients(NamedTuple):
     alpha: float
     gamma: float
 
-    @classmethod
-    @property
+    @classproperty
     def SRGB(cls) -> MatrixCoefficients:
         return MatrixCoefficients(0.04045, 12.92, 0.055, 2.4)
 
-    @classmethod
-    @property
+    @classproperty
     def BT709(cls) -> MatrixCoefficients:
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
-    @classmethod
-    @property
+    @classproperty
     def SMPTE240M(cls) -> MatrixCoefficients:
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
-    @classmethod
-    @property
+    @classproperty
     def BT2020(cls) -> MatrixCoefficients:
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
@@ -384,21 +380,21 @@ class MatrixCoefficients(NamedTuple):
         if matrix not in _matrix_matrixcoeff_map:
             raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
 
-        return _matrix_matrixcoeff_map[matrix]  # type: ignore
+        return _matrix_matrixcoeff_map[matrix]
 
     @classmethod
     def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
         if tranfer not in _transfer_matrixcoeff_map:
             raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
 
-        return _transfer_matrixcoeff_map[tranfer]  # type: ignore
+        return _transfer_matrixcoeff_map[tranfer]
 
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:
         if primaries not in _primaries_matrixcoeff_map:
             raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
 
-        return _primaries_matrixcoeff_map[primaries]  # type: ignore
+        return _primaries_matrixcoeff_map[primaries]
 
 
 class ColorRange(_ColorRangeMeta):
