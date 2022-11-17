@@ -58,7 +58,10 @@ def next_power_of_2(x: float) -> int:
 
 
 def next_power_of_y(x: float, y: int) -> int:
-    return 1 if x == 0 else y ** ceil(log(x, y))
+    if x == 0:
+        return 1
+
+    return int(y ** ceil(log(x, y)))
 
 
 def spline_coeff(
@@ -108,8 +111,8 @@ def spline_coeff(
 
     h = px[j] - px[i]
 
-    s = matrix[j][length] * (x - px[i]) ** 3
-    s -= matrix[i][length] * (x - px[j]) ** 3
+    s = matrix[j][length] * float((x - px[i]) ** 3)
+    s -= matrix[i][length] * float((x - px[j]) ** 3)
 
     s /= 6 * h
 
