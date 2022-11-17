@@ -26,10 +26,6 @@ class StrList(List[SupportsString]):
 
     @property
     def string(self) -> str:
-        pass
-
-    @string.getter
-    def string(self) -> str:
         return self.to_str()
 
     def to_str(self, ref: vs.VideoNode | None = None) -> str:
