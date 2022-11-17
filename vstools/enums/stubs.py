@@ -6,6 +6,7 @@ import vapoursynth as vs
 
 from ..types import MISSING, FuncExceptT, classproperty
 from .base import CustomIntEnum
+from ..exceptions import CustomError
 
 __all__ = [
     'PropEnum',
@@ -105,8 +106,8 @@ SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
 
 
 def _base_from_video(
-    cls: SelfPropEnum, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[Exception], strict: bool,
-    func: FuncExceptT | None = None
+    cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[CustomError],
+    strict: bool, func: FuncExceptT | None = None
 ) -> SelfPropEnum:
     from ..utils import get_prop
     from ..functions import fallback
