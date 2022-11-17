@@ -281,7 +281,7 @@ if TYPE_CHECKING:
     __pyx_capi__: dict[str, PyCapsule] = ...  # type: ignore
 
     class StandaloneEnvironmentPolicy(EnvironmentPolicy):
-        def __init__(self) -> NoReturn:  # type: ignore[misc]
+        def __init__(self) -> NoReturn:
             ...
 
         def _on_log_message(self, level: MessageType, msg: str) -> None:
@@ -303,7 +303,7 @@ if TYPE_CHECKING:
             ...
 
     class VSScriptEnvironmentPolicy(EnvironmentPolicy):
-        def __init__(self) -> NoReturn:  # type: ignore[misc]
+        def __init__(self) -> NoReturn:
             ...
 
         def on_policy_registered(self, policy_api: 'EnvironmentPolicyAPI') -> None:
