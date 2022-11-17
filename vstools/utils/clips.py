@@ -28,7 +28,7 @@ __all__ = [
 def finalize_clip(
     clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
-    assert check_variable(clip, func)
+    assert check_variable(clip, func or finalize_clip)
 
     if bits:
         clip = depth(clip, bits)
@@ -95,9 +95,9 @@ def initialize_clip(
     field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
     strict: bool = False, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
-    func = fallback(func, initialize_clip)
+    func = fallback(func, initialize_clip)  # type: ignore
 
-    values: list[tuple[PropEnum, int | PropEnum | None]] = [
+    values: list[tuple[type[PropEnum], Any]] = [
         (Matrix, matrix),
         (Transfer, transfer),
         (Primaries, primaries),
