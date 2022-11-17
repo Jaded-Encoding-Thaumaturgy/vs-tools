@@ -5,7 +5,7 @@ from typing import (
     TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
 )
 
-from .builtins import F0, P0, P1, R0, R1, T0, T1, KwargsT, P, R, T
+from .builtins import F0, P0, P1, R0, R1, T0, T1, T2, KwargsT, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -165,15 +165,11 @@ def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[typ
     return list(set(_subclasses(family)))
 
 
-class classproperty(Generic[T, P, R, P0, R0, P1, R1]):
-    fget: Callable[[Any], Any] | None
-    fset: Callable[[Any, Any], None] | None
-    fdel: Callable[[Any], None] | None
-
+class classproperty(Generic[P, R, T, T0, P0]):
     __isabstractmethod__: bool = False
 
     class metaclass(type):
-        def __setattr__(self, key, value):
+        def __setattr__(self, key: str, value: Any) -> None:
             if key in self.__dict__:
                 obj = self.__dict__.get(key)
 
@@ -184,41 +180,39 @@ class classproperty(Generic[T, P, R, P0, R0, P1, R1]):
 
     def __init__(
         self,
-        fget: Callable[P, R] | None = None,
-        fset: Callable[[T0, T1], None] | None = None,
-        fdel: Callable[P0, None] | None = None,
+        fget: classmethod[R] | Callable[P, R],
+        fset: classmethod[None] | Callable[[T, T0], None] | None = None,
+        fdel: classmethod[None] | Callable[P0, None] | None = None,
         doc: str | None = None,
     ) -> None:
         if not isinstance(fget, (classmethod, staticmethod)):
             fget = classmethod(fget)
 
-        self.fget = fget
-        self.fset = fset
-        self.fdel = fdel
+        self.fget = self._wrap(fget)
+        self.fset = self._wrap(fset) if fset is not None else fset
+        self.fdel = self._wrap(fdel) if fdel is not None else fdel
+
         self.doc = doc
 
-    def _wrap(self, func: Callable[P1, R1]) -> Callable[P1, R1]:
+    def _wrap(self, func: classmethod[R1] | Callable[P1, R1]) -> classmethod[R1]:
         if not isinstance(func, (classmethod, staticmethod)):
             func = classmethod(func)
 
         return func
 
-    def getter(self, __fget: Callable[P, R]) -> classproperty:
-        self.fget = self._wrap(__fget)
+    def getter(self, __fget: classmethod[R] | Callable[P1, R1]) -> classproperty[P1, R1, T, T0, P0]:
+        self.fget = self._wrap(__fget)  # type: ignore
+        return self  # type: ignore
 
-        return self
-
-    def setter(self, __fset: Callable[[T0, T1], None]) -> classproperty:
+    def setter(self, __fset: classmethod[None] | Callable[[T1, T2], None]) -> classproperty[P, R, T1, T2, P0]:
         self.fset = self._wrap(__fset)
+        return self  # type: ignore
 
-        return self
-
-    def deleter(self, __fdel: Callable[P0, None]) -> classproperty:
+    def deleter(self, __fdel: classmethod[None] | Callable[P1, None]) -> classproperty[P, R, T, T0, P1]:
         self.fdel = self._wrap(__fdel)
+        return self  # type: ignore
 
-        return self
-
-    def __get__(self, __obj: Any, __type: type | None = ...) -> R:
+    def __get__(self, __obj: Any, __type: type | None = None) -> R:
         if __type is None:
             __type = type(__obj)
 
@@ -248,7 +242,7 @@ class classproperty(Generic[T, P, R, P0, R0, P1, R1]):
         else:
             type_ = type(__obj)
 
-        return self.fset.__delete__(__obj, type_)(__obj)
+        return self.fdel.__delete__(__obj, type_)(__obj)  # type: ignore
 
 
 class KwargsNotNone(KwargsT):
