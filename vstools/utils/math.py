@@ -13,7 +13,9 @@ __all__ = [
 
     'mod_x', 'mod2', 'mod4', 'mod8',
 
-    'next_power_of_y', 'next_power_of_2'
+    'next_power_of_y', 'next_power_of_2',
+
+    'spline_coeff'
 ]
 
 
@@ -57,3 +59,61 @@ def next_power_of_2(x: float) -> int:
 
 def next_power_of_y(x: float, y: int) -> int:
     return 1 if x == 0 else y ** ceil(log(x, y))
+
+
+def spline_coeff(
+    x: int, coordinates: list[tuple[float, float]] = [
+        (0, 0), (0.5, 0.1), (1, 0.6), (2, 0.9), (2.5, 1), (3, 1.1), (3.5, 1.15), (4, 1.2), (8, 1.25), (255, 1.5)
+    ]
+) -> float:
+    length = len(coordinates)
+
+    if length < 3:
+        raise ValueError("coordinates require at least three pairs")
+
+    px, py = zip(*coordinates)
+
+    matrix = [[1.0] + [0.0] * length]
+
+    for i in range(1, length - 1):
+        p = [0.0] * (length + 1)
+
+        p[i - 1] = px[i] - px[i - 1]
+        p[i] = 2 * (px[i + 1] - px[i - 1])
+        p[i + 1] = px[i + 1] - px[i]
+        p[length] = 6 * (((py[i + 1] - py[i]) / p[i + 1]) - (py[i] - py[i - 1]) / p[i - 1])
+
+        matrix.append(p)
+
+    matrix += [([0.0] * (length - 1) + [1.0, 0.0])]
+
+    for i in range(length):
+        num = matrix[i][i]
+
+        for j in range(length + 1):
+            matrix[i][j] /= num
+
+        for j in range(length):
+            if i != j:
+                a = matrix[j][i]
+
+                for k in range(i, length + 1):
+                    matrix[j][k] -= a * matrix[i][k]
+
+    for i in range(length + 1):
+        if x >= px[i] and x <= px[i + 1]:
+            break
+
+    j = i + 1
+
+    h = px[j] - px[i]
+
+    s = matrix[j][length] * (x - px[i]) ** 3
+    s -= matrix[i][length] * (x - px[j]) ** 3
+
+    s /= 6 * h
+
+    s += (py[j] / h - h * matrix[j][length] / 6) * (x - px[i])
+    s -= (py[i] / h - h * matrix[i][length] / 6) * (x - px[j])
+
+    return s
