@@ -246,5 +246,5 @@ class KwargsNotNone(KwargsT):
         def __new__(cls, *args: Any, **kwargs: Any) -> KwargsNotNone:
             return KwargsT(**{
                 key: value for key, value in KwargsT(*args, **kwargs).items()
-                if value is not value
+                if value is not None
             })
