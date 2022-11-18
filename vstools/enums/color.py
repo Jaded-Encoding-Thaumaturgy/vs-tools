@@ -442,6 +442,7 @@ class Transfer(_TransferMeta):
     FILM_C = 111
     """Traditional film primaries with Illuminant C"""
 
+    @classmethod
     def is_unknown(cls, value: int | Transfer) -> bool:
         """Check if Transfer is unknown."""
 
@@ -765,6 +766,7 @@ class Primaries(_PrimariesMeta):
     EBU Tech. 3213-E (1975)
     """
 
+    @classmethod
     def is_unknown(cls, value: int | Primaries) -> bool:
         """Check if Primaries is unknown."""
 

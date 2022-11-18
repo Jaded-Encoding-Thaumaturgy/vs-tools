@@ -160,6 +160,8 @@ class InvalidSubsamplingError(CustomValueError):
 
         subsampling = subsampling if isinstance(subsampling, str) else get_video_format(subsampling).name
 
+        super().__init__(message, func, subsampling=subsampling, **kwargs)
+
 
 class FormatsMismatchError(CustomValueError):
     """Raised when clips with different formats are given."""
