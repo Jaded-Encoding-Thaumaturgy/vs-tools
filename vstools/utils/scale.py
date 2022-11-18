@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: float, chroma: bool = False) -> float:
+def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool = False) -> float:
     """
     Scale to an 8-bit value.
 
