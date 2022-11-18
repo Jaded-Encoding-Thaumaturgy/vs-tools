@@ -1,17 +1,139 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, Any, Iterable, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT
+from ..types import MISSING, FuncExceptT, classproperty
 from .base import CustomIntEnum
+from ..exceptions import CustomError
+
+__all__ = [
+    'PropEnum',
+
+    '_base_from_video',
+
+    '_MatrixMeta',
+    '_TransferMeta',
+    '_PrimariesMeta',
+    '_ColorRangeMeta',
+    '_ChromaLocationMeta',
+    '_FieldBasedMeta'
+]
+
+
+class PropEnum(CustomIntEnum):
+    @classmethod
+    def is_unknown(cls: type[SelfPropEnum], value: int | SelfPropEnum) -> bool:
+        return False
+
+    @classproperty
+    def prop_key(cls: type[SelfPropEnum]) -> str:  # type: ignore
+        return f'_{cls.__name__}'
+
+    if TYPE_CHECKING:
+        def __new__(
+            cls: type[SelfPropEnum], value: int | SelfPropEnum | vs.VideoNode | vs.VideoFrame | vs.FrameProps
+        ) -> SelfPropEnum:
+            ...
+
+        @overload
+        @classmethod
+        def from_param(
+            cls: type[SelfPropEnum], value: None, func_except: FuncExceptT | None = None
+        ) -> None:
+            ...
+
+        @overload
+        @classmethod
+        def from_param(
+            cls: type[SelfPropEnum], value: int | SelfPropEnum, func_except: FuncExceptT | None = None
+        ) -> SelfPropEnum:
+            ...
+
+        @overload
+        @classmethod
+        def from_param(
+            cls: type[SelfPropEnum], value: int | SelfPropEnum | None, func_except: FuncExceptT | None = None
+        ) -> SelfPropEnum | None:
+            ...
+
+        @classmethod
+        def from_param(cls: Any, value: Any, func_except: Any = None) -> SelfPropEnum | None:
+            ...
+
+    @classmethod
+    def _missing_(cls: type[SelfPropEnum], value: Any) -> SelfPropEnum | None:
+        if isinstance(value, vs.VideoNode | vs.VideoFrame | vs.FrameProps):
+            return cls.from_video(value, True)
+        return super().from_param(value)
+
+    @classmethod
+    def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
+        raise NotImplementedError
+
+    @classmethod
+    def from_video(
+        cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False,
+        func: FuncExceptT | None = None
+    ) -> SelfPropEnum:
+        raise NotImplementedError
+
+    @classmethod
+    def ensure_presence(
+        cls: type[SelfPropEnum], clip: vs.VideoNode, value: int | SelfPropEnum | None, func: FuncExceptT | None = None
+    ) -> vs.VideoNode:
+        enum_value = cls.from_param(value, func) or cls.from_video(clip, True)
+
+        return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
+
+    @staticmethod
+    def ensure_presences(
+        clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
+    ) -> vs.VideoNode:
+        return clip.std.SetFrameProps(**{
+            value.prop_key: value.value  # type: ignore
+            for value in [
+                cls if isinstance(cls, PropEnum) else cls.from_video(clip, True)
+                for cls in prop_enums
+            ]
+        })
+
+    def as_string(self) -> str:
+        return self._name_.lower()
+
+
+SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
+
+
+def _base_from_video(
+    cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[CustomError],
+    strict: bool, func: FuncExceptT | None = None
+) -> SelfPropEnum:
+    from ..utils import get_prop
+    from ..functions import fallback
+
+    func = fallback(func, cls.from_video)  # type: ignore
+
+    value = get_prop(src, cls, int, default=MISSING if strict else None)
+
+    if value is None or cls.is_unknown(value):  # type: ignore
+        if strict:
+            raise exception('{class_name} is undefined.', func, class_name=cls, reason=value)
+
+        if isinstance(src, vs.FrameProps):
+            raise exception('Can\'t determine {class_name} from FrameProps.', func, class_name=cls)
+
+        return cls.from_res(src)  # type: ignore
+
+    return cls(value)  # type: ignore
+
 
 if TYPE_CHECKING:
     from .color import ColorRange, ColorRangeT, Matrix, MatrixT, Primaries, PrimariesT, Transfer, TransferT
     from .generic import ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
 
-    class _MatrixMeta(CustomIntEnum, vs.MatrixCoefficients):  # type: ignore
+    class _MatrixMeta(PropEnum, vs.MatrixCoefficients):  # type: ignore
         def __new__(cls: type[Matrix], value: MatrixT) -> Matrix:  # type: ignore
             ...
 
@@ -47,7 +169,7 @@ if TYPE_CHECKING:
             :return:                Matrix object or None.
             """
 
-    class _TransferMeta(CustomIntEnum, vs.TransferCharacteristics):  # type: ignore
+    class _TransferMeta(PropEnum, vs.TransferCharacteristics):  # type: ignore
         def __new__(cls: type[Transfer], value: TransferT) -> Transfer:  # type: ignore
             ...
 
@@ -83,7 +205,7 @@ if TYPE_CHECKING:
             :return:                Transfer object or None.
             """
 
-    class _PrimariesMeta(CustomIntEnum, vs.ColorPrimaries):  # type: ignore
+    class _PrimariesMeta(PropEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[Primaries], value: PrimariesT) -> Primaries:  # type: ignore
             ...
 
@@ -119,7 +241,7 @@ if TYPE_CHECKING:
             :return:                Primaries object or None.
             """
 
-    class _ColorRangeMeta(CustomIntEnum, vs.ColorPrimaries):  # type: ignore
+    class _ColorRangeMeta(PropEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[ColorRange], value: ColorRangeT) -> ColorRange:  # type: ignore
             ...
 
@@ -155,7 +277,7 @@ if TYPE_CHECKING:
             :return:                ColorRange object or None.
             """
 
-    class _ChromaLocationMeta(CustomIntEnum, vs.ChromaLocation):  # type: ignore
+    class _ChromaLocationMeta(PropEnum, vs.ChromaLocation):  # type: ignore
         def __new__(cls: type[ChromaLocation], value: ChromaLocationT) -> ChromaLocation:  # type: ignore
             ...
 
@@ -193,7 +315,7 @@ if TYPE_CHECKING:
             :return:                ChromaLocation object or None.
             """
 
-    class _FieldBasedMeta(CustomIntEnum, vs.FieldBased):  # type: ignore
+    class _FieldBasedMeta(PropEnum, vs.FieldBased):  # type: ignore
         def __new__(cls: type[FieldBased], value: FieldBasedT) -> FieldBased:  # type: ignore
             ...
 
@@ -229,6 +351,21 @@ if TYPE_CHECKING:
 
             :return:                FieldBased object or None.
             """
+
+        @classmethod
+        def ensure_presence(
+            cls, clip: vs.VideoNode, tff: bool | int | FieldBasedT | None, func: FuncExceptT | None = None
+        ) -> vs.VideoNode:
+            ...
 else:
-    _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = CustomIntEnum
-    _ChromaLocationMeta = _FieldBasedMeta = CustomIntEnum
+    _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = PropEnum
+    _ChromaLocationMeta = PropEnum
+
+    class _FieldBasedMeta(PropEnum):
+        @classmethod
+        def ensure_presence(
+            cls, clip: vs.VideoNode, tff: bool | int | FieldBased | None, func: FuncExceptT | None = None
+        ) -> vs.VideoNode:
+            value = cls.from_param(tff, func) or cls.from_video(clip, True)
+
+            return clip.std.SetFieldBased(value.value)

@@ -7,8 +7,8 @@ import vapoursynth as vs
 from ..exceptions import (
     UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
 )
-from ..types import MISSING, FuncExceptT
-from .stubs import _ChromaLocationMeta, _FieldBasedMeta
+from ..types import FuncExceptT
+from .stubs import _base_from_video, _ChromaLocationMeta, _FieldBasedMeta
 
 __all__ = [
     'ChromaLocation', 'ChromaLocationT',
@@ -50,10 +50,6 @@ class ChromaLocation(_ChromaLocationMeta):
     BOTTOM = 5
     """@@PLACEHOLDER@@"""
 
-    @property
-    def is_unknown(self) -> bool:
-        return False
-
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ChromaLocation:
         """
@@ -74,7 +70,9 @@ class ChromaLocation(_ChromaLocationMeta):
         return ChromaLocation.LEFT
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ChromaLocation:
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> ChromaLocation:
         """
         Obtain the chroma location of a clip from the frame properties.
 
@@ -88,20 +86,7 @@ class ChromaLocation(_ChromaLocationMeta):
         :raises UndefinedChromaLocationError:   Chroma location can not be determined from the frameprops.
         """
 
-        from ..utils import get_prop
-
-        value = get_prop(src, '_ChromaLocation', int, default=MISSING if strict else None)
-
-        if value is None:
-            if strict:
-                raise UndefinedChromaLocationError(f'ChromaLocation({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedChromaLocationError('Can\'t determine chroma location from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedChromaLocationError, strict, func)
 
 
 class FieldBased(_FieldBasedMeta):
@@ -111,6 +96,8 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def _missing_(cls: type[FieldBased], value: Any) -> FieldBased | None:
+        value = super()._missing_(value)
+
         if value is None:
             return cls.PROGRESSIVE
 
@@ -128,10 +115,6 @@ class FieldBased(_FieldBasedMeta):
     TFF = 2
     """@@PLACEHOLDER@@"""
 
-    @property
-    def is_unknown(self) -> bool:
-        return False
-
     if not TYPE_CHECKING:
         @classmethod
         def from_param(cls: Any, value_or_tff: Any, func_except: Any = None) -> FieldBased | None:
@@ -141,7 +124,13 @@ class FieldBased(_FieldBasedMeta):
             return super().from_param(value_or_tff)
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> FieldBased:
+    def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> FieldBased:
+        return cls.PROGRESSIVE
+
+    @classmethod
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> FieldBased:
         """
         Obtain the Field order of a clip from the frame properties.
 
@@ -155,20 +144,7 @@ class FieldBased(_FieldBasedMeta):
         :raises UndefinedFieldBasedError:       Field order can not be determined from the frameprops.
         """
 
-        from ..utils import get_prop
-
-        value = get_prop(src, '_FieldBased', int, default=MISSING if strict else None)
-
-        if value is None:
-            if strict:
-                raise UndefinedFieldBasedError(f'FieldBased({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedFieldBasedError('Can\'t determine field type from FrameProps.', cls.from_video)
-
-            return FieldBased.PROGRESSIVE
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedFieldBasedError, strict, func)
 
     @property
     def is_inter(self) -> bool:
@@ -197,18 +173,6 @@ class FieldBased(_FieldBasedMeta):
         """Check whether the value is Top-Field-First."""
 
         return self is self.TFF
-
-    @classmethod
-    def ensure_presence(
-        cls, clip: vs.VideoNode,
-        tff: bool | int | FieldBased | None,
-        func: FuncExceptT | None = None
-    ) -> vs.VideoNode:
-        """@@PLACEHOLDER@@"""
-
-        value = FieldBased.from_param(tff, func) or FieldBased.from_video(clip, True)
-
-        return clip.std.SetFieldBased(value.value)
 
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]

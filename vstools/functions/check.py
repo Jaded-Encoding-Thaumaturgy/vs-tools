@@ -105,7 +105,7 @@ def disallow_variable_resolution(function: F | None = None, /, *, only_first: bo
 
 @disallow_variable_format
 @disallow_variable_resolution
-def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None) -> None:
+def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExceptT | None = None) -> None:
     """
     Decorator for ensuring the ref clip's format matches that of the input clip.
 
@@ -120,16 +120,21 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None) -> None:
     :raises ResolutionsRefClipMismatchError:    The resolutions of the two clips do not match.
     """
 
+    from .funcs import fallback
+
     if ref is None:
         return
 
-    assert src.format and ref.format
+    func = fallback(func, check_ref_clip)  # type: ignore
+
+    assert check_variable(src, func)  # type: ignore
+    assert check_variable(ref, func)  # type: ignore
 
     if ref.format.id != src.format.id:
-        raise FormatsRefClipMismatchError(check_ref_clip)
+        raise FormatsRefClipMismatchError(func)  # type: ignore
 
     if ref.width != src.width or ref.height != src.height:
-        raise ResolutionsRefClipMismatchError(check_ref_clip)
+        raise ResolutionsRefClipMismatchError(func)  # type: ignore
 
 
 def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:

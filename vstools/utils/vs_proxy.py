@@ -3,7 +3,7 @@ from __future__ import annotations
 import builtins
 import weakref
 from ctypes import Structure
-from inspect import Parameter
+from inspect import Parameter, Signature
 from logging import NOTSET as LogLevelUnset
 from logging import Handler, LogRecord
 from types import UnionType
@@ -34,8 +34,8 @@ from vapoursynth import PresetFormat as VSPresetFormat
 from vapoursynth import (
     RawFrame, RawNode, SampleType, TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple,
     __api_version__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
-    ccfEnableGraphInspection, clear_output, clear_outputs, construct_signature, fmFrameState, fmParallel,
-    fmParallelRequests, fmUnordered, get_current_environment, get_output, get_outputs, has_policy, register_policy
+    ccfEnableGraphInspection, clear_output, clear_outputs, fmFrameState, fmParallel, fmParallelRequests, fmUnordered,
+    get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -171,8 +171,8 @@ class PluginProxy(PluginProxyBase):
 
 
 class CoreProxy(CoreProxyBase):
-    def __init__(self, core: Core) -> None:
-        self.__dict__['vs_core_ref'] = weakref.ref(core)
+    def __init__(self, core: Core, vs_proxy: VSCoreProxy) -> None:
+        self.__dict__['vs_core_ref'] = (weakref.ref(core), vs_proxy)
 
     def __getattr__(self, name: str) -> Plugin:
         core = proxy_utils.get_vs_core(self)
@@ -186,10 +186,14 @@ class CoreProxy(CoreProxyBase):
 class proxy_utils:
     @staticmethod
     def get_vs_core(core: CoreProxy) -> Core:
-        vs_core_ref = core.__dict__['vs_core_ref']
+        vs_core_ref, vs_proxy = core.__dict__['vs_core_ref']
 
         if (vs_core := vs_core_ref()) is None:
-            raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
+            if object.__getattribute__(vs_proxy, '_own_core'):
+                raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
+            else:
+                vs_core = _get_core(vs_proxy)
+                core.__dict__['vs_core_ref'] = (weakref.ref(vs_core), vs_proxy)
 
         return vs_core  # type: ignore
 
@@ -216,7 +220,7 @@ builtins_isinstance = builtins.isinstance
 def vstools_isinstance(
     __obj: object, __class_or_tuple: type | UnionType | tuple[type | UnionType | tuple[Any, ...], ...]
 ) -> bool:
-    if __class_or_tuple in {_CoreProxy, Core} and builtins_isinstance(__obj, CoreProxy):
+    if __class_or_tuple in (_CoreProxy, Core) and builtins_isinstance(__obj, CoreProxy):
         return True
 
     if __class_or_tuple is VSPresetFormat and builtins_isinstance(__obj, PresetFormat):
@@ -279,7 +283,7 @@ class VSCoreProxy(CoreProxyBase):
         core = _get_core(self)
 
         if not hasattr(self, '_proxied'):
-            self._proxied = out_core = CoreProxy(core)
+            self._proxied = out_core = CoreProxy(core, self)
         else:
             out_core = object.__getattribute__(self, '_proxied')
 
@@ -288,6 +292,7 @@ class VSCoreProxy(CoreProxyBase):
 
 core = VSCoreProxy()
 
+
 if TYPE_CHECKING:
     class PyCapsule(Structure):
         ...
@@ -295,7 +300,7 @@ if TYPE_CHECKING:
     __pyx_capi__: dict[str, PyCapsule] = ...  # type: ignore
 
     class StandaloneEnvironmentPolicy(EnvironmentPolicy):
-        def __init__(self) -> NoReturn:  # type: ignore[misc]
+        def __init__(self) -> NoReturn:
             ...
 
         def _on_log_message(self, level: MessageType, msg: str) -> None:
@@ -317,7 +322,7 @@ if TYPE_CHECKING:
             ...
 
     class VSScriptEnvironmentPolicy(EnvironmentPolicy):
-        def __init__(self) -> NoReturn:  # type: ignore[misc]
+        def __init__(self) -> NoReturn:
             ...
 
         def on_policy_registered(self, policy_api: 'EnvironmentPolicyAPI') -> None:
@@ -341,6 +346,9 @@ if TYPE_CHECKING:
     def _construct_parameter(signature: str) -> Parameter:
         ...
 
+    def construct_signature(signature: str, return_signature: str, injected: str | None = None) -> Signature:
+        ...
+
     class CallbackData:
         def __init__(
             self, node: RawNode, env: EnvironmentData,
@@ -360,5 +368,5 @@ if TYPE_CHECKING:
 else:
     from vapoursynth import (
         CallbackData, PythonVSScriptLoggingBridge, StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy, __pyx_capi__,
-        _construct_parameter, _construct_type
+        _construct_parameter, _construct_type, construct_signature
     )

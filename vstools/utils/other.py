@@ -13,6 +13,6 @@ IS_DOCS = not TYPE_CHECKING and (
     # if the user called with these scripts
     or os.path.basename(sys.argv[0]) in ['sphinx-build', 'sphinx-build.exe']
     # in conf.py you can do builtins.__sphinx_build__ = True to be 100% sure
-    or ('__sphinx_build__' in builtins and builtins.__sphinx_build__)
+    or (hasattr(builtins, '__sphinx_build__') and builtins.__sphinx_build__)
 )
 """@@PLACEHOLDER@@"""

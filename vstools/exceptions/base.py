@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import sys
 from copy import deepcopy
-from typing import Any, Iterator, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
-from ..types import MISSING
-
-from ..types import FuncExceptT, Self, SupportsString
+from ..types import MISSING, FuncExceptT, SupportsString
 
 __all__ = [
     'CustomError',
@@ -22,40 +20,73 @@ __all__ = [
 ]
 
 
+if TYPE_CHECKING:
+    class ExceptionT(Exception, type):
+        ...
+else:
+    ExceptionT = Exception
+
+
 class CustomErrorMeta(type):
     """Custom base exception meta class."""
 
-    def __new__(cls: type[Self], *args: Any) -> Self:
-        obj = type.__new__(cls, *args)
+    def __new__(cls: type[SelfCustomErrorMeta], *args: Any) -> SelfCustomErrorMeta:
+        return CustomErrorMeta.setup_exception(type.__new__(cls, *args))  # type: ignore
 
-        if obj.__qualname__.startswith('Custom'):  # type: ignore
-            obj.__qualname__ = obj.__qualname__[6:]  # type: ignore
+    @staticmethod
+    def setup_exception(exception: SelfCustomErrorMeta, override: ExceptionT | None = None) -> SelfCustomErrorMeta:
+        if override:
+            if override.__name__.startswith('Custom'):
+                exception.__name__ = override.__name__
+            else:
+                exception.__name__ = f'Custom{override.__name__}'
+
+            exception.__qualname__ = override.__qualname__
+
+        if exception.__qualname__.startswith('Custom'):
+            exception.__qualname__ = exception.__qualname__[6:]
 
         if sys.stdout and sys.stdout.isatty():
-            obj.__qualname__ = f'\033[0;31;1m{obj.__qualname__}\033[0m'  # type: ignore
+            exception.__qualname__ = f'\033[0;31;1m{exception.__qualname__}\033[0m'
 
-        obj.__module__ = Exception.__module__
+        exception.__module__ = Exception.__module__
 
-        return obj
+        return exception
+
+    if TYPE_CHECKING:
+        def __getitem__(self, exception: type[Exception]) -> CustomError:
+            ...
 
 
-class CustomError(Exception, metaclass=CustomErrorMeta):
+SelfCustomErrorMeta = TypeVar('SelfCustomErrorMeta', bound=CustomErrorMeta)
+
+
+class CustomError(ExceptionT, metaclass=CustomErrorMeta):
     """Custom base exception class."""
 
     def __init__(
-        self, message: SupportsString | None = None, func: FuncExceptT | None = None, **kwargs: Any
+        self, message: SupportsString | None = None, func: FuncExceptT | None = None,
+        reason: SupportsString | FuncExceptT | None = None, **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
 
         self.message = message
         self.func = func
+        self.reason = reason
         self.kwargs = kwargs
 
         super().__init__(message)
 
+    def __class_getitem__(cls, exception: type[ExceptionT]) -> CustomError:
+        class inner_exception(cls, exception):  # type: ignore
+            ...
+
+        return CustomErrorMeta.setup_exception(inner_exception, exception)  # type: ignore
+
     def __call__(
         self: SelfError, message: SupportsString | None = MISSING,
-        func: FuncExceptT | None = MISSING, **kwargs: Any  # type: ignore[assignment]
+        func: FuncExceptT | None = MISSING, reason: SupportsString | FuncExceptT | None = MISSING,  # type: ignore
+        **kwargs: Any
     ) -> SelfError:
         err = deepcopy(self)
 
@@ -65,38 +96,48 @@ class CustomError(Exception, metaclass=CustomErrorMeta):
         if func is not MISSING:  # type: ignore[comparison-overlap]
             err.func = func
 
+        if reason is not MISSING:
+            err.reason = reason
+
+        err.kwargs |= kwargs
+
         return err
 
     def __str__(self) -> str:
-        from ..functions import norm_func_name
+        from ..functions import norm_display_name, norm_func_name
 
         message = self.message
-
-        if message is None and self.func is None:
-            return str(self)
 
         if not message:
             message = 'An error occurred!'
 
-        func_header = norm_func_name(self.func).strip() if self.func else 'Unknown'
+        if self.func:
+            func_header = norm_func_name(self.func).strip()
 
-        if sys.stdout and sys.stdout.isatty():
-            func_header = f'\033[0;36m{func_header}\033[0m'
+            if sys.stdout and sys.stdout.isatty():
+                func_header = f'\033[0;36m{func_header}\033[0m'
 
-        func_header = f'({func_header})'
+            func_header = f'({func_header}) '
+        else:
+            func_header = ''
 
         kwargs = self.kwargs.copy()
 
         if kwargs:
             kwargs = {
-                key: (
-                    ', '.join(norm_func_name(v) for v in value)
-                    if isinstance(value, Iterator) else
-                    norm_func_name(value)
-                ) for key, value in kwargs.items()
+                key: norm_display_name(value) for key, value in kwargs.items()
             }
 
-        return f'{func_header} {self.message!s}'.format(**kwargs)
+        if self.reason:
+            reason = f'({norm_display_name(self.reason)})'
+
+            if sys.stdout and sys.stdout.isatty():
+                reason = f'\033[0;33m{reason}\033[0m'
+            reason = f' {reason}'
+        else:
+            reason = ''
+
+        return f'{func_header}{self.message!s}{reason}'.format(**kwargs).strip()
 
 
 SelfError = TypeVar('SelfError', bound=CustomError)

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from functools import lru_cache
-from typing import Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
+from inspect import Signature, isclass
+from typing import (
+    TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
+)
 
-from .builtins import F0, P0, R0, T0, P, R, T
+from .builtins import F0, P0, P1, R0, R1, T0, T1, T2, KwargsT, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -12,7 +14,11 @@ __all__ = [
 
     'complex_hash',
 
-    'get_subclasses'
+    'get_subclasses',
+
+    'classproperty',
+
+    'KwargsNotNone'
 ]
 
 
@@ -49,7 +55,7 @@ class copy_signature(Generic[F0]):
         return cast(F0, wrapped)
 
 
-class injected_self_func(Generic[T, P, R], Protocol):
+class injected_self_func(Generic[T, P, R], Protocol):  # type: ignore[misc]
     @overload
     @staticmethod
     def __call__(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -101,14 +107,24 @@ class inject_self_base(Generic[T, P, R]):
         self.kwargs = dict[str, Any]()
 
     def __get__(self, class_obj: T | None, class_type: type[T]) -> injected_self_func[T, P, R]:
+        signature = Signature.from_callable(self.function, follow_wrapped=True, eval_str=True)
+        first_key = next(iter(list(signature.parameters.keys())), None)
+
         def _wrapper(*args: Any, **kwargs: Any) -> Any:
+            first_arg = (args[0] if args else None) or (kwargs.get(first_key, None) if first_key else None)
+
             if (
-                (is_obj := isinstance(args[0], class_type))
-                or isinstance(args[0], type(class_type))
-                or args[0] is class_type
+                first_arg and (
+                    (is_obj := isinstance(first_arg, class_type))
+                    or isinstance(first_arg, type(class_type))
+                    or first_arg is class_type
+                )
             ):
-                obj = args[0] if is_obj else args[0]()
-                args = args[1:]
+                obj = first_arg if is_obj else first_arg()
+                if args:
+                    args = args[1:]
+                elif kwargs and first_key:
+                    kwargs.pop(first_key)
             elif class_obj is None:
                 if self_objects_cache:
                     if class_type not in self_objects_cache:
@@ -191,7 +207,6 @@ class complex_hash(Generic[T]):
         return hash('_'.join(values))
 
 
-@lru_cache
 def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[type[T]]:
     """@@PLACEHOLDER@@"""
 
@@ -203,3 +218,92 @@ def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[typ
             yield subclass
 
     return list(set(_subclasses(family)))
+
+
+class classproperty(Generic[P, R, T, T0, P0]):
+    __isabstractmethod__: bool = False
+
+    class metaclass(type):
+        def __setattr__(self, key: str, value: Any) -> None:
+            if key in self.__dict__:
+                obj = self.__dict__.get(key)
+
+            if obj and type(obj) is classproperty:
+                return obj.__set__(self, value)
+
+            return super(classproperty.metaclass, self).__setattr__(key, value)
+
+    def __init__(
+        self,
+        fget: classmethod[R] | Callable[P, R],
+        fset: classmethod[None] | Callable[[T, T0], None] | None = None,
+        fdel: classmethod[None] | Callable[P0, None] | None = None,
+        doc: str | None = None,
+    ) -> None:
+        if not isinstance(fget, (classmethod, staticmethod)):
+            fget = classmethod(fget)
+
+        self.fget = self._wrap(fget)
+        self.fset = self._wrap(fset) if fset is not None else fset
+        self.fdel = self._wrap(fdel) if fdel is not None else fdel
+
+        self.doc = doc
+
+    def _wrap(self, func: classmethod[R1] | Callable[P1, R1]) -> classmethod[R1]:
+        if not isinstance(func, (classmethod, staticmethod)):
+            func = classmethod(func)
+
+        return func
+
+    def getter(self, __fget: classmethod[R] | Callable[P1, R1]) -> classproperty[P1, R1, T, T0, P0]:
+        self.fget = self._wrap(__fget)  # type: ignore
+        return self  # type: ignore
+
+    def setter(self, __fset: classmethod[None] | Callable[[T1, T2], None]) -> classproperty[P, R, T1, T2, P0]:
+        self.fset = self._wrap(__fset)
+        return self  # type: ignore
+
+    def deleter(self, __fdel: classmethod[None] | Callable[P1, None]) -> classproperty[P, R, T, T0, P1]:
+        self.fdel = self._wrap(__fdel)
+        return self  # type: ignore
+
+    def __get__(self, __obj: Any, __type: type | None = None) -> R:
+        if __type is None:
+            __type = type(__obj)
+
+        return self.fget.__get__(__obj, __type)()
+
+    def __set__(self, __obj: Any, __value: T1) -> None:
+        from ..exceptions import CustomError
+
+        if not self.fset:
+            raise CustomError[AttributeError]("Can't set attribute")
+
+        if isclass(__obj):
+            type_, __obj = __obj, None
+        else:
+            type_ = type(__obj)
+
+        return self.fset.__get__(__obj, type_)(__value)
+
+    def __delete__(self, __obj: Any) -> None:
+        from ..exceptions import CustomError
+
+        if not self.fdel:
+            raise CustomError[AttributeError]("Can't delete attribute")
+
+        if isclass(__obj):
+            type_, __obj = __obj, None
+        else:
+            type_ = type(__obj)
+
+        return self.fdel.__delete__(__obj, type_)(__obj)  # type: ignore
+
+
+class KwargsNotNone(KwargsT):
+    if not TYPE_CHECKING:
+        def __new__(cls, *args: Any, **kwargs: Any) -> KwargsNotNone:
+            return KwargsT(**{
+                key: value for key, value in KwargsT(*args, **kwargs).items()
+                if value is not None
+            })

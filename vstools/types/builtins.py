@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from enum import Enum
 from typing import (
     Any, Callable, Iterable, ParamSpec, Protocol, Sequence, SupportsFloat, SupportsIndex, Tuple, TypeAlias, TypeVar,
     Union, overload, runtime_checkable
@@ -23,12 +22,14 @@ __all__ = [
 
     'FrameRange', 'FrameRangeN', 'FrameRangesN',
 
-    'Self', 'SelfEnum',
+    'Self',
 
     'SingleOrArr', 'SingleOrArrOpt',
 
     'SimpleByteData', 'SimpleByteDataArray',
     'ByteData',
+
+    'KwargsT',
 
     'SupportsTrunc',
 
@@ -84,7 +85,6 @@ FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
 FrameRangesN: TypeAlias = list[FrameRangeN]
 
 Self = TypeVar('Self')
-SelfEnum = TypeVar('SelfEnum', bound=Enum)
 
 SingleOrArr = Union[T, list[T]]
 SingleOrArrOpt = Union[SingleOrArr[T], None]
@@ -95,6 +95,8 @@ SimpleByteDataArray = Union[SimpleByteData, Sequence[SimpleByteData]]
 ByteData: TypeAlias = SupportsFloat | SupportsIndex | SimpleByteData | memoryview
 
 SupportsFloatOrIndex: TypeAlias = SupportsFloat | SupportsIndex
+
+KwargsT = dict[str, Any]
 
 
 @runtime_checkable

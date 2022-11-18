@@ -6,10 +6,10 @@ from typing import Any, Callable, Concatenate, cast, overload
 
 from ..enums import (
     ChromaLocation, ChromaLocationT, ColorRange, ColorRangeT, FieldBased, FieldBasedT, Matrix, MatrixT, Primaries,
-    PrimariesT, Transfer, TransferT
+    PrimariesT, PropEnum, Transfer, TransferT
 )
 from ..exceptions import CustomValueError, InvalidColorFamilyError
-from ..functions import depth, get_y, join
+from ..functions import check_variable, depth, fallback, get_y, join
 from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P
 from . import vs_proxy as vs
 from .info import get_depth, get_video_format, get_w
@@ -29,6 +29,8 @@ def finalize_clip(
     clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """@@PLACEHOLDER@@"""
+
+    assert check_variable(clip, func or finalize_clip)
 
     if bits:
         clip = depth(clip, bits)
@@ -88,43 +90,48 @@ def finalize_output(
 
 
 def initialize_clip(
-    clip: vs.VideoNode, bits: int = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
-    *, func: FuncExceptT | None = None
+    clip: vs.VideoNode, bits: int | None = 16,
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    strict: bool = False, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """@@PLACEHOLDER@@"""
 
-    matrix = Matrix.from_param(matrix)
-    transfer = Transfer.from_param(transfer)
-    primaries = Primaries.from_param(primaries)
-    chroma_location = ChromaLocation.from_param(chroma_location)
-    color_range = ColorRange.from_param(color_range)
-    field_based = FieldBased.from_param(field_based)
+    func = fallback(func, initialize_clip)  # type: ignore
 
-    clip = clip.std.SetFrameProps(
-        _Matrix=matrix.value, _Transfer=transfer.value, _Primaries=primaries.value,
-        _ChromaLocation=chroma_location.value, _ColorRange=color_range.value
-    )
+    values: list[tuple[type[PropEnum], Any]] = [
+        (Matrix, matrix),
+        (Transfer, transfer),
+        (Primaries, primaries),
+        (ChromaLocation, chroma_location),
+        (ColorRange, color_range),
+        (FieldBased, field_based)
+    ]
 
-    clip = FieldBased.ensure_presence(clip, field_based, func)
+    clip = PropEnum.ensure_presences(clip, [
+        (cls if strict else cls.from_video(clip, False, func)) if value is None else cls.from_param(value, func)
+        for cls, value in values
+    ], func)
+
+    if bits is None:
+        return clip
 
     return depth(clip, bits)
 
 
 @overload
 def initialize_input(
-    function: None = None, /, *, bits: int = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
+    function: None = None, /, *, bits: int | None = 16,
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD]:
     ...
@@ -132,27 +139,27 @@ def initialize_input(
 
 @overload
 def initialize_input(
-    function: F_VD, /, *, bits: int = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
-    func: FuncExceptT | None = None
+    function: F_VD, /, *, bits: int | None = 16,
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    strict: bool = False, func: FuncExceptT | None = None
 ) -> F_VD:
     ...
 
 
 def initialize_input(
-    function: F_VD | None = None, /, *, bits: int = 16,
-    matrix: MatrixT = Matrix.BT709,
-    transfer: TransferT = Transfer.BT709,
-    primaries: PrimariesT = Primaries.BT709,
-    chroma_location: ChromaLocationT = ChromaLocation.LEFT,
-    color_range: ColorRangeT = ColorRange.LIMITED,
-    field_based: FieldBasedT = FieldBased.PROGRESSIVE,
-    func: FuncExceptT | None = None
+    function: F_VD | None = None, /, *, bits: int | None = 16,
+    matrix: MatrixT | None = Matrix.BT709,
+    transfer: TransferT | None = Transfer.BT709,
+    primaries: PrimariesT | None = Primaries.BT709,
+    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
+    color_range: ColorRangeT | None = ColorRange.LIMITED,
+    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    strict: bool = False, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     """
     Decorator implementation of ``initialize_clip``
@@ -162,7 +169,7 @@ def initialize_input(
             Callable[[F_VD], F_VD],
             partial(
                 initialize_input, bits=bits, matrix=matrix, transfer=transfer,
-                primaries=primaries, field_based=field_based, func=func
+                primaries=primaries, field_based=field_based, strict=strict, func=func
             )
         )
 
@@ -170,7 +177,7 @@ def initialize_input(
         bits=bits,
         matrix=matrix, transfer=transfer, primaries=primaries,
         chroma_location=chroma_location, color_range=color_range,
-        func=func
+        strict=strict, func=func
     )
 
     @wraps(function)

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, TypeVar
 
-from ..exceptions import NotFoundEnumValue
-from ..types import EnumFuncExceptT, SelfEnum
+from ..exceptions import CustomValueError, NotFoundEnumValue
+from ..types import FuncExceptT
 
 __all__ = [
+    'SelfEnum',
     'CustomEnum', 'CustomIntEnum', 'CustomStrEnum'
 ]
 
@@ -15,7 +16,11 @@ class CustomEnum(Enum):
     """Base class for custom enums."""
 
     @classmethod
-    def from_param(cls: type[SelfEnum], value: Any, func_except: EnumFuncExceptT | None = None) -> SelfEnum | None:
+    def _missing_(cls: type[SelfEnum], value: Any) -> SelfEnum | None:
+        return cls.from_param(value)
+
+    @classmethod
+    def from_param(cls: type[SelfEnum], value: Any, func_except: FuncExceptT | None = None) -> SelfEnum | None:
         """
         Return the enum value from a parameter.
 
@@ -31,17 +36,23 @@ class CustomEnum(Enum):
             return None
 
         if func_except is None:
-            return cls(value)
+            func_except = cls.from_param
+
+        if isinstance(value, cls):
+            return value
+
+        if value is cls:
+            raise CustomValueError('You must select a memeber, not pass the enum!', func_except)
 
         try:
             return cls(value)
         except ValueError:
             ...
 
-        if not isinstance(func_except, str):
+        if isinstance(func_except, tuple):
             func_name, var_name = func_except
         else:
-            var_name, func_name = func_except, ''
+            func_name, var_name = func_except, ''
 
         raise NotFoundEnumValue(
             'Value for "{var_name}" argument must be a valid {enum_name}.\n'
@@ -57,3 +68,6 @@ class CustomIntEnum(int, CustomEnum):
 
 class CustomStrEnum(str, CustomEnum):
     """Base class for custom str enums."""
+
+
+SelfEnum = TypeVar('SelfEnum', bound=CustomEnum)

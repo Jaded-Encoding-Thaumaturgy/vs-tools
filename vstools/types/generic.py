@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Protocol, TypeVar, Union
-
+from typing import Any, Callable, Literal, Protocol, TypeAlias, TypeVar, Union
+from enum import Enum, auto
 import vapoursynth as vs
 
 from .builtins import F, SingleOrArr, SingleOrArrOpt, SupportsString
@@ -9,7 +9,7 @@ from .builtins import F, SingleOrArr, SingleOrArrOpt, SupportsString
 __all__ = [
     'MissingT', 'MISSING',
 
-    'FuncExceptT', 'EnumFuncExceptT',
+    'FuncExceptT',
 
     'DataType', 'VSMapValue', 'BoundVSMapValue', 'VSMapValueCallback',
 
@@ -27,11 +27,12 @@ __all__ = [
 ]
 
 
-class MissingT:
-    ...
+class MissingTBase(Enum):
+    MissingT = auto()
 
 
-MISSING = MissingT()
+MissingT: TypeAlias = Literal[MissingTBase.MissingT]
+MISSING = MissingTBase.MissingT
 
 
 DataType = Union[str, bytes, bytearray, SupportsString]
@@ -81,21 +82,7 @@ If an error occurrs, this will print a clear error ->\n
 ``ValueError: (some_func) Some error occurred!!``
 """
 
-EnumFuncExceptT = str | tuple[Callable[..., Any] | str, str]  # type: ignore
-"""
-:py:attr:`FuncExceptT` with a second argument that takes the name of the argument in the function.
-```
-def some_enum_usage(my_epic_matrix: MatrixT) -> None:
-    ...
-    some_matrix = Matrix.from_param(my_epic_matrix, (some_enum_usage, 'my_epic_matrix'))
-    ...
-
-some_enum_usage(999)
-```
-If an error occurs, this will print a clear error ->\n
-NotFoundEnumValue: (some_enum_usage) Value for "my_epic_matrix" argument must be a valid Matrix.\n
-It can be a value in [RGB (0), BT709 (1), ..., ICTCP (14)].
-"""
+FuncExceptT = str | Callable[..., Any] | tuple[Callable[..., Any] | str, str]  # type: ignore
 
 
 class VSFunction(Protocol):

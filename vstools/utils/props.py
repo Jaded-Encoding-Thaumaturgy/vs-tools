@@ -4,8 +4,9 @@ from typing import Any, TypeVar, overload
 
 import vapoursynth as vs
 
+from ..enums import PropEnum
 from ..exceptions import FramePropError
-from ..types import MISSING, BoundVSMapValue, HoldsPropValueT, MissingT
+from ..types import MISSING, BoundVSMapValue, FuncExceptT, HoldsPropValueT, MissingT, SupportsString
 
 __all__ = [
     'get_prop',
@@ -18,35 +19,42 @@ CT = TypeVar('CT')
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: None = None, default: MissingT = MISSING
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+    cast: None = None, default: MissingT = MISSING, func: FuncExceptT | None = None  # type: ignore
 ) -> BoundVSMapValue:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: type[CT], default: MissingT = MISSING
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+    cast: type[CT], default: MissingT = MISSING, func: FuncExceptT | None = None  # type: ignore
 ) -> CT:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: None = None, default: DT | MissingT = MISSING
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+    cast: None = None, default: DT | MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> BoundVSMapValue | DT:
     ...
 
 
 @overload
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue], cast: type[CT], default: DT | MissingT = MISSING
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+    cast: type[CT], default: DT | MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> CT | DT:
     ...
 
 
 def get_prop(
-    obj: HoldsPropValueT, key: str, t: type[BoundVSMapValue],
-    cast: type[CT] | None = None, default: DT | MissingT = MISSING
+    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+    cast: type[CT] | None = None, default: DT | MissingT = MISSING,
+    func: FuncExceptT | None = None
 ) -> BoundVSMapValue | CT | DT:
     """
     Get FrameProp ``prop`` from frame ``frame`` with expected type ``t`` to satisfy the type checker.
@@ -63,12 +71,21 @@ def get_prop(
     :raises FramePropError:     Returns a prop of the wrong type.
     """
 
-    if isinstance(obj, (vs.VideoNode, vs.AudioNode)):
-        props = obj.get_frame(0).props
-    elif isinstance(obj, (vs.VideoFrame, vs.AudioFrame)):
-        props = obj.props
+    from ..functions import fallback
+
+    func: FuncExceptT = fallback(func, get_prop)  # type: ignore
+
+    if isinstance(obj, vs.RawNode):
+        props = obj.get_frame(0).props  # type: ignore
+    elif isinstance(obj, vs.RawFrame):
+        props = obj.props  # type: ignore
     else:
         props = obj
+
+    if isinstance(key, type) and issubclass(key, PropEnum):
+        key = key.prop_key
+    else:
+        key = str(key)
 
     prop: Any = MISSING
 
@@ -83,18 +100,18 @@ def get_prop(
 
         return cast(prop)  # type: ignore
     except BaseException as e:
-        if not isinstance(default, MissingT):
+        if default is not MISSING:
             return default
 
         if isinstance(e, KeyError) or prop is MISSING:
-            e = FramePropError(get_prop, key, 'Key {key} not present in props!')
+            e = FramePropError(func, key, 'Key {key} not present in props!')  # type: ignore
         elif isinstance(e, TypeError):
             e = FramePropError(
-                get_prop, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
+                func, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',  # type: ignore
                 t=t, prop_t=type(prop)
             )
         else:
-            e = FramePropError(get_prop, key)
+            e = FramePropError(func, key)  # type: ignore
 
         raise e
 

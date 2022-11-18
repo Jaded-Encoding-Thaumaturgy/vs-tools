@@ -246,7 +246,7 @@ class FileType(FileTypeBase):
             mime = header.mime
             ext = f'.{header.ext}'
         else:
-            stream: FFProbeStream | None
+            stream: FFProbeStream | None = None
             ffprobe = FFProbe(func=func)
 
             try:
@@ -260,7 +260,7 @@ class FileType(FileTypeBase):
                         f'No usable video/audio stream found in {filename}', func
                     )
 
-                file_type = stream.codec_type
+                file_type = FileType(stream.codec_type)
                 mime = f'{file_type}/{stream.codec_name}'
             except Exception as e:
                 if force_ffprobe:

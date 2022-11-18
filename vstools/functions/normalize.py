@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Sequence, overload
+from fractions import Fraction
+from typing import Any, Iterable, Iterator, Sequence, overload
 
 import vapoursynth as vs
 
@@ -13,7 +14,7 @@ __all__ = [
     'flatten',
     'normalize_franges',
     'normalize_ranges',
-    'norm_func_name'
+    'norm_func_name', 'norm_display_name'
 ]
 
 
@@ -66,7 +67,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 def to_arr(val: T | Sequence[T]) -> list[T]:
     """Normalize any value into an iterable."""
 
-    return val if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
+    return list(val) if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
 
 
 @overload
@@ -176,10 +177,10 @@ def norm_func_name(func_name: SupportsString | F) -> str:
     """Normalize a class, function or other object to obtain its name"""
 
     if isinstance(func_name, str):
-        return func_name
+        return func_name.strip()
 
     if not isinstance(func_name, type) and not callable(func_name):
-        return str(func_name)
+        return str(func_name).strip()
 
     func = func_name
 
@@ -190,6 +191,16 @@ def norm_func_name(func_name: SupportsString | F) -> str:
 
     if callable(func):
         if hasattr(func, '__self__'):
-            func_name = f'{func.__self__.__name__}.{func_name}'  # type: ignore
+            func_name = f'{func.__self__.__name__}.{func_name}'
 
-    return str(func_name)
+    return str(func_name).strip()
+
+
+def norm_display_name(obj: object) -> str:
+    if isinstance(obj, Iterator):
+        return ', '.join(norm_display_name(v) for v in obj).strip()
+
+    if isinstance(obj, Fraction):
+        return f'{obj.numerator}/{obj.denominator}'
+
+    return norm_func_name(obj)

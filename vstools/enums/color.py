@@ -8,10 +8,12 @@ from ..exceptions import (
     ReservedMatrixError, ReservedPrimariesError, ReservedTransferError, UndefinedMatrixError, UndefinedPrimariesError,
     UndefinedTransferError, UnsupportedMatrixError, UnsupportedPrimariesError, UnsupportedTransferError
 )
-from ..types import MISSING
-from .stubs import _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
+from ..types import MISSING, FuncExceptT, classproperty
+from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
+    'PropEnum',
+
     'Matrix', 'Transfer', 'Primaries',
     'MatrixT', 'TransferT', 'PrimariesT',
 
@@ -29,8 +31,12 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def _missing_(cls: type[Matrix], value: Any) -> Matrix | None:
+        value = super()._missing_(value)
+
         if value is None:
             return Matrix.UNKNOWN
+        elif isinstance(value, cls):
+            return value
 
         if value == 8:
             raise UnsupportedMatrixError(
@@ -182,11 +188,11 @@ class Matrix(_MatrixMeta):
     See ITU-T H.265 Equations E-65 to E-67 for `transfer_characteristics` value 18 (HLG)
     """
 
-    @property
-    def is_unknown(self) -> bool:
+    @classmethod
+    def is_unknown(cls, value: int | Matrix) -> bool:
         """Check if Matrix is unknown."""
-
-        return self is Matrix.UNKNOWN
+        
+        return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Matrix:
@@ -217,7 +223,9 @@ class Matrix(_MatrixMeta):
         return Matrix.BT2020NC
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Matrix:
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> Matrix:
         """
         Obtain the matrix of a clip from the frame properties.
 
@@ -230,21 +238,8 @@ class Matrix(_MatrixMeta):
         :raises UndefinedMatrixError:       Matrix is undefined.
         :raises UndefinedMatrixError:       Matrix can not be determined from the frameprops.
         """
-
-        from ..utils import get_prop
-
-        value = get_prop(src, '_Matrix', int, default=MISSING if strict else None)
-
-        if value is None or value == Matrix.UNKNOWN:
-            if strict:
-                raise UndefinedMatrixError(f'Matrix({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedMatrixError('Can\'t determine matrix from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+                
+        return _base_from_video(cls, src, UndefinedMatrixError, strict, func)
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Matrix:
@@ -290,6 +285,9 @@ class Matrix(_MatrixMeta):
 
         return _primaries_matrix_map[primaries]
 
+    def as_string(self) -> str:
+        return _matrix_name_map.get(self, super().as_string())
+
 
 class Transfer(_TransferMeta):
     """Transfer characteristics ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.4)."""
@@ -298,8 +296,12 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def _missing_(cls: type[Transfer], value: Any) -> Transfer | None:
+        value = super()._missing_(value)
+
         if value is None:
             return Transfer.UNKNOWN
+        elif isinstance(value, cls):
+            return value
 
         if Transfer.BT709 < value < Transfer.ARIB_B67 or value == 0:
             raise ReservedTransferError(f'Transfer({value}) is reserved.', cls)
@@ -440,11 +442,10 @@ class Transfer(_TransferMeta):
     FILM_C = 111
     """Traditional film primaries with Illuminant C"""
 
-    @property
-    def is_unknown(self) -> bool:
+    def is_unknown(cls, value: int | Transfer) -> bool:
         """Check if Transfer is unknown."""
 
-        return self is Transfer.UNKNOWN
+        return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Transfer:
@@ -475,7 +476,9 @@ class Transfer(_TransferMeta):
         return Transfer.ST2084
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Transfer:
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> Transfer:
         """
         Obtain the transfer of a clip from the frame properties.
 
@@ -489,20 +492,7 @@ class Transfer(_TransferMeta):
         :raises UndefinedTransferError:     Transfer can not be determined from the frameprops.
         """
 
-        from ..utils import get_prop
-
-        value = get_prop(src, '_Transfer', int, default=MISSING if strict else None)
-
-        if value is None or value == Transfer.UNKNOWN:
-            if strict:
-                raise UndefinedTransferError(f'Transfer({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedTransferError('Can\'t determine transfer from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedTransferError, strict, func)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Transfer:
@@ -576,6 +566,9 @@ class Transfer(_TransferMeta):
 
         return _transfer_placebo_map[self]
 
+    def as_string(self) -> str:
+        return _transfer_name_map.get(self, super().as_string())
+
 
 class Primaries(_PrimariesMeta):
     """Color primaries ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.3)."""
@@ -584,8 +577,12 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def _missing_(cls: type[Primaries], value: Any) -> Primaries | None:
+        value = super()._missing_(value)
+
         if value is None:
             return Primaries.UNKNOWN
+        elif isinstance(value, cls):
+            return value
 
         if cls.BT709 < value < cls.EBU3213E:
             raise ReservedPrimariesError(f'Primaries({value}) is reserved.', cls)
@@ -725,6 +722,8 @@ class Primaries(_PrimariesMeta):
     (CIE 1931 XYZ)
     """
 
+    XYZ = ST428
+
     ST431_2 = 11
     """
     ```
@@ -766,11 +765,10 @@ class Primaries(_PrimariesMeta):
     EBU Tech. 3213-E (1975)
     """
 
-    @property
-    def is_unknown(self) -> bool:
+    def is_unknown(cls, value: int | Primaries) -> bool:
         """Check if Primaries is unknown."""
 
-        return self is Primaries.UNKNOWN
+        return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Primaries:
@@ -801,7 +799,9 @@ class Primaries(_PrimariesMeta):
         return Primaries.BT2020
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> Primaries:
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> Primaries:
         """
         Obtain the primaries of a clip from the frame properties.
 
@@ -815,20 +815,7 @@ class Primaries(_PrimariesMeta):
         :raises UndefinedPrimariesError:    Primaries can not be determined from the frameprops.
         """
 
-        from ..utils import get_prop
-
-        value = get_prop(src, '_Primaries', int, default=MISSING if strict else None)
-
-        if value is None or value == Primaries.UNKNOWN:
-            if strict:
-                raise UndefinedPrimariesError(f'Primaries({value}) is undefined.', cls.from_video)
-
-            if isinstance(src, vs.FrameProps):
-                raise UndefinedPrimariesError('Can\'t determine primaries from FrameProps.', cls.from_video)
-
-            return cls.from_res(src)
-
-        return cls(value)
+        return _base_from_video(cls, src, UndefinedPrimariesError, strict, func)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Primaries:
@@ -874,6 +861,9 @@ class Primaries(_PrimariesMeta):
 
         return _transfer_primaries_map[transfer]
 
+    def as_string(self) -> str:
+        return _primaries_name_map.get(self, super().as_string())
+
 
 class MatrixCoefficients(NamedTuple):
     """Class representing Linear <-> Gamma conversion matrix coefficients"""
@@ -883,29 +873,25 @@ class MatrixCoefficients(NamedTuple):
     alpha: float
     gamma: float
 
-    @classmethod
-    @property
+    @classproperty
     def SRGB(cls) -> MatrixCoefficients:
         """Matrix Coefficients for SRGB."""
 
         return MatrixCoefficients(0.04045, 12.92, 0.055, 2.4)
 
-    @classmethod
-    @property
+    @classproperty
     def BT709(cls) -> MatrixCoefficients:
         """Matrix Coefficients for BT709."""
 
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
-    @classmethod
-    @property
+    @classproperty
     def SMPTE240M(cls) -> MatrixCoefficients:
         """Matrix Coefficients for SMPTE240M."""
 
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
-    @classmethod
-    @property
+    @classproperty
     def BT2020(cls) -> MatrixCoefficients:
         """Matrix Coefficients for BT2020."""
 
@@ -918,7 +904,7 @@ class MatrixCoefficients(NamedTuple):
         if matrix not in _matrix_matrixcoeff_map:
             raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
 
-        return _matrix_matrixcoeff_map[matrix]  # type: ignore
+        return _matrix_matrixcoeff_map[matrix]
 
     @classmethod
     def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
@@ -927,7 +913,7 @@ class MatrixCoefficients(NamedTuple):
         if tranfer not in _transfer_matrixcoeff_map:
             raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
 
-        return _transfer_matrixcoeff_map[tranfer]  # type: ignore
+        return _transfer_matrixcoeff_map[tranfer]
 
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:
@@ -936,7 +922,7 @@ class MatrixCoefficients(NamedTuple):
         if primaries not in _primaries_matrixcoeff_map:
             raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
 
-        return _primaries_matrixcoeff_map[primaries]  # type: ignore
+        return _primaries_matrixcoeff_map[primaries]
 
 
 class ColorRange(_ColorRangeMeta):
@@ -946,8 +932,12 @@ class ColorRange(_ColorRangeMeta):
 
     @classmethod
     def _missing_(cls: type[ColorRange], value: Any) -> ColorRange | None:
+        value = super()._missing_(value)
+
         if value is None:
             return ColorRange.LIMITED
+        elif isinstance(value, cls):
+            return value
 
         if value > ColorRange.LIMITED:
             raise UnsupportedPrimariesError(f'ColorRange({value}) is unsupported.', cls)
@@ -976,7 +966,9 @@ class ColorRange(_ColorRangeMeta):
         return False
 
     @classmethod
-    def from_video(cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False) -> ColorRange:
+    def from_video(
+        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
+    ) -> ColorRange:
         """
         Obtain the color range of a clip from the frame properties.
 
@@ -989,9 +981,7 @@ class ColorRange(_ColorRangeMeta):
 
         from ..utils import get_prop
 
-        return get_prop(
-            src, '_ColorRange', int, ColorRange, MISSING if strict else ColorRange.LIMITED
-        )
+        return get_prop(src, '_ColorRange', int, ColorRange, MISSING if strict else ColorRange.LIMITED)
 
     @property
     def value_vs(self) -> int:
@@ -1087,6 +1077,55 @@ _placebo_transfer_map = {
     value: key for key, value in _transfer_placebo_map.items()
 }
 
+_matrix_name_map = {
+    Matrix.RGB: 'rgb',
+    Matrix.BT709: '709',
+    Matrix.UNKNOWN: 'unspec',
+    Matrix.FCC: 'fcc',
+    Matrix.BT470BG: '470bg',
+    Matrix.SMPTE170M: '170m',
+    Matrix.SMPTE240M: '240m',
+    Matrix.BT2020NC: 'ycgco',
+    Matrix.BT2020C: '2020ncl',
+    Matrix.SMPTE2085: '2020cl',
+    Matrix.CHROMA_DERIVED_NC: 'chromancl',
+    Matrix.CHROMA_DERIVED_C: 'chromacl',
+    Matrix.ICTCP: 'ictcp'
+}
+
+_transfer_name_map = {
+    Transfer.BT709: '709',
+    Transfer.UNKNOWN: 'unspec',
+    Transfer.BT470M: '470m',
+    Transfer.BT470BG: '470bg',
+    Transfer.BT601: '601',
+    Transfer.ST240M: '240m',
+    Transfer.LINEAR: 'linear',
+    Transfer.LOG_100: 'log100',
+    Transfer.LOG_316: 'log316',
+    Transfer.XVYCC: 'xvycc',
+    Transfer.SRGB: 'srgb',
+    Transfer.BT2020_10bits: '2020_10',
+    Transfer.BT2020_12bits: '2020_12',
+    Transfer.ST2084: 'st2084',
+    Transfer.ARIB_B67: 'std-b67'
+}
+
+
+_primaries_name_map = {
+    Primaries.BT709: '709',
+    Primaries.UNKNOWN: 'unspec',
+    Primaries.BT470M: '470m',
+    Primaries.BT470BG: '470bg',
+    Primaries.ST170M: '170m',
+    Primaries.ST240M: '240m',
+    Primaries.FILM: 'film',
+    Primaries.BT2020: '2020',
+    Primaries.ST428: 'st428',
+    Primaries.ST431_2: 'st431-2',
+    Primaries.ST432_1: 'st432-1',
+    Primaries.EBU3213E: 'jedec-p22'
+}
 
 MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
 """Type alias for values that can be used to initialize a :py:attr:`Matrix`"""

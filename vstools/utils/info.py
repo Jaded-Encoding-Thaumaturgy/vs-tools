@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import overload
+from typing import Any, overload
 
 import vapoursynth as vs
+from fractions import Fraction
 
 from ..exceptions import UnsupportedSubsamplingError
 from ..functions import depth, disallow_variable_format
@@ -13,7 +14,7 @@ __all__ = [
     'get_var_infos',
     'get_video_format',
 
-    'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family',
+    'get_depth', 'get_sample_type', 'get_subsampling', 'get_color_family', 'get_framerate',
 
     'expect_bits',
 
@@ -29,7 +30,7 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
     if isinstance(frame, vs.VideoNode) and not (
         frame.width and frame.height and frame.format
     ):
-        frame = frame.get_frame(0)
+        frame = frame.get_frame(0)  # type: ignore
 
     assert frame.format
 
@@ -46,7 +47,7 @@ def get_video_format(
         sample_type = vs.SampleType(sample_type)
 
     if isinstance(value, vs.VideoFormat):
-        return value
+        return value  # type: ignore
 
     if isinstance(value, vs.PresetFormat):
         return vs.core.get_video_format(value)
@@ -60,12 +61,12 @@ def get_video_format(
 
         return vs.core.query_video_format(vs.YUV, sample_type, value)
 
-    assert value.format
+    assert value.format  # type: ignore
 
     if sample_type is not None:
-        return value.format.replace(sample_type=sample_type)
+        return value.format.replace(sample_type=sample_type)  # type: ignore
 
-    return value.format
+    return value.format  # type: ignore
 
 
 def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
@@ -92,7 +93,20 @@ def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /)
     return get_video_format(clip).color_family
 
 
-def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.VideoNode, int]:
+def get_framerate(clip: vs.VideoNode | Fraction | tuple[int, int] | float) -> Fraction:
+    if isinstance(clip, vs.VideoNode):
+        return clip.fps  # type: ignore
+
+    if isinstance(clip, Fraction):
+        return clip
+
+    if isinstance(clip, tuple):
+        return Fraction(*clip)
+
+    return Fraction(clip)  # type: ignore
+
+
+def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16, **kwargs: Any) -> tuple[vs.VideoNode, int]:
     """
     Expected output bitdepth for a clip.
 
@@ -109,7 +123,7 @@ def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16) -> tuple[vs.Vid
     bits = get_depth(clip)
 
     if bits != expected_depth:
-        clip = depth(clip, expected_depth)
+        clip = depth(clip, expected_depth, **kwargs)
 
     return clip, bits
 
@@ -204,9 +218,9 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
     """
 
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
-        assert (ref := ar_or_ref).format
-        aspect_ratio = ref.width / ref.height
-        mod = 1 << ref.format.subsampling_w
+        assert (ref := ar_or_ref).format  # type: ignore
+        aspect_ratio = ref.width / ref.height  # type: ignore
+        mod = 1 << ref.format.subsampling_w  # type: ignore
     else:
         aspect_ratio = ar_or_ref
 
@@ -250,11 +264,9 @@ def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9
     """
 
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
-        assert (ref := ar_or_ref).format
-
-        aspect_ratio = ref.height / ref.width
-
-        mod = 1 << ref.format.subsampling_h
+        assert (ref := ar_or_ref).format  # type: ignore
+        aspect_ratio = ref.height / ref.width  # type: ignore
+        mod = 1 << ref.format.subsampling_h  # type: ignore
     else:
         aspect_ratio = ar_or_ref
 

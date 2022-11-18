@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from fractions import Fraction
 from typing import Any, Iterable
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT, HoldsVideoFormatT, VideoFormatT
+from ..types import FuncExceptT, HoldsVideoFormatT, SupportsString, VideoFormatT
 from .base import CustomKeyError, CustomOverflowError, CustomValueError
 
 __all__ = [
@@ -35,7 +36,7 @@ __all__ = [
 class FramesLengthError(CustomOverflowError):
     def __init__(
         self, func: FuncExceptT,
-        var_name: str, message: str = '"{var_name}" can\'t be greater than the clip length!',
+        var_name: str, message: SupportsString = '"{var_name}" can\'t be greater than the clip length!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -51,7 +52,7 @@ class VariableFormatError(CustomValueError):
     """Raised when clip is of a variable format."""
 
     def __init__(
-        self, func: FuncExceptT, message: str = 'Variable-format clips not supported!',
+        self, func: FuncExceptT, message: SupportsString = 'Variable-format clips not supported!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -63,7 +64,7 @@ class VariableResolutionError(CustomValueError):
     """Raised when clip is of a variable resolution."""
 
     def __init__(
-        self, func: FuncExceptT, message: str = 'Variable-resolution clips not supported!',
+        self, func: FuncExceptT, message: SupportsString = 'Variable-resolution clips not supported!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -80,7 +81,7 @@ class InvalidVideoFormatError(CustomValueError):
 
     def __init__(
         self, func: FuncExceptT, format: VideoFormatT | HoldsVideoFormatT,
-        message: str = 'The format {format.name} is not supported!',
+        message: SupportsString = 'The format {format.name} is not supported!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -103,7 +104,7 @@ class InvalidColorFamilyError(CustomValueError):
         correct: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
         ] = vs.YUV,
-        message: str = 'Input clip must be of {correct} color family, not {wrong}!',
+        message: SupportsString = 'Input clip must be of {correct} color family, not {wrong}!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -112,9 +113,11 @@ class InvalidColorFamilyError(CustomValueError):
         from ..utils import get_color_family
 
         wrong_str = get_color_family(wrong).name
-        correct_str = ', '.join(set(get_color_family(c).name for c in to_arr(correct)))  # type: ignore
 
-        super().__init__(message, func, wrong=wrong_str, correct=correct_str, **kwargs)
+        super().__init__(
+            message, func, wrong=wrong_str,
+            correct=iter(set(get_color_family(c).name for c in to_arr(correct))), **kwargs  # type: ignore[arg-type]
+        )
 
     @staticmethod
     def check(
@@ -122,7 +125,7 @@ class InvalidColorFamilyError(CustomValueError):
         correct: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
         ],
-        func: FuncExceptT | None = None, message: str | None = None,
+        func: FuncExceptT | None = None, message: SupportsString | None = None,
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -148,7 +151,7 @@ class InvalidSubsamplingError(CustomValueError):
 
     def __init__(
         self, func: FuncExceptT, subsampling: str | VideoFormatT | HoldsVideoFormatT,
-        message: str = 'The subsampling {subsampling} is not supported!',
+        message: SupportsString = 'The subsampling {subsampling} is not supported!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -162,7 +165,7 @@ class FormatsMismatchError(CustomValueError):
     """Raised when clips with different formats are given."""
 
     def __init__(
-        self, func: FuncExceptT, message: str = 'The format of both clips must be equal!',
+        self, func: FuncExceptT, message: SupportsString = 'The format of both clips must be equal!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -174,7 +177,7 @@ class FormatsRefClipMismatchError(FormatsMismatchError):
     """Raised when a ref clip and the main clip have different formats"""
 
     def __init__(
-        self, func: FuncExceptT, message: str = 'The format of ref and main clip must be equal!',
+        self, func: FuncExceptT, message: SupportsString = 'The format of ref and main clip must be equal!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -186,7 +189,7 @@ class ResolutionsMismatchError(CustomValueError):
     """Raised when clips with different resolutions are given."""
 
     def __init__(
-        self, func: FuncExceptT, message: str = 'The resolution of both clips must be equal!',
+        self, func: FuncExceptT, message: SupportsString = 'The resolution of both clips must be equal!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -198,7 +201,7 @@ class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have different resolutions"""
 
     def __init__(
-        self, func: FuncExceptT, message: str = 'The resolution of ref and main clip must be equal!',
+        self, func: FuncExceptT, message: SupportsString = 'The resolution of ref and main clip must be equal!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -210,7 +213,7 @@ class FramePropError(CustomKeyError):
     """Raised when there is an error with the frame props."""
 
     def __init__(
-        self, func: FuncExceptT, key: str, message: str = 'Error while trying to get frame prop "{key}"!',
+        self, func: FuncExceptT, key: str, message: SupportsString = 'Error while trying to get frame prop "{key}"!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -222,7 +225,7 @@ class TopFieldFirstError(CustomValueError):
     """Raised when the user must pass a TFF argument."""
 
     def __init__(
-        self, func: FuncExceptT, message: str = 'You must set `tff` for this clip!',
+        self, func: FuncExceptT, message: SupportsString = 'You must set `tff` for this clip!',
         **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
@@ -233,10 +236,30 @@ class TopFieldFirstError(CustomValueError):
 class InvalidFramerateError(CustomValueError):
     """Raised when the given clip has an invalid framerate."""
 
-    def __init__(
-        self, func: FuncExceptT, clip: vs.VideoNode, message: str = '{fps} clips are not allowed!',
-        **kwargs: Any
+    def __init__(self, func: FuncExceptT, clip: vs.VideoNode | Fraction,
+                 message: SupportsString = '{fps} clips are not allowed!', **kwargs: Any) -> None:
+        super().__init__(
+            message, func, fps=clip.fps if isinstance(clip, vs.VideoNode) else clip, **kwargs  # type: ignore
+        )
+
+    @staticmethod
+    def check(
+        func: FuncExceptT, to_check: vs.VideoNode | Fraction | tuple[int, int] | float,
+        correct: vs.VideoNode | Fraction | tuple[int, int] | float | Iterable[
+            vs.VideoNode | Fraction | tuple[int, int] | float
+        ], message: SupportsString = 'Input clip must have {correct} framerate, not {wrong}!', **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
 
-        super().__init__(message, func, fps=clip.fps, **kwargs)
+        from ..functions import to_arr
+        from ..utils import get_framerate
+
+        to_check = get_framerate(to_check)
+        correct_list = [
+            get_framerate(c) for c in ([correct] if isinstance(correct, tuple) else to_arr(correct))  # type: ignore
+        ]
+
+        if to_check not in correct_list:
+            raise InvalidFramerateError(
+                func, to_check, message, wrong=to_check, correct=iter(set(correct_list)), **kwargs
+            )
