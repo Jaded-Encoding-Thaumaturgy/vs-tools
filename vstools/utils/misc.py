@@ -76,4 +76,5 @@ FFLOAT = TypeVar('FFLOAT', bound=Callable[..., vs.VideoNode])
 @disallow_variable_resolution
 def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> FINT | FFLOAT:
     assert clip.format
+
     return func_float if clip.format.sample_type == vs.FLOAT else func_int

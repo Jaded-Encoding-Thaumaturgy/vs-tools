@@ -20,7 +20,7 @@ __all__ = [
     'ColorRange',
     'ColorRangeT',
 
-    'MatrixCoefficients',
+    'MatrixCoefficients'
 ]
 
 

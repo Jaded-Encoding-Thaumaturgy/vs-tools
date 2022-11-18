@@ -341,7 +341,6 @@ if TYPE_CHECKING:
             ...
 
     class PythonVSScriptLoggingBridge(Handler):
-
         def __init__(self, parent: Handler, level: int = LogLevelUnset) -> None:
             ...
 
