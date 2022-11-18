@@ -35,6 +35,8 @@ class CustomErrorMeta(type):
 
     @staticmethod
     def setup_exception(exception: SelfCustomErrorMeta, override: ExceptionT | None = None) -> SelfCustomErrorMeta:
+        """@@PLACEHOLDER@@"""
+
         if override:
             if override.__name__.startswith('Custom'):
                 exception.__name__ = override.__name__
@@ -78,6 +80,8 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
         super().__init__(message)
 
     def __class_getitem__(cls, exception: type[ExceptionT]) -> CustomError:
+        """@@PLACEHOLDER@@"""
+
         class inner_exception(cls, exception):  # type: ignore
             ...
 
@@ -88,6 +92,8 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
         func: FuncExceptT | None = MISSING, reason: SupportsString | FuncExceptT | None = MISSING,  # type: ignore
         **kwargs: Any
     ) -> SelfError:
+        """@@PLACEHOLDER@@"""
+
         err = deepcopy(self)
 
         if message is not MISSING:

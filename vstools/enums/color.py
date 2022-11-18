@@ -107,8 +107,8 @@ class Matrix(_MatrixMeta):
     IEC 61966-2-4 xvYCC601\n
     See ITU-T H.265 Equations E-28 to E-30
     """
-
     BT601 = BT470BG
+
     SMPTE170M = 6
     """
     ```
@@ -191,7 +191,7 @@ class Matrix(_MatrixMeta):
     @classmethod
     def is_unknown(cls, value: int | Matrix) -> bool:
         """Check if Matrix is unknown."""
-        
+
         return value == cls.UNKNOWN
 
     @classmethod
@@ -238,7 +238,7 @@ class Matrix(_MatrixMeta):
         :raises UndefinedMatrixError:       Matrix is undefined.
         :raises UndefinedMatrixError:       Matrix can not be determined from the frameprops.
         """
-                
+
         return _base_from_video(cls, src, UndefinedMatrixError, strict, func)
 
     @classmethod
@@ -286,6 +286,8 @@ class Matrix(_MatrixMeta):
         return _primaries_matrix_map[primaries]
 
     def as_string(self) -> str:
+        """@@PLACEHOLDER@@"""
+
         return _matrix_name_map.get(self, super().as_string())
 
 
@@ -722,7 +724,6 @@ class Primaries(_PrimariesMeta):
     SMPTE ST 428-1 (2006)\n
     (CIE 1931 XYZ)
     """
-
     XYZ = ST428
 
     ST431_2 = 11
@@ -864,6 +865,8 @@ class Primaries(_PrimariesMeta):
         return _transfer_primaries_map[transfer]
 
     def as_string(self) -> str:
+        """@@PLACEHOLDER@@"""
+
         return _primaries_name_map.get(self, super().as_string())
 
 
@@ -871,9 +874,16 @@ class MatrixCoefficients(NamedTuple):
     """Class representing Linear <-> Gamma conversion matrix coefficients"""
 
     k0: float
+    """@@PLACEHOLDER@@"""
+
     phi: float
+    """@@PLACEHOLDER@@"""
+
     alpha: float
+    """@@PLACEHOLDER@@"""
+
     gamma: float
+    """@@PLACEHOLDER@@"""
 
     @classproperty
     def SRGB(cls) -> MatrixCoefficients:
@@ -961,11 +971,6 @@ class ColorRange(_ColorRangeMeta):
     | Note that float clips should always be FULL range!\n
     | RGB clips will always be FULL range!
     """
-
-    @property
-    def is_unknown(self) -> bool:
-        """Check if ColorRange is unknown."""
-        return False
 
     @classmethod
     def from_video(

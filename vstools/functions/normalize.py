@@ -174,7 +174,7 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
 
 def norm_func_name(func_name: SupportsString | F) -> str:
-    """Normalize a class, function or other object to obtain its name"""
+    """Normalize a class, function, or other object to obtain its name"""
 
     if isinstance(func_name, str):
         return func_name.strip()
@@ -197,6 +197,8 @@ def norm_func_name(func_name: SupportsString | F) -> str:
 
 
 def norm_display_name(obj: object) -> str:
+    """@@PLACEHOLDER@@"""
+
     if isinstance(obj, Iterator):
         return ', '.join(norm_display_name(v) for v in obj).strip()
 

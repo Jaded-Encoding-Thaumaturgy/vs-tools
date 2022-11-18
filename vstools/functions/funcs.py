@@ -150,4 +150,6 @@ def kwargs_fallback(
 def kwargs_fallback(  # type: ignore
     value: T | None, kwargs: tuple[KwargsT, str], *fallbacks: T | None, default: T = fallback_missing  # type: ignore
 ) -> T | MissingT:
+    """@@PLACEHOLDER@@"""
+
     return fallback(value, kwargs[0].get(kwargs[1], None), *fallbacks, default=default)

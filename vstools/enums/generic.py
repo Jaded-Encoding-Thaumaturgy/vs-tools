@@ -125,6 +125,8 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> FieldBased:
+        """@@PLACEHOLDER@@"""
+
         return cls.PROGRESSIVE
 
     @classmethod

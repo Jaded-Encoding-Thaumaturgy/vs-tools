@@ -227,8 +227,7 @@ class TopFieldFirstError(CustomValueError):
     """Raised when the user must pass a TFF argument."""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'You must set `tff` for this clip!',
-        **kwargs: Any
+        self, func: FuncExceptT, message: SupportsString = 'You must set `tff` for this clip!', **kwargs: Any
     ) -> None:
         """@@PLACEHOLDER@@"""
 
@@ -238,8 +237,12 @@ class TopFieldFirstError(CustomValueError):
 class InvalidFramerateError(CustomValueError):
     """Raised when the given clip has an invalid framerate."""
 
-    def __init__(self, func: FuncExceptT, clip: vs.VideoNode | Fraction,
-                 message: SupportsString = '{fps} clips are not allowed!', **kwargs: Any) -> None:
+    def __init__(
+        self, func: FuncExceptT, clip: vs.VideoNode | Fraction,
+        message: SupportsString = '{fps} clips are not allowed!', **kwargs: Any
+    ) -> None:
+        """@@PLACEHOLDER@@"""
+
         super().__init__(
             message, func, fps=clip.fps if isinstance(clip, vs.VideoNode) else clip, **kwargs  # type: ignore
         )

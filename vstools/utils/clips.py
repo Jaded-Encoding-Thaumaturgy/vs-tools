@@ -164,6 +164,7 @@ def initialize_input(
     """
     Decorator implementation of ``initialize_clip``
     """
+
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],

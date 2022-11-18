@@ -19,6 +19,8 @@ class CustomImportError(CustomError, ImportError):
         self, func: FuncExceptT, package: str, message: SupportsString = "Import failed for package '{package}'!",
         **kwargs: Any
     ) -> None:
+        """@@PLACEHOLDER@@"""
+
         super().__init__(message, func, package=package, **kwargs)
 
 

@@ -37,7 +37,8 @@ def replace_ranges(
         * ``replace_ranges(black, white, [(None, None)])``: replace the entire clip with ``white``
         * ``replace_ranges(black, white, [(0, None)])``: same as previous
         * ``replace_ranges(black, white, [(200, None)])``: replace 200 until the end with ``white``
-        * ``replace_ranges(black, white, [(200, -1)])``: replace 200 until the end with ``white``, leaving 1 frame of ``black``
+        * ``replace_ranges(black, white, [(200, -1)])``: replace 200 until the end with ``white``,
+                                                         leaving 1 frame of ``black``
 
     Alias for this function is ``rfs``.
 
@@ -116,6 +117,8 @@ def ranges_product(range0: range | int, range1: range | int, range2: range | int
 
 
 def ranges_product(*_iterables: range | int) -> Iterable[tuple[int, ...]]:
+    """@@PLACEHOLDER@@"""
+
     n_iterables = len(_iterables)
 
     if n_iterables <= 1:

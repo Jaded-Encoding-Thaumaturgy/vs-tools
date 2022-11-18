@@ -221,9 +221,13 @@ def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[typ
 
 
 class classproperty(Generic[P, R, T, T0, P0]):
+    """@@PLACEHOLDER@@"""
+
     __isabstractmethod__: bool = False
 
     class metaclass(type):
+        """@@PLACEHOLDER@@"""
+
         def __setattr__(self, key: str, value: Any) -> None:
             if key in self.__dict__:
                 obj = self.__dict__.get(key)
@@ -301,6 +305,8 @@ class classproperty(Generic[P, R, T, T0, P0]):
 
 
 class KwargsNotNone(KwargsT):
+    """@@PLACEHOLDER@@"""
+
     if not TYPE_CHECKING:
         def __new__(cls, *args: Any, **kwargs: Any) -> KwargsNotNone:
             return KwargsT(**{
