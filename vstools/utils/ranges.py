@@ -117,7 +117,12 @@ def ranges_product(range0: range | int, range1: range | int, range2: range | int
 
 
 def ranges_product(*_iterables: range | int) -> Iterable[tuple[int, ...]]:
-    """@@PLACEHOLDER@@"""
+    """
+    Take two or three lenghts/ranges and make a cartesian product of them.
+
+    Useful for getting all coordinates of a frame.
+    For example ranges_product(1920, 1080) will give you [(0, 0), (0, 1), (0, 2), ..., (1919, 1078), (1919, 1079)].
+    """
 
     n_iterables = len(_iterables)
 

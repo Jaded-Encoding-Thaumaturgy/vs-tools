@@ -8,13 +8,13 @@ __all__ = [
 
 
 class ConvMode(CustomStrEnum):
-    """@@PLACEHOLDER@@"""
+    """Convolution mode for .std.Convolution"""
 
     SQUARE = 'hv'
-    """@@PLACEHOLDER@@"""
+    """Square horizontal/vertical convolution."""
 
     VERTICAL = 'v'
-    """@@PLACEHOLDER@@"""
+    """Vertical only convolution."""
 
     HORIZONTAL = 'h'
-    """@@PLACEHOLDER@@"""
+    """Horizontal only convolution."""
