@@ -16,7 +16,7 @@ __all__ = [
 
     'get_subclasses',
 
-    'classproperty',
+    'classproperty', 'cachedproperty',
 
     'KwargsNotNone'
 ]
@@ -243,6 +243,44 @@ class classproperty(Generic[P, R, T, T0, P0]):
             type_ = type(__obj)
 
         return self.fdel.__delete__(__obj, type_)(__obj)  # type: ignore
+
+
+class cachedproperty(property, Generic[P, R, T, T0, P0]):
+    __isabstractmethod__: bool = False
+
+    cache_key = '_vst_cachedproperty_cache'
+
+    class baseclass(object):
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            self.__dict__.__setitem__(cachedproperty.cache_key, dict[str, Any]())
+
+    if TYPE_CHECKING:
+        def __init__(
+            self, fget: Callable[P, R], fset: Callable[[T, T0], None] | None = None,
+            fdel: Callable[P0, None] | None = None, doc: str | None = None,
+        ) -> None:
+            ...
+
+        def getter(self, __fget: Callable[P1, R1]) -> cachedproperty[P1, R1, T, T0, P0]:
+            ...
+
+        def setter(self, __fset: Callable[[T1, T2], None]) -> cachedproperty[P, R, T1, T2, P0]:
+            ...
+
+        def deleter(self, __fdel: Callable[P1, None]) -> cachedproperty[P, R, T, T0, P1]:
+            ...
+
+    def __get__(self, __obj: Any, __type: type | None = None) -> R:
+        function = self.fget.__get__(__obj, __type)  # type: ignore
+
+        cache = __obj.__dict__.get(cachedproperty.cache_key)
+        name = function.__name__
+
+        if name not in cache:
+            cache[name] = function()
+
+        return cache[name]  # type: ignore
 
 
 class KwargsNotNone(KwargsT):
