@@ -61,8 +61,7 @@ SelfCustomErrorMeta = TypeVar('SelfCustomErrorMeta', bound=CustomErrorMeta)
 
 class CustomError(ExceptionT, metaclass=CustomErrorMeta):
     def __init__(
-        self, message: SupportsString | None = None, func: FuncExceptT | None = None,
-        reason: SupportsString | FuncExceptT | None = None, **kwargs: Any
+        self, message: SupportsString | None = None, func: FuncExceptT | None = None, reason: Any = None, **kwargs: Any
     ) -> None:
         self.message = message
         self.func = func
