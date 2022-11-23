@@ -99,7 +99,7 @@ class Region(CustomStrEnum):
 
 
 _region_framerate_map = {
-    Region.UNKNOWN: Fraction(0, 0),
+    Region.UNKNOWN: Fraction(0),
     Region.NTSC: Fraction(30000, 1001),
     Region.NTSCi: Fraction(60000, 1001),
     Region.PAL: Fraction(25, 1),
