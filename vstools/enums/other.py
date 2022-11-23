@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import NamedTuple
+from fractions import Fraction
+from math import gcd as max_common_div
+from typing import NamedTuple, overload
 
 import vapoursynth as vs
 
@@ -9,7 +11,7 @@ from .base import CustomIntEnum, CustomStrEnum
 
 __all__ = [
     'Direction',
-    'Dar',
+    'Dar', 'Par',
     'Region',
     'Resolution'
 ]
@@ -20,6 +22,29 @@ class Direction(CustomIntEnum):
 
     HORIZONTAL = 0
     VERTICAL = 1
+
+
+class Par(Fraction):
+    @overload
+    @staticmethod
+    def get_ar(width: int, height: int, /) -> Fraction:
+        ...
+
+    @overload
+    @staticmethod
+    def get_ar(clip: vs.VideoNode, /) -> Fraction:
+        ...
+
+    @staticmethod
+    def get_ar(clip_width: vs.VideoNode | int, height: int = 0, /) -> Fraction:
+        if isinstance(clip_width, vs.VideoNode):
+            width, height = clip_width.width, clip_width.height  # type: ignore
+        else:
+            width, height = clip_width, height
+
+        gcd = max_common_div(width, height)
+
+        return Fraction(int(width / gcd), int(height / gcd))
 
 
 class Dar(CustomStrEnum):
