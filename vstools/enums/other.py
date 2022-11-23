@@ -56,9 +56,34 @@ class Dar(CustomStrEnum):
 class Region(CustomStrEnum):
     """StrEnum signifying an analog television region."""
 
+    UNKNOWN = 'unknown'
     NTSC = 'NTSC'
-    NTSCJ = 'NTSCJ'
+    NTSCi = 'NTSCi'
     PAL = 'PAL'
+    PALi = 'PALi'
+    FILM = 'FILM'
+    NTSC_FILM = 'NTSC (FILM)'
+
+    @property
+    def framerate(self) -> Fraction:
+        return _region_framerate_map[self]
+
+    @classmethod
+    def from_framerate(cls, framerate: float | Fraction) -> Region:
+        return _framerate_region_map[Fraction(framerate)]
+
+
+_region_framerate_map = {
+    Region.UNKNOWN: Fraction(0, 0),
+    Region.NTSC: Fraction(30000, 1001),
+    Region.NTSCi: Fraction(60000, 1001),
+    Region.PAL: Fraction(25, 1),
+    Region.PALi: Fraction(50, 1),
+    Region.FILM: Fraction(24, 1),
+    Region.NTSC_FILM: Fraction(24000, 1001),
+}
+
+_framerate_region_map = {r.framerate: r for r in Region}
 
 
 class Resolution(NamedTuple):
