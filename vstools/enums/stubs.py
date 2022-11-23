@@ -99,7 +99,8 @@ class PropEnum(CustomIntEnum):
             ]
         })
 
-    def as_string(self) -> str:
+    @property
+    def string(self) -> str:
         return self._name_.lower()
 
 
