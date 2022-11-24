@@ -23,6 +23,23 @@ class Direction(CustomIntEnum):
     HORIZONTAL = 0
     VERTICAL = 1
 
+    LEFT = 2
+    RIGHT = 3
+    UP = 4
+    DOWN = 5
+
+    @property
+    def is_axis(self) -> bool:
+        return self <= self.VERTICAL
+
+    @property
+    def is_way(self) -> bool:
+        return self > self.VERTICAL
+
+    @property
+    def string(self) -> str:
+        return self._name_.lower()
+
 
 class Par(Fraction):
     @overload
