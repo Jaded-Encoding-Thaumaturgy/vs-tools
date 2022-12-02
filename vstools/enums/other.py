@@ -13,7 +13,10 @@ __all__ = [
     'Direction',
     'Dar', 'Par',
     'Region',
-    'Resolution'
+    'Resolution',
+    'Coordinate',
+    'Position',
+    'Size'
 ]
 
 
@@ -134,3 +137,31 @@ class Resolution(NamedTuple):
     width: int
 
     height: int
+
+
+class Coordinate:
+    """
+    Positive set of (x, y) coordinates.
+
+    :raises ValueError:     Negative values get passed.
+    """
+
+    x: int
+    y: int
+
+    def __init__(self, x: int, y: int):
+        from ..exceptions import CustomValueError
+
+        if x < 0 or y < 0:
+            raise CustomValueError("Values can't be negative!", self.__class__)
+
+        self.x = x
+        self.y = y
+
+
+class Position(Coordinate):
+    ...
+
+
+class Size(Coordinate):
+    ...
