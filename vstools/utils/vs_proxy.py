@@ -162,6 +162,9 @@ class PluginProxy(PluginProxyBase):
         core, namespace = proxy_utils.get_core(self)
         vs_core = proxy_utils.get_vs_core(core)
 
+        if core.lazy and name not in vs.Plugin.__dict__:
+            return FunctionProxy(self, name)
+
         plugin = getattr(vs_core, namespace)
 
         if name in dir(plugin):
@@ -171,11 +174,15 @@ class PluginProxy(PluginProxyBase):
 
 
 class CoreProxy(CoreProxyBase):
-    def __init__(self, core: Core, vs_proxy: VSCoreProxy) -> None:
+    def __init__(self, core: Core, vs_proxy: VSCoreProxy, lazy: bool) -> None:
+        self.lazy = lazy
         self.__dict__['vs_core_ref'] = (weakref.ref(core), vs_proxy)
 
     def __getattr__(self, name: str) -> Plugin:
         core = proxy_utils.get_vs_core(self)
+
+        if self.lazy and name not in vs.Core.__dict__:
+            return PluginProxy(self, name)
 
         if name in dir(core):
             return PluginProxy(self, name)
@@ -264,9 +271,20 @@ class VSCoreProxy(CoreProxyBase):
         core = _get_core(self)
 
         if not hasattr(self, '_proxied'):
-            self._proxied = out_core = CoreProxy(core, self)
+            self._proxied = out_core = CoreProxy(core, self, False)
         else:
             out_core = object.__getattribute__(self, '_proxied')
+
+        return out_core
+
+    @property
+    def lazy(self) -> CoreProxy:
+        core = _get_core(self)
+
+        if not hasattr(self, '_lazy'):
+            self._lazy = out_core = CoreProxy(core, self, True)
+        else:
+            out_core = object.__getattribute__(self, '_lazy')
 
         return out_core
 
