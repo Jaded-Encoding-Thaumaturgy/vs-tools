@@ -113,7 +113,13 @@ class FieldBased(_FieldBasedMeta):
     @property
     def is_tff(self) -> bool:
         return self is self.TFF
+    
+    @property
+    def pretty_string(self) -> str:
+        if self.is_inter:
+            return f"{'Top' if self.is_tff else 'Bottom'} Field First" 
 
+        return super().pretty_string
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
 FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]

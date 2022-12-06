@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from string import capwords
 from typing import TYPE_CHECKING, Any, Iterable, TypeVar, overload
 
 import vapoursynth as vs
@@ -98,6 +99,10 @@ class PropEnum(CustomIntEnum):
                 for cls in prop_enums
             ]
         })
+
+    @property
+    def pretty_string(self) -> str:
+        return capwords(self.string.replace('_', ' '))
 
     @property
     def string(self) -> str:

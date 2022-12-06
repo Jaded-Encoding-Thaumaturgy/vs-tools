@@ -122,6 +122,10 @@ class Matrix(_MatrixMeta):
         return _primaries_matrix_map[primaries]
 
     @property
+    def pretty_string(self) -> str:
+        return _matrix_pretty_name_map.get(self, super().pretty_string)
+
+    @property
     def string(self) -> str:
         return _matrix_name_map.get(self, super().string)
 
@@ -257,6 +261,10 @@ class Transfer(_TransferMeta):
         return _transfer_placebo_map[self]
 
     @property
+    def pretty_string(self) -> str:
+        return _transfer_pretty_name_map.get(self, super().pretty_string)
+    
+    @property
     def string(self) -> str:
         return _transfer_name_map.get(self, super().string)
 
@@ -350,6 +358,10 @@ class Primaries(_PrimariesMeta):
             return cls(transfer.value)
 
         return _transfer_primaries_map[transfer]
+
+    @property
+    def pretty_string(self) -> str:
+        return _primaries_pretty_name_map.get(self, super().pretty_string)
 
     @property
     def string(self) -> str:
@@ -565,6 +577,53 @@ _primaries_name_map = {
     Primaries.ST432_1: 'smpte432',
     Primaries.EBU3213E: 'jedec-p22'
 }
+
+_matrix_pretty_name_map = {
+    Matrix.RGB: 'RGB',
+    Matrix.BT709: 'BT.709',
+    Matrix.FCC: 'FCC',
+    Matrix.BT470BG: 'BT.470bg',
+    Matrix.SMPTE170M: 'ST 170M',
+    Matrix.SMPTE240M: 'ST 240M',
+    Matrix.BT2020NC: 'BT.2020 non-constant luminance',
+    Matrix.BT2020C: 'BT.2020 constant luminance',
+    Matrix.SMPTE2085: 'ST 2085',
+    Matrix.CHROMA_DERIVED_NC: 'Chromaticity derived non-constant luminance',
+    Matrix.CHROMA_DERIVED_C: 'Chromaticity derived constant luminance',
+    Matrix.ICTCP: 'ICtCp'
+}
+
+_transfer_pretty_name_map = {
+    Transfer.BT709: 'BT.709',
+    Transfer.BT470M: 'BT.470m',
+    Transfer.BT470BG: 'BT.470bg',
+    Transfer.BT601: 'BT.601',
+    Transfer.ST240M: 'ST 240M',
+    Transfer.LINEAR: 'Linear',
+    Transfer.LOG_100: 'Log 1:100 contrast',
+    Transfer.LOG_316: 'Log 1:316 contrast',
+    Transfer.XVYCC: 'xvYCC',
+    Transfer.SRGB: 'sRGB',
+    Transfer.BT2020_10bits: 'BT.2020_10',
+    Transfer.BT2020_12bits: 'BT.2020_12',
+    Transfer.ST2084: 'ST 2084 (PQ)',
+    Transfer.ARIB_B67: 'ARIB std-b67 (HLG)'
+}
+
+_primaries_pretty_name_map = {
+    Primaries.BT709: 'BT.709',
+    Primaries.BT470M: 'BT.470m',
+    Primaries.BT470BG: 'BT.470bg',
+    Primaries.ST170M: 'ST 170M',
+    Primaries.ST240M: 'ST 240M',
+    Primaries.FILM: 'Film',
+    Primaries.BT2020: 'BT.2020',
+    Primaries.ST428: 'ST 428 (XYZ)',
+    Primaries.ST431_2: 'DCI-P3, DCI white point',
+    Primaries.ST432_1: 'DCI-P3 D65 white point',
+    Primaries.EBU3213E: '0JEDEC P22 (EBU3213)'
+}
+
 
 MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
 TransferT: TypeAlias = Union[int, vs.TransferCharacteristics, Transfer]
