@@ -25,6 +25,7 @@ __all__ = [
     'Self',
 
     'SingleOrArr', 'SingleOrArrOpt',
+    'SingleOrSeq', 'SingleOrSeqOpt',
 
     'SimpleByteData', 'SimpleByteDataArray',
     'ByteData',
@@ -87,7 +88,9 @@ FrameRangesN: TypeAlias = list[FrameRangeN]
 Self = TypeVar('Self')
 
 SingleOrArr = Union[T, list[T]]
+SingleOrSeq = Union[T, Sequence[T]]
 SingleOrArrOpt = Union[SingleOrArr[T], None]
+SingleOrSeqOpt = Union[SingleOrSeq[T], None]
 
 SimpleByteData: TypeAlias = str | bytes | bytearray
 SimpleByteDataArray = Union[SimpleByteData, Sequence[SimpleByteData]]
