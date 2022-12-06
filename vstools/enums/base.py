@@ -50,11 +50,11 @@ class CustomEnum(Enum):
 
 
 class CustomIntEnum(int, CustomEnum):
-    ...
+    value: int
 
 
 class CustomStrEnum(str, CustomEnum):
-    ...
+    value: str
 
 
 SelfEnum = TypeVar('SelfEnum', bound=CustomEnum)
