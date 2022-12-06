@@ -109,15 +109,16 @@ class DitherType(CustomStrEnum):
 
 @disallow_variable_format
 def depth(
-    clip: vs.VideoNode, bitdepth: int, /,
+    clip: vs.VideoNode, bitdepth: VideoFormatT | HoldsVideoFormatT | int | None = None, /,
     sample_type: int | vs.SampleType | None = None, *,
     range_in: ColorRangeT | None = None, range_out: ColorRangeT | None = None,
     dither_type: str | DitherType = DitherType.AUTO,
 ) -> vs.VideoNode:
     from ..utils import get_video_format
+    from .funcs import fallback
 
     in_fmt = get_video_format(clip)
-    out_fmt = get_video_format(bitdepth, sample_type=sample_type)
+    out_fmt = get_video_format(fallback(bitdepth, clip), sample_type=sample_type)
 
     range_out = ColorRange.from_param(range_out)
     range_in = ColorRange.from_param(range_in)
