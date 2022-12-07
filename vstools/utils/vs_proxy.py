@@ -7,7 +7,7 @@ from inspect import Parameter, Signature
 from logging import NOTSET as LogLevelUnset
 from logging import Handler, LogRecord
 from types import UnionType
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, Callable, NoReturn, Literal
 from weakref import ReferenceType
 
 import vapoursynth as vs
@@ -149,9 +149,7 @@ class FunctionProxy(FunctionProxyBase):
         return getattr(function, name)  # type: ignore
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        function = proxy_utils.get_vs_function(self)
-
-        return function(*args, **kwargs)
+        return proxy_utils.get_vs_function(self)(*args, **kwargs)
 
 
 class PluginProxy(PluginProxyBase):
@@ -160,10 +158,11 @@ class PluginProxy(PluginProxyBase):
 
     def __getattr__(self, name: str) -> Function:
         core, namespace = proxy_utils.get_core(self)
-        vs_core = proxy_utils.get_vs_core(core)
 
         if core.lazy and name not in vs.Plugin.__dict__:
             return FunctionProxy(self, name)
+
+        vs_core = proxy_utils.get_vs_core(core)
 
         plugin = getattr(vs_core, namespace)
 
@@ -174,15 +173,15 @@ class PluginProxy(PluginProxyBase):
 
 
 class CoreProxy(CoreProxyBase):
-    def __init__(self, core: Core, vs_proxy: VSCoreProxy, lazy: bool) -> None:
+    def __init__(self, core: Core | None, vs_proxy: VSCoreProxy, lazy: bool) -> None:
         self.lazy = lazy
-        self.__dict__['vs_core_ref'] = (weakref.ref(core), vs_proxy)
+        self.__dict__['vs_core_ref'] = (core and weakref.ref(core), vs_proxy)
 
     def __getattr__(self, name: str) -> Plugin:
-        core = proxy_utils.get_vs_core(self)
-
         if self.lazy and name not in vs.Core.__dict__:
             return PluginProxy(self, name)
+
+        core = proxy_utils.get_vs_core(self)
 
         if name in dir(core):
             return PluginProxy(self, name)
@@ -195,7 +194,7 @@ class proxy_utils:
     def get_vs_core(core: CoreProxy) -> Core:
         vs_core_ref, vs_proxy = core.__dict__['vs_core_ref']
 
-        if (vs_core := vs_core_ref()) is None:
+        if (vs_core := (vs_core_ref and vs_core_ref())) is None:
             if object.__getattribute__(vs_proxy, '_own_core'):
                 raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
             else:
@@ -268,26 +267,26 @@ class VSCoreProxy(CoreProxyBase):
 
     @property
     def proxied(self) -> CoreProxy:
-        core = _get_core(self)
+        if self not in _objproxies:
+            _objproxies[self] = {}
 
-        if not hasattr(self, '_proxied'):
-            self._proxied = out_core = CoreProxy(core, self, False)
-        else:
-            out_core = object.__getattribute__(self, '_proxied')
+        if 'proxied' not in _objproxies[self]:
+            _objproxies[self]['proxied'] = CoreProxy(_get_core(self), self, True)
 
-        return out_core
+        return _objproxies[self]['proxied']  # type: ignore
 
     @property
     def lazy(self) -> CoreProxy:
-        core = _get_core(self)
+        if self not in _objproxies:
+            _objproxies[self] = {}
 
-        if not hasattr(self, '_lazy'):
-            self._lazy = out_core = CoreProxy(core, self, True)
-        else:
-            out_core = object.__getattribute__(self, '_lazy')
+        if 'lazy' not in _objproxies[self]:
+            _objproxies[self]['lazy'] = CoreProxy(None, self, True)
 
-        return out_core
+        return _objproxies[self]['lazy']  # type: ignore
 
+
+_objproxies = {}  # type: ignore
 
 core = VSCoreProxy()
 
