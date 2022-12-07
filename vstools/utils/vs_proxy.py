@@ -7,7 +7,7 @@ from inspect import Parameter, Signature
 from logging import NOTSET as LogLevelUnset
 from logging import Handler, LogRecord
 from types import UnionType
-from typing import TYPE_CHECKING, Any, Callable, NoReturn, Literal
+from typing import TYPE_CHECKING, Any, Callable, NoReturn
 from weakref import ReferenceType
 
 import vapoursynth as vs
