@@ -204,7 +204,7 @@ def initialize_input(
 @overload
 def chroma_injector(
     function: None = None, *,
-    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.proxied.resize.Bicubic,
+    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.lazy.resize.Bicubic,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD]:
     ...
@@ -213,7 +213,7 @@ def chroma_injector(
 @overload
 def chroma_injector(
     function: F_VD, *,
-    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.proxied.resize.Bicubic,
+    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.lazy.resize.Bicubic,
     func: FuncExceptT | None = None
 ) -> F_VD:
     ...
@@ -221,7 +221,7 @@ def chroma_injector(
 
 def chroma_injector(
     function: F_VD | None = None, *,
-    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.proxied.resize.Bicubic,
+    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.lazy.resize.Bicubic,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     if function is None:
