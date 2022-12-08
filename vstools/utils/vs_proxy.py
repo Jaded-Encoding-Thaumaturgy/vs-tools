@@ -194,14 +194,16 @@ class proxy_utils:
     def get_vs_core(core: CoreProxy) -> Core:
         vs_core_ref, vs_proxy = core.__dict__['vs_core_ref']
 
-        if (vs_core := (vs_core_ref and vs_core_ref())) is None:
+        vs_core = (vs_core_ref and vs_core_ref())
+
+        if vs_core_ref and vs_core is None:
             if object.__getattribute__(vs_proxy, '_own_core'):
                 raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
             else:
                 vs_core = _get_core(vs_proxy)
-                core.__dict__['vs_core_ref'] = (weakref.ref(vs_core), vs_proxy)
+                core.__dict__['vs_core_ref'] = (vs_core and weakref.ref(vs_core), vs_proxy)
 
-        return vs_core  # type: ignore
+        return vs_core or vs.core.core
 
     @staticmethod
     def get_vs_function(func: FunctionProxy) -> Function:
@@ -238,7 +240,7 @@ def vstools_isinstance(
 builtins.isinstance = vstools_isinstance
 
 
-def _get_core(self: VSCoreProxy) -> Core:
+def _get_core(self: VSCoreProxy) -> Core | None:
     core_ref: ReferenceType[Core] | None = object.__getattribute__(self, '_core')
     own_core: bool = object.__getattribute__(self, '_own_core')
 
@@ -250,7 +252,7 @@ def _get_core(self: VSCoreProxy) -> Core:
             'The core the proxy made reference to was freed!', 'VSCoreProxy'
         )
 
-    return vs.core.core
+    return None
 
 
 class VSCoreProxy(CoreProxyBase):
@@ -259,11 +261,11 @@ class VSCoreProxy(CoreProxyBase):
         self._core = core and weakref.ref(core)
 
     def __getattr__(self, name: str) -> Plugin:
-        return getattr(_get_core(self), name)  # type: ignore
+        return getattr(_get_core(self) or vs.core.core, name)  # type: ignore
 
     @property
     def core(self) -> Core:
-        return _get_core(self)
+        return _get_core(self) or vs.core.core
 
     @property
     def proxied(self) -> CoreProxy:
