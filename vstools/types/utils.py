@@ -94,7 +94,7 @@ class inject_self_base(Generic[T, P, R]):
                 elif kwargs and first_key:
                     kwargs.pop(first_key)
             elif class_obj is None:
-                if self_objects_cache:
+                if self.cache:
                     if class_type not in self_objects_cache:
                         obj = self_objects_cache[class_type] = class_type(*self.args, **self.kwargs)
                     else:
