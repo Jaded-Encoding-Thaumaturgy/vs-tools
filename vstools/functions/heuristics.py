@@ -25,4 +25,4 @@ def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | None = None, pro
             'transfer': Transfer.from_res(clip), 'range': ColorRange.LIMITED
         }
 
-    return {f'{k}_in' if prop_in else k: v.value for k, v in heuristics.items()}
+    return {f'{k}_in' if prop_in else k: v for k, v in heuristics.items()}
