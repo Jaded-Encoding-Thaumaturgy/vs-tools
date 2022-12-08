@@ -5,8 +5,10 @@ from typing import Callable, Concatenate, Iterable, overload
 import vapoursynth as vs
 
 from ..exceptions import CustomRuntimeError, InvalidColorFamilyError
-from ..types import (MISSING, FuncExceptT, HoldsVideoFormatT, KwargsT, MissingT, P,
-                     PlanesT, R, T, VideoFormatT, cachedproperty, ConstantFormatVideoNode)
+from ..types import (
+    MISSING, ConstantFormatVideoNode, FuncExceptT, HoldsVideoFormatT, KwargsT, MissingT, P, PlanesT, R, T, VideoFormatT,
+    cachedproperty
+)
 from .check import check_variable
 from .normalize import normalize_planes, to_arr
 from .utils import join, plane, split

@@ -113,7 +113,7 @@ class FieldBased(_FieldBasedMeta):
     @property
     def is_tff(self) -> bool:
         return self is self.TFF
-    
+
     @property
     def pretty_string(self) -> str:
         if self.is_inter:

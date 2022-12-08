@@ -107,7 +107,7 @@ class PropEnum(CustomIntEnum):
     @property
     def string(self) -> str:
         return self._name_.lower()
-    
+
     @classmethod
     def is_valid(cls, value: int) -> bool:
         return value in map(int, cls.__members__.values())
