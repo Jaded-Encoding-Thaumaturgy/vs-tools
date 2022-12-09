@@ -95,6 +95,7 @@ class PresetFormat(PresetFormatBase):
     YUV420P11 = MAKE_VIDEO_ID(YUV, INTEGER, 11, 1, 1)
     YUV420P12 = MAKE_VIDEO_ID(YUV, INTEGER, 12, 1, 1)  # type: ignore[misc,assignment]
     YUV420P13 = MAKE_VIDEO_ID(YUV, INTEGER, 13, 1, 1)
+    YUV420P14 = MAKE_VIDEO_ID(YUV, INTEGER, 14, 1, 1)  # type: ignore[misc,assignment]
     YUV420P15 = MAKE_VIDEO_ID(YUV, INTEGER, 15, 1, 1)
     YUV420P16 = MAKE_VIDEO_ID(YUV, INTEGER, 16, 1, 1)  # type: ignore[misc,assignment]
     YUV420P17 = MAKE_VIDEO_ID(YUV, INTEGER, 17, 1, 1)
@@ -337,6 +338,7 @@ YUV420P10 = PresetFormat.YUV420P10
 YUV420P11 = PresetFormat.YUV420P11
 YUV420P12 = PresetFormat.YUV420P12
 YUV420P13 = PresetFormat.YUV420P13
+YUV420P14 = PresetFormat.YUV420P14
 YUV420P15 = PresetFormat.YUV420P15
 YUV420P16 = PresetFormat.YUV420P16
 YUV420P17 = PresetFormat.YUV420P17
