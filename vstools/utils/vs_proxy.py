@@ -9,6 +9,7 @@ from logging import Handler, LogRecord
 from types import UnionType
 from typing import TYPE_CHECKING, Any, Callable, NoReturn
 from weakref import ReferenceType
+import gc
 
 import vapoursynth as vs
 from vapoursynth import (
@@ -35,8 +36,7 @@ from vapoursynth import (
     RawFrame, RawNode, SampleType, TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple,
     __api_version__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
     ccfEnableGraphInspection, clear_output, clear_outputs, fmFrameState, fmParallel, fmParallelRequests, fmUnordered,
-    get_current_environment, get_output, get_outputs, has_policy, register_on_destroy, register_policy,
-    unregister_on_destroy
+    get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -114,6 +114,17 @@ __all__ = [
     'get_current_environment', 'get_output', 'get_outputs', 'has_policy', 'pyx_capi', 'register_on_destroy',
     'register_policy', 'try_enable_introspection', 'unregister_on_destroy', 'vs_file'
 ]
+
+register_on_destroy_poly = __version__.release_major < 61
+
+if not register_on_destroy_poly:
+    from vapoursynth import register_on_destroy, unregister_on_destroy
+else:
+    def register_on_destroy(callback: Callable[..., None]) -> None:
+        core.register_on_destroy(callback)
+
+    def unregister_on_destroy(callback: Callable[..., None]) -> None:
+        core.unregister_on_destroy(callback)
 
 
 if TYPE_CHECKING:
@@ -194,7 +205,7 @@ class proxy_utils:
                 vs_core = _get_core(vs_proxy)
                 core.__dict__['vs_core_ref'] = (vs_core and weakref.ref(vs_core), vs_proxy)
 
-        return vs_core or vs.core.core
+        return vs_core or _get_core_with_cb()
 
     @staticmethod
     def get_vs_function(func: FunctionProxy) -> Function:
@@ -246,17 +257,55 @@ def _get_core(self: VSCoreProxy) -> Core | None:
     return None
 
 
+if TYPE_CHECKING:
+    core_on_destroy_callbacks = dict[int, dict[int, weakref.ReferenceType[Callable[..., None]]]]()
+else:
+    core_on_destroy_callbacks = {}
+
+added_callback_cores = set[int]()
+
+
+def _finalize_core(env_id: int, core_id: int) -> None:
+    if env_id not in core_on_destroy_callbacks:
+        return
+
+    for cb_id in list(core_on_destroy_callbacks[env_id].keys()):
+        if (callback_ref := core_on_destroy_callbacks[env_id].pop(cb_id, None)) and (callback := callback_ref()):
+            try:
+                callback(env_id, core_id)
+            except TypeError:
+                callback()
+
+    if env_id in core_on_destroy_callbacks:
+        core_on_destroy_callbacks.pop(env_id)
+
+    gc.collect()
+
+
+def _get_core_with_cb(self: VSCoreProxy | None = None) -> Core:
+    core = _get_core(self) if self else None
+
+    if not core:
+        core = vs.core.core
+
+    if (core_id := id(core)) not in added_callback_cores:
+        env_id = get_current_environment().env_id
+        weakref.finalize(core, lambda: _finalize_core(env_id, core_id))
+
+    return core
+
+
 class VSCoreProxy(CoreProxyBase):
     def __init__(self, core: Core | None = None) -> None:
         self._own_core = core is not None
         self._core = core and weakref.ref(core)
 
     def __getattr__(self, name: str) -> Plugin:
-        return getattr(_get_core(self) or vs.core.core, name)  # type: ignore
+        return getattr(_get_core_with_cb(self), name)  # type: ignore
 
     @property
     def core(self) -> Core:
-        return _get_core(self) or vs.core.core
+        return _get_core_with_cb(self)
 
     @property
     def proxied(self) -> CoreProxy:
@@ -277,6 +326,42 @@ class VSCoreProxy(CoreProxyBase):
             _objproxies[self]['lazy'] = CoreProxy(None, self, True)
 
         return _objproxies[self]['lazy']  # type: ignore
+
+    def register_on_destroy(self, callback: Callable[..., None]) -> None:
+        _check_environment()
+
+        env_id = get_current_environment().env_id
+
+        if env_id not in core_on_destroy_callbacks:
+            core_on_destroy_callbacks[env_id] = {id(callback): weakref.ref(callback)}
+        else:
+            core_on_destroy_callbacks[env_id] |= {id(callback): weakref.ref(callback)}
+
+    def unregister_on_destroy(self, callback: Callable[..., None]) -> None:
+        _check_environment()
+
+        env_id = get_current_environment().env_id
+
+        if env_id not in core_on_destroy_callbacks:
+            core_on_destroy_callbacks[env_id] = {}
+        else:
+            core_on_destroy_callbacks[env_id].pop(id(callback), None)
+
+
+def _core_on_destroy_try() -> None:
+    ...
+
+
+def _check_environment() -> None:
+    try:
+        if register_on_destroy_poly:
+            raise RuntimeError
+
+        register_on_destroy(_core_on_destroy_try)
+        unregister_on_destroy(_core_on_destroy_try)
+    except Exception as e:
+        if isinstance(e, ValueError) or not get_current_environment().active:
+            raise ValueError("The environment has already been destroyed.")
 
 
 _objproxies = {}  # type: ignore
