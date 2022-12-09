@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from abc import ABC, ABCMeta
 from inspect import Signature, isclass
 from typing import (
-    TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, cast, overload
+    TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, TypeVar, cast, overload
 )
 
 from .builtins import F0, P0, P1, R0, R1, T0, T1, T2, KwargsT, P, R, T
@@ -18,7 +19,9 @@ __all__ = [
 
     'classproperty', 'cachedproperty',
 
-    'KwargsNotNone'
+    'KwargsNotNone',
+
+    'vs_object'
 ]
 
 
@@ -290,3 +293,28 @@ class KwargsNotNone(KwargsT):
                 key: value for key, value in KwargsT(*args, **kwargs).items()
                 if value is not None
             })
+
+
+class vs_object(ABC, metaclass=ABCMeta):
+    def __new__(cls: type[VSObjSelf], *args: Any, **kwargs: Any) -> VSObjSelf:
+        from ..utils.vs_proxy import core, register_on_destroy
+
+        try:
+            self = super().__new__(cls, *args, **kwargs)
+        except TypeError:
+            self = super().__new__(cls)
+
+        if hasattr(self, '__vs_del__'):
+            register_on_destroy(lambda: self.__vs_del__(id(core.core)))
+
+        return self
+
+    def __post_init__(self) -> None:
+        ...
+
+    if TYPE_CHECKING:
+        def __vs_del__(self, core_id: int) -> None:
+            ...
+
+
+VSObjSelf = TypeVar('VSObjSelf', bound=vs_object)
