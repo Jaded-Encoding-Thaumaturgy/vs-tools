@@ -55,3 +55,7 @@ class StrList(List[SupportsString]):
     @property
     def mlength(self) -> int:
         return len(self) - 1
+
+    def append(self, *__object: SupportsString) -> None:
+        for __obj in __object:
+            super().append(__obj)
