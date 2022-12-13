@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import builtins
+import gc
 import weakref
 from ctypes import Structure
 from inspect import Parameter, Signature
 from logging import NOTSET as LogLevelUnset
 from logging import Handler, LogRecord
+from math import ceil
+from multiprocessing import cpu_count
 from types import UnionType
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, Callable, Iterable, NoReturn
 from weakref import ReferenceType
-import gc
 
 import vapoursynth as vs
 from vapoursynth import (
@@ -346,6 +348,40 @@ class VSCoreProxy(CoreProxyBase):
             core_on_destroy_callbacks[env_id] = {}
         else:
             core_on_destroy_callbacks[env_id].pop(id(callback), None)
+
+    def set_affinity(
+        self, threads: int | range | tuple[int, int] | list[int] | None = None,
+        max_cache: int | None = None, reserve: int | Iterable[int] = 2
+    ) -> None:
+        try:
+            from psutil import Process
+        except ModuleNotFoundError as e:
+            from ..exceptions import DependencyNotFoundError
+
+            raise DependencyNotFoundError(self.set_affinity, e)
+
+        if threads is None:
+            threads = ceil(cpu_count() * 0.6)
+
+        if isinstance(threads, int):
+            threads = range(0, threads)
+        elif isinstance(threads, tuple):
+            threads = range(*threads)
+
+        threads = list(set(threads))
+
+        if isinstance(reserve, int):
+            if reserve > len(threads):
+                threads = threads[:-reserve]
+        else:
+            threads = [t for t in threads if t not in reserve]
+
+        self.core.num_threads = len(threads)
+
+        Process().cpu_affinity(threads)
+
+        if max_cache is not None:
+            self.core.max_cache_size = max_cache
 
 
 def _core_on_destroy_try() -> None:
