@@ -32,14 +32,19 @@ class CustomErrorMeta(type):
         return CustomErrorMeta.setup_exception(type.__new__(cls, *args))  # type: ignore
 
     @staticmethod
-    def setup_exception(exception: SelfCustomErrorMeta, override: ExceptionT | None = None) -> SelfCustomErrorMeta:
+    def setup_exception(exception: SelfCustomErrorMeta, override: str | ExceptionT | None = None) -> SelfCustomErrorMeta:
         if override:
-            if override.__name__.startswith('Custom'):
-                exception.__name__ = override.__name__
+            if isinstance(override, str):
+                over_name = over_qual = override
             else:
-                exception.__name__ = f'Custom{override.__name__}'
+                over_name, over_qual = override.__name__, override.__qualname__
 
-            exception.__qualname__ = override.__qualname__
+            if over_name.startswith('Custom'):
+                exception.__name__ = over_name
+            else:
+                exception.__name__ = f'Custom{over_name}'
+
+            exception.__qualname__ = over_qual
 
         if exception.__qualname__.startswith('Custom'):
             exception.__qualname__ = exception.__qualname__[6:]
@@ -70,9 +75,16 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
 
         super().__init__(message)
 
-    def __class_getitem__(cls, exception: type[ExceptionT]) -> CustomError:
-        class inner_exception(cls, exception):  # type: ignore
-            ...
+    def __class_getitem__(cls, exception: str | type[ExceptionT] | ExceptionT) -> CustomError:
+        if isinstance(exception, str):
+            class inner_exception(cls):  # type: ignore
+                ...
+        else:
+            if not issubclass(exception, type):
+                exception = exception.__class__
+
+            class inner_exception(cls, exception):  # type: ignore
+                ...
 
         return CustomErrorMeta.setup_exception(inner_exception, exception)  # type: ignore
 
