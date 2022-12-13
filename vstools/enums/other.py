@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd as max_common_div
-from typing import NamedTuple, overload
+from typing import NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -149,14 +149,30 @@ class Coordinate:
     x: int
     y: int
 
-    def __init__(self, x: int, y: int):
+    @overload
+    def __init__(self: SelfCoord, other: tuple[int, int] | SelfCoord, /) -> None:
+        ...
+
+    @overload
+    def __init__(self: SelfCoord, x: int, y: int, /) -> None:
+        ...
+
+    def __init__(self: SelfCoord, x_or_self: int | tuple[int, int] | SelfCoord, y: int, /) -> None:  # type: ignore
         from ..exceptions import CustomValueError
+
+        if isinstance(x_or_self, int):
+            x = x_or_self
+        else:
+            x, y = x_or_self if isinstance(x_or_self, tuple) else (x_or_self.x, x_or_self.y)
 
         if x < 0 or y < 0:
             raise CustomValueError("Values can't be negative!", self.__class__)
 
         self.x = x
         self.y = y
+
+
+SelfCoord = TypeVar('SelfCoord', bound=Coordinate)
 
 
 class Position(Coordinate):
