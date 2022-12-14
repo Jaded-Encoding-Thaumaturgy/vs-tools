@@ -110,7 +110,7 @@ def interleave_arr(arr0: Iterable[T], arr1: Iterable[T0], n: int = 2) -> Iterabl
     arr0_i, arr1_i = iter(arr0), iter(arr1)
     arr1_vals = arr0_vals = True
 
-    while arr1_vals and arr0_vals:
+    while arr1_vals or arr0_vals:
         if arr0_vals:
             for _ in range(n):
                 try:
