@@ -61,12 +61,15 @@ def flatten(items: T | Iterable[T]) -> Iterable[T]:  # type: ignore
 
 
 def flatten(items: Any) -> Any:
-    for val in items:
-        if isinstance(val, Iterable) and not isinstance(val, (str, bytes)):
-            for sub_x in flatten(val):
-                yield sub_x
-        else:
-            yield val
+    if isinstance(items, vs.VideoNode):
+        yield items
+    else:
+        for val in items:
+            if isinstance(val, Iterable) and not isinstance(val, (str, bytes)):
+                for sub_x in flatten(val):
+                    yield sub_x
+            else:
+                yield val
 
 
 def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
