@@ -40,7 +40,8 @@ def get_user_data_dir() -> Path:
 
 
 def check_perms(
-    file: FilePathType, mode: OpenTextMode | OpenBinaryMode, *, func: FuncExceptT | None = None
+    file: FilePathType, mode: OpenTextMode | OpenBinaryMode, strict: bool = False,
+    *, func: FuncExceptT | None = None
 ) -> bool:
     file = Path(str(file))
     got_perms = False
@@ -54,26 +55,33 @@ def check_perms(
     for char in 'rbU':
         mode_str = mode.replace(char, '')
 
-    if file.is_file():
-        if not mode_str:
-            mode_i = R_OK
-        elif 'x' in mode_str:
-            mode_i = X_OK
-        elif '+' in mode_str or 'w' in mode_str:
-            mode_i = W_OK
+    if not mode_str:
+        mode_i = R_OK
+    elif 'x' in mode_str:
+        mode_i = X_OK
+    elif '+' in mode_str or 'w' in mode_str:
+        mode_i = W_OK
 
-        got_perms = access(file, mode_i)
+    check_file = file
+
+    if not strict and mode_i != R_OK:
+        while not check_file.exists():
+            check_file = check_file.parent
+
+    got_perms = access(check_file, mode_i)
 
     if func is not None:
         if not got_perms:
             raise FilePermissionError(file, func)
-        elif file.is_dir():
-            raise FileIsADirectoryError(file, func)
-        elif not file.exists():
-            if file.parent.exists():
-                raise FileWasNotFoundError(file, func)
-            else:
-                raise FileNotExistsError(file, func)
+
+        if strict:
+            if file.is_dir():
+                raise FileIsADirectoryError(file, func)
+            elif not file.exists():
+                if file.parent.exists():
+                    raise FileWasNotFoundError(file, func)
+                else:
+                    raise FileNotExistsError(file, func)
 
     return got_perms
 
