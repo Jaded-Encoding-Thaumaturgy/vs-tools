@@ -140,4 +140,7 @@ def norm_display_name(obj: object) -> str:
     if isinstance(obj, Fraction):
         return f'{obj.numerator}/{obj.denominator}'
 
+    if isinstance(obj, dict):
+        return '(' + ', '.join(f'{k}={v}' for k, v in obj.items()) + ')'
+
     return norm_func_name(obj)
