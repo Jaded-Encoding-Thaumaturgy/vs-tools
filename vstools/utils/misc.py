@@ -3,12 +3,12 @@ from __future__ import annotations
 import inspect
 from fractions import Fraction
 from math import floor
-from typing import Callable, TypeVar
+from typing import Any, Callable, TypeVar
 
 import vapoursynth as vs
 
 from ..exceptions import InvalidSubsamplingError
-from ..functions import disallow_variable_format, disallow_variable_resolution, to_arr
+from ..functions import disallow_variable_format, disallow_variable_resolution
 from .info import get_video_format
 
 __all__ = [
@@ -83,40 +83,36 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
     return func_float if clip.format.sample_type == vs.FLOAT else func_int
 
 
-def set_output(clip: vs.VideoNode, text: bool | int | str | tuple[int, int] | tuple[int, int, str] = True) -> None:
+def set_output(node: vs.RawNode, name: str | bool = True, **kwargs: Any) -> None:
     index = len(vs.get_outputs())
 
-    ref_id = str(id(clip))
-    arr = to_arr(text)
+    ref_id = str(id(node))
 
-    if any([isinstance(x, str) for x in arr]):
-        ref_name = arr[-1]
-    else:
-        ref_name = f"Clip {index}"
+    title = 'Node'
+
+    if isinstance(node, vs.VideoNode):
+        title = 'Clip'
+    elif isinstance(node, vs.AudioNode):
+        title = 'Audio'
+
+    if not name or name is True:
+        name = f"{title} {index}"
 
         current_frame = inspect.currentframe()
 
         assert current_frame
         assert current_frame.f_back
 
-        for x in current_frame.f_back.f_locals.items():
-            if (str(id(x[1])) == ref_id):
-                ref_name = x[0]
+        for vname, val in reversed(current_frame.f_back.f_locals.items()):
+            if (str(id(val)) == ref_id):
+                name = vname
                 break
 
-            ref_name = ref_name.title()
-        ref_name = ref_name.title()
+    try:
+        from vspreview import set_output
+        set_output(node, name, **kwargs)
+    except ModuleNotFoundError:
+        if isinstance(name, str) and isinstance(node, vs.VideoNode):
+            node = node.std.SetFrameProp('Name', data=name.title())  # type: ignore
 
-    if isinstance(text, tuple):
-        pos, scale, title = (*text, ref_name)[:3]
-    elif isinstance(text, int) and text is not True:
-        pos, scale, title = (text, 2, ref_name)
-    else:
-        pos, scale, title = (7, 2, ref_name)
-
-    if text:
-        clip = clip.text.Text(title, pos, scale)
-
-    clip = clip.std.SetFrameProp('Name', data=title)
-
-    clip.set_output(index)
+        node.set_output(index)
