@@ -5,13 +5,13 @@ from typing import Any, Iterable, Iterator, Sequence, overload
 
 import vapoursynth as vs
 
-from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
+from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T, VideoNodeIterable
 
 __all__ = [
     'normalize_seq',
     'normalize_planes',
     'to_arr',
-    'flatten',
+    'flatten', 'flatten_vnodes',
     'normalize_franges',
     'normalize_ranges',
     'norm_func_name', 'norm_display_name'
@@ -70,6 +70,10 @@ def flatten(items: Any) -> Any:
                     yield sub_x
             else:
                 yield val
+
+
+def flatten_vnodes(clips: VideoNodeIterable) -> list[vs.VideoNode]:
+    return list[vs.VideoNode](flatten(clips))  # type: ignore
 
 
 def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
