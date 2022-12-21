@@ -18,7 +18,7 @@ __all__ = [
 
     'Nb',
 
-    'PlanesT',
+    'PlanesT', 'VideoNodeIterable',
 
     'FrameRange', 'FrameRangeN', 'FrameRangesN',
 
@@ -84,6 +84,10 @@ PlanesT: TypeAlias = int | Sequence[int] | None
 FrameRange: TypeAlias = int | Tuple[int, int] | list[int]
 FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
 FrameRangesN: TypeAlias = list[FrameRangeN]
+
+VideoNodeIterable: TypeAlias = vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]] | Iterable[
+    vs.VideoNode, Iterable[vs.VideoNode | Iterable[vs.VideoNode]]
+]
 
 Self = TypeVar('Self')
 
