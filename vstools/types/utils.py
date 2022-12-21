@@ -7,7 +7,7 @@ from typing import (
     TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, TypeVar, cast, overload
 )
 
-from .builtins import F0, P0, P1, R0, R1, T0, T1, T2, KwargsT, P, R, T
+from .builtins import F, F0, P0, P1, R0, R1, T0, T1, T2, KwargsT, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -22,7 +22,9 @@ __all__ = [
 
     'KwargsNotNone',
 
-    'vs_object'
+    'vs_object',
+
+    'Singleton'
 ]
 
 
@@ -331,3 +333,30 @@ class vs_object(ABC, metaclass=ABCMeta):
 
 
 VSObjSelf = TypeVar('VSObjSelf', bound=vs_object)
+
+SingleMeta = TypeVar('SingleMeta', bound=type)
+
+
+class SingletonMeta(type):
+    _instances = dict[type[SingleMeta], SingleMeta]()
+    _singleton_init: bool
+
+    def __new__(
+        cls: type[SingletonSelf], name: str, bases: tuple[type, ...], namespace: dict[str, Any], **kwargs: Any
+    ) -> SingletonSelf:
+        return type.__new__(cls, name, bases, namespace | {'_singleton_init': kwargs.pop('init', False)})
+
+    def __call__(cls: type[SingletonSelf], *args: Any, **kwargs: Any) -> SingletonSelf:  # type: ignore
+        if cls not in cls._instances:
+            cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
+        elif cls._singleton_init:
+            cls._instances[cls].__init__(*args, **kwargs)  # type: ignore
+
+        return cls._instances[cls]
+
+
+SingletonSelf = TypeVar('SingletonSelf', bound=SingletonMeta)
+
+
+class Singleton(metaclass=SingletonMeta):
+    ...
