@@ -28,11 +28,11 @@ else:
 
 
 class CustomErrorMeta(type):
-    def __new__(cls: type[SelfCustomErrorMeta], *args: Any) -> SelfCustomErrorMeta:
+    def __new__(cls: type[SelfCErrorMeta], *args: Any) -> SelfCErrorMeta:
         return CustomErrorMeta.setup_exception(type.__new__(cls, *args))  # type: ignore
 
     @staticmethod
-    def setup_exception(exception: SelfCustomErrorMeta, override: str | ExceptionT | None = None) -> SelfCustomErrorMeta:
+    def setup_exception(exception: SelfCErrorMeta, override: str | ExceptionT | None = None) -> SelfCErrorMeta:
         if override:
             if isinstance(override, str):
                 over_name = over_qual = override
@@ -61,7 +61,7 @@ class CustomErrorMeta(type):
             ...
 
 
-SelfCustomErrorMeta = TypeVar('SelfCustomErrorMeta', bound=CustomErrorMeta)
+SelfCErrorMeta = TypeVar('SelfCErrorMeta', bound=CustomErrorMeta)
 
 
 class CustomError(ExceptionT, metaclass=CustomErrorMeta):
