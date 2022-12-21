@@ -324,5 +324,10 @@ class vs_object(ABC, metaclass=ABCMeta):
         def __vs_del__(self, core_id: int) -> None:
             ...
 
+    @staticmethod
+    def core_unbound(deleter: F) -> F:
+        deleter._is_core_unbound = True  # type: ignore
+        return deleter
+
 
 VSObjSelf = TypeVar('VSObjSelf', bound=vs_object)

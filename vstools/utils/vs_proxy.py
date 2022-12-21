@@ -287,14 +287,26 @@ def _finalize_core(env_id: int, core_id: int) -> None:
     if env_id not in core_on_destroy_callbacks:
         return
 
+    destroy_env = env_id in core_on_destroy_callbacks
+
     for cb_id in list(core_on_destroy_callbacks[env_id].keys()):
-        if (callback_ref := core_on_destroy_callbacks[env_id].pop(cb_id, None)) and (callback := callback_ref()):
+        callback_ref = core_on_destroy_callbacks[env_id].get(cb_id)
+
+        pop_cb = True
+
+        if callback_ref and (callback := callback_ref()):
+            if hasattr(callback, '_is_core_unbound') and callback._is_core_unbound:
+                pop_cb = destroy_env = False
+
             try:
                 callback(env_id, core_id)
             except TypeError:
                 callback()
 
-    if env_id in core_on_destroy_callbacks:
+        if pop_cb:
+            core_on_destroy_callbacks[env_id].pop(cb_id, None)
+
+    if destroy_env:
         core_on_destroy_callbacks.pop(env_id)
 
     gc.collect()
