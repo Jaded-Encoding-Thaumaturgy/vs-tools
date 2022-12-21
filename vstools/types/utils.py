@@ -22,7 +22,7 @@ __all__ = [
 
     'KwargsNotNone',
 
-    'vs_object',
+    'vs_object', 'VSDebug',
 
     'Singleton'
 ]
@@ -360,3 +360,35 @@ SingletonSelf = TypeVar('SingletonSelf', bound=SingletonMeta)
 
 class Singleton(metaclass=SingletonMeta):
     ...
+
+
+class VSDebug(Singleton, init=True):
+    def __init__(self, *, env_life: bool = True, core_fetch: bool = False) -> None:
+        from ..utils.vs_proxy import register_on_creation
+
+        if env_life:
+            register_on_creation(VSDebug._print_env_live)
+
+        if core_fetch:
+            register_on_creation(VSDebug._print_stack)
+
+    @staticmethod
+    def _print_stack(core_id: int) -> None:
+        raise Exception
+
+    @staticmethod
+    def _print_env_live(core_id: int) -> None:
+        from ..utils.vs_proxy import register_on_destroy, core, get_current_environment
+
+        print(f'New core created with id: {core_id}')
+
+        core.register_on_destroy(VSDebug._print_core_destroy)
+        register_on_destroy(partial(VSDebug._print_destroy, get_current_environment().env_id, core_id))
+
+    @staticmethod
+    def _print_destroy(env_id: int, core_id: int) -> None:
+        print(f'Environment destroyed with id: {env_id}, current core id: {core_id}')
+
+    @staticmethod
+    def _print_core_destroy(_: int, core_id: int) -> None:
+        print(f'Core destroyed with id: {core_id}')
