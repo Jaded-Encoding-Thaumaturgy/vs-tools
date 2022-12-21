@@ -61,7 +61,7 @@ def flatten(items: T | Iterable[T]) -> Iterable[T]:  # type: ignore
 
 
 def flatten(items: Any) -> Any:
-    if isinstance(items, vs.VideoNode):
+    if isinstance(items, (vs.RawNode, vs.RawFrame)):
         yield items
     else:
         for val in items:
