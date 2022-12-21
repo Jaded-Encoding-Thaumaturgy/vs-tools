@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
+from functools import partial
 from inspect import Signature, isclass
 from typing import (
     TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, TypeVar, cast, overload
@@ -296,8 +297,10 @@ class KwargsNotNone(KwargsT):
 
 
 class vs_object(ABC, metaclass=ABCMeta):
+    __vsdel_register: Callable[[int], None] | None = None
+
     def __new__(cls: type[VSObjSelf], *args: Any, **kwargs: Any) -> VSObjSelf:
-        from ..utils.vs_proxy import core, register_on_destroy
+        from ..utils.vs_proxy import register_on_creation, register_on_destroy
 
         try:
             self = super().__new__(cls, *args, **kwargs)
@@ -305,7 +308,12 @@ class vs_object(ABC, metaclass=ABCMeta):
             self = super().__new__(cls)
 
         if hasattr(self, '__vs_del__'):
-            register_on_destroy(lambda: self.__vs_del__(id(core.core)))
+            def _register(core_id: int) -> None:
+                register_on_destroy(partial(self.__vs_del__, core_id))
+
+            # [un]register_on_creation/destroy will only hold a weakref to the object
+            self.__vsdel_register = _register
+            register_on_creation(self.__vsdel_register)
 
         return self
 

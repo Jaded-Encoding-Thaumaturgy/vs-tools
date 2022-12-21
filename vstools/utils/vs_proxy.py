@@ -113,8 +113,9 @@ __all__ = [
     '__api_version__', '__version__', 'ccfDisableAutoLoading', 'ccfDisableLibraryUnloading',
     'ccfEnableGraphInspection', 'clear_output', 'clear_outputs', 'construct_parameter', 'construct_signature',
     'construct_type', 'core', 'fmFrameState', 'fmParallel', 'fmParallelRequests', 'fmUnordered',
-    'get_current_environment', 'get_output', 'get_outputs', 'has_policy', 'pyx_capi', 'register_on_destroy',
-    'register_policy', 'try_enable_introspection', 'unregister_on_destroy', 'vs_file'
+    'get_current_environment', 'get_output', 'get_outputs', 'has_policy', 'pyx_capi', 'register_on_creation',
+    'register_on_destroy', 'register_policy', 'try_enable_introspection', 'unregister_on_creation',
+    'unregister_on_destroy', 'vs_file'
 ]
 
 register_on_destroy_poly = __version__.release_major < 61
@@ -127,6 +128,14 @@ else:
 
     def unregister_on_destroy(callback: Callable[..., None]) -> None:
         core.unregister_on_destroy(callback)
+
+
+def register_on_creation(callback: Callable[..., None]) -> None:
+    core_on_creation_callbacks.update({id(callback): weakref.ref(callback)})
+
+
+def unregister_on_creation(callback: Callable[..., None]) -> None:
+    core_on_creation_callbacks.pop(id(callback), None)
 
 
 if TYPE_CHECKING:
@@ -264,6 +273,13 @@ if TYPE_CHECKING:
 else:
     core_on_destroy_callbacks = {}
 
+if TYPE_CHECKING:
+    core_on_creation_callbacks = dict[int, weakref.ReferenceType[Callable[..., None]]]()
+else:
+    core_on_creation_callbacks = {}
+
+core_on_creation_callbacks_cores = set[int]()
+
 added_callback_cores = set[int]()
 
 
@@ -290,7 +306,17 @@ def _get_core_with_cb(self: VSCoreProxy | None = None) -> Core:
     if not core:
         core = vs.core.core
 
-    if (core_id := id(core)) not in added_callback_cores:
+    if (core_id := id(core)) not in core_on_creation_callbacks_cores:
+        for cb_id in list(core_on_creation_callbacks.keys()):
+            if (callback_ref := core_on_creation_callbacks.pop(cb_id, None)) and (callback := callback_ref()):
+                try:
+                    callback(core_id)
+                except TypeError:
+                    callback()
+
+        core_on_creation_callbacks_cores.add(id(core))
+
+    if core_id not in added_callback_cores:
         env_id = get_current_environment().env_id
         weakref.finalize(core, lambda: _finalize_core(env_id, core_id))
 
