@@ -11,7 +11,8 @@ from .info import get_depth, get_video_format
 __all__ = [
     'scale_8bit', 'scale_thresh', 'scale_value',
 
-    'get_lowest_value', 'get_neutral_value', 'get_peak_value'
+    'get_lowest_value', 'get_neutral_value', 'get_peak_value',
+    'get_lowest_values', 'get_neutral_values', 'get_peak_values',
 ]
 
 
@@ -115,6 +116,17 @@ def get_lowest_value(
 
 
 @disallow_variable_format
+def get_lowest_values(
+    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range_in: ColorRangeT = ColorRange.FULL
+) -> Sequence[float]:
+    fmt = get_video_format(clip_or_depth)
+    return normalize_seq(
+        [get_lowest_value(fmt, False, range_in),
+         get_lowest_value(fmt, True, range_in)],
+        fmt.num_planes)
+
+
+@disallow_variable_format
 def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False) -> float:
     fmt = get_video_format(clip_or_depth)
 
@@ -122,6 +134,12 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chr
         return 0. if chroma else 0.5
 
     return float(1 << (get_depth(fmt) - 1))
+
+
+@disallow_variable_format
+def get_neutral_values(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> Sequence[float]:
+    fmt = get_video_format(clip_or_depth)
+    return normalize_seq([get_neutral_value(fmt, False), get_neutral_value(fmt, True)], fmt.num_planes)
 
 
 @disallow_variable_format
@@ -138,3 +156,11 @@ def get_peak_value(
         return 0.5 if chroma else 1.
 
     return (1 << get_depth(fmt)) - 1.
+
+
+@disallow_variable_format
+def get_peak_values(
+    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range_in: ColorRangeT = ColorRange.FULL
+) -> Sequence[float]:
+    fmt = get_video_format(clip_or_depth)
+    return normalize_seq([get_peak_value(fmt, False, range_in), get_peak_value(fmt, True, range_in)], fmt.num_planes)
