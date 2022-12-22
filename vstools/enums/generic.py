@@ -56,6 +56,37 @@ class ChromaLocation(_ChromaLocationMeta):
     ) -> ChromaLocation:
         return _base_from_video(cls, src, UndefinedChromaLocationError, strict, func)
 
+    @classmethod
+    def get_offsets(
+        chroma_loc: ChromaLocation | vs.VideoNode
+    ) -> tuple[float, float]:
+        if isinstance(chroma_loc, vs.VideoNode):
+            assert chroma_loc.format  # type: ignore
+            subsampling = (chroma_loc.format.subsampling_w, chroma_loc.format.subsampling_h)  # type: ignore
+
+            if subsampling in [(1, 0), (1, 1)]:
+                offsets = (0.5, 0)
+            elif subsampling == (0, 1):
+                offsets = (0, 0)
+            elif subsampling == (2, 0):
+                offsets = (2.5, 0)
+            elif subsampling == (2, 2):
+                offsets = (2.5, 1)
+
+            return offsets
+
+        off_left = off_top = 0.0
+
+        if chroma_loc in {ChromaLocation.LEFT, ChromaLocation.TOP_LEFT, ChromaLocation.BOTTOM_LEFT}:
+            off_left += -0.5
+
+        if chroma_loc in {ChromaLocation.TOP, ChromaLocation.TOP_LEFT}:
+            off_top += -0.5
+        elif chroma_loc in {ChromaLocation.BOTTOM, ChromaLocation.BOTTOM_LEFT}:
+            off_top += +0.5
+
+        return off_left, off_top
+
 
 class FieldBased(_FieldBasedMeta):
     """Whether the frame is composed of two independent fields (interlaced) and their order."""
@@ -117,9 +148,10 @@ class FieldBased(_FieldBasedMeta):
     @property
     def pretty_string(self) -> str:
         if self.is_inter:
-            return f"{'Top' if self.is_tff else 'Bottom'} Field First" 
+            return f"{'Top' if self.is_tff else 'Bottom'} Field First"
 
         return super().pretty_string
+
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
 FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]
