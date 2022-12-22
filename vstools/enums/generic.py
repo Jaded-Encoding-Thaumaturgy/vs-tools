@@ -58,7 +58,7 @@ class ChromaLocation(_ChromaLocationMeta):
 
     @classmethod
     def get_offsets(
-        chroma_loc: ChromaLocation | vs.VideoNode
+        cls, chroma_loc: ChromaLocation | vs.VideoNode
     ) -> tuple[float, float]:
         if isinstance(chroma_loc, vs.VideoNode):
             assert chroma_loc.format  # type: ignore
