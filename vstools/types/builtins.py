@@ -86,7 +86,7 @@ FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
 FrameRangesN: TypeAlias = list[FrameRangeN]
 
 VideoNodeIterable: TypeAlias = vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]] | Iterable[
-    vs.VideoNode, Iterable[vs.VideoNode | Iterable[vs.VideoNode]]
+    vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]]
 ]
 
 Self = TypeVar('Self')
