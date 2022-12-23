@@ -72,8 +72,15 @@ def flatten(items: Any) -> Any:
                 yield val
 
 
-def flatten_vnodes(clips: VideoNodeIterable) -> list[vs.VideoNode]:
-    return list[vs.VideoNode](flatten(clips))  # type: ignore
+def flatten_vnodes(*clips: VideoNodeIterable, split_planes: bool = False) -> list[vs.VideoNode]:
+    from .utils import split
+
+    nodes = list[vs.VideoNode](flatten(clips))  # type: ignore
+
+    if not split_planes:
+        return nodes
+
+    return sum(map(split, nodes), list[vs.VideoNode]())
 
 
 def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
