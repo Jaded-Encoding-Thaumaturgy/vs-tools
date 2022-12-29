@@ -16,7 +16,7 @@ from .utils import join, plane, split
 __all__ = [
     'iterate', 'fallback', 'kwargs_fallback',
 
-    'PlaneParser'
+    'FunctionUtil'
 ]
 
 
@@ -121,7 +121,7 @@ def kwargs_fallback(  # type: ignore
     return fallback(value, kwargs[0].get(kwargs[1], None), *fallbacks, default=default)
 
 
-class PlaneParser(cachedproperty.baseclass, list[int]):
+class FunctionUtil(cachedproperty.baseclass, list[int]):
     def __init__(
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
