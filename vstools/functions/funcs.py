@@ -159,7 +159,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         cfamily = fmt.color_family
 
         if self.bitdepth:
-            clip = depth(clip, self.clip)
+            clip = depth(clip, self.bitdepth)
 
         if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
             return clip  # type: ignore
