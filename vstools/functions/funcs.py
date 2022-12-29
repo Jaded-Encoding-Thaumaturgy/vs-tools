@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Concatenate, Iterable, overload
+from typing import Callable, Concatenate, Iterable, Sequence, overload
 
 import vapoursynth as vs
 
@@ -10,8 +10,8 @@ from ..types import (
     cachedproperty
 )
 from .check import check_variable
-from .normalize import normalize_planes, to_arr
-from .utils import join, plane, split
+from .normalize import normalize_planes, normalize_seq, to_arr
+from .utils import depth, join, plane, split
 
 __all__ = [
     'iterate', 'fallback', 'kwargs_fallback',
@@ -126,7 +126,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
-        ] | None = None, strict: bool = True
+        ] | None = None, bitdepth: int | None = None, strict: bool = True
     ) -> None:
         from ..utils import get_color_family
 
@@ -143,9 +143,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self.func = func
         self.strict = strict
         self.allowed_cfamilies = color_family
-        self.converted = False
+        self.cfamily_converted = False
+        self.bitdepth = bitdepth
 
-        super().__init__(normalize_planes(self.norm_clip, planes))
+        self.norm_planes = normalize_planes(self.norm_clip, planes)
+        self.num_planes = self.work_clip.format.num_planes
+
+        super().__init__(self.norm_planes)
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
@@ -153,6 +157,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         clip: vs.VideoNode = self.clip
 
         cfamily = fmt.color_family
+
+        if self.bitdepth:
+            clip = depth(clip, self.clip)
 
         if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
             return clip  # type: ignore
@@ -177,7 +184,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                     vs.core.std.Expr([R, G, B], f'x z + 1 4 / * y 1 2 / * - {diff}')
                 ], vs.YUV)
 
-            self.converted = True
+            self.cfamily_converted = True
 
         if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
             clip = plane(clip, 0)
@@ -226,7 +233,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if len(self.chroma_planes):
             processed = join([processed, *self.chroma_planes], self.clip.format.color_family)
 
-        if self.converted:
+        if self.cfamily_converted:
             if hasattr(vs.core, 'fmtc'):
                 processed = processed.fmtc.matrix(
                     fulls=True, fulld=True, col_fam=vs.YUV, coef=[
@@ -246,4 +253,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                     vs.core.std.Expr([Y, U, V], f'x z {diff} 2 3 / * + y {diff} -')
                 ], vs.RGB)
 
+        if self.bitdepth:
+            processed = depth(processed, self.clip)
+
         return processed
+
+    def norm_seq(self, seq: T | Sequence[T], null: T = 0) -> list[T]:
+        return [
+            x if i in self else null
+            for i, x in enumerate(normalize_seq(seq, self.num_planes))
+        ]
