@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import inspect
 from functools import update_wrapper
+from pathlib import Path
 from types import FunctionType
 
 from ..types import F
 
 __all__ = [
     'copy_func',
-    'erase_module'
+    'erase_module',
+    'get_caller_name'
 ]
 
 
@@ -30,3 +33,29 @@ def erase_module(func: F, *, vs_only: bool = False) -> F:
         func.__module__ = None  # type: ignore
 
     return func
+
+
+def get_caller_function() -> str | None:
+    """Attempt to call the caller function."""
+    for f in inspect.stack()[1:]:
+        func = f.function
+
+        # Check if private function/method
+        if func.startswith("_"):
+            continue
+
+        # TODO: Combine the following two checks into one somehow?
+        # Check if it's an exception or error class.
+        if any(x in func for x in ["Exceptions", "Errors"]):
+            continue
+
+        # Check if it originates from an `exceptions.py` or `errors.py` file.
+        if any(x in Path(f.filename).name.lower() for x in ["exception", "error"]):
+            continue
+
+        # TODO: Check for class method. If method, return `ClassName.method`.
+
+        # Finally, return the function name.
+        return func
+
+    return None
