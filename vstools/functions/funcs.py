@@ -153,47 +153,45 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
-        fmt = self.clip.format
         clip: vs.VideoNode = self.clip
-
-        cfamily = fmt.color_family
 
         if self.bitdepth:
             clip = depth(clip, self.bitdepth)
 
-        if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
-            return clip  # type: ignore
+        fmt = clip.format
+        cfamily = fmt.color_family
 
-        if cfamily is vs.RGB:
-            if hasattr(vs.core, 'fmtc'):
-                clip = clip.fmtc.matrix(
-                    fulls=True, fulld=True, col_fam=vs.RGB, coef=[
-                        1, 1, 2 / 3, 0, 1, 0, -4 / 3, 0, 1, -1, 2 / 3, 0
-                    ]
-                )
-            else:
-                from ..utils import get_neutral_value
+        if not (not self.allowed_cfamilies or cfamily in self.allowed_cfamilies):
+            if cfamily is vs.RGB:
+                if hasattr(vs.core, 'fmtc'):
+                    clip = clip.fmtc.matrix(
+                        fulls=True, fulld=True, col_fam=vs.RGB, coef=[
+                            1, 1, 2 / 3, 0, 1, 0, -4 / 3, 0, 1, -1, 2 / 3, 0
+                        ]
+                    )
+                else:
+                    from ..utils import get_neutral_value
 
-                diff = '' if fmt.bits_per_sample == 32 else f'{get_neutral_value(clip)} +'
+                    diff = '' if fmt.bits_per_sample == 32 else f'{get_neutral_value(clip)} +'
 
-                R, G, B = split(clip)
+                    R, G, B = split(clip)
 
-                clip = join([
-                    vs.core.std.Expr([R, G, B], 'x y z + + 1 3 / *'),
-                    vs.core.std.Expr([R, B], f'x y - 1 2 / * {diff}'),
-                    vs.core.std.Expr([R, G, B], f'x z + 1 4 / * y 1 2 / * - {diff}')
-                ], vs.YUV)
+                    clip = join([
+                        vs.core.std.Expr([R, G, B], 'x y z + + 1 3 / *'),
+                        vs.core.std.Expr([R, B], f'x y - 1 2 / * {diff}'),
+                        vs.core.std.Expr([R, G, B], f'x z + 1 4 / * y 1 2 / * - {diff}')
+                    ], vs.YUV)
 
-            self.cfamily_converted = True
+                self.cfamily_converted = True
 
-        if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
-            clip = plane(clip, 0)
+            if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
+                clip = plane(clip, 0)
 
         return clip  # type: ignore
 
     @cachedproperty
-    def work_clip(self) -> vs.VideoNode:
-        return plane(self.norm_clip, 0) if self == [0] else self.clip
+    def work_clip(self) -> ConstantFormatVideoNode:
+        return plane(self.norm_clip, 0) if self == [0] else self.norm_clip  # type: ignore
 
     @cachedproperty
     def chroma_planes(self) -> list[vs.VideoNode]:
