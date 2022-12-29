@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from ..types import MISSING, FuncExceptT, SupportsString
+from ..utils.funcs import get_caller_function
 
 __all__ = [
     'CustomError',
@@ -68,6 +69,8 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
     def __init__(
         self, message: SupportsString | None = None, func: FuncExceptT | None = None, reason: Any = None, **kwargs: Any
     ) -> None:
+        func = func or get_caller_function()
+
         self.message = message
         self.func = func
         self.reason = reason
