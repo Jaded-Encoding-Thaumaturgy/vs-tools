@@ -130,6 +130,8 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
 
 
 def set_output(node: vs.RawNode, name: str | bool = True, **kwargs: Any) -> None:
+    """@@PLACEHOLDER@@"""
+
     index = len(vs.get_outputs())
 
     ref_id = str(id(node))

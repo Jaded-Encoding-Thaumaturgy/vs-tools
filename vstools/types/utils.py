@@ -311,11 +311,15 @@ class classproperty(Generic[P, R, T, T0, P0]):
 
 
 class cachedproperty(property, Generic[P, R, T, T0, P0]):
+    """@@PLACEHOLDER@@"""
+
     __isabstractmethod__: bool = False
 
     cache_key = '_vst_cachedproperty_cache'
 
     class baseclass:
+        """@@PLACEHOLDER@@"""
+
         if not TYPE_CHECKING:
             def __new__(cls, *args: Any, **kwargs: Any) -> None:
                 self = super().__new__(cls, *args, **kwargs)
@@ -362,6 +366,8 @@ class KwargsNotNone(KwargsT):
 
 
 class vs_object(ABC, metaclass=ABCMeta):
+    """@@PLACEHOLDER@@"""
+
     __vsdel_register: Callable[[int], None] | None = None
 
     def __new__(cls: type[VSObjSelf], *args: Any, **kwargs: Any) -> VSObjSelf:
@@ -387,10 +393,12 @@ class vs_object(ABC, metaclass=ABCMeta):
 
     if TYPE_CHECKING:
         def __vs_del__(self, core_id: int) -> None:
-            ...
+            """@@PLACEHOLDER@@"""
 
     @staticmethod
     def core_unbound(deleter: F) -> F:
+        """@@PLACEHOLDER@@"""
+
         deleter._is_core_unbound = True  # type: ignore
         return deleter
 
@@ -422,11 +430,15 @@ SingletonSelf = TypeVar('SingletonSelf', bound=SingletonMeta)
 
 
 class Singleton(metaclass=SingletonMeta):
-    ...
+    """@@PLACEHOLDER@@"""
 
 
 class VSDebug(Singleton, init=True):
+    """@@PLACEHOLDER@@"""
+
     def __init__(self, *, env_life: bool = True, core_fetch: bool = False) -> None:
+        """@@PLACEHOLDER@@"""
+
         from ..utils.vs_proxy import register_on_creation
 
         if env_life:

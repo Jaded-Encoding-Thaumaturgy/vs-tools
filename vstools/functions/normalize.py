@@ -102,6 +102,8 @@ def flatten(items: Any) -> Any:
 def flatten_vnodes(
     *clips: VideoNodeIterable | tuple[VideoNodeIterable, ...], split_planes: bool = False
 ) -> list[vs.VideoNode]:
+    """@@PLACEHOLDER@@"""
+
     from .utils import split
 
     nodes = list[vs.VideoNode](flatten(clips))  # type: ignore

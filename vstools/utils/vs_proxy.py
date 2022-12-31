@@ -124,17 +124,21 @@ if not register_on_destroy_poly:
     from vapoursynth import register_on_destroy, unregister_on_destroy
 else:
     def register_on_destroy(callback: Callable[..., None]) -> None:
+        """@@PLACEHOLDER@@"""
         core.register_on_destroy(callback)
 
     def unregister_on_destroy(callback: Callable[..., None]) -> None:
+        """@@PLACEHOLDER@@"""
         core.unregister_on_destroy(callback)
 
 
 def register_on_creation(callback: Callable[..., None]) -> None:
+    """@@PLACEHOLDER@@"""
     core_on_creation_callbacks.update({id(callback): weakref.ref(callback)})
 
 
 def unregister_on_creation(callback: Callable[..., None]) -> None:
+    """@@PLACEHOLDER@@"""
     core_on_creation_callbacks.pop(id(callback), None)
 
 
@@ -377,6 +381,8 @@ class VSCoreProxy(CoreProxyBase):
 
     @property
     def lazy(self) -> CoreProxy:
+        """@@PLACEHOLDER@@"""
+
         if self not in _objproxies:
             _objproxies[self] = {}
 
@@ -386,6 +392,8 @@ class VSCoreProxy(CoreProxyBase):
         return _objproxies[self]['lazy']  # type: ignore
 
     def register_on_destroy(self, callback: Callable[..., None]) -> None:
+        """@@PLACEHOLDER@@"""
+
         _check_environment()
 
         env_id = get_current_environment().env_id
@@ -396,6 +404,8 @@ class VSCoreProxy(CoreProxyBase):
             core_on_destroy_callbacks[env_id] |= {id(callback): weakref.ref(callback)}
 
     def unregister_on_destroy(self, callback: Callable[..., None]) -> None:
+        """@@PLACEHOLDER@@"""
+
         _check_environment()
 
         env_id = get_current_environment().env_id
@@ -409,6 +419,8 @@ class VSCoreProxy(CoreProxyBase):
         self, threads: int | range | tuple[int, int] | list[int] | None = None,
         max_cache: int | None = None, reserve: int | Iterable[int] = 2
     ) -> None:
+        """@@PLACEHOLDER@@"""
+
         try:
             from psutil import Process
         except ModuleNotFoundError as e:

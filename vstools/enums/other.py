@@ -36,14 +36,17 @@ class Direction(CustomIntEnum):
 
     @property
     def is_axis(self) -> bool:
+        """@@PLACEHOLDER@@"""
         return self <= self.VERTICAL
 
     @property
     def is_way(self) -> bool:
+        """@@PLACEHOLDER@@"""
         return self > self.VERTICAL
 
     @property
     def string(self) -> str:
+        """@@PLACEHOLDER@@"""
         return self._name_.lower()
 
 
@@ -51,12 +54,12 @@ class Par(Fraction):
     @overload
     @staticmethod
     def get_ar(width: int, height: int, /) -> Fraction:
-        ...
+        """@@PLACEHOLDER@@"""
 
     @overload
     @staticmethod
     def get_ar(clip: vs.VideoNode, /) -> Fraction:
-        ...
+        """@@PLACEHOLDER@@"""
 
     @staticmethod
     def get_ar(clip_width: vs.VideoNode | int, height: int = 0, /) -> Fraction:
@@ -134,10 +137,12 @@ class Region(CustomStrEnum):
 
     @property
     def framerate(self) -> Fraction:
+        """@@PLACEHOLDER@@"""
         return _region_framerate_map[self]
 
     @classmethod
     def from_framerate(cls, framerate: float | Fraction) -> Region:
+        """@@PLACEHOLDER@@"""
         return _framerate_region_map[Fraction(framerate)]
 
 

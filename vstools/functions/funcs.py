@@ -166,6 +166,8 @@ def kwargs_fallback(  # type: ignore
 
 
 class FunctionUtil(cachedproperty.baseclass, list[int]):
+    """@@PLACEHOLDER@@"""
+
     def __init__(
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
@@ -197,6 +199,8 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
+        """@@PLACEHOLDER@@"""
+
         clip: vs.VideoNode = depth(self.clip, self.bitdepth) if self.bitdepth else self.clip
         assert clip.format
         bits_per_sample = clip.format.bits_per_sample
@@ -232,43 +236,63 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def work_clip(self) -> ConstantFormatVideoNode:
+        """@@PLACEHOLDER@@"""
+
         return plane(self.norm_clip, 0) if self == [0] else self.norm_clip  # type: ignore
 
     @cachedproperty
     def chroma_planes(self) -> list[vs.VideoNode]:
+        """@@PLACEHOLDER@@"""
+
         if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
         return [plane(self.norm_clip, i) for i in {1, 2}]
 
     @property
     def is_float(self) -> bool:
+        """@@PLACEHOLDER@@"""
+
         return self.norm_clip.format.sample_type is vs.FLOAT
 
     @property
     def is_integer(self) -> bool:
+        """@@PLACEHOLDER@@"""
+
         return self.norm_clip.format.sample_type is vs.INTEGER
 
     @property
     def is_hd(self) -> bool:
+        """@@PLACEHOLDER@@"""
+
         return self.work_clip.width >= 1280 or self.work_clip.height >= 720
 
     @property
     def luma(self) -> bool:
+        """@@PLACEHOLDER@@"""
+
         return 0 in self
 
     @property
     def luma_only(self) -> bool:
+        """@@PLACEHOLDER@@"""
+
         return self == [0]
 
     @property
     def chroma(self) -> bool:
+        """@@PLACEHOLDER@@"""
+
         return 1 in self or 2 in self
 
     @property
     def chroma_only(self) -> bool:
+        """@@PLACEHOLDER@@"""
+
         return self == [1, 2]
 
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
+        """@@PLACEHOLDER@@"""
+
         assert check_variable(processed, self.func)
 
         fmt = processed.format
@@ -302,6 +326,8 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         return processed
 
     def norm_seq(self, seq: T | Sequence[T], null: T = 0) -> list[T]:  # type: ignore
+        """@@PLACEHOLDER@@"""
+
         return [
             x if i in self else null
             for i, x in enumerate(normalize_seq(seq, self.num_planes))

@@ -152,6 +152,8 @@ def ranges_product(*_iterables: range | int) -> Iterable[tuple[int, ...]]:
 
 
 def interleave_arr(arr0: Iterable[T], arr1: Iterable[T0], n: int = 2) -> Iterable[T | T0]:
+    """@@PLACEHOLDER@@"""
+
     if n == 1:
         return [x for x in chain(*zip_longest(arr0, arr1)) if x is not None]
 

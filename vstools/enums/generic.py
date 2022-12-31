@@ -92,6 +92,8 @@ class ChromaLocation(_ChromaLocationMeta):
     def get_offsets(
         cls, chroma_loc: ChromaLocation | vs.VideoNode
     ) -> tuple[float, float]:
+        """@@PLACEHOLDER@@"""
+
         if isinstance(chroma_loc, vs.VideoNode):
             assert chroma_loc.format  # type: ignore
             subsampling = (chroma_loc.format.subsampling_w, chroma_loc.format.subsampling_h)  # type: ignore

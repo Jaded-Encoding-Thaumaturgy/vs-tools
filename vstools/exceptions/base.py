@@ -83,14 +83,6 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
 
         super().__init__(message)
 
-
-<< << << < HEAD
-    def __class_getitem__(cls, exception: type[ExceptionT]) -> CustomError:
-        """@@PLACEHOLDER@@"""
-
-        class inner_exception(cls, exception):  # type: ignore
-            ...
-== == == =
     def __class_getitem__(cls, exception: str | type[ExceptionT] | ExceptionT) -> CustomError:
         if isinstance(exception, str):
             class inner_exception(cls):  # type: ignore
@@ -101,7 +93,6 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
 
             class inner_exception(cls, exception):  # type: ignore
                 ...
->>>>>> > master
 
         return CustomErrorMeta.setup_exception(inner_exception, exception)  # type: ignore
 
