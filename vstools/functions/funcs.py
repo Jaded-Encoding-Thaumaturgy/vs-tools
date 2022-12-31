@@ -153,13 +153,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
-        clip: vs.VideoNode = self.clip
-
-        if self.bitdepth:
-            clip = depth(clip, self.bitdepth)
-
-        fmt = clip.format
-        cfamily = fmt.color_family
+        clip: vs.VideoNode = depth(clip, self.bitdepth) if self.bitdepth else self.clip
+        assert clip.format
+        bits_per_sample = clip.format.bits_per_sample
+        cfamily = clip.format.color_family
 
         if not (not self.allowed_cfamilies or cfamily in self.allowed_cfamilies):
             if cfamily is vs.RGB:
@@ -172,7 +169,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                 else:
                     from ..utils import get_neutral_value
 
-                    diff = '' if fmt.bits_per_sample == 32 else f'{get_neutral_value(clip)} +'
+                    diff = '' if bits_per_sample == 32 else f'{get_neutral_value(clip)} +'
 
                     R, G, B = split(clip)
 
@@ -206,6 +203,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     @property
     def is_integer(self) -> bool:
         return self.norm_clip.format.sample_type is vs.INTEGER
+
+    @property
+    def is_hd(self) -> bool:
+        return self.work_clip.width >= 1280 or self.work_clip.height >= 720
 
     @property
     def luma(self) -> bool:
@@ -256,7 +257,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         return processed
 
-    def norm_seq(self, seq: T | Sequence[T], null: T = 0) -> list[T]:
+    def norm_seq(self, seq: T | Sequence[T], null: T = 0) -> list[T]:  # type: ignore
         return [
             x if i in self else null
             for i, x in enumerate(normalize_seq(seq, self.num_planes))
