@@ -72,7 +72,9 @@ def flatten(items: Any) -> Any:
                 yield val
 
 
-def flatten_vnodes(*clips: VideoNodeIterable, split_planes: bool = False) -> list[vs.VideoNode]:
+def flatten_vnodes(
+    *clips: VideoNodeIterable | tuple[VideoNodeIterable, ...], split_planes: bool = False
+) -> list[vs.VideoNode]:
     from .utils import split
 
     nodes = list[vs.VideoNode](flatten(clips))  # type: ignore
