@@ -41,6 +41,8 @@ from vapoursynth import (
     get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
+from .other import IS_DOCS
+
 from ..exceptions import CustomRuntimeError
 from .vs_enums import (
     GRAY8, GRAY9, GRAY10, GRAY11, GRAY12, GRAY13, GRAY14, GRAY15, GRAY16, GRAY17, GRAY18, GRAY19, GRAY20, GRAY21,
@@ -118,7 +120,10 @@ __all__ = [
     'unregister_on_destroy', 'vs_file'
 ]
 
-register_on_destroy_poly = __version__.release_major < 61
+if IS_DOCS:
+    register_on_destroy_poly = True
+else:
+    register_on_destroy_poly = __version__.release_major < 61
 
 if not register_on_destroy_poly:
     from vapoursynth import register_on_destroy, unregister_on_destroy

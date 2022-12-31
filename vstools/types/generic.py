@@ -37,22 +37,25 @@ MISSING = MissingTBase.MissingT
 
 DataType = Union[str, bytes, bytearray, SupportsString]
 
-VSMapValue = Union[
+_VSMapValue = Union[
     SingleOrArr[int],
     SingleOrArr[float],
     SingleOrArr[DataType],
     SingleOrArr[vs.VideoNode],
     SingleOrArr[vs.VideoFrame],
     SingleOrArr[vs.AudioNode],
-    SingleOrArr[vs.AudioFrame],
-    SingleOrArr['VSMapValueCallback[Any]']
+    SingleOrArr[vs.AudioFrame]
+]
+VSMapValue = Union[
+    _VSMapValue,
+    SingleOrArr[Callable[..., _VSMapValue]]
 ]
 """Values that a VSMap can hold, so all that a :py:attr:`vs.Function`` can accept in args and can return."""
 
 BoundVSMapValue = TypeVar('BoundVSMapValue', bound=VSMapValue)
 """Type variable that can be one of the types in a VSMapValue."""
 
-VSMapValueCallback = Callable[..., BoundVSMapValue]
+VSMapValueCallback = Callable[..., VSMapValue]
 """Callback that can be held in a VSMap. It can only return values representable in a VSMap."""
 
 VideoFormatT = Union[vs.PresetFormat, vs.VideoFormat]
