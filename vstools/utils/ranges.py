@@ -2,17 +2,20 @@ from __future__ import annotations
 
 import warnings
 from typing import Iterable, overload
+from itertools import chain, zip_longest
 
 import vapoursynth as vs
 
 from ..exceptions import CustomIndexError
 from ..functions import check_ref_clip
-from ..types import FrameRangeN, FrameRangesN
+from ..types import FrameRangeN, FrameRangesN, T, T0
 
 __all__ = [
     'replace_ranges', 'rfs',
 
-    'ranges_product'
+    'ranges_product',
+
+    'interleave_arr'
 ]
 
 
@@ -146,3 +149,25 @@ def ranges_product(*_iterables: range | int) -> Iterable[tuple[int, ...]]:
                     yield xx, yy, zz
     else:
         raise CustomIndexError(f'Too many ranges passed! ({n_iterables})', ranges_product)
+
+
+def interleave_arr(arr0: Iterable[T], arr1: Iterable[T0], n: int = 2) -> Iterable[T | T0]:
+    if n == 1:
+        return [x for x in chain(*zip_longest(arr0, arr1)) if x is not None]
+
+    arr0_i, arr1_i = iter(arr0), iter(arr1)
+    arr1_vals = arr0_vals = True
+
+    while arr1_vals or arr0_vals:
+        if arr0_vals:
+            for _ in range(n):
+                try:
+                    yield next(arr0_i)
+                except StopIteration:
+                    arr0_vals = False
+
+        if arr1_vals:
+            try:
+                yield next(arr1_i)
+            except StopIteration:
+                arr1_vals = False

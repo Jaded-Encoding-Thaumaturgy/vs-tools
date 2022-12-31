@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import inspect
 from fractions import Fraction
 from math import floor
-from typing import Callable, TypeVar
+from typing import Any, Callable, TypeVar
 
 import vapoursynth as vs
 
@@ -15,7 +16,9 @@ __all__ = [
 
     'padder',
 
-    'pick_func_stype'
+    'pick_func_stype',
+
+    'set_output'
 ]
 
 
@@ -124,3 +127,38 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
     assert clip.format
 
     return func_float if clip.format.sample_type == vs.FLOAT else func_int
+
+
+def set_output(node: vs.RawNode, name: str | bool = True, **kwargs: Any) -> None:
+    index = len(vs.get_outputs())
+
+    ref_id = str(id(node))
+
+    title = 'Node'
+
+    if isinstance(node, vs.VideoNode):
+        title = 'Clip'
+    elif isinstance(node, vs.AudioNode):
+        title = 'Audio'
+
+    if not name or name is True:
+        name = f"{title} {index}"
+
+        current_frame = inspect.currentframe()
+
+        assert current_frame
+        assert current_frame.f_back
+
+        for vname, val in reversed(current_frame.f_back.f_locals.items()):
+            if (str(id(val)) == ref_id):
+                name = vname
+                break
+
+    try:
+        from vspreview import set_output
+        set_output(node, name, **kwargs)
+    except ModuleNotFoundError:
+        if isinstance(name, str) and isinstance(node, vs.VideoNode):
+            node = node.std.SetFrameProp('Name', data=name.title())  # type: ignore
+
+        node.set_output(index)

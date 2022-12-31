@@ -5,13 +5,13 @@ from typing import Any, Iterable, Iterator, Sequence, overload
 
 import vapoursynth as vs
 
-from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T
+from ..types import F, FrameRange, FrameRangeN, FrameRangesN, PlanesT, SupportsString, T, VideoNodeIterable
 
 __all__ = [
     'normalize_seq',
     'normalize_planes',
     'to_arr',
-    'flatten',
+    'flatten', 'flatten_vnodes',
     'normalize_franges',
     'normalize_ranges',
     'norm_func_name', 'norm_display_name'
@@ -88,12 +88,28 @@ def flatten(items: T | Iterable[T]) -> Iterable[T]:  # type: ignore
 def flatten(items: Any) -> Any:
     """Flatten an array of values."""
 
-    for val in items:
-        if isinstance(val, Iterable) and not isinstance(val, (str, bytes)):
-            for sub_x in flatten(val):
-                yield sub_x
-        else:
-            yield val
+    if isinstance(items, (vs.RawNode, vs.RawFrame)):
+        yield items
+    else:
+        for val in items:
+            if isinstance(val, Iterable) and not isinstance(val, (str, bytes)):
+                for sub_x in flatten(val):
+                    yield sub_x
+            else:
+                yield val
+
+
+def flatten_vnodes(
+    *clips: VideoNodeIterable | tuple[VideoNodeIterable, ...], split_planes: bool = False
+) -> list[vs.VideoNode]:
+    from .utils import split
+
+    nodes = list[vs.VideoNode](flatten(clips))  # type: ignore
+
+    if not split_planes:
+        return nodes
+
+    return sum(map(split, nodes), list[vs.VideoNode]())
 
 
 def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
@@ -204,5 +220,8 @@ def norm_display_name(obj: object) -> str:
 
     if isinstance(obj, Fraction):
         return f'{obj.numerator}/{obj.denominator}'
+
+    if isinstance(obj, dict):
+        return '(' + ', '.join(f'{k}={v}' for k, v in obj.items()) + ')'
 
     return norm_func_name(obj)

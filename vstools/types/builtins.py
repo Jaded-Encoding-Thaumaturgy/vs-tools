@@ -18,13 +18,14 @@ __all__ = [
 
     'Nb',
 
-    'PlanesT',
+    'PlanesT', 'VideoNodeIterable',
 
     'FrameRange', 'FrameRangeN', 'FrameRangesN',
 
     'Self',
 
     'SingleOrArr', 'SingleOrArrOpt',
+    'SingleOrSeq', 'SingleOrSeqOpt',
 
     'SimpleByteData', 'SimpleByteDataArray',
     'ByteData',
@@ -84,10 +85,16 @@ FrameRange: TypeAlias = int | Tuple[int, int] | list[int]
 FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
 FrameRangesN: TypeAlias = list[FrameRangeN]
 
+VideoNodeIterable: TypeAlias = vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]] | Iterable[
+    vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]]
+]
+
 Self = TypeVar('Self')
 
 SingleOrArr = Union[T, list[T]]
+SingleOrSeq = Union[T, Sequence[T]]
 SingleOrArrOpt = Union[SingleOrArr[T], None]
+SingleOrSeqOpt = Union[SingleOrSeq[T], None]
 
 SimpleByteData: TypeAlias = str | bytes | bytearray
 SimpleByteDataArray = Union[SimpleByteData, Sequence[SimpleByteData]]

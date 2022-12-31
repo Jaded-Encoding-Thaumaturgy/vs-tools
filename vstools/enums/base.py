@@ -65,9 +65,13 @@ class CustomEnum(Enum):
 class CustomIntEnum(int, CustomEnum):
     """Base class for custom int enums."""
 
+    value: int
+
 
 class CustomStrEnum(str, CustomEnum):
     """Base class for custom str enums."""
+
+    value: str
 
 
 SelfEnum = TypeVar('SelfEnum', bound=CustomEnum)

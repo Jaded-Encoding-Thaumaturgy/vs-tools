@@ -285,10 +285,15 @@ class Matrix(_MatrixMeta):
 
         return _primaries_matrix_map[primaries]
 
-    def as_string(self) -> str:
+    @property
+    def pretty_string(self) -> str:
         """@@PLACEHOLDER@@"""
+        return _matrix_pretty_name_map.get(self, super().pretty_string)
 
-        return _matrix_name_map.get(self, super().as_string())
+    @property
+    def string(self) -> str:
+        """@@PLACEHOLDER@@"""
+        return _matrix_name_map.get(self, super().string)
 
 
 class Transfer(_TransferMeta):
@@ -569,8 +574,13 @@ class Transfer(_TransferMeta):
 
         return _transfer_placebo_map[self]
 
-    def as_string(self) -> str:
-        return _transfer_name_map.get(self, super().as_string())
+    @property
+    def pretty_string(self) -> str:
+        return _transfer_pretty_name_map.get(self, super().pretty_string)
+    
+    @property
+    def string(self) -> str:
+        return _transfer_name_map.get(self, super().string)
 
 
 class Primaries(_PrimariesMeta):
@@ -864,10 +874,15 @@ class Primaries(_PrimariesMeta):
 
         return _transfer_primaries_map[transfer]
 
-    def as_string(self) -> str:
+    @property
+    def pretty_string(self) -> str:
         """@@PLACEHOLDER@@"""
+        return _primaries_pretty_name_map.get(self, super().pretty_string)
 
-        return _primaries_name_map.get(self, super().as_string())
+    @property
+    def string(self) -> str:
+        """@@PLACEHOLDER@@"""
+        return _primaries_name_map.get(self, super().string)
 
 
 class MatrixCoefficients(NamedTuple):
@@ -1085,54 +1100,101 @@ _placebo_transfer_map = {
 }
 
 _matrix_name_map = {
-    Matrix.RGB: 'rgb',
-    Matrix.BT709: '709',
-    Matrix.UNKNOWN: 'unspec',
+    Matrix.RGB: 'gbr',
+    Matrix.BT709: 'bt709',
+    Matrix.UNKNOWN: 'unknown',
     Matrix.FCC: 'fcc',
-    Matrix.BT470BG: '470bg',
-    Matrix.SMPTE170M: '170m',
-    Matrix.SMPTE240M: '240m',
-    Matrix.BT2020NC: 'ycgco',
-    Matrix.BT2020C: '2020ncl',
-    Matrix.SMPTE2085: '2020cl',
-    Matrix.CHROMA_DERIVED_NC: 'chromancl',
-    Matrix.CHROMA_DERIVED_C: 'chromacl',
+    Matrix.BT470BG: 'bt470bg',
+    Matrix.SMPTE170M: 'smpte170m',
+    Matrix.SMPTE240M: 'smpte240m',
+    Matrix.BT2020NC: 'bt2020nc',
+    Matrix.BT2020C: 'bt2020c',
+    Matrix.SMPTE2085: 'smpte2085',
+    Matrix.CHROMA_DERIVED_NC: 'chroma-derived-nc',
+    Matrix.CHROMA_DERIVED_C: 'chroma-derived-c',
     Matrix.ICTCP: 'ictcp'
 }
 
 _transfer_name_map = {
-    Transfer.BT709: '709',
-    Transfer.UNKNOWN: 'unspec',
-    Transfer.BT470M: '470m',
-    Transfer.BT470BG: '470bg',
-    Transfer.BT601: '601',
-    Transfer.ST240M: '240m',
+    Transfer.BT709: 'bt709',
+    Transfer.UNKNOWN: 'unknown',
+    Transfer.BT470M: 'bt470m',
+    Transfer.BT470BG: 'bt470bg',
+    Transfer.BT601: 'smpte170m',
+    Transfer.ST240M: 'smpte240m',
     Transfer.LINEAR: 'linear',
     Transfer.LOG_100: 'log100',
     Transfer.LOG_316: 'log316',
-    Transfer.XVYCC: 'xvycc',
-    Transfer.SRGB: 'srgb',
-    Transfer.BT2020_10bits: '2020_10',
-    Transfer.BT2020_12bits: '2020_12',
-    Transfer.ST2084: 'st2084',
-    Transfer.ARIB_B67: 'std-b67'
+    Transfer.XVYCC: 'iec61966-2-4',
+    Transfer.SRGB: 'iec61966-2-1',
+    Transfer.BT2020_10bits: 'bt2020-10',
+    Transfer.BT2020_12bits: 'bt2020-12',
+    Transfer.ST2084: 'smpte2084',
+    Transfer.ARIB_B67: 'arib-std-b67'
 }
 
 
 _primaries_name_map = {
-    Primaries.BT709: '709',
-    Primaries.UNKNOWN: 'unspec',
-    Primaries.BT470M: '470m',
-    Primaries.BT470BG: '470bg',
-    Primaries.ST170M: '170m',
-    Primaries.ST240M: '240m',
+    Primaries.BT709: 'bt709',
+    Primaries.UNKNOWN: 'unknown',
+    Primaries.BT470M: 'bt470m',
+    Primaries.BT470BG: 'bt470bg',
+    Primaries.ST170M: 'smpte170m',
+    Primaries.ST240M: 'smpte240m',
     Primaries.FILM: 'film',
-    Primaries.BT2020: '2020',
-    Primaries.ST428: 'st428',
-    Primaries.ST431_2: 'st431-2',
-    Primaries.ST432_1: 'st432-1',
+    Primaries.BT2020: 'bt2020',
+    Primaries.ST428: 'smpte428',
+    Primaries.ST431_2: 'smpte431',
+    Primaries.ST432_1: 'smpte432',
     Primaries.EBU3213E: 'jedec-p22'
 }
+
+_matrix_pretty_name_map = {
+    Matrix.RGB: 'RGB',
+    Matrix.BT709: 'BT.709',
+    Matrix.FCC: 'FCC',
+    Matrix.BT470BG: 'BT.470bg',
+    Matrix.SMPTE170M: 'ST 170M',
+    Matrix.SMPTE240M: 'ST 240M',
+    Matrix.BT2020NC: 'BT.2020 non-constant luminance',
+    Matrix.BT2020C: 'BT.2020 constant luminance',
+    Matrix.SMPTE2085: 'ST 2085',
+    Matrix.CHROMA_DERIVED_NC: 'Chromaticity derived non-constant luminance',
+    Matrix.CHROMA_DERIVED_C: 'Chromaticity derived constant luminance',
+    Matrix.ICTCP: 'ICtCp'
+}
+
+_transfer_pretty_name_map = {
+    Transfer.BT709: 'BT.709',
+    Transfer.BT470M: 'BT.470m',
+    Transfer.BT470BG: 'BT.470bg',
+    Transfer.BT601: 'BT.601',
+    Transfer.ST240M: 'ST 240M',
+    Transfer.LINEAR: 'Linear',
+    Transfer.LOG_100: 'Log 1:100 contrast',
+    Transfer.LOG_316: 'Log 1:316 contrast',
+    Transfer.XVYCC: 'xvYCC',
+    Transfer.SRGB: 'sRGB',
+    Transfer.BT2020_10bits: 'BT.2020_10',
+    Transfer.BT2020_12bits: 'BT.2020_12',
+    Transfer.ST2084: 'ST 2084 (PQ)',
+    Transfer.ARIB_B67: 'ARIB std-b67 (HLG)'
+}
+
+_primaries_pretty_name_map = {
+    Primaries.BT709: 'BT.709',
+    Primaries.BT470M: 'BT.470m',
+    Primaries.BT470BG: 'BT.470bg',
+    Primaries.ST170M: 'ST 170M',
+    Primaries.ST240M: 'ST 240M',
+    Primaries.FILM: 'Film',
+    Primaries.BT2020: 'BT.2020',
+    Primaries.ST428: 'ST 428 (XYZ)',
+    Primaries.ST431_2: 'DCI-P3, DCI white point',
+    Primaries.ST432_1: 'DCI-P3 D65 white point',
+    Primaries.EBU3213E: '0JEDEC P22 (EBU3213)'
+}
+
 
 MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
 """Type alias for values that can be used to initialize a :py:attr:`Matrix`"""

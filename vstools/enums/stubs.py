@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from string import capwords
 from typing import TYPE_CHECKING, Any, Iterable, TypeVar, overload
 
 import vapoursynth as vs
@@ -107,9 +108,19 @@ class PropEnum(CustomIntEnum):
             ]
         })
 
-    def as_string(self) -> str:
+    @property
+    def pretty_string(self) -> str:
+        """@@PLACEHOLDER@@"""
+        return capwords(self.string.replace('_', ' '))
+
+    @property
+    def string(self) -> str:
         """@@PLACEHOLDER@@"""
         return self._name_.lower()
+
+    @classmethod
+    def is_valid(cls, value: int) -> bool:
+        return value in map(int, cls.__members__.values())
 
 
 SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
