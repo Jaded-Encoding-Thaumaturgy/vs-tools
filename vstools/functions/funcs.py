@@ -126,7 +126,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
-        ] | None = None, bitdepth: int | None = None, strict: bool = True
+        ] | None = None, bitdepth: int | None = None, strict: bool = False
     ) -> None:
         from ..utils import get_color_family
 
