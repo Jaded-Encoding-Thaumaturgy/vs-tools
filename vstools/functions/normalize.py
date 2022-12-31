@@ -102,7 +102,7 @@ def flatten(items: Any) -> Any:
 def flatten_vnodes(
     *clips: VideoNodeIterable | tuple[VideoNodeIterable, ...], split_planes: bool = False
 ) -> list[vs.VideoNode]:
-    """@@PLACEHOLDER@@"""
+    """Flatten a single or multiple video nodes into their planes."""
 
     from .utils import split
 
@@ -215,7 +215,7 @@ def norm_func_name(func_name: SupportsString | F) -> str:
 
 
 def norm_display_name(obj: object) -> str:
-    """@@PLACEHOLDER@@"""
+    """Get a fancy name from any object."""
 
     if isinstance(obj, Iterator):
         return ', '.join(norm_display_name(v) for v in obj).strip()

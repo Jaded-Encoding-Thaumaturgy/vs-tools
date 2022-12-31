@@ -12,7 +12,7 @@ __all__ = [
 
 
 def copy_func(f: F) -> FunctionType:
-    """@@PLACEHOLDER@@"""
+    """Try copying a function."""
 
     try:
         g = FunctionType(
@@ -26,7 +26,7 @@ def copy_func(f: F) -> FunctionType:
 
 
 def erase_module(func: F, *, vs_only: bool = False) -> F:
-    """@@PLACEHOLDER@@"""
+    """Delete the __module__ of the function."""
 
     if hasattr(func, '__module__') and (
         func.__module__ == '__vapoursynth__' if vs_only else True

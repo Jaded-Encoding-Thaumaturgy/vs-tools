@@ -152,8 +152,16 @@ def ranges_product(*_iterables: range | int) -> Iterable[tuple[int, ...]]:
 
 
 def interleave_arr(arr0: Iterable[T], arr1: Iterable[T0], n: int = 2) -> Iterable[T | T0]:
-    """@@PLACEHOLDER@@"""
+    """
+    Interleave two arrays of variable length.
 
+    :param arr0:    First array to be interleaved.
+    :param arr1:    Second array to be interleaved.
+    :param n:       The number of elements from arr0 to include in the interleaved sequence
+                    before including an element from arr1.
+
+    :yield:         Elements from either arr0 or arr01.
+    """
     if n == 1:
         return [x for x in chain(*zip_longest(arr0, arr1)) if x is not None]
 

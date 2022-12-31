@@ -46,8 +46,6 @@ class InvalidMatrixError(CustomValueError):
         self, func: FuncExceptT, matrix: int = 2, message: SupportsString = 'You can\'t set a matrix of {matrix}!',
         **kwargs: Any
     ) -> None:
-        """@@PLACEHOLDER@@"""
-
         super().__init__(message, func, matrix=matrix, **kwargs)
 
 
@@ -73,8 +71,6 @@ class InvalidTransferError(CustomValueError):
         self, func: FuncExceptT, transfer: int = 2,
         message: SupportsString = 'You can\'t set a transfer of {transfer}!', **kwargs: Any
     ) -> None:
-        """@@PLACEHOLDER@@"""
-
         super().__init__(message, func, transfer=transfer, **kwargs)
 
 
@@ -100,8 +96,6 @@ class InvalidPrimariesError(CustomValueError):
         self, func: FuncExceptT, primaries: int = 2,
         message: SupportsString = 'You can\'t set primaries of {primaries}!', **kwargs: Any
     ) -> None:
-        """@@PLACEHOLDER@@"""
-
         super().__init__(message, func, primaries=primaries, **kwargs)
 
 

@@ -124,21 +124,19 @@ if not register_on_destroy_poly:
     from vapoursynth import register_on_destroy, unregister_on_destroy
 else:
     def register_on_destroy(callback: Callable[..., None]) -> None:
-        """@@PLACEHOLDER@@"""
         core.register_on_destroy(callback)
 
     def unregister_on_destroy(callback: Callable[..., None]) -> None:
-        """@@PLACEHOLDER@@"""
         core.unregister_on_destroy(callback)
 
 
 def register_on_creation(callback: Callable[..., None]) -> None:
-    """@@PLACEHOLDER@@"""
+    """Register a callback on every core creation."""
     core_on_creation_callbacks.update({id(callback): weakref.ref(callback)})
 
 
 def unregister_on_creation(callback: Callable[..., None]) -> None:
-    """@@PLACEHOLDER@@"""
+    """Unregister this callback from every core creation."""
     core_on_creation_callbacks.pop(id(callback), None)
 
 
@@ -381,7 +379,11 @@ class VSCoreProxy(CoreProxyBase):
 
     @property
     def lazy(self) -> CoreProxy:
-        """@@PLACEHOLDER@@"""
+        """
+        Lazy Core where plugins and functions are lazily retrieved and checked,
+        so it's safe to hold a reference and set default of anything from this,
+        without having to worry of creating a core.
+        """
 
         if self not in _objproxies:
             _objproxies[self] = {}
@@ -392,7 +394,7 @@ class VSCoreProxy(CoreProxyBase):
         return _objproxies[self]['lazy']  # type: ignore
 
     def register_on_destroy(self, callback: Callable[..., None]) -> None:
-        """@@PLACEHOLDER@@"""
+        """Register a callback on this core destroy."""
 
         _check_environment()
 
@@ -404,7 +406,7 @@ class VSCoreProxy(CoreProxyBase):
             core_on_destroy_callbacks[env_id] |= {id(callback): weakref.ref(callback)}
 
     def unregister_on_destroy(self, callback: Callable[..., None]) -> None:
-        """@@PLACEHOLDER@@"""
+        """Unregister a callback from this core destroy."""
 
         _check_environment()
 
@@ -419,7 +421,15 @@ class VSCoreProxy(CoreProxyBase):
         self, threads: int | range | tuple[int, int] | list[int] | None = None,
         max_cache: int | None = None, reserve: int | Iterable[int] = 2
     ) -> None:
-        """@@PLACEHOLDER@@"""
+        """
+        Set core affinity.
+
+        :param threads:     How many and which threads to use for VapourSynth. 
+        :param max_cache:   Maximum cache used for frame data in VapourSynth.
+        :param reserve:     Reserve n amount of or the specified threads.
+
+        :raises DependencyNotFoundError:    Psutil was not found.
+        """
 
         try:
             from psutil import Process

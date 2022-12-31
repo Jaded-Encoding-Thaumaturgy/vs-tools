@@ -25,7 +25,7 @@ def clamp(val: Nb, min_val: Nb, max_val: Nb) -> Nb:
 
 
 def clamp_arr(vals: Sequence[Nb], min_val: Nb, max_val: Nb) -> list[Nb]:
-    """@@PLACEHOLDER@@"""
+    """Map an array to vstools.clamp."""
 
     return [clamp(x, min_val, max_val) for x in vals]
 
@@ -61,7 +61,7 @@ def mod8(val: int | float) -> int:
 
 
 def next_power_of_2(x: float) -> int:
-    """@@PLACEHOLDER@@"""
+    """Get the next power of 2 of x."""
 
     x = cround(x)
 
@@ -78,7 +78,7 @@ def next_power_of_2(x: float) -> int:
 
 
 def next_power_of_y(x: float, y: int) -> int:
-    """@@PLACEHOLDER@@"""
+    """Get the next power of y of x."""
 
     if x == 0:
         return 1
@@ -91,7 +91,7 @@ def spline_coeff(
         (0, 0), (0.5, 0.1), (1, 0.6), (2, 0.9), (2.5, 1), (3, 1.1), (3.5, 1.15), (4, 1.2), (8, 1.25), (255, 1.5)
     ]
 ) -> float:
-    """@@PLACEHOLDER@@"""
+    """Get spline coefficient of an index and coordinates."""
 
     length = len(coordinates)
 

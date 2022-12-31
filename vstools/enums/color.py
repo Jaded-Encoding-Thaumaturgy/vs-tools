@@ -287,12 +287,10 @@ class Matrix(_MatrixMeta):
 
     @property
     def pretty_string(self) -> str:
-        """@@PLACEHOLDER@@"""
         return _matrix_pretty_name_map.get(self, super().pretty_string)
 
     @property
     def string(self) -> str:
-        """@@PLACEHOLDER@@"""
         return _matrix_name_map.get(self, super().string)
 
 
@@ -577,7 +575,7 @@ class Transfer(_TransferMeta):
     @property
     def pretty_string(self) -> str:
         return _transfer_pretty_name_map.get(self, super().pretty_string)
-    
+
     @property
     def string(self) -> str:
         return _transfer_name_map.get(self, super().string)
@@ -876,12 +874,10 @@ class Primaries(_PrimariesMeta):
 
     @property
     def pretty_string(self) -> str:
-        """@@PLACEHOLDER@@"""
         return _primaries_pretty_name_map.get(self, super().pretty_string)
 
     @property
     def string(self) -> str:
-        """@@PLACEHOLDER@@"""
         return _primaries_name_map.get(self, super().string)
 
 
@@ -889,16 +885,16 @@ class MatrixCoefficients(NamedTuple):
     """Class representing Linear <-> Gamma conversion matrix coefficients"""
 
     k0: float
-    """@@PLACEHOLDER@@"""
+    """Coefficient representing the offset of the linear value relative to the gamma value."""
 
     phi: float
-    """@@PLACEHOLDER@@"""
+    """Coefficient representing the slope of the linear value relative to the gamma value."""
 
     alpha: float
-    """@@PLACEHOLDER@@"""
+    """Coefficient representing the non-linearity of the gamma curve."""
 
     gamma: float
-    """@@PLACEHOLDER@@"""
+    """Coefficient representing the exponent of the gamma curve."""
 
     @classproperty
     def SRGB(cls) -> MatrixCoefficients:

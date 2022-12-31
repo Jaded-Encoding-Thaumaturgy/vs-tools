@@ -94,7 +94,7 @@ def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /)
 
 
 def get_framerate(clip: vs.VideoNode | Fraction | tuple[int, int] | float) -> Fraction:
-    """@@PLACEHOLDER@@"""
+    """Get the framerate from any object holding it."""
 
     if isinstance(clip, vs.VideoNode):
         return clip.fps  # type: ignore

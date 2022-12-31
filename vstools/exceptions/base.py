@@ -35,7 +35,14 @@ class CustomErrorMeta(type):
 
     @staticmethod
     def setup_exception(exception: SelfCErrorMeta, override: str | ExceptionT | None = None) -> SelfCErrorMeta:
-        """@@PLACEHOLDER@@"""
+        """
+        Setup an exception for later use in CustomError.
+
+        :param exception:   Exception to update.
+        :param override:    Optional name or exception from which get the override values.
+
+        :return:            Set up exception.
+        """
 
         if override:
             if isinstance(override, str):
@@ -74,7 +81,13 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
     def __init__(
         self, message: SupportsString | None = None, func: FuncExceptT | None = None, reason: Any = None, **kwargs: Any
     ) -> None:
-        """@@PLACEHOLDER@@"""
+        """
+        Instantiate a new exception with pretty printing and more.
+
+        :param message: Message of the error.
+        :param func:    Function this exception was raised from.
+        :param reason:  Reason of the exception. For example, an optional parameter.
+        """
 
         self.message = message
         self.func = func
@@ -101,7 +114,13 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
         func: FuncExceptT | None = MISSING, reason: SupportsString | FuncExceptT | None = MISSING,  # type: ignore
         **kwargs: Any
     ) -> SelfError:
-        """@@PLACEHOLDER@@"""
+        """
+        Copy an existing exception with defaults and instantiate a new one.
+
+        :param message: Message of the error.
+        :param func:    Function this exception was raised from.
+        :param reason:  Reason of the exception. For example, an optional parameter.
+        """
 
         err = deepcopy(self)
 
@@ -186,7 +205,7 @@ class CustomRuntimeError(CustomError, RuntimeError):
 
 
 class CustomNotImplementedError(CustomError, NotImplementedError):
-    """@@PLACEHOLDER@@"""
+    """Thrown when you encounter a yet not implemented brach of code."""
 
 
 class CustomPermissionError(CustomError, PermissionError):

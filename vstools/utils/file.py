@@ -22,7 +22,7 @@ __all__ = [
 
 
 def get_user_data_dir() -> Path:
-    """@@PLACEHOLDER@@"""
+    """Get user data dir path."""
 
     if sys.platform == 'win32':
         buf = ctypes.create_unicode_buffer(1024)

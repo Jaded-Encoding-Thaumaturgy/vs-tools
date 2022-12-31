@@ -26,13 +26,13 @@ __all__ = [
 class PropEnum(CustomIntEnum):
     @classmethod
     def is_unknown(cls: type[SelfPropEnum], value: int | SelfPropEnum) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether the value represents an unknown value."""
 
         return False
 
     @classproperty
     def prop_key(cls: type[SelfPropEnum]) -> str:  # type: ignore
-        """@@PLACEHOLDER@@"""
+        """The key used in props to store the enum."""
 
         return f'_{cls.__name__}'
 
@@ -65,7 +65,7 @@ class PropEnum(CustomIntEnum):
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> SelfPropEnum | None:
-            """@@PLACEHOLDER@@"""
+            """Get the enum member from its int representation."""
 
     @classmethod
     def _missing_(cls: type[SelfPropEnum], value: Any) -> SelfPropEnum | None:
@@ -75,7 +75,7 @@ class PropEnum(CustomIntEnum):
 
     @classmethod
     def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
-        """@@PLACEHOLDER@@"""
+        """Get an enum member from the video resolution with heuristics."""
         raise NotImplementedError
 
     @classmethod
@@ -83,14 +83,14 @@ class PropEnum(CustomIntEnum):
         cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False,
         func: FuncExceptT | None = None
     ) -> SelfPropEnum:
-        """@@PLACEHOLDER@@"""
+        """Get an enum member from the video props or optionally fallback to resolution when strict=False."""
         raise NotImplementedError
 
     @classmethod
     def ensure_presence(
         cls: type[SelfPropEnum], clip: vs.VideoNode, value: int | SelfPropEnum | None, func: FuncExceptT | None = None
     ) -> vs.VideoNode:
-        """@@PLACEHOLDER@@"""
+        """Ensure the presence of the prop in the VideoNode."""
         enum_value = cls.from_param(value, func) or cls.from_video(clip, True)
 
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
@@ -99,7 +99,7 @@ class PropEnum(CustomIntEnum):
     def ensure_presences(
         clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
     ) -> vs.VideoNode:
-        """@@PLACEHOLDER@@"""
+        """Ensure the presence of multiple PropEnums at once."""
         return clip.std.SetFrameProps(**{
             value.prop_key: value.value  # type: ignore
             for value in [
@@ -110,12 +110,12 @@ class PropEnum(CustomIntEnum):
 
     @property
     def pretty_string(self) -> str:
-        """@@PLACEHOLDER@@"""
+        """Get a pretty, displayable, string of the enum member."""
         return capwords(self.string.replace('_', ' '))
 
     @property
     def string(self) -> str:
-        """@@PLACEHOLDER@@"""
+        """Get the string representation used in resize plugin/encoders."""
         return self._name_.lower()
 
     @classmethod
@@ -376,7 +376,7 @@ if TYPE_CHECKING:
         def ensure_presence(
             cls, clip: vs.VideoNode, tff: bool | int | FieldBasedT | None, func: FuncExceptT | None = None
         ) -> vs.VideoNode:
-            """@@PLACEHOLDER@@"""
+            ...
 else:
     _MatrixMeta = _TransferMeta = _PrimariesMeta = _ColorRangeMeta = PropEnum
     _ChromaLocationMeta = PropEnum

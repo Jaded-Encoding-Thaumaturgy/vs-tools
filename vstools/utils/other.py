@@ -21,7 +21,7 @@ IS_DOCS = not TYPE_CHECKING and (
 
 
 def get_nvidia_version() -> tuple[int, int] | None:
-    """@@PLACEHOLDER@@"""
+    """Check if nvidia drivers are installed and if available return the version."""
 
     nvcc = run(['nvcc', '--version'], capture_output=True)
 

@@ -169,7 +169,7 @@ def get_lowest_value(
 def get_lowest_values(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range_in: ColorRangeT = ColorRange.FULL
 ) -> Sequence[float]:
-    """@@PLACEHOLDER@@"""
+    """Get all planes lowest values of a format."""
 
     fmt = get_video_format(clip_or_depth)
     return normalize_seq(
@@ -199,7 +199,8 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chr
 
 @disallow_variable_format
 def get_neutral_values(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> Sequence[float]:
-    """@@PLACEHOLDER@@"""
+    """Get all planes neutral values of a format."""
+
     fmt = get_video_format(clip_or_depth)
     return normalize_seq([get_neutral_value(fmt, False), get_neutral_value(fmt, True)], fmt.num_planes)
 
@@ -234,6 +235,7 @@ def get_peak_value(
 def get_peak_values(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range_in: ColorRangeT = ColorRange.FULL
 ) -> Sequence[float]:
-    """@@PLACEHOLDER@@"""
+    """Get all planes peak values of a format."""
+
     fmt = get_video_format(clip_or_depth)
     return normalize_seq([get_peak_value(fmt, False, range_in), get_peak_value(fmt, True, range_in)], fmt.num_planes)

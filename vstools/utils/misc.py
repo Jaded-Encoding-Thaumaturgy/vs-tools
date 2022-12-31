@@ -130,7 +130,7 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
 
 
 def set_output(node: vs.RawNode, name: str | bool = True, **kwargs: Any) -> None:
-    """@@PLACEHOLDER@@"""
+    """Set output node with optional name, and if available, use vspreview set_output."""
 
     index = len(vs.get_outputs())
 

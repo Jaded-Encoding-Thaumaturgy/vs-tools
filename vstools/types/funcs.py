@@ -12,7 +12,7 @@ __all__ = [
 
 
 class StrList(List[SupportsString]):
-    """@@PLACEHOLDER@@"""
+    """Custom class for representing a recursively "stringable" list."""
 
     if TYPE_CHECKING:
         @overload
