@@ -153,7 +153,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
-        clip: vs.VideoNode = depth(clip, self.bitdepth) if self.bitdepth else self.clip
+        clip: vs.VideoNode = depth(self.clip, self.bitdepth) if self.bitdepth else self.clip
         assert clip.format
         bits_per_sample = clip.format.bits_per_sample
         cfamily = clip.format.color_family
