@@ -160,13 +160,22 @@ def kwargs_fallback(
 def kwargs_fallback(  # type: ignore
     value: T | None, kwargs: tuple[KwargsT, str], *fallbacks: T | None, default: T = fallback_missing  # type: ignore
 ) -> T | MissingT:
-    """@@PLACEHOLDER@@"""
+    """Utility function to return a fallback value from kwargs if value was not found or is None."""
 
     return fallback(value, kwargs[0].get(kwargs[1], None), *fallbacks, default=default)
 
 
 class FunctionUtil(cachedproperty.baseclass, list[int]):
-    """@@PLACEHOLDER@@"""
+    """
+    Function util to normalize common actions and boilerplate often used in functions.
+
+    Main use is:
+        - Automatically convert to OPP if input is RGB and function only supports GRAY, YUV.
+        - Automatically dither up and down as the function needs.
+        - Handle the variable clip check.
+        - Fully type safe and remove the need for asserts or typeguards in function code.
+        - Handy properties for common code paths, and improve code readability.
+    """
 
     def __init__(
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
@@ -199,7 +208,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
-        """@@PLACEHOLDER@@"""
+        """Get a "normalized" clip. This means color space, and bitdepth conversion if needed."""
 
         clip: vs.VideoNode = depth(self.clip, self.bitdepth) if self.bitdepth else self.clip
         assert clip.format
@@ -236,13 +245,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def work_clip(self) -> ConstantFormatVideoNode:
-        """@@PLACEHOLDER@@"""
+        """Get the "work clip" as specified from the input planes."""
 
         return plane(self.norm_clip, 0) if self == [0] else self.norm_clip  # type: ignore
 
     @cachedproperty
     def chroma_planes(self) -> list[vs.VideoNode]:
-        """@@PLACEHOLDER@@"""
+        """Get chroma planes if possible."""
 
         if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
@@ -250,48 +259,51 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @property
     def is_float(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether the clip is of float sample type."""
 
         return self.norm_clip.format.sample_type is vs.FLOAT
 
     @property
     def is_integer(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether the clip is of integer sample type."""
 
         return self.norm_clip.format.sample_type is vs.INTEGER
 
     @property
     def is_hd(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether the clip has an HD resolution (>= 1280x720)."""
 
         return self.work_clip.width >= 1280 or self.work_clip.height >= 720
 
     @property
     def luma(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether to process luma."""
 
         return 0 in self
 
     @property
     def luma_only(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether luma is the only channel that is getting processed."""
 
         return self == [0]
 
     @property
     def chroma(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether any of the two chroma planes are getting processed."""
 
         return 1 in self or 2 in self
 
     @property
     def chroma_only(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether both of the two chroma planes are getting processed."""
 
         return self == [1, 2]
 
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
-        """@@PLACEHOLDER@@"""
+        """
+        Function used at the end of the function, to convert back to original format and
+        optionally bitdepth, merge back chroma.
+        """
 
         assert check_variable(processed, self.func)
 
@@ -326,7 +338,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         return processed
 
     def norm_seq(self, seq: T | Sequence[T], null: T = 0) -> list[T]:  # type: ignore
-        """@@PLACEHOLDER@@"""
+        """
+        Normalize a value or sequence to a list mapped to the clip's planes.
+        Unprocessed planes will get "null" value.
+        """
 
         return [
             x if i in self else null

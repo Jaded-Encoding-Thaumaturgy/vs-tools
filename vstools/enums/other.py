@@ -24,10 +24,7 @@ class Direction(CustomIntEnum):
     """Enum to simplify direction argument."""
 
     HORIZONTAL = 0
-    """@@PLACEHOLDER@@"""
-
     VERTICAL = 1
-    """@@PLACEHOLDER@@"""
 
     LEFT = 2
     RIGHT = 3
@@ -36,17 +33,17 @@ class Direction(CustomIntEnum):
 
     @property
     def is_axis(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether the Direction is an axis (Horizontal/Vertical)"""
         return self <= self.VERTICAL
 
     @property
     def is_way(self) -> bool:
-        """@@PLACEHOLDER@@"""
+        """Whether the Direction is one of the 4 ways."""
         return self > self.VERTICAL
 
     @property
     def string(self) -> str:
-        """@@PLACEHOLDER@@"""
+        """Return string representation of the Direction."""
         return self._name_.lower()
 
 
@@ -54,12 +51,12 @@ class Par(Fraction):
     @overload
     @staticmethod
     def get_ar(width: int, height: int, /) -> Fraction:
-        """@@PLACEHOLDER@@"""
+        """Get aspect ratio from width and height."""
 
     @overload
     @staticmethod
     def get_ar(clip: vs.VideoNode, /) -> Fraction:
-        """@@PLACEHOLDER@@"""
+        """Get aspect ratio from clip's width and height."""
 
     @staticmethod
     def get_ar(clip_width: vs.VideoNode | int, height: int = 0, /) -> Fraction:
@@ -77,19 +74,14 @@ class Dar(CustomStrEnum):
     """StrEnum signifying an analog television aspect ratio."""
 
     WIDE = 'wide'
-    """@@PLACEHOLDER@@"""
-
     FULL = 'full'
-    """@@PLACEHOLDER@@"""
-
     SQUARE = 'square'
-    """@@PLACEHOLDER@@"""
 
     @classmethod
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> Dar:
-        """@@PLACEHOLDER@@"""
+        """Get the Dar from video props."""
 
         from ..exceptions import CustomValueError, FramePropError
         from ..utils import get_prop
@@ -115,34 +107,37 @@ class Region(CustomStrEnum):
     """StrEnum signifying an analog television region."""
 
     UNKNOWN = 'unknown'
-    """@@PLACEHOLDER@@"""
+    """Unknown region."""
 
     NTSC = 'NTSC'
-    """@@PLACEHOLDER@@"""
+    """
+    The first American standard for analog television broadcast was developed by
+    National Television System Committee (NTSC) in 1941.
+    """
 
     NTSCi = 'NTSCi'
-    """@@PLACEHOLDER@@"""
+    """Interlaced NTSC."""
 
     PAL = 'PAL'
-    """@@PLACEHOLDER@@"""
+    """Phase Alternating Line (PAL) colour encoding system."""
 
     PALi = 'PALi'
-    """@@PLACEHOLDER@@"""
+    """Interlaced PAL."""
 
     FILM = 'FILM'
-    """@@PLACEHOLDER@@"""
+    """True 24fps content."""
 
     NTSC_FILM = 'NTSC (FILM)'
-    """@@PLACEHOLDER@@"""
+    """NTSC 23.967fps content."""
 
     @property
     def framerate(self) -> Fraction:
-        """@@PLACEHOLDER@@"""
+        """Get the Region framerate."""
         return _region_framerate_map[self]
 
     @classmethod
     def from_framerate(cls, framerate: float | Fraction) -> Region:
-        """@@PLACEHOLDER@@"""
+        """Get the Region from the framerate."""
         return _framerate_region_map[Fraction(framerate)]
 
 
@@ -163,10 +158,7 @@ class Resolution(NamedTuple):
     """Tuple representing a resolution."""
 
     width: int
-    """@@PLACEHOLDER@@"""
-
     height: int
-    """@@PLACEHOLDER@@"""
 
 
 class Coordinate:
@@ -177,10 +169,10 @@ class Coordinate:
     """
 
     x: int
-    """@@PLACEHOLDER@@"""
+    """Horizontal value."""
 
     y: int
-    """@@PLACEHOLDER@@"""
+    """Vertical value."""
 
     @overload
     def __init__(self: SelfCoord, other: tuple[int, int] | SelfCoord, /) -> None:
@@ -209,8 +201,8 @@ SelfCoord = TypeVar('SelfCoord', bound=Coordinate)
 
 
 class Position(Coordinate):
-    """@@PLACEHOLDER@@"""
+    """Positive set of an (x,y) offset relative to the top left corner of the image."""
 
 
 class Size(Coordinate):
-    """@@PLACEHOLDER@@"""
+    """Positive set of an (x,y), (horizontal,vertical), size of the image."""

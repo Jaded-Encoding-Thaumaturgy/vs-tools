@@ -23,7 +23,7 @@ __all__ = [
 
 
 class IndexingType(CustomStrEnum):
-    """@@PLACEHOLDER@@"""
+    """Enum of common indexing file extensions."""
 
     DGI = '.dgi'
     """@@PLACEHOLDER@@"""
@@ -293,7 +293,7 @@ class FileType(FileTypeBase):
         return self in {FileType.INDEX, FileType.INDEX_AUDIO, FileType.INDEX_VIDEO}  # type: ignore
 
     def __call__(self: FileTypeIndex, file_type: str | FileType) -> FileTypeIndexWithType:  # type: ignore
-        """@@PLACEHOLDER@@"""
+        """Get an INDEX FileType of another FileType (Video, Audio, Other)."""
 
         if self is not FileType.INDEX:
             raise NotImplementedError
