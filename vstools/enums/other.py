@@ -81,7 +81,7 @@ class Dar(CustomStrEnum):
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> Dar:
-        """Calculate the Dar using a given clip's video props."""
+        """Calculate the Dar using a given clip's frame properties."""
 
         from ..exceptions import CustomValueError, FramePropError
         from ..utils import get_prop
@@ -143,7 +143,7 @@ class Region(CustomStrEnum):
 
     @classmethod
     def from_framerate(cls, framerate: float | Fraction) -> Region:
-        """Determine the region using a given framerate."""
+        """Determine the Region using a given framerate."""
         return _framerate_region_map[Fraction(framerate)]
 
 

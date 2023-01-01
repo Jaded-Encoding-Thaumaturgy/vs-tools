@@ -40,7 +40,7 @@ class Matrix(_MatrixMeta):
 
         if value == 8:
             raise UnsupportedMatrixError(
-                'Matrix YCGCO is no longer supported by VapourSynth starting in R55 (APIv4).', 'Matrix'
+                'Matrix YCGCO is no longer supported by VapourSynth starting from R55 (APIv4).', 'Matrix'
             )
 
         if Matrix.RGB < value < Matrix.ICTCP:
@@ -82,7 +82,7 @@ class Matrix(_MatrixMeta):
     """
 
     UNKNOWN = 2
-    """Image characteristics are unknown or are determined by the application"""
+    """Image characteristics are unknown or are determined by the application."""
 
     FCC = 4
     """
@@ -823,7 +823,7 @@ class Primaries(_PrimariesMeta):
         :return:                            Primaries object.
 
         :raises UndefinedPrimariesError:    Primaries is undefined.
-        :raises UndefinedPrimariesError:    Primaries can not be determined from the frameprops.
+        :raises UndefinedPrimariesError:    Primaries can not be determined from the frame properties.
         """
 
         return _base_from_video(cls, src, UndefinedPrimariesError, strict, func)
@@ -882,7 +882,7 @@ class Primaries(_PrimariesMeta):
 
 
 class MatrixCoefficients(NamedTuple):
-    """Class representing Linear <-> Gamma conversion matrix coefficients"""
+    """Class representing Linear <-> Gamma conversion matrix coefficients."""
 
     k0: float
     """Coefficient representing the offset of the linear value relative to the gamma value."""
@@ -949,7 +949,7 @@ class MatrixCoefficients(NamedTuple):
 
 
 class ColorRange(_ColorRangeMeta):
-    """Pixel Range ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Equations E-10 through E-20"""
+    """Pixel Range ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Equations E-10 through E-20."""
 
     _value_: int
 
@@ -1193,13 +1193,13 @@ _primaries_pretty_name_map = {
 
 
 MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
-"""Type alias for values that can be used to initialize a :py:attr:`Matrix`"""
+"""Type alias for values that can be used to initialize a :py:attr:`Matrix`."""
 
 TransferT: TypeAlias = Union[int, vs.TransferCharacteristics, Transfer]
-"""Type alias for values that can be used to initialize a :py:attr:`Transfer`"""
+"""Type alias for values that can be used to initialize a :py:attr:`Transfer`."""
 
 PrimariesT: TypeAlias = Union[int, vs.ColorPrimaries, Primaries]
-"""Type alias for values that can be used to initialize a :py:attr:`Primaries`"""
+"""Type alias for values that can be used to initialize a :py:attr:`Primaries`."""
 
 ColorRangeT: TypeAlias = Union[int, vs.ColorRange, ColorRange]
-"""Type alias for values that can be used to initialize a :py:attr:`ColorRange`"""
+"""Type alias for values that can be used to initialize a :py:attr:`ColorRange`."""

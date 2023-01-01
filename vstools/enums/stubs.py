@@ -83,14 +83,14 @@ class PropEnum(CustomIntEnum):
         cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False,
         func: FuncExceptT | None = None
     ) -> SelfPropEnum:
-        """Get an enum member from the video props or optionally fallback to resolution when strict=False."""
+        """Get an enum member from the frame properties or optionally fallback to resolution when strict=False."""
         raise NotImplementedError
 
     @classmethod
     def ensure_presence(
         cls: type[SelfPropEnum], clip: vs.VideoNode, value: int | SelfPropEnum | None, func: FuncExceptT | None = None
     ) -> vs.VideoNode:
-        """Ensure the presence of the prop in the VideoNode."""
+        """Ensure the presence of the property in the VideoNode."""
         enum_value = cls.from_param(value, func) or cls.from_video(clip, True)
 
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
@@ -366,7 +366,7 @@ if TYPE_CHECKING:
             Determine the type of field through a parameter.
 
             :param value_or_tff:    Value or FieldBased object.
-                                    If it's bool, it specifies for wheter it's tff of bff.
+                                    If it's bool, it specifies for whether it's TFF of BFF.
             :param func_except:     Exception function.
 
             :return:                FieldBased object or None.

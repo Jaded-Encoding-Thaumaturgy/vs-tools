@@ -18,7 +18,7 @@ __all__ = [
 
 
 class ChromaLocation(_ChromaLocationMeta):
-    """Chroma sample position in YUV formats"""
+    """Chroma sample position in YUV formats."""
 
     _value_: int
 
@@ -72,7 +72,7 @@ class ChromaLocation(_ChromaLocationMeta):
         :return:                                ChromaLocation object.
 
         :raises UndefinedChromaLocationError:   Chroma location is undefined.
-        :raises UndefinedChromaLocationError:   Chroma location can not be determined from the frameprops.
+        :raises UndefinedChromaLocationError:   Chroma location can not be determined from the frame properties.
         """
 
         return _base_from_video(cls, src, UndefinedChromaLocationError, strict, func)
@@ -165,7 +165,7 @@ class FieldBased(_FieldBasedMeta):
         :return:                                FieldBased object.
 
         :raises UndefinedFieldBasedError:       Field order is undefined.
-        :raises UndefinedFieldBasedError:       Field order can not be determined from the frameprops.
+        :raises UndefinedFieldBasedError:       Field order can not be determined from the frame properties.
         """
 
         return _base_from_video(cls, src, UndefinedFieldBasedError, strict, func)
@@ -207,7 +207,7 @@ class FieldBased(_FieldBasedMeta):
 
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
-"""Type alias for values that can be used to initialize a :py:attr:`ChromaLocation`"""
+"""Type alias for values that can be used to initialize a :py:attr:`ChromaLocation`."""
 
 FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]
-"""Type alias for values that can be used to initialize a :py:attr:`FieldBased`"""
+"""Type alias for values that can be used to initialize a :py:attr:`FieldBased`."""
