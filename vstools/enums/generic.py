@@ -33,22 +33,11 @@ class ChromaLocation(_ChromaLocationMeta):
         return None
 
     LEFT = 0
-    """@@PLACEHOLDER@@"""
-
     CENTER = 1
-    """@@PLACEHOLDER@@"""
-
     TOP_LEFT = 2
-    """@@PLACEHOLDER@@"""
-
     TOP = 3
-    """@@PLACEHOLDER@@"""
-
     BOTTOM_LEFT = 4
-    """@@PLACEHOLDER@@"""
-
     BOTTOM = 5
-    """@@PLACEHOLDER@@"""
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ChromaLocation:
@@ -92,7 +81,7 @@ class ChromaLocation(_ChromaLocationMeta):
     def get_offsets(
         cls, chroma_loc: ChromaLocation | vs.VideoNode
     ) -> tuple[float, float]:
-        """@@PLACEHOLDER@@"""
+        """Get (left,top) shift for chroma relative to luma."""
 
         if isinstance(chroma_loc, vs.VideoNode):
             assert chroma_loc.format  # type: ignore
@@ -140,13 +129,13 @@ class FieldBased(_FieldBasedMeta):
         return None
 
     PROGRESSIVE = 0
-    """@@PLACEHOLDER@@"""
+    """The frame is progressive."""
 
     BFF = 1
-    """@@PLACEHOLDER@@"""
+    """The frame is interlaced and the field order is bottom field first."""
 
     TFF = 2
-    """@@PLACEHOLDER@@"""
+    """The frame is interlaced and the field order is top field first."""
 
     if not TYPE_CHECKING:
         @classmethod
@@ -158,7 +147,7 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> FieldBased:
-        """@@PLACEHOLDER@@"""
+        """Guess the Field order from the frame resolution."""
 
         return cls.PROGRESSIVE
 
@@ -218,7 +207,7 @@ class FieldBased(_FieldBasedMeta):
 
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
-"""@@PLACEHOLDER@@"""
+"""Type alias for values that can be used to initialize a :py:attr:`ChromaLocation`"""
 
 FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]
-"""@@PLACEHOLDER@@"""
+"""Type alias for values that can be used to initialize a :py:attr:`FieldBased`"""

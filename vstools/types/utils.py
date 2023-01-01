@@ -214,7 +214,15 @@ class complex_hash(Generic[T]):
 
 
 def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[type[T]]:
-    """@@PLACEHOLDER@@"""
+    """
+    Get all subclasses of a given type.
+
+    :param family:  "Main" type all other classes inherit from.
+    :param exclude: Excluded types from the yield. Note that they won't be excluded from search.
+                    For examples, subclasses of these excluded classes will be yield.
+
+    :return:        List of all subclasses of "family".
+    """
 
     def _subclasses(cls: type[T]) -> Generator[type[T], None, None]:
         for subclass in cls.__subclasses__():
@@ -227,12 +235,14 @@ def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[typ
 
 
 class classproperty(Generic[P, R, T, T0, P0]):
-    """@@PLACEHOLDER@@"""
+    """
+    Make a class property. A combination between classmethod and property.
+    """
 
     __isabstractmethod__: bool = False
 
     class metaclass(type):
-        """@@PLACEHOLDER@@"""
+        """This must be set for the decorator to work."""
 
         def __setattr__(self, key: str, value: Any) -> None:
             if key in self.__dict__:
@@ -311,14 +321,21 @@ class classproperty(Generic[P, R, T, T0, P0]):
 
 
 class cachedproperty(property, Generic[P, R, T, T0, P0]):
-    """@@PLACEHOLDER@@"""
+    """
+    Wrapper for a one-time get property, that will be cached.
+    Keep in mind two things:
+        The cache is per-object. Don't hold a reference to itself or it
+        will never get garbage collected.
+        Your class has to either manually set __dict__[cachedproperty.cache_key]
+        or inherit from cachedproperty.baseclass.
+    """
 
     __isabstractmethod__: bool = False
 
     cache_key = '_vst_cachedproperty_cache'
 
     class baseclass:
-        """@@PLACEHOLDER@@"""
+        """Inherit from this class to automatically set the cache dict."""
 
         if not TYPE_CHECKING:
             def __new__(cls, *args: Any, **kwargs: Any) -> None:
@@ -355,7 +372,7 @@ class cachedproperty(property, Generic[P, R, T, T0, P0]):
 
 
 class KwargsNotNone(KwargsT):
-    """@@PLACEHOLDER@@"""
+    """Remove all None objects from this kwargs dict."""
 
     if not TYPE_CHECKING:
         def __new__(cls, *args: Any, **kwargs: Any) -> KwargsNotNone:
@@ -366,7 +383,14 @@ class KwargsNotNone(KwargsT):
 
 
 class vs_object(ABC, metaclass=ABCMeta):
-    """@@PLACEHOLDER@@"""
+    """
+    Special object that follows the lifecycle of the VapourSynth environment/core.
+
+    If a special dunder is created, __vs_del__, it will be called when the environment is getting deleted.
+
+    This is especially useful if you have to hold a reference to a VideoNode or Plugin/Function object
+    in this object as you need to remove it for the VapourSynth core to be freed correctly.
+    """
 
     __vsdel_register: Callable[[int], None] | None = None
 
@@ -393,11 +417,14 @@ class vs_object(ABC, metaclass=ABCMeta):
 
     if TYPE_CHECKING:
         def __vs_del__(self, core_id: int) -> None:
-            """@@PLACEHOLDER@@"""
+            """Special dunder that will be called when a core is getting freed."""
 
     @staticmethod
     def core_unbound(deleter: F) -> F:
-        """@@PLACEHOLDER@@"""
+        """
+        Decorate a __vs_del__ with this to indicate that it should
+        be called when the environment is getting freed instead of the core.
+        """
 
         deleter._is_core_unbound = True  # type: ignore
         return deleter
@@ -430,14 +457,21 @@ SingletonSelf = TypeVar('SingletonSelf', bound=SingletonMeta)
 
 
 class Singleton(metaclass=SingletonMeta):
-    """@@PLACEHOLDER@@"""
+    """Handy class to inherit to have the SingletonMeta metaclass."""
 
 
 class VSDebug(Singleton, init=True):
-    """@@PLACEHOLDER@@"""
+    """Special class that follows the VapourSynth lifecycle for debug purposes."""
 
     def __init__(self, *, env_life: bool = True, core_fetch: bool = False) -> None:
-        """@@PLACEHOLDER@@"""
+        """
+        Print useful debug information.
+
+        :param env_life:    Print creation/destroy of VapourSynth environment.
+        :param core_fetch:  Print traceback of the code that led to the first concrete core fetch.
+                            Especially useful when trying to find the code path that is
+                            locking you into a EnvironmentPolicy.
+        """
 
         from ..utils.vs_proxy import register_on_creation
 
