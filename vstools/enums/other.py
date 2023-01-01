@@ -21,7 +21,7 @@ __all__ = [
 
 
 class Direction(CustomIntEnum):
-    """Enum to simplify direction argument."""
+    """Enum to simplify the direction argument."""
 
     HORIZONTAL = 0
     VERTICAL = 1
@@ -33,17 +33,17 @@ class Direction(CustomIntEnum):
 
     @property
     def is_axis(self) -> bool:
-        """Whether the Direction is an axis (Horizontal/Vertical)"""
+        """Whether the Direction represents an axis (horizontal/vertical)"""
         return self <= self.VERTICAL
 
     @property
     def is_way(self) -> bool:
-        """Whether the Direction is one of the 4 ways."""
+        """Whether the Direction is one of the 4 arrow directions."""
         return self > self.VERTICAL
 
     @property
     def string(self) -> str:
-        """Return string representation of the Direction."""
+        """A string representation of the Direction."""
         return self._name_.lower()
 
 
@@ -51,12 +51,12 @@ class Par(Fraction):
     @overload
     @staticmethod
     def get_ar(width: int, height: int, /) -> Fraction:
-        """Get aspect ratio from width and height."""
+        """Calculate the aspect ratio using a given width and height."""
 
     @overload
     @staticmethod
     def get_ar(clip: vs.VideoNode, /) -> Fraction:
-        """Get aspect ratio from clip's width and height."""
+        """Calculate the aspect ratio using a given clip's width and height."""
 
     @staticmethod
     def get_ar(clip_width: vs.VideoNode | int, height: int = 0, /) -> Fraction:
@@ -81,7 +81,7 @@ class Dar(CustomStrEnum):
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> Dar:
-        """Get the Dar from video props."""
+        """Calculate the Dar using a given clip's video props."""
 
         from ..exceptions import CustomValueError, FramePropError
         from ..utils import get_prop
@@ -113,13 +113,19 @@ class Region(CustomStrEnum):
     """
     The first American standard for analog television broadcast was developed by
     National Television System Committee (NTSC) in 1941.
+
+    For more information see `this <https://en.wikipedia.org/wiki/NTSC>`_.
     """
 
     NTSCi = 'NTSCi'
     """Interlaced NTSC."""
 
     PAL = 'PAL'
-    """Phase Alternating Line (PAL) colour encoding system."""
+    """
+    Phase Alternating Line (PAL) colour encoding system.
+
+    For more information see `this <https://en.wikipedia.org/wiki/PAL>`_.
+    """
 
     PALi = 'PALi'
     """Interlaced PAL."""
@@ -128,16 +134,16 @@ class Region(CustomStrEnum):
     """True 24fps content."""
 
     NTSC_FILM = 'NTSC (FILM)'
-    """NTSC 23.967fps content."""
+    """NTSC 23.976fps content."""
 
     @property
     def framerate(self) -> Fraction:
-        """Get the Region framerate."""
+        """Obtain the Region's framerate."""
         return _region_framerate_map[self]
 
     @classmethod
     def from_framerate(cls, framerate: float | Fraction) -> Region:
-        """Get the Region from the framerate."""
+        """Determine the region using a given framerate."""
         return _framerate_region_map[Fraction(framerate)]
 
 
@@ -165,14 +171,14 @@ class Coordinate:
     """
     Positive set of (x, y) coordinates.
 
-    :raises ValueError:     Negative values get passed.
+    :raises ValueError:     Negative values were passed.
     """
 
     x: int
-    """Horizontal value."""
+    """Horizontal coordinate."""
 
     y: int
-    """Vertical value."""
+    """Vertical coordinate."""
 
     @overload
     def __init__(self: SelfCoord, other: tuple[int, int] | SelfCoord, /) -> None:
