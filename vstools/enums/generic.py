@@ -18,7 +18,7 @@ __all__ = [
 
 
 class ChromaLocation(_ChromaLocationMeta):
-    """Chroma sample position in YUV formats"""
+    """Chroma sample position in YUV formats."""
 
     _value_: int
 
@@ -41,6 +41,14 @@ class ChromaLocation(_ChromaLocationMeta):
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ChromaLocation:
+        """
+        Guess the chroma location based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            ChromaLocation object.
+        """
+
         from ..utils import get_var_infos
 
         _, width, _ = get_var_infos(frame)
@@ -54,12 +62,27 @@ class ChromaLocation(_ChromaLocationMeta):
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> ChromaLocation:
+        """
+        Obtain the chroma location of a clip from the frame properties.
+
+        :param src:                             Input clip, frame, or props.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be an unknown value.
+
+        :return:                                ChromaLocation object.
+
+        :raises UndefinedChromaLocationError:   Chroma location is undefined.
+        :raises UndefinedChromaLocationError:   Chroma location can not be determined from the frame properties.
+        """
+
         return _base_from_video(cls, src, UndefinedChromaLocationError, strict, func)
 
     @classmethod
     def get_offsets(
         cls, chroma_loc: ChromaLocation | vs.VideoNode
     ) -> tuple[float, float]:
+        """Get (left,top) shift for chroma relative to luma."""
+
         if isinstance(chroma_loc, vs.VideoNode):
             assert chroma_loc.format  # type: ignore
             subsampling = (chroma_loc.format.subsampling_w, chroma_loc.format.subsampling_h)  # type: ignore
@@ -106,8 +129,13 @@ class FieldBased(_FieldBasedMeta):
         return None
 
     PROGRESSIVE = 0
+    """The frame is progressive."""
+
     BFF = 1
+    """The frame is interlaced and the field order is bottom field first."""
+
     TFF = 2
+    """The frame is interlaced and the field order is top field first."""
 
     if not TYPE_CHECKING:
         @classmethod
@@ -119,20 +147,43 @@ class FieldBased(_FieldBasedMeta):
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> FieldBased:
+        """Guess the Field order from the frame resolution."""
+
         return cls.PROGRESSIVE
 
     @classmethod
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> FieldBased:
+        """
+        Obtain the Field order of a clip from the frame properties.
+
+        :param src:                             Input clip, frame, or props.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be an unknown value.
+
+        :return:                                FieldBased object.
+
+        :raises UndefinedFieldBasedError:       Field order is undefined.
+        :raises UndefinedFieldBasedError:       Field order can not be determined from the frame properties.
+        """
+
         return _base_from_video(cls, src, UndefinedFieldBasedError, strict, func)
 
     @property
     def is_inter(self) -> bool:
+        """Check whether the value belongs to an interlaced value."""
+
         return self != FieldBased.PROGRESSIVE
 
     @property
     def field(self) -> int:
+        """
+        Check what field the enum signifies.
+
+        :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
+        """
+
         if self.PROGRESSIVE:
             raise UnsupportedFieldBasedError(
                 'Progressive video aren\'t field based!',
@@ -143,6 +194,8 @@ class FieldBased(_FieldBasedMeta):
 
     @property
     def is_tff(self) -> bool:
+        """Check whether the value is Top-Field-First."""
+
         return self is self.TFF
 
     @property
@@ -154,4 +207,7 @@ class FieldBased(_FieldBasedMeta):
 
 
 ChromaLocationT: TypeAlias = Union[int, vs.ChromaLocation, ChromaLocation]
+"""Type alias for values that can be used to initialize a :py:attr:`ChromaLocation`."""
+
 FieldBasedT: TypeAlias = Union[int, vs.FieldBased, FieldBased]
+"""Type alias for values that can be used to initialize a :py:attr:`FieldBased`."""

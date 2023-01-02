@@ -28,6 +28,17 @@ __all__ = [
 def finalize_clip(
     clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
+    """
+    Finalize a clip for output to the encoder.
+
+    :param clip:            Clip to output.
+    :param bits:            Output bits.
+    :param clamp_tv_range:  Whether to clamp to tv range.
+    :param func:            Optional function this was called from.
+
+    :return:                Dithered down and optionally clamped clip.
+    """
+
     assert check_variable(clip, func or finalize_clip)
 
     if bits:
@@ -71,6 +82,8 @@ def finalize_output(
     function: F_VD | None = None, /, *, bits: int | None = 10,
     clamp_tv_range: bool = True, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
+    """Decorator implementation of finalize_clip."""
+
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],
@@ -95,6 +108,8 @@ def initialize_clip(
     field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
     strict: bool = False, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
+    """Initialize a clip with default props."""
+
     func = fallback(func, initialize_clip)  # type: ignore
 
     values: list[tuple[type[PropEnum], Any]] = [
@@ -158,6 +173,7 @@ def initialize_input(
     """
     Decorator implementation of ``initialize_clip``
     """
+
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],
@@ -224,6 +240,8 @@ def chroma_injector(
     scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.lazy.resize.Bicubic,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
+    """Separate luma and chroma, pass luma to the decorated function, and merge optionally scaled chroma after."""
+
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],
@@ -323,6 +341,8 @@ def allow_variable_clip(
     [Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]],
     Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]
 ] | Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]:
+    """Process a variable clip as a bunch of cached constant clips."""
+
     if function is None:
         return cast(
             Callable[

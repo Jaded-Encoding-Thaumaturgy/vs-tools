@@ -26,10 +26,14 @@ __all__ = [
 class PropEnum(CustomIntEnum):
     @classmethod
     def is_unknown(cls: type[SelfPropEnum], value: int | SelfPropEnum) -> bool:
+        """Whether the value represents an unknown value."""
+
         return False
 
     @classproperty
     def prop_key(cls: type[SelfPropEnum]) -> str:  # type: ignore
+        """The key used in props to store the enum."""
+
         return f'_{cls.__name__}'
 
     if TYPE_CHECKING:
@@ -61,7 +65,7 @@ class PropEnum(CustomIntEnum):
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> SelfPropEnum | None:
-            ...
+            """Get the enum member from its int representation."""
 
     @classmethod
     def _missing_(cls: type[SelfPropEnum], value: Any) -> SelfPropEnum | None:
@@ -71,6 +75,7 @@ class PropEnum(CustomIntEnum):
 
     @classmethod
     def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
+        """Get an enum member from the video resolution with heuristics."""
         raise NotImplementedError
 
     @classmethod
@@ -78,12 +83,14 @@ class PropEnum(CustomIntEnum):
         cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False,
         func: FuncExceptT | None = None
     ) -> SelfPropEnum:
+        """Get an enum member from the frame properties or optionally fallback to resolution when strict=False."""
         raise NotImplementedError
 
     @classmethod
     def ensure_presence(
         cls: type[SelfPropEnum], clip: vs.VideoNode, value: int | SelfPropEnum | None, func: FuncExceptT | None = None
     ) -> vs.VideoNode:
+        """Ensure the presence of the property in the VideoNode."""
         enum_value = cls.from_param(value, func) or cls.from_video(clip, True)
 
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
@@ -92,6 +99,7 @@ class PropEnum(CustomIntEnum):
     def ensure_presences(
         clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
     ) -> vs.VideoNode:
+        """Ensure the presence of multiple PropEnums at once."""
         return clip.std.SetFrameProps(**{
             value.prop_key: value.value  # type: ignore
             for value in [
@@ -102,10 +110,12 @@ class PropEnum(CustomIntEnum):
 
     @property
     def pretty_string(self) -> str:
+        """Get a pretty, displayable, string of the enum member."""
         return capwords(self.string.replace('_', ' '))
 
     @property
     def string(self) -> str:
+        """Get the string representation used in resize plugin/encoders."""
         return self._name_.lower()
 
     @classmethod
@@ -170,7 +180,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Matrix | None:
-            ...
+            """
+            Determine the Matrix through a parameter.
+
+            :param value:           Value or Matrix object.
+            :param func_except:     Exception function.
+
+            :return:                Matrix object or None.
+            """
 
     class _TransferMeta(PropEnum, vs.TransferCharacteristics):  # type: ignore
         def __new__(cls: type[Transfer], value: TransferT) -> Transfer:  # type: ignore
@@ -199,7 +216,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Transfer | None:
-            ...
+            """
+            Determine the Transfer through a parameter.
+
+            :param value:           Value or Transfer object.
+            :param func_except:     Exception function.
+
+            :return:                Transfer object or None.
+            """
 
     class _PrimariesMeta(PropEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[Primaries], value: PrimariesT) -> Primaries:  # type: ignore
@@ -228,7 +252,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> Primaries | None:
-            ...
+            """
+            Determine the Primaries through a parameter.
+
+            :param value:           Value or Primaries object.
+            :param func_except:     Exception function.
+
+            :return:                Primaries object or None.
+            """
 
     class _ColorRangeMeta(PropEnum, vs.ColorPrimaries):  # type: ignore
         def __new__(cls: type[ColorRange], value: ColorRangeT) -> ColorRange:  # type: ignore
@@ -257,7 +288,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> ColorRange | None:
-            ...
+            """
+            Determine the ColorRange through a parameter.
+
+            :param value:           Value or ColorRange object.
+            :param func_except:     Exception function.
+
+            :return:                ColorRange object or None.
+            """
 
     class _ChromaLocationMeta(PropEnum, vs.ChromaLocation):  # type: ignore
         def __new__(cls: type[ChromaLocation], value: ChromaLocationT) -> ChromaLocation:  # type: ignore
@@ -288,7 +326,14 @@ if TYPE_CHECKING:
 
         @classmethod
         def from_param(cls: Any, value: Any, func_except: Any = None) -> ChromaLocation | None:
-            ...
+            """
+            Determine the ChromaLocation through a parameter.
+
+            :param value:           Value or ChromaLocation object.
+            :param func_except:     Exception function.
+
+            :return:                ChromaLocation object or None.
+            """
 
     class _FieldBasedMeta(PropEnum, vs.FieldBased):  # type: ignore
         def __new__(cls: type[FieldBased], value: FieldBasedT) -> FieldBased:  # type: ignore
@@ -317,7 +362,15 @@ if TYPE_CHECKING:
 
         @classmethod  # type: ignore
         def from_param(cls: Any, value: Any, func_except: Any = None) -> FieldBased | None:
-            ...
+            """
+            Determine the type of field through a parameter.
+
+            :param value_or_tff:    Value or FieldBased object.
+                                    If it's bool, it specifies for whether it's TFF of BFF.
+            :param func_except:     Exception function.
+
+            :return:                FieldBased object or None.
+            """
 
         @classmethod
         def ensure_presence(

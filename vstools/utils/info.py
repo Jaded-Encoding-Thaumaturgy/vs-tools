@@ -25,6 +25,8 @@ __all__ = [
 
 
 def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, int, int]:
+    """Get information of a variable resolution clip or frame."""
+
     if isinstance(frame, vs.VideoNode) and not (
         frame.width and frame.height and frame.format
     ):
@@ -39,6 +41,8 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
 def get_video_format(
     value: int | VideoFormatT | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None
 ) -> vs.VideoFormat:
+    """Get format of a given value."""
+
     if sample_type is not None:
         sample_type = vs.SampleType(sample_type)
 
@@ -66,22 +70,32 @@ def get_video_format(
 
 
 def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
+    """Get depth of a given clip or value."""
+
     return get_video_format(clip).bits_per_sample
 
 
 def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
+    """Get sample type of a given clip."""
+
     if isinstance(clip, vs.SampleType):
         return clip
+
     return get_video_format(clip).sample_type
 
 
 def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
+    """Get color family of a given clip."""
+
     if isinstance(clip, vs.ColorFamily):
         return clip
+
     return get_video_format(clip).color_family
 
 
 def get_framerate(clip: vs.VideoNode | Fraction | tuple[int, int] | float) -> Fraction:
+    """Get the framerate from any object holding it."""
+
     if isinstance(clip, vs.VideoNode):
         return clip.fps  # type: ignore
 
@@ -95,6 +109,19 @@ def get_framerate(clip: vs.VideoNode | Fraction | tuple[int, int] | float) -> Fr
 
 
 def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16, **kwargs: Any) -> tuple[vs.VideoNode, int]:
+    """
+    Expected output bitdepth for a clip.
+
+    This function is meant to be used when a clip does not match the expected input bitdepth.
+    Both the dithered clip and the original bitdepth are returned.
+
+    :param clip:            Input clip.
+    :param expected_depth:  Expected bitdepth.
+                            Default: 16.
+
+    :return:                Tuple containing the clip dithered to the expected depth and the original bitdepth.
+    """
+
     bits = get_depth(clip)
 
     if bits != expected_depth:
@@ -103,7 +130,9 @@ def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16, **kwargs: Any) 
     return clip, bits
 
 
-def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, index: int, /) -> tuple[int, int]:
+def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, /, index: int) -> tuple[int, int]:
+    """Get the size of a given clip's plane."""
+
     assert frame.format and frame.width
 
     width, height = frame.width, frame.height
@@ -116,6 +145,8 @@ def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, index: int, /) -> tuple
 
 
 def get_resolutions(clip: vs.VideoNode | vs.VideoFrame) -> tuple[tuple[int, int, int], ...]:
+    """Get a tuple containing the resolutions of every plane of the given clip."""
+
     assert clip.format
 
     return tuple(
@@ -124,6 +155,16 @@ def get_resolutions(clip: vs.VideoNode | vs.VideoFrame) -> tuple[tuple[int, int,
 
 
 def get_subsampling(clip: VideoFormatT | HoldsVideoFormatT, /) -> str | None:
+    """
+    Get the subsampling of a clip as a human-readable name.
+
+    :param clip:                Input clip.
+
+    :return:                    String with a human-readable name.
+
+    :raises CustomValueError:   Unknown subsampling.
+    """
+
     fmt = get_video_format(clip)
 
     if fmt.color_family != vs.YUV:
@@ -161,6 +202,23 @@ def get_w(height: float, ref: vs.VideoNode | vs.VideoFrame, /) -> int:
 
 
 def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9, /, mod: int | None = None) -> int:
+    """
+    Calculate the width given a height and an aspect ratio.
+
+    Either an aspect ratio (as a float) can be given, or a reference clip.
+    A mod can also be set, which will ensure the output width is MOD#.
+
+    The output is by default rounded (as fractional resolutions are not supported).
+
+    :param height:          Height to use for the calculation.
+    :param ar_or_ref:       Aspect ratio or reference clip from which the AR will be calculated.
+                            Default: 1.778 (16 / 9).
+    :param mod:             Mod for the output width to comply to. If None, do not force it to comply to anything.
+                            Default: None.
+
+    :return:                Calculated width.
+    """
+
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format  # type: ignore
         aspect_ratio = ref.width / ref.height  # type: ignore
@@ -190,6 +248,23 @@ def get_h(width: float, ref: vs.VideoNode | vs.VideoFrame, /) -> int:
 
 
 def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9, /, mod: int | None = None) -> int:
+    """
+    Calculate the height given a width and an aspect ratio.
+
+    Either an aspect ratio (as a float) can be given, or a reference clip.
+    A mod can also be set, which will ensure the output height is MOD#.
+
+    The output is by default rounded (as fractional resolutions are not supported).
+
+    :param width:           Width to use for the calculation.
+    :param ar_or_ref:       Aspect ratio or reference clip from which the AR will be calculated.
+                            Default: 1.778 (16 / 9).
+    :param mod:             Mod for the output width to comply to. If None, do not force it to comply to anything.
+                            Default: None.
+
+    :return:                Calculated height.
+    """
+
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format  # type: ignore
         aspect_ratio = ref.height / ref.width  # type: ignore

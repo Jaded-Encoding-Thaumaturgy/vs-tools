@@ -43,7 +43,7 @@ class FramesLengthError(CustomOverflowError):
 
 
 class ClipLengthError(CustomOverflowError):
-    ...
+    """Raised when a generic clip length error occurs."""
 
 
 class VariableFormatError(CustomValueError):
@@ -79,6 +79,7 @@ class InvalidVideoFormatError(CustomValueError):
         **kwargs: Any
     ) -> None:
         from ..utils import get_video_format
+
         super().__init__(message, func, format=get_video_format(format), **kwargs)
 
 
@@ -119,6 +120,7 @@ class InvalidColorFamilyError(CustomValueError):
     ) -> None:
         from ..functions import to_arr
         from ..utils import get_color_family
+
         to_check = get_color_family(to_check)
         correct_list = [get_color_family(c) for c in to_arr(correct)]  # type: ignore
 
@@ -141,7 +143,9 @@ class InvalidSubsamplingError(CustomValueError):
         **kwargs: Any
     ) -> None:
         from ..utils import get_video_format
+
         subsampling = subsampling if isinstance(subsampling, str) else get_video_format(subsampling).name
+
         super().__init__(message, func, subsampling=subsampling, **kwargs)
 
 
@@ -199,8 +203,7 @@ class TopFieldFirstError(CustomValueError):
     """Raised when the user must pass a TFF argument."""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'You must set `tff` for this clip!',
-        **kwargs: Any
+        self, func: FuncExceptT, message: SupportsString = 'You must set `tff` for this clip!', **kwargs: Any
     ) -> None:
         super().__init__(message, func, **kwargs)
 
@@ -208,8 +211,10 @@ class TopFieldFirstError(CustomValueError):
 class InvalidFramerateError(CustomValueError):
     """Raised when the given clip has an invalid framerate."""
 
-    def __init__(self, func: FuncExceptT, clip: vs.VideoNode | Fraction,
-                 message: SupportsString = '{fps} clips are not allowed!', **kwargs: Any) -> None:
+    def __init__(
+        self, func: FuncExceptT, clip: vs.VideoNode | Fraction,
+        message: SupportsString = '{fps} clips are not allowed!', **kwargs: Any
+    ) -> None:
         super().__init__(
             message, func, fps=clip.fps if isinstance(clip, vs.VideoNode) else clip, **kwargs  # type: ignore
         )
