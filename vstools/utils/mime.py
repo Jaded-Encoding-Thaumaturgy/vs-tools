@@ -26,29 +26,29 @@ class IndexingType(CustomStrEnum):
     """Enum of common indexing file extensions."""
 
     DGI = '.dgi'
-    """@@PLACEHOLDER@@"""
+    """DGIndexNV index file, mostly used for interlaced/telecined content."""
 
     LWI = '.lwi'
-    """@@PLACEHOLDER@@"""
+    """LSMAS index file."""
 
 
 class ParsedFile(NamedTuple):
     """Structure for file info."""
 
     path: Path
-    """@@PLACEHOLDER@@"""
+    """Resolved path of the file."""
 
     ext: str
-    """@@PLACEHOLDER@@"""
+    """Extention of the file, from the binary data, not path."""
 
     encoding: str | None
-    """@@PLACEHOLDER@@"""
+    """Present for text files."""
 
     file_type: FileType
-    """@@PLACEHOLDER@@"""
+    """Type of the file. It will hold other useful information."""
 
     mime: str
-    """@@PLACEHOLDER@@"""
+    """Standard MIME type of the filetype."""
 
 
 @complex_hash
@@ -56,19 +56,19 @@ class FileSignature(NamedTuple):
     """Child structure of FileSignatures, holding info of certain types of files and their signatures."""
 
     file_type: str
-    """@@PLACEHOLDER@@"""
+    """FileType as a str."""
 
     ext: str
-    """@@PLACEHOLDER@@"""
+    """Extention from the signature."""
 
     mime: str
-    """@@PLACEHOLDER@@"""
+    """MIME type of the signature."""
 
     offset: int
-    """@@PLACEHOLDER@@"""
+    """Offset from the start of the file of the signatures."""
 
     signatures: list[bytes]
-    """@@PLACEHOLDER@@"""
+    """Byte data signatures, unique for this file type."""
 
     def check_signature(self, file_bytes: bytes | bytearray, /, *, ignore: int = 0) -> int:
         """
@@ -99,10 +99,10 @@ class FileSignatures(list[FileSignature]):
     file_headers_path = Path(
         path.join(path.dirname(path.abspath(__file__)), '__file_headers.json')
     )
-    """@@PLACEHOLDER@@"""
+    """Custom path for the json containing file headers."""
 
     def __init__(self, *, custom_header_data: str | Path | list[FileSignature] | None = None, force: bool = False):
-        """@@PLACEHOLDER@@"""
+        """Fetch all the file signatures, optionally with added custom signatures."""
 
         self.extend(self.load_headers_data(custom_header_data=custom_header_data, force=force))
 
