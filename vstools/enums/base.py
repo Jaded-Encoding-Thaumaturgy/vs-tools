@@ -42,7 +42,7 @@ class CustomEnum(Enum):
             return value
 
         if value is cls:
-            raise CustomValueError('You must select a memeber, not pass the enum!', func_except)
+            raise CustomValueError('You must select a member, not pass the enum!', func_except)
 
         try:
             return cls(value)
