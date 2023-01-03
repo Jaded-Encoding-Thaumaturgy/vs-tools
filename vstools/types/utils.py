@@ -32,26 +32,27 @@ class copy_signature(Generic[F0]):
     """
     Type util to copy the signature of one function to another function.\n
     Especially useful for passthrough functions.
-    ```
-    class SomeClass:
-        def __init__(
-            self, some: Any, complex: Any, /, *args: Any,
-            long: Any, signature: Any, **kwargs: Any
-        ) -> None:
-            ...
 
-    class SomeClassChild(SomeClass):
-        @copy_signature(SomeClass.__init__)
-        def __init__(*args: Any, **kwargs: Any) -> None:
-            super().__init__(*args, **kwargs)
-            # do some other thing
+    .. code-block::
 
-    class Example(SomeClass):
-        @copy_signature(SomeClass.__init__)
-        def __init__(*args: Any, **kwargs: Any) -> None:
-            super().__init__(*args, **kwargs)
-            # another thing
-    ```
+       class SomeClass:
+           def __init__(
+               self, some: Any, complex: Any, /, *args: Any,
+               long: Any, signature: Any, **kwargs: Any
+           ) -> None:
+               ...
+
+       class SomeClassChild(SomeClass):
+           @copy_signature(SomeClass.__init__)
+           def __init__(*args: Any, **kwargs: Any) -> None:
+               super().__init__(*args, **kwargs)
+               # do some other thing
+
+       class Example(SomeClass):
+           @copy_signature(SomeClass.__init__)
+           def __init__(*args: Any, **kwargs: Any) -> None:
+               super().__init__(*args, **kwargs)
+               # another thing
     """
 
     def __init__(self, target: F0) -> None:
@@ -323,11 +324,12 @@ class classproperty(Generic[P, R, T, T0, P0]):
 class cachedproperty(property, Generic[P, R, T, T0, P0]):
     """
     Wrapper for a one-time get property, that will be cached.
+
     Keep in mind two things:
-        The cache is per-object. Don't hold a reference to itself or it
-        will never get garbage collected.
-        Your class has to either manually set __dict__[cachedproperty.cache_key]
-        or inherit from cachedproperty.baseclass.
+
+     * The cache is per-object. Don't hold a reference to itself or it will never get garbage collected.
+     * Your class has to either manually set __dict__[cachedproperty.cache_key]
+       or inherit from cachedproperty.baseclass.
     """
 
     __isabstractmethod__: bool = False
