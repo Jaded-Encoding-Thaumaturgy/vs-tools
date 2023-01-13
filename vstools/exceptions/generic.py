@@ -17,6 +17,10 @@ __all__ = [
 
     'ResolutionsMismatchError', 'ResolutionsRefClipMismatchError',
 
+    'LengthMismatchError', 'LengthRefClipMismatchError',
+
+    'FramerateMismatchError', 'FramerateRefClipMismatchError',
+
     'InvalidVideoFormatError',
     'InvalidColorFamilyError',
     'InvalidSubsamplingError',
@@ -184,6 +188,46 @@ class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
 
     def __init__(
         self, func: FuncExceptT, message: SupportsString = 'The resolution of ref and main clip must be equal!',
+        **kwargs: Any
+    ) -> None:
+        super().__init__(func, message, **kwargs)
+
+
+class LengthMismatchError(CustomValueError):
+    """Raised when clips with a different number of total frames are given."""
+
+    def __init__(
+        self, func: FuncExceptT, message: SupportsString = 'The total frames of every clip must be equal!',
+        **kwargs: Any
+    ) -> None:
+        super().__init__(message, func, **kwargs)
+
+
+class LengthRefClipMismatchError(ResolutionsMismatchError):
+    """Raised when a ref clip and the main clip have a different number of total frames."""
+
+    def __init__(
+        self, func: FuncExceptT, message: SupportsString = 'The total frames of the ref and main clip must be equal!',
+        **kwargs: Any
+    ) -> None:
+        super().__init__(func, message, **kwargs)
+
+
+class FramerateMismatchError(CustomValueError):
+    """Raised when clips with a different framerate are given."""
+
+    def __init__(
+        self, func: FuncExceptT, message: SupportsString = 'The framerate of every clip must be equal!',
+        **kwargs: Any
+    ) -> None:
+        super().__init__(message, func, **kwargs)
+
+
+class FramerateRefClipMismatchError(ResolutionsMismatchError):
+    """Raised when a ref clip and the main clip have a different framerate"""
+
+    def __init__(
+        self, func: FuncExceptT, message: SupportsString = 'The framerate of the ref and main clip must be equal!',
         **kwargs: Any
     ) -> None:
         super().__init__(func, message, **kwargs)
