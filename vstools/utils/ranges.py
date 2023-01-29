@@ -6,8 +6,10 @@ from typing import Iterable, overload
 
 import vapoursynth as vs
 
-from ..exceptions import (CustomIndexError, FormatsMismatchError, FramerateMismatchError, LengthMismatchError,
-                          ResolutionsMismatchError, FileNotExistsError)
+from ..exceptions import (
+    CustomIndexError, FileNotExistsError, FormatsMismatchError, FramerateMismatchError, LengthMismatchError,
+    ResolutionsMismatchError
+)
 from ..functions import check_ref_clip
 from ..types import T0, FrameRangeN, FrameRangesN, T
 
