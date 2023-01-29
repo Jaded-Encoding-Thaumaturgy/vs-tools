@@ -115,7 +115,8 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExcept
     :param ref:     Reference clip.
                     Default: None.
 
-    :raises AssertionError:                     The format of either clip is None.
+    :raises VariableFormatError                 The format of either clip is variable.
+    :raises VariableResolutionError:            The resolution of either clip is variable.
     :raises FormatsRefClipMismatchError:        The formats of the two clips do not match.
     :raises ResolutionsRefClipMismatchError:    The resolutions of the two clips do not match.
     """
@@ -130,11 +131,8 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExcept
     assert check_variable(src, func)  # type: ignore
     assert check_variable(ref, func)  # type: ignore
 
-    if ref.format.id != src.format.id:
-        raise FormatsRefClipMismatchError(func)  # type: ignore
-
-    if ref.width != src.width or ref.height != src.height:
-        raise ResolutionsRefClipMismatchError(func)  # type: ignore
+    FormatsRefClipMismatchError.check(func, src, ref)  # type: ignore
+    ResolutionsRefClipMismatchError.check(func, src, ref)  # type: ignore
 
 
 def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:

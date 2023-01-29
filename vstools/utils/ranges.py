@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import warnings
-from typing import Iterable, overload
 from itertools import chain, zip_longest
+from typing import Iterable, overload
 
 import vapoursynth as vs
 
-from ..exceptions import CustomIndexError
+from ..exceptions import (
+    CustomIndexError, CustomValueError, FormatsMismatchError, FramerateMismatchError, LengthMismatchError,
+    ResolutionsMismatchError
+)
 from ..functions import check_ref_clip
-from ..types import FrameRangeN, FrameRangesN, T, T0
+from ..types import T0, FrameRangeN, FrameRangesN, T
 
 __all__ = [
     'replace_ranges', 'rfs',
@@ -74,18 +77,34 @@ def replace_ranges(
     if not mismatch:
         check_ref_clip(clip_a, clip_b)
 
-    if clip_a.num_frames != clip_b.num_frames:
-        warnings.warn(
-            f"replace_ranges: 'The number of frames ({clip_a.num_frames} vs. {clip_b.num_frames}) do not match! "
-            "The function will still work, but you may run into unintended errors with the output clip!'"
-        )
-
     nranges = normalize_ranges(clip_b, ranges)
 
     if use_plugin and hasattr(vs.core, 'remap'):
-        return vs.core.remap.ReplaceFramesSimple(
-            clip_a, clip_b, mismatch=mismatch,
-            mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in nranges)
+        try:
+            return vs.core.remap.ReplaceFramesSimple(
+                clip_a, clip_b, mismatch=mismatch,
+                mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in nranges)
+            )
+        except vs.Error as e:
+            msg = str(e).replace('vapoursynth.Error: ReplaceFramesSimple: ', '')
+
+            match msg:
+                case "Clip lengths don't match":
+                    raise LengthMismatchError(replace_ranges, [clip_a, clip_b])
+                case "Clip dimensions don't match":
+                    raise ResolutionsMismatchError(replace_ranges, [clip_a, clip_b])
+                case "Clip formats don't match":
+                    raise FormatsMismatchError(replace_ranges, [clip_a, clip_b])
+                case "Clip frame rates don't match":
+                    raise FramerateMismatchError(replace_ranges, [clip_a, clip_b])
+                case _:
+                    raise CustomValueError(msg, replace_ranges)
+
+    if clip_a.num_frames != clip_b.num_frames:
+        warnings.warn(
+            f"replace_ranges: 'The number of frames of the clips don't match! "
+            f"({clip_a.num_frames=}, {clip_b.num_frames=})\n"
+            "The function will still work, but you may run into undefined behavior, or a broken output clip!'"
         )
 
     out = clip_a

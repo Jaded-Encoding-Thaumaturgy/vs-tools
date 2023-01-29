@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from fractions import Fraction
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT, HoldsVideoFormatT, SupportsString, VideoFormatT
+from ..types import FuncExceptT, HoldsVideoFormatT, SupportsString, T, VideoFormatT
 from .base import CustomKeyError, CustomOverflowError, CustomValueError
+
+if TYPE_CHECKING:
+    from ..enums import Resolution
+
 
 __all__ = [
     'FramesLengthError', 'ClipLengthError',
@@ -16,6 +20,10 @@ __all__ = [
     'FormatsMismatchError', 'FormatsRefClipMismatchError',
 
     'ResolutionsMismatchError', 'ResolutionsRefClipMismatchError',
+
+    'LengthMismatchError', 'LengthRefClipMismatchError',
+
+    'FramerateMismatchError', 'FramerateRefClipMismatchError',
 
     'InvalidVideoFormatError',
     'InvalidColorFamilyError',
@@ -149,44 +157,191 @@ class InvalidSubsamplingError(CustomValueError):
         super().__init__(message, func, subsampling=subsampling, **kwargs)
 
 
-class FormatsMismatchError(CustomValueError):
-    """Raised when clips with different formats are given."""
+class MismatchError(CustomValueError):
+    """Raised when there's a mismatch between two or more values."""
+
+    @classmethod
+    def _item_to_name(cls, item: Any) -> str:
+        return str(item)
+
+    @classmethod
+    def _reduce(cls, items: Iterable[T]) -> set[str]:
+        return set(map(cls._item_to_name, items))
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The format of both clips must be equal!',
-        **kwargs: Any
+        self, func: FuncExceptT, items: Iterable[T], message: SupportsString = 'All items must be equal!',
+        reason: Any = '{reduced_items}', **kwargs: Any
     ) -> None:
-        super().__init__(message, func, **kwargs)
+        super().__init__(message, func, reason, **kwargs, reduced_items=iter(self._reduce(items)))
+
+    @classmethod
+    def check(cls, func: FuncExceptT, *items: T, **kwargs: Any) -> None:
+        if len(cls._reduce(items)) != 1:
+            raise cls(func, items, **kwargs)
+
+
+class FormatsMismatchError(MismatchError):
+    """Raised when clips with different formats are given."""
+
+    @classmethod
+    def _item_to_name(cls, item: VideoFormatT | HoldsVideoFormatT) -> str:
+        from ..utils import get_video_format
+
+        return get_video_format(item).name
+
+    def __init__(
+        self, func: FuncExceptT, formats: Iterable[VideoFormatT | HoldsVideoFormatT],
+        message: SupportsString = 'All specified formats must be equal!', **kwargs: Any
+    ) -> None:
+        super().__init__(func, formats, message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *formats: VideoFormatT | HoldsVideoFormatT, **kwargs: Any
+        ) -> None:
+            ...
 
 
 class FormatsRefClipMismatchError(FormatsMismatchError):
     """Raised when a ref clip and the main clip have different formats"""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The format of ref and main clip must be equal!',
-        **kwargs: Any
+        self, func: FuncExceptT, clip: VideoFormatT | HoldsVideoFormatT, ref: VideoFormatT | HoldsVideoFormatT,
+        message: SupportsString = 'The format of ref and main clip must be equal!', **kwargs: Any
     ) -> None:
-        super().__init__(func, message, **kwargs)
+        super().__init__(func, [clip, ref], message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: VideoFormatT | HoldsVideoFormatT,
+            ref: VideoFormatT | HoldsVideoFormatT, /, **kwargs: Any
+        ) -> None:
+            ...
 
 
-class ResolutionsMismatchError(CustomValueError):
+class ResolutionsMismatchError(MismatchError):
     """Raised when clips with different resolutions are given."""
 
+    @classmethod
+    def _item_to_name(cls, item: Resolution | vs.VideoNode) -> str:
+        from ..enums import Resolution
+
+        return str(item if isinstance(item, Resolution) else Resolution.from_video(item))
+
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The resolution of both clips must be equal!',
-        **kwargs: Any
+        self, func: FuncExceptT, resolutions: Iterable[Resolution | vs.VideoNode],
+        message: SupportsString = 'All the resolutions must be equal!', **kwargs: Any
     ) -> None:
-        super().__init__(message, func, **kwargs)
+        super().__init__(func, resolutions, message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *resolutions: Resolution | vs.VideoNode, **kwargs: Any
+        ) -> None:
+            ...
 
 
 class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have different resolutions"""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The resolution of ref and main clip must be equal!',
+        self, func: FuncExceptT, clip: Resolution | vs.VideoNode, ref: Resolution | vs.VideoNode,
+        message: SupportsString = 'The resolution of ref and main clip must be equal!', **kwargs: Any
+    ) -> None:
+        super().__init__(func, [clip, ref], message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: Resolution | vs.VideoNode, ref: Resolution | vs.VideoNode, /, **kwargs: Any
+        ) -> None:
+            ...
+
+
+class LengthMismatchError(MismatchError):
+    """Raised when clips with a different number of total frames are given."""
+
+    @classmethod
+    def _item_to_name(cls, item: int | vs.RawNode) -> str:
+        return str(int(item.num_frames if isinstance(item, vs.RawNode) else item))  # type: ignore
+
+    def __init__(
+        self, func: FuncExceptT, lengths: Iterable[int | vs.RawNode],
+        message: SupportsString = 'All the lenghts must be equal!', **kwargs: Any
+    ) -> None:
+        super().__init__(func, lengths, message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *lengths: int | vs.RawNode, **kwargs: Any
+        ) -> None:
+            ...
+
+
+class LengthRefClipMismatchError(LengthMismatchError):
+    """Raised when a ref clip and the main clip have a different number of total frames."""
+
+    def __init__(
+        self, func: FuncExceptT, clip: int | vs.RawNode, ref: int | vs.RawNode,
+        message: SupportsString = 'The main clip and ref clip length must be equal!',
         **kwargs: Any
     ) -> None:
-        super().__init__(func, message, **kwargs)
+        super().__init__(func, [clip, ref], message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: int | vs.RawNode, ref: int | vs.RawNode, /, **kwargs: Any
+        ) -> None:
+            ...
+
+
+class FramerateMismatchError(MismatchError):
+    """Raised when clips with a different framerate are given."""
+
+    @classmethod
+    def _item_to_name(cls, item: vs.VideoNode | Fraction | tuple[int, int] | float) -> str:
+        from ..utils import get_framerate
+
+        return get_framerate(item)  # type: ignore
+
+    def __init__(
+        self, func: FuncExceptT, framerates: Iterable[vs.VideoNode | Fraction | tuple[int, int] | float],
+        message: SupportsString = 'All the framerates must be equal!', **kwargs: Any
+    ) -> None:
+        super().__init__(func, framerates, message, **kwargs)
+
+    if TYPE_CHECKING:
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *framerates: vs.VideoNode | Fraction | tuple[int, int] | float, **kwargs: Any
+        ) -> None:
+            ...
+
+
+class FramerateRefClipMismatchError(FramerateMismatchError):
+    """Raised when a ref clip and the main clip have a different framerate"""
+
+    def __init__(
+        self, func: FuncExceptT,
+        clip: vs.VideoNode | Fraction | tuple[int, int] | float,
+        ref: vs.VideoNode | Fraction | tuple[int, int] | float,
+        message: SupportsString = 'The framerate of the ref and main clip must be equal!',
+        **kwargs: Any
+    ) -> None:
+        super().__init__(func, [clip, ref], message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: vs.VideoNode | Fraction | tuple[int, int] | float,
+            ref: vs.VideoNode | Fraction | tuple[int, int] | float, /, **kwargs: Any
+        ) -> None:
+
+            ...
 
 
 class FramePropError(CustomKeyError):
