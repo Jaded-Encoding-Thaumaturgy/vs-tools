@@ -12,6 +12,8 @@ __all__ = [
 
 
 class StrList(List[SupportsString]):
+    """Custom class for representing a recursively "stringable" list."""
+
     if TYPE_CHECKING:
         @overload
         def __init__(self, __iterable: Iterable[SupportsString | None] = []) -> None:

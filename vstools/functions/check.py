@@ -58,6 +58,15 @@ def disallow_variable_format(function: F | None = None, /) -> F:
 
 
 def disallow_variable_format(function: F | None = None, /, *, only_first: bool = False) -> Callable[[F], F] | F:
+    """
+    Decorator for disallowing clips with variable formats.
+
+    :param only_first:              Only verify the format of the first argument.
+                                    Default: False.
+
+    :raises VariableFormatError:    A clip with a variable format is found.
+    """
+
     if function is None:
         return cast(Callable[[F], F], partial(disallow_variable_format, only_first=only_first))
 
@@ -77,6 +86,15 @@ def disallow_variable_resolution(func: F | None = None, /) -> F:
 
 
 def disallow_variable_resolution(function: F | None = None, /, *, only_first: bool = False) -> Callable[[F], F] | F:
+    """
+    Decorator for disallowing clips with variable resolutions.
+
+    :param only_first:                  Only verify the resolution of the first argument.
+                                        Default: False.
+
+    :raises VariableResolutionError:    A clip with a variable resolution is found.
+    """
+
     if function is None:
         return cast(Callable[[F], F], partial(disallow_variable_resolution, only_first=only_first))
 
@@ -88,6 +106,21 @@ def disallow_variable_resolution(function: F | None = None, /, *, only_first: bo
 @disallow_variable_format
 @disallow_variable_resolution
 def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExceptT | None = None) -> None:
+    """
+    Decorator for ensuring the ref clip's format matches that of the input clip.
+
+    If no ref clip can be found, this decorator will simply do nothing.
+
+    :param src:     Input clip.
+    :param ref:     Reference clip.
+                    Default: None.
+
+    :raises VariableFormatError                 The format of either clip is variable.
+    :raises VariableResolutionError:            The resolution of either clip is variable.
+    :raises FormatsRefClipMismatchError:        The formats of the two clips do not match.
+    :raises ResolutionsRefClipMismatchError:    The resolutions of the two clips do not match.
+    """
+
     from .funcs import fallback
 
     if ref is None:
@@ -98,18 +131,17 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExcept
     assert check_variable(src, func)  # type: ignore
     assert check_variable(ref, func)  # type: ignore
 
-    if ref.format.id != src.format.id:
-        raise FormatsRefClipMismatchError(func)  # type: ignore
-
-    if ref.width != src.width or ref.height != src.height:
-        raise ResolutionsRefClipMismatchError(func)  # type: ignore
+    FormatsRefClipMismatchError.check(func, src, ref)  # type: ignore
+    ResolutionsRefClipMismatchError.check(func, src, ref)  # type: ignore
 
 
 def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
     """
     Check for variable format and return an error if found.
+
     :raises VariableFormatError:    The clip is of a variable format.
     """
+
     if clip.format is None:
         raise VariableFormatError(func)
 
@@ -119,8 +151,10 @@ def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[Co
 def check_variable_resolution(clip: vs.VideoNode, func: FuncExceptT) -> None:
     """
     Check for variable width or height and return an error if found.
+
     :raises VariableResolutionError:    The clip has a variable resolution.
     """
+
     if 0 in (clip.width, clip.height):
         raise VariableResolutionError(func)
 
@@ -128,9 +162,11 @@ def check_variable_resolution(clip: vs.VideoNode, func: FuncExceptT) -> None:
 def check_variable(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
     """
     Check for variable format and a variable resolution and return an error if found.
+
     :raises VariableFormatError:        The clip is of a variable format.
     :raises VariableResolutionError:    The clip has a variable resolution.
     """
+
     check_variable_format(clip, func)
     check_variable_resolution(clip, func)
 

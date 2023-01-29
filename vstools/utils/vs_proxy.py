@@ -41,6 +41,8 @@ from vapoursynth import (
     get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
+from .other import IS_DOCS
+
 from ..exceptions import CustomRuntimeError
 from .vs_enums import (
     GRAY8, GRAY9, GRAY10, GRAY11, GRAY12, GRAY13, GRAY14, GRAY15, GRAY16, GRAY17, GRAY18, GRAY19, GRAY20, GRAY21,
@@ -118,7 +120,10 @@ __all__ = [
     'unregister_on_destroy', 'vs_file'
 ]
 
-register_on_destroy_poly = __version__.release_major < 61
+if IS_DOCS:
+    register_on_destroy_poly = True
+else:
+    register_on_destroy_poly = __version__.release_major < 61
 
 if not register_on_destroy_poly:
     from vapoursynth import register_on_destroy, unregister_on_destroy
@@ -131,10 +136,12 @@ else:
 
 
 def register_on_creation(callback: Callable[..., None]) -> None:
+    """Register a callback on every core creation."""
     core_on_creation_callbacks.update({id(callback): weakref.ref(callback)})
 
 
 def unregister_on_creation(callback: Callable[..., None]) -> None:
+    """Unregister this callback from every core creation."""
     core_on_creation_callbacks.pop(id(callback), None)
 
 
@@ -336,7 +343,19 @@ def _get_core_with_cb(self: VSCoreProxy | None = None) -> Core:
 
 
 class VSCoreProxy(CoreProxyBase):
+    """Class for wrapping a VapourSynth core."""
+
     def __init__(self, core: Core | None = None) -> None:
+        """
+        Obtain the color range of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            Sets the ColorRange as MISSING if prop is not there.
+
+        :return:                            ColorRange object.
+        """
+
         self._own_core = core is not None
         self._core = core and weakref.ref(core)
 
@@ -345,10 +364,16 @@ class VSCoreProxy(CoreProxyBase):
 
     @property
     def core(self) -> Core:
+        """The underlying VapourSynth Core instance."""
         return _get_core_with_cb(self)
 
     @property
     def proxied(self) -> CoreProxy:
+        """
+        Proxied Core where plugins and functions are lazily retrieved,
+        so it's safe to hold a reference of anything from this.
+        """
+
         if self not in _objproxies:
             _objproxies[self] = {}
 
@@ -359,6 +384,12 @@ class VSCoreProxy(CoreProxyBase):
 
     @property
     def lazy(self) -> CoreProxy:
+        """
+        Lazy Core where plugins and functions are lazily retrieved and checked,
+        so it's safe to hold a reference and set default of anything from this,
+        without having to worry of creating a core.
+        """
+
         if self not in _objproxies:
             _objproxies[self] = {}
 
@@ -368,6 +399,8 @@ class VSCoreProxy(CoreProxyBase):
         return _objproxies[self]['lazy']  # type: ignore
 
     def register_on_destroy(self, callback: Callable[..., None]) -> None:
+        """Register a callback on this core destroy."""
+
         _check_environment()
 
         env_id = get_current_environment().env_id
@@ -378,6 +411,8 @@ class VSCoreProxy(CoreProxyBase):
             core_on_destroy_callbacks[env_id] |= {id(callback): weakref.ref(callback)}
 
     def unregister_on_destroy(self, callback: Callable[..., None]) -> None:
+        """Unregister a callback from this core destroy."""
+
         _check_environment()
 
         env_id = get_current_environment().env_id
@@ -391,6 +426,16 @@ class VSCoreProxy(CoreProxyBase):
         self, threads: int | range | tuple[int, int] | list[int] | None = None,
         max_cache: int | None = None, reserve: int | Iterable[int] = 2
     ) -> None:
+        """
+        Set core affinity.
+
+        :param threads:     How many and which threads to use for VapourSynth. 
+        :param max_cache:   Maximum cache used for frame data in VapourSynth.
+        :param reserve:     Reserve n amount of or the specified threads.
+
+        :raises DependencyNotFoundError:    Psutil was not found.
+        """
+
         try:
             from psutil import Process
         except ModuleNotFoundError as e:

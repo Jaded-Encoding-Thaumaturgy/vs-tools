@@ -31,12 +31,11 @@ __all__ = [
 
 
 EXPR_VARS = (alph := list(string.ascii_lowercase))[(idx := alph.index('x')):] + alph[:idx]
+"""Variables to access clips in core.std.Expr."""
 
 
 class DitherType(CustomStrEnum):
-    """
-    Enum for `zimg_dither_type_e`.
-    """
+    """Enum for `zimg_dither_type_e`."""
 
     AUTO = 'auto'
     """Choose automatically."""
@@ -59,7 +58,29 @@ class DitherType(CustomStrEnum):
         in_fmt: VideoFormatT | HoldsVideoFormatT, out_fmt: VideoFormatT | HoldsVideoFormatT, /,
         in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None
     ) -> bool:
-        ...
+        """
+        Automatically determines whether dithering is needed for a given depth/range/sample type conversion.
+
+        If an input range is specified, an output range *should* be specified, otherwise it assumes a range conversion.
+
+        For an explanation of when dithering is needed:
+            - Dithering is NEVER needed if the conversion results in a float sample type.
+            - Dithering is ALWAYS needed for a range conversion (i.e. full to limited or vice-versa).
+            - Dithering is ALWAYS needed to convert a float sample type to an integer sample type.
+            - Dithering is needed when upsampling full range content with the exception of 8 -> 16 bit upsampling,
+              as this is a simple bitshift without rounding, (0-255) * 257 -> (0-65535).
+            - Dithering is needed when downsampling limited or full range.
+
+        Dithering is theoretically needed when converting from an integer depth greater than 10 to half float,
+        despite the higher bit depth, but zimg's internal resampler currently does not dither for float output.
+
+        :param in_fmt:              Input clip, frame or video format.
+        :param out_fmt:             Output clip, frame or video format.
+        :param in_range:            Input color range.
+        :param out_range:           Output color range.
+
+        :return:                    Whether the clip should be dithered.
+        """
 
     @overload
     @staticmethod
@@ -68,7 +89,31 @@ class DitherType(CustomStrEnum):
         in_sample_type: vs.SampleType | None = None, out_sample_type: vs.SampleType | None = None,
         in_range: ColorRangeT | None = None, out_range: ColorRangeT | None = None
     ) -> bool:
-        ...
+        """
+        Automatically determines whether dithering is needed for a given depth/range/sample type conversion.
+
+        If an input range is specified, an output range *should* be specified, otherwise it assumes a range conversion.
+
+        For an explanation of when dithering is needed:
+            - Dithering is NEVER needed if the conversion results in a float sample type.
+            - Dithering is ALWAYS needed for a range conversion (i.e. full to limited or vice-versa).
+            - Dithering is ALWAYS needed to convert a float sample type to an integer sample type.
+            - Dithering is needed when upsampling full range content with the exception of 8 -> 16 bit upsampling,
+              as this is a simple bitshift without rounding, (0-255) * 257 -> (0-65535).
+            - Dithering is needed when downsampling limited or full range.
+
+        Dithering is theoretically needed when converting from an integer depth greater than 10 to half float,
+        despite the higher bit depth, but zimg's internal resampler currently does not dither for float output.
+
+        :param in_bits:             Input bitdepth.
+        :param out_bits:            Output bitdepth.
+        :param in_sample_type:      Input sample type.
+        :param out_sample_type:     Output sample type.
+        :param in_range:            Input color range.
+        :param out_range:           Output color range.
+
+        :return:                    Whether the clip should be dithered.
+        """
 
     @staticmethod  # type: ignore
     def should_dither(
@@ -114,6 +159,41 @@ def depth(
     range_in: ColorRangeT | None = None, range_out: ColorRangeT | None = None,
     dither_type: str | DitherType = DitherType.AUTO,
 ) -> vs.VideoNode:
+    """
+    A convenience bitdepth conversion function using only internal plugins.
+
+    .. code-block:: python
+
+        >>> src_8 = vs.core.std.BlankClip(format=vs.YUV420P8)
+        >>> src_10 = depth(src_8, 10)
+        >>> src_10.format.name
+        'YUV420P10'
+
+    .. code-block:: python
+
+        >>> src2_10 = vs.core.std.BlankClip(format=vs.RGB30)
+        >>> src2_8 = depth(src2_10, 8, dither_type=Dither.RANDOM)  # override default dither behavior
+        >>> src2_8.format.name
+        'RGB24'
+
+    :param clip:            Input clip.
+    :param bitdepth:        Desired bitdepth of the output clip.
+    :param sample_type:     Desired sample type of output clip. Allows overriding default float/integer behavior.
+                            Accepts ``vapoursynth.SampleType`` enums ``vapoursynth.INTEGER`` and ``vapoursynth.FLOAT``
+                            or their values, ``0`` and ``1`` respectively.
+    :param range_in:       Input pixel range (defaults to input `clip`'s range).
+    :param range_out:       Output pixel range (defaults to input `clip`'s range).
+    :param dither_type:     Dithering algorithm. Allows overriding default dithering behavior. See :py:class:`Dither`.
+
+                            Defaults to :attr:`Dither.ERROR_DIFFUSION`, or Floyd-Steinberg error diffusion,
+                            when downsampling, converting between ranges, or upsampling full range input.
+                            Defaults to :attr:`Dither.NONE`, or round to nearest, otherwise.
+                            See :py:func:`Dither.should_dither` for more information.
+
+    :return:                Converted clip with desired bit depth and sample type.
+                            ``ColorFamily`` will be same as input.
+    """
+
     from ..utils import get_video_format
     from .funcs import fallback
 
@@ -150,6 +230,14 @@ _f2c_cache = WeakValueDictionary[int, vs.VideoNode]()
 
 
 def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
+    """
+    Convert a VideoFrame to a VideoNode.
+
+    :param frame:       Input frame.
+
+    :return:            1-frame long VideoNode of the input frame.
+    """
+
     key = hash((frame.width, frame.height, frame.format.id))
 
     if _f2c_cache.get(key, None) is None:
@@ -169,6 +257,16 @@ def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
 
 @disallow_variable_format
 def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
+    """
+    Extract the luma (Y) plane of the given clip.
+
+    :param clip:                Input clip.
+
+    :return:                    Y plane of the input clip.
+
+    :raises CustomValueError:   Clip is not GRAY or YUV.
+    """
+
     InvalidColorFamilyError.check(clip, [vs.YUV, vs.GRAY], get_y)
 
     return plane(clip, 0)
@@ -176,6 +274,16 @@ def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
 
 @disallow_variable_format
 def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
+    """
+    Extract the first chroma (U) plane of the given clip.
+
+    :param clip:                Input clip.
+
+    :return:                    Y plane of the input clip.
+
+    :raises CustomValueError:   Clip is not YUV.
+    """
+
     InvalidColorFamilyError.check(clip, vs.YUV, get_u)
 
     return plane(clip, 1)
@@ -183,6 +291,16 @@ def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
 
 @disallow_variable_format
 def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
+    """
+    Extract the second chroma (V) plane of the given clip.
+
+    :param clip:                Input clip.
+
+    :return:                    V plane of the input clip.
+
+    :raises CustomValueError:   Clip is not YUV.
+    """
+
     InvalidColorFamilyError.check(clip, vs.YUV, get_v)
 
     return plane(clip, 2)
@@ -190,6 +308,16 @@ def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
 
 @disallow_variable_format
 def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
+    """
+    Extract the red plane of the given clip.
+
+    :param clip:                Input clip.
+
+    :return:                    R plane of the input clip.
+
+    :raises CustomValueError:   Clip is not RGB.
+    """
+
     InvalidColorFamilyError.check(clip, vs.RGB, get_r)
 
     return plane(clip, 0)
@@ -197,6 +325,16 @@ def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
 
 @disallow_variable_format
 def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
+    """
+    Extract the green plane of the given clip.
+
+    :param clip:                Input clip.
+
+    :return:                    G plane of the input clip.
+
+    :raises CustomValueError:   Clip is not RGB.
+    """
+
     InvalidColorFamilyError.check(clip, vs.RGB, get_g)
 
     return plane(clip, 1)
@@ -204,12 +342,36 @@ def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
 
 @disallow_variable_format
 def get_b(clip: vs.VideoNode, /) -> vs.VideoNode:
+    """
+    Extract the blue plane of the given clip.
+
+    :param clip:                Input clip.
+
+    :return:                    B plane of the input clip.
+
+    :raises CustomValueError:   Clip is not RGB.
+    """
+
     InvalidColorFamilyError.check(clip, vs.RGB, get_b)
 
     return plane(clip, 2)
 
 
 def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -> vs.VideoNode:
+    """
+    Replace frames of a longer clip with those of a shorter one.
+
+    The insert clip may not go beyond the final frame of the input clip.
+
+    :param clip:                Input clip.
+    :param insert:              Clip to insert into the input clip.
+    :param start_frame:         Frame to start inserting from.
+
+    :return:                    Clip with frames replaced by the insert clip.
+
+    :raises CustomValueError:   Insert clip is too long and goes beyond the input clip's final frame.
+    """
+
     if start_frame == 0:
         return insert + clip[insert.num_frames:]
 
@@ -230,43 +392,100 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -
 
 @overload
 def join(luma: vs.VideoNode, chroma: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
-    ...
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param luma:        Luma clip, GRAY or YUV.
+    :param chroma:      Chroma clip, must be YUV.
+
+    :return:            YUV clip of combined planes.
+    """
 
 
 @overload
 def join(y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, family: Literal[vs.ColorFamily.YUV]) -> vs.VideoNode:
-    ...
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param y:           Y plane.
+    :param u:           U plane.
+    :param v:           V plane.
+
+    :return:            YUV clip of combined planes.
+    """
 
 
 @overload
 def join(
     y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, alpha: vs.VideoNode, family: Literal[vs.ColorFamily.YUV]
 ) -> vs.VideoNode:
-    ...
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param y:           Y plane.
+    :param u:           U plane.
+    :param v:           V plane.
+    :param alpha:       Alpha clip.
+
+    :return:            YUV clip of combined planes with an alpha clip attached.
+    """
 
 
 @overload
 def join(
     r: vs.VideoNode, g: vs.VideoNode, b: vs.VideoNode, family: Literal[vs.ColorFamily.RGB]
 ) -> vs.VideoNode:
-    ...
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param r:           R plane.
+    :param g:           G plane.
+    :param b:           B plane.
+
+    :return:            RGB clip of combined planes.
+    """
 
 
 @overload
 def join(
     r: vs.VideoNode, g: vs.VideoNode, b: vs.VideoNode, alpha: vs.VideoNode, family: Literal[vs.ColorFamily.RGB]
 ) -> vs.VideoNode:
-    ...
+    """
+    Join a list of planes together to form a single RGB clip.
+
+    :param r:           R plane.
+    :param g:           G plane.
+    :param b:           B plane.
+    :param alpha:       Alpha clip.
+
+    :return:            RGB clip of combined planes with an alpha clip attached.
+    """
 
 
 @overload
 def join(*planes: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
-    ...
+    """
+    Join a list of planes together to form a single clip.
+
+    :param planes:      Planes to combine.
+    :param family:      Output clip family.
+                        Default: first clip or detected from props if GRAY and len(planes) > 1.
+
+    :return:            Clip of combined planes.
+    """
 
 
 @overload
 def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily | None = None) -> vs.VideoNode:
-    ...
+    """
+    Join a list of planes together to form a single clip.
+
+    :param planes:      Planes to combine.
+    :param family:      Output clip family.
+                        Default: first clip or detected from props if GRAY and len(planes) > 1.
+
+    :return:            Clip of combined planes.
+    """
 
 
 def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
@@ -328,6 +547,15 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
 
 @disallow_variable_format
 def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNode:
+    """
+    Extract a plane from the given clip.
+
+    :param clip:        Input clip.
+    :param index:       Index of the plane to extract.
+
+    :return:            Grayscale clip of the clip's plane.
+    """
+
     assert clip.format
 
     if clip.format.num_planes == 1 and index == 0:
@@ -342,7 +570,16 @@ def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNod
 
 @disallow_variable_format
 def split(clip: vs.VideoNode, /) -> list[vs.VideoNode]:
+    """
+    Split a clip into a list of individual planes.
+
+    :param clip:    Input clip.
+
+    :return:        List of individual planes.
+    """
+
     assert clip.format
+
     return [clip] if clip.format.num_planes == 1 else cast(list[vs.VideoNode], clip.std.SplitPlanes())
 
 

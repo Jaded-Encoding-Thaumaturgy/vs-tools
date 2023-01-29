@@ -13,12 +13,25 @@ __all__ = [
 
 
 class CustomEnum(Enum):
+    """Base class for custom enums."""
+
     @classmethod
     def _missing_(cls: type[SelfEnum], value: Any) -> SelfEnum | None:
         return cls.from_param(value)
 
     @classmethod
     def from_param(cls: type[SelfEnum], value: Any, func_except: FuncExceptT | None = None) -> SelfEnum | None:
+        """
+        Return the enum value from a parameter.
+
+        :param value:               Value to instantiate the enum class.
+        :param func_except:         Exception function.
+
+        :return:                    Enum value.
+
+        :raises NotFoundEnumValue:   Variable not found in the given enum.
+        """
+
         if value is None:
             return None
 
@@ -29,7 +42,7 @@ class CustomEnum(Enum):
             return value
 
         if value is cls:
-            raise CustomValueError('You must select a memeber, not pass the enum!', func_except)
+            raise CustomValueError('You must select a member, not pass the enum!', func_except)
 
         try:
             return cls(value)
@@ -50,10 +63,14 @@ class CustomEnum(Enum):
 
 
 class CustomIntEnum(int, CustomEnum):
+    """Base class for custom int enums."""
+
     value: int
 
 
 class CustomStrEnum(str, CustomEnum):
+    """Base class for custom str enums."""
+
     value: str
 
 

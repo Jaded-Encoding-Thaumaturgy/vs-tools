@@ -17,9 +17,12 @@ IS_DOCS = not TYPE_CHECKING and (
     # in conf.py you can do builtins.__sphinx_build__ = True to be 100% sure
     or (hasattr(builtins, '__sphinx_build__') and builtins.__sphinx_build__)
 )
+"""Whether the script is currently running in sphinx docs."""
 
 
 def get_nvidia_version() -> tuple[int, int] | None:
+    """Check if nvidia drivers are installed and if available return the version."""
+
     nvcc = run(['nvcc', '--version'], capture_output=True)
 
     ver_string = ''

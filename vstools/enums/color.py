@@ -25,7 +25,7 @@ __all__ = [
 
 
 class Matrix(_MatrixMeta):
-    """Matrix coefficients (ITU-T H.265 Table E.5)."""
+    """Matrix coefficients ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.5)."""
 
     _value_: int
 
@@ -40,7 +40,7 @@ class Matrix(_MatrixMeta):
 
         if value == 8:
             raise UnsupportedMatrixError(
-                'Matrix YCGCO is no longer supported by VapourSynth starting in R55 (APIv4).', 'Matrix'
+                'Matrix YCGCO is no longer supported by VapourSynth starting from R55 (APIv4).', 'Matrix'
             )
 
         if Matrix.RGB < value < Matrix.ICTCP:
@@ -56,27 +56,154 @@ class Matrix(_MatrixMeta):
         return None
 
     RGB = 0
+    """
+    ```
+    # Identity
+    ```\n
+    The identity matrix.\n
+    Typically used for GBR (often referred to as RGB); however, may also be\n
+    used for YZX (often referred to as XYZ)\n
+    IEC 61966-2-1 sRGB\n
+    SMPTE ST 428-1 (2006)\n
+    See ITU-T H.265 Equations E-31 to E-33
+    """
+
     GBR = RGB
     BT709 = 1
+    """
+    ```
+    Kr = 0.2126; Kb = 0.0722
+    ```\n
+    Rec. ITU-R BT.709-6\n
+    Rec. ITU-R BT.1361-0 conventional colour gamut system and extended\n
+    colour gamut system (historical)\n
+    IEC 61966-2-4 xvYCC709\n
+    SMPTE RP 177 (1993) Annex B
+    """
+
     UNKNOWN = 2
+    """Image characteristics are unknown or are determined by the application."""
+
     FCC = 4
+    """
+    ```
+    KR = 0.30; KB = 0.11
+    ```\n
+    FCC Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
+
     BT470BG = 5
+    """
+    ```
+    KR = 0.299; KB = 0.114
+    ```\n
+    (Functionally the same as :py:attr:`Matrix.SMPTE170M`)\n
+    Rec. ITU-R BT.470-6 System B, G (historical)\n
+    Rec. ITU-R BT.601-7 625\n
+    Rec. ITU-R BT.1358-0 625 (historical)\n
+    Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\n
+    IEC 61966-2-1 sYCC\n
+    IEC 61966-2-4 xvYCC601\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
     BT601 = BT470BG
+
     SMPTE170M = 6
+    """
+    ```
+    Kr = 0.299; Kb = 0.114
+    ```
+    (Functionally the same as :py:attr:`Matrix.BT470BG`)\n
+    Rec. ITU-R BT.601-7 525\n
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
+    Rec. ITU-R BT.1700-0 NTSC\n
+    SMPTE ST 170 (2004)\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
+
     SMPTE240M = 7
+    """
+    ```
+    KR = 0.212; KB = 0.087
+    ```\n
+    SMPTE ST 240 (1999, historical)\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
+
     BT2020NC = 9
+    """
+    ```
+    KR = 0.2627; KB = 0.0593
+    ```\n
+    Rec. ITU-R BT.2020-2 non-constant luminance system\n
+    Rec. ITU-R BT.2100-2 Y′CbCr\n
+    See ITU-T H.265 Equations E-28 to E-30
+    """
+
     BT2020C = 10
+    """
+    ```
+    KR = 0.2627; KB = 0.0593
+    ```\n
+    Rec. ITU-R BT.2020-2 constant luminance system\n
+    See ITU-T H.265 Equations E-49 to E-58
+    """
+
     SMPTE2085 = 11
+    """
+    ```
+    # Y′D′ZD′X
+    ```\n
+    SMPTE ST 2085 (2015)\n
+    See ITU-T H.265 Equations E-59 to E-61
+    """
+
     CHROMA_DERIVED_NC = 12
+    """
+    ```
+    # See ITU-T H.265 Equations E-22 to E-27
+    ```\n
+    Chromaticity-derived non-constant luminance system\n
+    See ITU-T H.265 Equations E-28 to E-30
+
+    """
+
     CHROMA_DERIVED_C = 13
+    """
+    ```
+    # See ITU-T H.265 Equations E-22 to E-27
+    ```\n
+    Chromaticity-derived constant luminance system\n
+    See ITU-T H.265 Equations E-49 to E-58
+    """
+
     ICTCP = 14
+    """
+    ```
+    ICtCp
+    ```\n
+    Rec. ITU-R BT.2100-2 ICTCP\n
+    See ITU-T H.265 Equations E-62 to E-64 for `transfer_characteristics` value 16 (PQ)\n
+    See ITU-T H.265 Equations E-65 to E-67 for `transfer_characteristics` value 18 (HLG)
+    """
 
     @classmethod
     def is_unknown(cls, value: int | Matrix) -> bool:
+        """Check if Matrix is unknown."""
+
         return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Matrix:
+        """
+        Guess the matrix based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Matrix object.
+        """
+
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -99,10 +226,35 @@ class Matrix(_MatrixMeta):
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> Matrix:
+        """
+        Obtain the matrix of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Matrix.UNKNOWN.
+
+        :return:                            Matrix object.
+
+        :raises UndefinedMatrixError:       Matrix is undefined.
+        :raises UndefinedMatrixError:       Matrix can not be determined from the frameprops.
+        """
+
         return _base_from_video(cls, src, UndefinedMatrixError, strict, func)
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix from a Transfer object.
+
+        :param transfer:                        Transfer object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Transfer.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedTransferError:       Transfer is not supported.
+        """
+
         if transfer not in _transfer_matrix_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -113,6 +265,18 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries, strict: bool = False) -> Matrix:
+        """
+        Obtain the matrix from a Primaries object.
+
+        :param transfer:                        Primaries object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Primaries.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedPrimariesError:      Primaries is not supported.
+        """
+
         if primaries not in _primaries_matrix_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -131,7 +295,7 @@ class Matrix(_MatrixMeta):
 
 
 class Transfer(_TransferMeta):
-    """Transfer characteristics (ITU-T H.265)."""
+    """Transfer characteristics ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.4)."""
 
     _value_: int
 
@@ -157,20 +321,88 @@ class Transfer(_TransferMeta):
         return None
 
     BT709 = 1
+    """
+    (Functionally the same as :py:attr:`Transfer.BT601`, :py:attr:`Transfer.BT2020_10bits`,
+    and :py:attr:`Transfer.BT2020_12bits`)\n
+    Rec. ITU-R BT.709-6\n
+    Rec. ITU-R BT.1361-0 conventional\n
+    Colour gamut system (historical)
+    """
+
     UNKNOWN = 2
+    """Image characteristics are unknown or are determined by the application."""
+
     BT470M = 4
+    """
+    Rec. ITU-R BT.470-6 System M (historical)\n
+    NTSC Recommendation for transmission standards for colour television (1953)\n
+    FCC, Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)
+    """
+
     BT470BG = 5
+    """
+    Rec. ITU-R BT.470-6 System B, G (historical)\n
+    Rec. ITU-R BT.1700-0 625 PAL and\n
+    625 SECAM
+    """
+
     BT601 = 6
+    """
+    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT2020_10bits`,
+    and :py:attr:`Transfer.BT2020_12bits`)\n
+    Rec. ITU-R BT.601-7 525 or 625\n
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
+    Rec. ITU-R BT.1700-0 NTSC\n
+    SMPTE ST 170 (2004)
+    """
+
     ST240M = 7
+    """SMPTE ST 240 (1999, historical)"""
+
     LINEAR = 8
+    """Linear transfer characteristics"""
+
     LOG_100 = 9
+    """Logarithmic transfer characteristic (100:1 range)"""
+
     LOG_316 = 10
+    """Logarithmic transfer characteristic (100 * sqrt(10):1 range)"""
+
     XVYCC = 11
+    """IEC 61966-2-4"""
+
     SRGB = 13
+    """
+    IEC 61966-2-1 sRGB when matrix is equal to :py:attr:`Matrix.RGB`\n
+    IEC 61966-2-1 sYCC when matrix is equal to :py:attr:`Matrix.BT470BG`
+    """
+
     BT2020_10bits = 14
+    """
+    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
+    and :py:attr:`Transfer.BT2020_12bits`)\n
+    Rec. ITU-R BT.2020-2
+
+    """
+
     BT2020_12bits = 15
+    """
+    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
+    and :py:attr:`Transfer.BT2020_10bits`)\n
+    Rec. ITU-R BT.2020-2
+    """
+
     ST2084 = 16
+    """
+    SMPTE ST 2084 (2014) for 10, 12, 14, and 16-bit systems\n
+    Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system
+    """
+
     ARIB_B67 = 18
+    """
+    Association of Radio Industries and Businesses (ARIB) STD-B67\n
+    Rec. ITU-R BT.2100-2 hybrid loggamma (HLG) system
+    """
 
     """
     Extra tranfer characterists from libplacebo
@@ -179,25 +411,58 @@ class Transfer(_TransferMeta):
 
     # Standard gamut:
     BT601_525 = 100
+    """ITU-R Rec. BT.601 (525-line = NTSC, SMPTE-C)"""
+
     BT601_625 = 101
+    """ITU-R Rec. BT.601 (625-line = PAL, SECAM)"""
+
     EBU_3213 = 102
+    """EBU Tech. 3213-E / JEDEC P22 phosphors"""
+
     # Wide gamut:
     APPLE = 103
+    """Apple RGB"""
+
     ADOBE = 104
+    """Adobe RGB (1998)"""
+
     PRO_PHOTO = 105
+    """ProPhoto RGB (ROMM)"""
+
     CIE_1931 = 106
+    """CIE 1931 RGB primaries"""
+
     DCI_P3 = 107
+    """DCI-P3 (Digital Cinema)"""
+
     DISPLAY_P3 = 108
+    """DCI-P3 (Digital Cinema) with D65 white point"""
+
     V_GAMUT = 109
+    """Panasonic V-Gamut (VARICAM)"""
+
     S_GAMUT = 110
+    """Sony S-Gamut"""
+
     FILM_C = 111
+    """Traditional film primaries with Illuminant C"""
 
     @classmethod
     def is_unknown(cls, value: int | Transfer) -> bool:
+        """Check if Transfer is unknown."""
+
         return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Transfer:
+        """
+        Guess the transfer based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Transfer object.
+        """
+
         from ..utils import get_var_infos
 
         fmt, width, height = get_var_infos(frame)
@@ -220,10 +485,35 @@ class Transfer(_TransferMeta):
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> Transfer:
+        """
+        Obtain the transfer of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Transfer.UNKNOWN.
+
+        :return:                            Transfer object.
+
+        :raises UndefinedTransferError:     Transfer is undefined.
+        :raises UndefinedTransferError:     Transfer can not be determined from the frameprops.
+        """
+
         return _base_from_video(cls, src, UndefinedTransferError, strict, func)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer from a Matrix object.
+
+        :param matrix:                          Matrix object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Matrix.UNKNOWN!
+
+        :return:                                Transfer object.
+
+        :raises UnsupportedMatrixError:         Matrix is not supported.
+        """
+
         if matrix not in _matrix_transfer_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -234,6 +524,18 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries, strict: bool = False) -> Transfer:
+        """
+        Obtain the transfer from a Primaries object.
+
+        :param primaries:                       Primaries object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Primaries.UNKNOWN!
+
+        :return:                                Transfer object.
+
+        :raises UnsupportedPrimariesError:      Primaries is not supported.
+        """
+
         if primaries not in _primaries_transfer_map:
             if strict:
                 raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
@@ -244,10 +546,18 @@ class Transfer(_TransferMeta):
 
     @classmethod
     def from_libplacebo(self, val: int) -> int:
+        """Obtain the transfer from libplacebo."""
+
         return _placebo_transfer_map[val]
 
     @property
     def value_vs(self) -> int:
+        """
+        VapourSynth value.
+
+        :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
+        """
+
         if self >= self.BT601_525:
             raise ReservedTransferError(
                 'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!',
@@ -258,19 +568,21 @@ class Transfer(_TransferMeta):
 
     @property
     def value_libplacebo(self) -> int:
+        """libplacebo value."""
+
         return _transfer_placebo_map[self]
 
     @property
     def pretty_string(self) -> str:
         return _transfer_pretty_name_map.get(self, super().pretty_string)
-    
+
     @property
     def string(self) -> str:
         return _transfer_name_map.get(self, super().string)
 
 
 class Primaries(_PrimariesMeta):
-    """Color primaries (ITU-T H.265)."""
+    """Color primaries ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Table E.3)."""
 
     _value_: int
 
@@ -296,25 +608,189 @@ class Primaries(_PrimariesMeta):
         return None
 
     BT709 = 1
+    """
+    ```
+    Primary      x      y
+    Green     0.3000 0.6000
+    Blue      0.1500 0.0600
+    Red       0.6400 0.3300
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.709-6
+    Rec. ITU-R BT.1361-0 conventional colour gamutsystem and extended colour gamut system (historical)
+    IEC 61966-2-1 sRGB or sYCC
+    IEC 61966-2-4
+    SMPTE RP 177 (1993) Annex B
+    """
+
     UNKNOWN = 2
+    """Unspecified Image characteristics are unknown or are determined by the application."""
+
     BT470M = 4
+    """
+    ```
+    Primary     x      y
+    Green    0.2100 0.7100
+    Blue     0.1400 0.0800
+    Red      0.6700 0.3300
+    White C  0.3100 0.3160
+    ```
+
+    Rec. ITU-R BT.470-6 System M (historical)
+    NTSC Recommendation for transmission
+    standards for colour television (1953)
+    FCC Title 47 Code of Federal Regulations (2003)
+    73.682 (a) (20)
+    """
+
     BT470BG = 5
+    """
+    ```
+    Primary      x      y
+    Green     0.2900 0.6000
+    Blue      0.1500 0.0600
+    Red       0.6400 0.3300
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.470-6 System B, G (historical)
+    Rec. ITU-R BT.601-7 625
+    Rec. ITU-R BT.1358-0 625 (historical)
+    Rec. ITU-R BT.1700-0 625 PAL and 625
+    SECAM
+    """
+
     ST170M = 6
+    """
+    (Functionally the same as :py:attr:`Primaries.ST240M`)
+    ```
+    Primary      x      y
+    Green     0.3100 0.5950
+    Blue      0.1550 0.0700
+    Red       0.6300 0.3400
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.601-7 525
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)
+    Rec. ITU-R BT.1700-0 NTSC
+    SMPTE ST 170 (2004)
+    """
+
     ST240M = 7
+    """
+    (Functionally the same as :py:attr:`Primaries.ST170M`)
+    ```
+    Primary      x      y
+    Green     0.3100 0.5950
+    Blue      0.1550 0.0700
+    Red       0.6300 0.3400
+    White D65 0.3127 0.3290
+    ```
+
+    SMPTE ST 240 (1999, historical)
+    """
+
     FILM = 8
+    """
+    ```
+    Primary    x      y
+    Green   0.2430 0.6920 #(Wratten 58)
+    Blue    0.1450 0.0490 #(Wratten 47)
+    Red     0.6810 0.3190 #(Wratten 25)
+    White C 0.3100 0.3160
+    ```
+
+    Generic film (colour filters using Illuminant C)
+    """
+
     BT2020 = 9
+    """
+    ```
+    Primary       x      y
+    Green     0.1700 0.7970
+    Blue      0.1310 0.0460
+    Red       0.7080 0.2920
+    White D65 0.3127 0.3290
+    ```
+
+    Rec. ITU-R BT.2020-2\n
+    Rec. ITU-R BT.2100-2
+    """
+
     ST428 = 10
+    """
+    ```
+    Primary        x   y
+    Green    (Y)  0.0 1.0
+    Blue     (Z)  0.0 0.0
+    Red      (X)  1.0 0.0
+    Centre White  1/3 1/3
+    ```
+
+    SMPTE ST 428-1 (2006)\n
+    (CIE 1931 XYZ)
+    """
     XYZ = ST428
+
     ST431_2 = 11
+    """
+    ```
+    Primary    x      y
+    Green   0.2650 0.6900
+    Blue    0.1500 0.0600
+    Red     0.6800 0.3200
+    White   0.3140 0.3510
+    ```
+
+    SMPTE RP 431-2 (2011)\n
+    SMPTE ST 2113 (2019) "P3DCI"
+    """
+
     ST432_1 = 12
+    """
+    ```
+    Primary      x      y
+    Green     0.2650 0.6900
+    Blue      0.1500 0.0600
+    Red       0.6800 0.3200
+    White D65 0.3127 0.3290
+    ```
+
+    SMPTE EG 432-1 (2010)\n
+    SMPTE ST 2113 (2019) "P3D65"
+    """
+
     EBU3213E = 22
+    """
+    ```
+    Primary      x      y
+    Green     0.2950 0.6050
+    Blue      0.1550 0.0770
+    Red       0.6300 0.3400
+    White D65 0.3127 0.3290
+    ```
+
+    EBU Tech. 3213-E (1975)
+    """
 
     @classmethod
     def is_unknown(cls, value: int | Primaries) -> bool:
+        """Check if Primaries is unknown."""
+
         return value == cls.UNKNOWN
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> Primaries:
+        """
+        Guess the primaries based on the clip's resolution.
+
+        :param frame:       Input clip or frame.
+
+        :return:            Primaries object.
+        """
+
         from ..utils import get_var_infos
 
         fmt, w, h = get_var_infos(frame)
@@ -337,10 +813,35 @@ class Primaries(_PrimariesMeta):
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> Primaries:
+        """
+        Obtain the primaries of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            The result may NOT be Primaries.UNKNOWN.
+
+        :return:                            Primaries object.
+
+        :raises UndefinedPrimariesError:    Primaries is undefined.
+        :raises UndefinedPrimariesError:    Primaries can not be determined from the frame properties.
+        """
+
         return _base_from_video(cls, src, UndefinedPrimariesError, strict, func)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries from a Matrix object.
+
+        :param matrix:                          Matrix object.
+        :param strict:                          Be strict about the properties.
+                                                The matrix may NOT be Matrix.UNKNOWN!
+
+        :return:                                Primaries object.
+
+        :raises UnsupportedMatrixError:         Matrix is not supported.
+        """
+
         if matrix not in _matrix_primaries_map:
             if strict:
                 raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
@@ -351,6 +852,18 @@ class Primaries(_PrimariesMeta):
 
     @classmethod
     def from_transfer(cls, transfer: Transfer, strict: bool = False) -> Primaries:
+        """
+        Obtain the primaries from a Transfer object.
+
+        :param transfer:                        Transfer object.
+        :param strict:                          Be strict about the properties.
+                                                The result may NOT be Transfer.UNKNOWN.
+
+        :return:                                Matrix object.
+
+        :raises UnsupportedTransferError:       Transfer is not supported.
+        """
+
         if transfer not in _transfer_primaries_map:
             if strict:
                 raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
@@ -369,29 +882,48 @@ class Primaries(_PrimariesMeta):
 
 
 class MatrixCoefficients(NamedTuple):
+    """Class representing Linear <-> Gamma conversion matrix coefficients."""
+
     k0: float
+    """Coefficient representing the offset of the linear value relative to the gamma value."""
+
     phi: float
+    """Coefficient representing the slope of the linear value relative to the gamma value."""
+
     alpha: float
+    """Coefficient representing the non-linearity of the gamma curve."""
+
     gamma: float
+    """Coefficient representing the exponent of the gamma curve."""
 
     @classproperty
     def SRGB(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for SRGB."""
+
         return MatrixCoefficients(0.04045, 12.92, 0.055, 2.4)
 
     @classproperty
     def BT709(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for BT709."""
+
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classproperty
     def SMPTE240M(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for SMPTE240M."""
+
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
     @classproperty
     def BT2020(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for BT2020."""
+
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classmethod
     def from_matrix(cls, matrix: Matrix) -> MatrixCoefficients:
+        """Matrix Coefficients from a Matrix object's value."""
+
         if matrix not in _matrix_matrixcoeff_map:
             raise UnsupportedMatrixError(f'{matrix} is not supported!', cls.from_matrix)
 
@@ -399,6 +931,8 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
+        """Matrix Coefficients from a Transfer object's value."""
+
         if tranfer not in _transfer_matrixcoeff_map:
             raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
 
@@ -406,6 +940,8 @@ class MatrixCoefficients(NamedTuple):
 
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:
+        """Matrix Coefficients from a Primaries object's value."""
+
         if primaries not in _primaries_matrixcoeff_map:
             raise UnsupportedPrimariesError(f'{primaries} is not supported!', cls.from_primaries)
 
@@ -413,7 +949,7 @@ class MatrixCoefficients(NamedTuple):
 
 
 class ColorRange(_ColorRangeMeta):
-    """Full or limited range (PC/TV range). Primarily used with YUV formats."""
+    """Pixel Range ([ITU-T H.265](https://www.itu.int/rec/T-REC-H.265) Equations E-10 through E-20."""
 
     _value_: int
 
@@ -432,30 +968,61 @@ class ColorRange(_ColorRangeMeta):
         return None
 
     LIMITED = 1
+    """
+    Studio (TV) legal range, 16-235 in 8 bits.
+
+    | This is primarily used with YUV integer formats.
+    """
+
     FULL = 0
+    """
+    Full (PC) dynamic range, 0-255 in 8 bits.
+
+
+    | Note that float clips should always be FULL range!\n
+    | RGB clips will always be FULL range!
+    """
 
     @classmethod
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> ColorRange:
+        """
+        Obtain the color range of a clip from the frame properties.
+
+        :param src:                         Input clip, frame, or props.
+        :param strict:                      Be strict about the properties.
+                                            Sets the ColorRange as MISSING if prop is not there.
+
+        :return:                            ColorRange object.
+        """
+
         from ..utils import get_prop
 
         return get_prop(src, '_ColorRange', int, ColorRange, MISSING if strict else ColorRange.LIMITED)
 
     @property
     def value_vs(self) -> int:
+        """VapourSynth (props) value."""
+
         return self.value
 
     @property
     def value_zimg(self) -> int:
+        """zimg (resize plugin) value."""
+
         return ~self.value + 2
 
     @property
     def is_limited(self) -> bool:
+        """Check if ColorRange is limited."""
+
         return bool(self.value)
 
     @property
     def is_full(self) -> bool:
+        """Check if ColorRange is full."""
+
         return not self.value
 
 
@@ -626,6 +1193,13 @@ _primaries_pretty_name_map = {
 
 
 MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
+"""Type alias for values that can be used to initialize a :py:attr:`Matrix`."""
+
 TransferT: TypeAlias = Union[int, vs.TransferCharacteristics, Transfer]
+"""Type alias for values that can be used to initialize a :py:attr:`Transfer`."""
+
 PrimariesT: TypeAlias = Union[int, vs.ColorPrimaries, Primaries]
+"""Type alias for values that can be used to initialize a :py:attr:`Primaries`."""
+
 ColorRangeT: TypeAlias = Union[int, vs.ColorRange, ColorRange]
+"""Type alias for values that can be used to initialize a :py:attr:`ColorRange`."""

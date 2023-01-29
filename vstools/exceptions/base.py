@@ -29,11 +29,22 @@ else:
 
 
 class CustomErrorMeta(type):
+    """Custom base exception meta class."""
+
     def __new__(cls: type[SelfCErrorMeta], *args: Any) -> SelfCErrorMeta:
         return CustomErrorMeta.setup_exception(type.__new__(cls, *args))  # type: ignore
 
     @staticmethod
     def setup_exception(exception: SelfCErrorMeta, override: str | ExceptionT | None = None) -> SelfCErrorMeta:
+        """
+        Setup an exception for later use in CustomError.
+
+        :param exception:   Exception to update.
+        :param override:    Optional name or exception from which get the override values.
+
+        :return:            Set up exception.
+        """
+
         if override:
             if isinstance(override, str):
                 over_name = over_qual = override
@@ -66,9 +77,19 @@ SelfCErrorMeta = TypeVar('SelfCErrorMeta', bound=CustomErrorMeta)
 
 
 class CustomError(ExceptionT, metaclass=CustomErrorMeta):
+    """Custom base exception class."""
+
     def __init__(
         self, message: SupportsString | None = None, func: FuncExceptT | None = None, reason: Any = None, **kwargs: Any
     ) -> None:
+        """
+        Instantiate a new exception with pretty printing and more.
+
+        :param message: Message of the error.
+        :param func:    Function this exception was raised from.
+        :param reason:  Reason of the exception. For example, an optional parameter.
+        """
+
         func = func or get_caller_function()
 
         self.message = message
@@ -96,6 +117,14 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
         func: FuncExceptT | None = MISSING, reason: SupportsString | FuncExceptT | None = MISSING,  # type: ignore
         **kwargs: Any
     ) -> SelfError:
+        """
+        Copy an existing exception with defaults and instantiate a new one.
+
+        :param message: Message of the error.
+        :param func:    Function this exception was raised from.
+        :param reason:  Reason of the exception. For example, an optional parameter.
+        """
+
         err = deepcopy(self)
 
         if message is not MISSING:
@@ -155,32 +184,32 @@ SelfError = TypeVar('SelfError', bound=CustomError)
 
 
 class CustomValueError(CustomError, ValueError):
-    ...
+    """Thrown when a specified value is invalid."""
 
 
 class CustomIndexError(CustomError, IndexError):
-    ...
+    """Thrown when an index or generic numeric value is out of bound."""
 
 
 class CustomOverflowError(CustomError, OverflowError):
-    ...
+    """Thrown when a value is out of range. e.g. temporal radius too big."""
 
 
 class CustomKeyError(CustomError, KeyError):
-    ...
+    """Thrown when tring to access an non-existant key."""
 
 
 class CustomTypeError(CustomError, TypeError):
-    ...
+    """Thrown when a passed argument is of wrong type."""
 
 
 class CustomRuntimeError(CustomError, RuntimeError):
-    ...
+    """Thrown when a runtime error occurs."""
 
 
 class CustomNotImplementedError(CustomError, NotImplementedError):
-    ...
+    """Thrown when you encounter a yet not implemented brach of code."""
 
 
 class CustomPermissionError(CustomError, PermissionError):
-    ...
+    """Thrown when the user can't perform an action."""

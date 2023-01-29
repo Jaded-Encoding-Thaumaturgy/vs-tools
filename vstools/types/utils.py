@@ -29,8 +29,34 @@ __all__ = [
 
 
 class copy_signature(Generic[F0]):
+    """
+    Type util to copy the signature of one function to another function.\n
+    Especially useful for passthrough functions.
+
+    .. code-block::
+
+       class SomeClass:
+           def __init__(
+               self, some: Any, complex: Any, /, *args: Any,
+               long: Any, signature: Any, **kwargs: Any
+           ) -> None:
+               ...
+
+       class SomeClassChild(SomeClass):
+           @copy_signature(SomeClass.__init__)
+           def __init__(*args: Any, **kwargs: Any) -> None:
+               super().__init__(*args, **kwargs)
+               # do some other thing
+
+       class Example(SomeClass):
+           @copy_signature(SomeClass.__init__)
+           def __init__(*args: Any, **kwargs: Any) -> None:
+               super().__init__(*args, **kwargs)
+               # another thing
+    """
+
     def __init__(self, target: F0) -> None:
-        ...
+        """Copy the signature of ``target``."""
 
     def __call__(self, wrapped: Callable[..., Any]) -> F0:
         return cast(F0, wrapped)
@@ -72,6 +98,13 @@ self_objects_cache = dict[type[T], T]()
 
 class inject_self_base(Generic[T, P, R]):
     def __init__(self, function: Callable[Concatenate[T, P], R], /, *, cache: bool = False) -> None:
+        """
+        Wrap ``function`` to always have a self provided to it.
+
+        :param function:    Method to wrap.
+        :param cache:       Whether to cache the self object.
+        """
+
         self.function = function
         if isinstance(self, inject_self.cached):
             self.cache = True
@@ -118,6 +151,8 @@ class inject_self_base(Generic[T, P, R]):
     def with_args(
         cls, *args: Any, **kwargs: Any
     ) -> Callable[[Callable[Concatenate[T0, P0], R0]], inject_self[T0, P0, R0]]:
+        """Provide custom args to instantiate the ``self`` object with."""
+
         def _wrapper(function: Callable[Concatenate[T0, P0], R0]) -> inject_self[T0, P0, R0]:
             inj = cls(function)  # type: ignore
             inj.args = args
@@ -127,11 +162,22 @@ class inject_self_base(Generic[T, P, R]):
 
 
 class inject_self(Generic[T, P, R], inject_self_base[T, P, R]):  # type: ignore
+    """Wrap a method so it always has a constructed ``self`` provided to it."""
+
     class cached(Generic[T0, P0, R0], inject_self_base[T0, P0, R0]):  # type: ignore
-        ...
+        """
+        Wrap a method so it always has a constructed ``self`` provided to it.
+        Once ``self`` is constructed, it will be reused.
+        """
 
 
 class complex_hash(Generic[T]):
+    """
+    Decorator for classes to add a ``__hash__`` method to them.
+
+    Especially useful for NamedTuples.
+    """
+
     def __new__(cls, class_type: T) -> T:  # type: ignore
         class inner_class_type(class_type):  # type: ignore
             def __hash__(self) -> int:
@@ -145,6 +191,14 @@ class complex_hash(Generic[T]):
 
     @staticmethod
     def hash(*args: Any) -> int:
+        """
+        Recursively hash every unhashable object in ``*args``.
+
+        :param *args:   Objects to be hashed.
+
+        :return:        Hash of all the combined objects' hashes.
+        """
+
         values = list[str]()
         for value in args:
             try:
@@ -161,6 +215,16 @@ class complex_hash(Generic[T]):
 
 
 def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[type[T]]:
+    """
+    Get all subclasses of a given type.
+
+    :param family:  "Main" type all other classes inherit from.
+    :param exclude: Excluded types from the yield. Note that they won't be excluded from search.
+                    For examples, subclasses of these excluded classes will be yield.
+
+    :return:        List of all subclasses of "family".
+    """
+
     def _subclasses(cls: type[T]) -> Generator[type[T], None, None]:
         for subclass in cls.__subclasses__():
             yield from _subclasses(subclass)
@@ -172,9 +236,15 @@ def get_subclasses(family: type[T], exclude: Sequence[type[T]] = []) -> list[typ
 
 
 class classproperty(Generic[P, R, T, T0, P0]):
+    """
+    Make a class property. A combination between classmethod and property.
+    """
+
     __isabstractmethod__: bool = False
 
     class metaclass(type):
+        """This must be set for the decorator to work."""
+
         def __setattr__(self, key: str, value: Any) -> None:
             if key in self.__dict__:
                 obj = self.__dict__.get(key)
@@ -252,11 +322,23 @@ class classproperty(Generic[P, R, T, T0, P0]):
 
 
 class cachedproperty(property, Generic[P, R, T, T0, P0]):
+    """
+    Wrapper for a one-time get property, that will be cached.
+
+    Keep in mind two things:
+
+     * The cache is per-object. Don't hold a reference to itself or it will never get garbage collected.
+     * Your class has to either manually set __dict__[cachedproperty.cache_key]
+       or inherit from cachedproperty.baseclass.
+    """
+
     __isabstractmethod__: bool = False
 
     cache_key = '_vst_cachedproperty_cache'
 
     class baseclass:
+        """Inherit from this class to automatically set the cache dict."""
+
         if not TYPE_CHECKING:
             def __new__(cls, *args: Any, **kwargs: Any) -> None:
                 self = super().__new__(cls, *args, **kwargs)
@@ -292,6 +374,8 @@ class cachedproperty(property, Generic[P, R, T, T0, P0]):
 
 
 class KwargsNotNone(KwargsT):
+    """Remove all None objects from this kwargs dict."""
+
     if not TYPE_CHECKING:
         def __new__(cls, *args: Any, **kwargs: Any) -> KwargsNotNone:
             return KwargsT(**{
@@ -301,6 +385,15 @@ class KwargsNotNone(KwargsT):
 
 
 class vs_object(ABC, metaclass=ABCMeta):
+    """
+    Special object that follows the lifecycle of the VapourSynth environment/core.
+
+    If a special dunder is created, __vs_del__, it will be called when the environment is getting deleted.
+
+    This is especially useful if you have to hold a reference to a VideoNode or Plugin/Function object
+    in this object as you need to remove it for the VapourSynth core to be freed correctly.
+    """
+
     __vsdel_register: Callable[[int], None] | None = None
 
     def __new__(cls: type[VSObjSelf], *args: Any, **kwargs: Any) -> VSObjSelf:
@@ -326,10 +419,15 @@ class vs_object(ABC, metaclass=ABCMeta):
 
     if TYPE_CHECKING:
         def __vs_del__(self, core_id: int) -> None:
-            ...
+            """Special dunder that will be called when a core is getting freed."""
 
     @staticmethod
     def core_unbound(deleter: F) -> F:
+        """
+        Decorate a __vs_del__ with this to indicate that it should
+        be called when the environment is getting freed instead of the core.
+        """
+
         deleter._is_core_unbound = True  # type: ignore
         return deleter
 
@@ -361,11 +459,22 @@ SingletonSelf = TypeVar('SingletonSelf', bound=SingletonMeta)
 
 
 class Singleton(metaclass=SingletonMeta):
-    ...
+    """Handy class to inherit to have the SingletonMeta metaclass."""
 
 
 class VSDebug(Singleton, init=True):
+    """Special class that follows the VapourSynth lifecycle for debug purposes."""
+
     def __init__(self, *, env_life: bool = True, core_fetch: bool = False) -> None:
+        """
+        Print useful debug information.
+
+        :param env_life:    Print creation/destroy of VapourSynth environment.
+        :param core_fetch:  Print traceback of the code that led to the first concrete core fetch.
+                            Especially useful when trying to find the code path that is
+                            locking you into a EnvironmentPolicy.
+        """
+
         from ..utils.vs_proxy import register_on_creation
 
         if env_life:

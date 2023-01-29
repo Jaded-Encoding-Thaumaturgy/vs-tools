@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from functools import partial
 from math import ceil, log
 from typing import Sequence
 
@@ -20,29 +19,50 @@ __all__ = [
 
 
 def clamp(val: Nb, min_val: Nb, max_val: Nb) -> Nb:
+    """Faster max(min(value, max_val), min_val) "wrapper" """
+
     return min_val if val < min_val else max_val if val > max_val else val
 
 
 def clamp_arr(vals: Sequence[Nb], min_val: Nb, max_val: Nb) -> list[Nb]:
+    """Map an array to vstools.clamp."""
+
     return [clamp(x, min_val, max_val) for x in vals]
 
 
 def cround(x: float, *, eps: float = 1e-6) -> int:
+    """Rounding function that accounts for float's imprecision."""
+
     return round(x + (eps if x > 0. else - eps))
 
 
 def mod_x(val: int | float, x: int) -> int:
+    """Force a value to be divisible by x (val % x == 0)."""
+
     return max(x * x, cround(val / x) * x)
 
 
-mod2 = partial(mod_x, x=2)
+def mod2(val: int | float) -> int:
+    """Force a value to be mod 2"""
 
-mod4 = partial(mod_x, x=4)
+    return mod_x(val, x=2)
 
-mod8 = partial(mod_x, x=8)
+
+def mod4(val: int | float) -> int:
+    """Force a value to be mod 4"""
+
+    return mod_x(val, x=4)
+
+
+def mod8(val: int | float) -> int:
+    """Force a value to be mod 8"""
+
+    return mod_x(val, x=8)
 
 
 def next_power_of_2(x: float) -> int:
+    """Get the next power of 2 of x."""
+
     x = cround(x)
 
     if x == 0:
@@ -58,6 +78,8 @@ def next_power_of_2(x: float) -> int:
 
 
 def next_power_of_y(x: float, y: int) -> int:
+    """Get the next power of y of x."""
+
     if x == 0:
         return 1
 
@@ -69,6 +91,8 @@ def spline_coeff(
         (0, 0), (0.5, 0.1), (1, 0.6), (2, 0.9), (2.5, 1), (3, 1.1), (3.5, 1.15), (4, 1.2), (8, 1.25), (255, 1.5)
     ]
 ) -> float:
+    """Get spline coefficient of an index and coordinates."""
+
     length = len(coordinates)
 
     if length < 3:
