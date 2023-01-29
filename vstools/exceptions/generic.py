@@ -161,7 +161,7 @@ class FormatsMismatchError(MismatchError):
     """Raised when clips with different formats are given."""
 
     def __init__(
-        self, clip_a: vs.RawNode, clip_b: vs.RawNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip_a: vs.RawNode, clip_b: vs.RawNode,
         message: SupportsString = 'The format of both clips must be equal!',
         reason: Any = '{a_format} != {b_format}',
         **kwargs: Any
@@ -175,7 +175,7 @@ class FormatsRefClipMismatchError(FormatsMismatchError):
     """Raised when a ref clip and the main clip have different formats"""
 
     def __init__(
-        self, clip: vs.RawNode, ref: vs.RawNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip: vs.RawNode, ref: vs.RawNode,
         message: SupportsString = 'The format of ref and main clip must be equal!',
         reason: Any = '{clip_format} != {ref_format}',
         **kwargs: Any
@@ -189,7 +189,7 @@ class ResolutionsMismatchError(MismatchError):
     """Raised when clips with different resolutions are given."""
 
     def __init__(
-        self, clip_a: vs.VideoNode, clip_b: vs.VideoNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip_a: vs.VideoNode, clip_b: vs.VideoNode,
         message: SupportsString = 'The resolution of both clips must be equal!',
         reason: Any = '{a_width}x{a_height} != {b_width}x{b_height}',
         **kwargs: Any
@@ -204,7 +204,7 @@ class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have different resolutions"""
 
     def __init__(
-        self, clip: vs.VideoNode, ref: vs.VideoNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip: vs.VideoNode, ref: vs.VideoNode,
         message: SupportsString = 'The resolution of ref and main clip must be equal!',
         reason: Any = '{clip_width}x{clip_height} != {ref_width}x{ref_height}',
         **kwargs: Any
@@ -219,7 +219,7 @@ class LengthMismatchError(MismatchError):
     """Raised when clips with a different number of total frames are given."""
 
     def __init__(
-        self, clip_a: vs.RawNode, clip_b: vs.RawNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip_a: vs.RawNode, clip_b: vs.RawNode,
         message: SupportsString = 'The amount of frames for every clip must be equal!',
         reason: Any = '{a_num_frames} != {b_num_frames}',
         **kwargs: Any
@@ -233,7 +233,7 @@ class LengthRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have a different number of total frames."""
 
     def __init__(
-        self, clip: vs.RawNode, ref: vs.RawNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip: vs.RawNode, ref: vs.RawNode,
         message: SupportsString = 'The amount of frames for the ref and main clip must be equal!',
         reason: Any = '{clip_num_frames} != {ref_num_frames}',
         **kwargs: Any
@@ -247,21 +247,19 @@ class FramerateMismatchError(MismatchError):
     """Raised when clips with a different framerate are given."""
 
     def __init__(
-        self, clip_a: vs.VideoNode, clip_b: vs.VideoNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip_a: vs.VideoNode, clip_b: vs.VideoNode,
         message: SupportsString = 'The framerate of every clip must be equal!',
         reason: Any = '{a_fps} != {b_fps}',
         **kwargs: Any
     ) -> None:
-        super().__init__(
-            message, func, reason, a_fps=clip_a.fps, b_fps=clip_b.fps, **kwargs
-        )
+        super().__init__(message, func, reason, a_fps=clip_a.fps, b_fps=clip_b.fps, **kwargs)
 
 
 class FramerateRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have a different framerate"""
 
     def __init__(
-        self, clip: vs.VideoNode, ref: vs.VideoNode, func: FuncExceptT,
+        self, func: FuncExceptT, clip: vs.VideoNode, ref: vs.VideoNode,
         message: SupportsString = 'The framerate of the ref and main clip must be equal!',
         reason: Any = '{clip_fps} != {ref_fps}',
         **kwargs: Any
