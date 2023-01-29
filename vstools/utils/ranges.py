@@ -7,8 +7,8 @@ from typing import Iterable, overload
 import vapoursynth as vs
 
 from ..exceptions import (
-    CustomIndexError, CustomValueError, FileNotExistsError, FormatsMismatchError, FramerateMismatchError,
-    LengthMismatchError, ResolutionsMismatchError
+    CustomIndexError, CustomValueError, FormatsMismatchError, FramerateMismatchError, LengthMismatchError,
+    ResolutionsMismatchError
 )
 from ..functions import check_ref_clip
 from ..types import T0, FrameRangeN, FrameRangesN, T
@@ -90,13 +90,13 @@ def replace_ranges(
 
             match msg:
                 case "Clip lengths don't match":
-                    raise LengthMismatchError(replace_ranges, clip_a, clip_b)
+                    raise LengthMismatchError(replace_ranges, [clip_a, clip_b])
                 case "Clip dimensions don't match":
-                    raise ResolutionsMismatchError(replace_ranges, clip_a, clip_b)
+                    raise ResolutionsMismatchError(replace_ranges, [clip_a, clip_b])
                 case "Clip formats don't match":
-                    raise FormatsMismatchError(replace_ranges, clip_a, clip_b)
+                    raise FormatsMismatchError(replace_ranges, [clip_a, clip_b])
                 case "Clip frame rates don't match":
-                    raise FramerateMismatchError(replace_ranges, clip_a, clip_b)
+                    raise FramerateMismatchError(replace_ranges, [clip_a, clip_b])
                 case _:
                     raise CustomValueError(msg, replace_ranges)
 
