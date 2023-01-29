@@ -90,15 +90,13 @@ def replace_ranges(
 
             match msg:
                 case "Clip lengths don't match":
-                    raise LengthMismatchError(replace_ranges, reason=f'({clip_a.num_frames} != {clip_b.num_frames})')
+                    raise LengthMismatchError(clip_a, clip_b, replace_ranges)
                 case "Clip dimensions don't match":
-                    raise ResolutionsMismatchError(
-                        replace_ranges, reason=f'({clip_a.width}x{clip_a.height} != {clip_b.width}x{clip_b.height})'
-                    )
+                    raise ResolutionsMismatchError(clip_a, clip_b, replace_ranges)
                 case "Clip formats don't match":
-                    raise FormatsMismatchError(replace_ranges, reason=f'{clip_a.format} != {clip_b.format}')
+                    raise FormatsMismatchError(clip_a, clip_b, replace_ranges)
                 case "Clip frame rates don't match":
-                    raise FramerateMismatchError(replace_ranges, reason=f'{clip_a.fps} != {clip_b.fps}')
+                    raise FramerateMismatchError(clip_a, clip_b, replace_ranges)
                 case "Failed to open the timecodes file.":
                     raise FileNotExistsError(msg, replace_ranges)
 

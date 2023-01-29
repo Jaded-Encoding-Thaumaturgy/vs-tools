@@ -153,84 +153,122 @@ class InvalidSubsamplingError(CustomValueError):
         super().__init__(message, func, subsampling=subsampling, **kwargs)
 
 
-class FormatsMismatchError(CustomValueError):
+class MismatchError(CustomValueError):
+    """Raised when there's a mismatch between two or more values."""
+
+
+class FormatsMismatchError(MismatchError):
     """Raised when clips with different formats are given."""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The format of both clips must be equal!',
+        self, clip_a: vs.RawNode, clip_b: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The format of both clips must be equal!',
+        reason: Any = '{a_format} != {b_format}',
         **kwargs: Any
     ) -> None:
-        super().__init__(message, func, **kwargs)
+        super().__init__(
+            message, func, reason, a_format=clip_a.format, b_format=clip_b.format, **kwargs
+        )
 
 
 class FormatsRefClipMismatchError(FormatsMismatchError):
     """Raised when a ref clip and the main clip have different formats"""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The format of ref and main clip must be equal!',
+        self, clip: vs.RawNode, ref: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The format of ref and main clip must be equal!',
+        reason: Any = '{clip_format} != {ref_format}',
         **kwargs: Any
     ) -> None:
-        super().__init__(func, message, **kwargs)
+        super().__init__(
+            message, func, reason, clip_format=clip.format, ref_format=ref.format, **kwargs
+        )
 
 
-class ResolutionsMismatchError(CustomValueError):
+class ResolutionsMismatchError(MismatchError):
     """Raised when clips with different resolutions are given."""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The resolution of both clips must be equal!',
+        self, clip_a: vs.RawNode, clip_b: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The resolution of both clips must be equal!',
+        reason: Any = '{a_width}x{a_height} != {b_width}x{b_height}',
         **kwargs: Any
     ) -> None:
-        super().__init__(message, func, **kwargs)
+        super().__init__(
+            message, func, reason, a_width=clip_a.width, a_height=clip_a.height,
+            b_width=clip_b.width, b_height=clip_b.height, **kwargs
+        )
 
 
 class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have different resolutions"""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The resolution of ref and main clip must be equal!',
+        self, clip: vs.RawNode, ref: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The resolution of ref and main clip must be equal!',
+        reason: Any = '{clip_width}x{clip_height} != {ref_width}x{ref_height}',
         **kwargs: Any
     ) -> None:
-        super().__init__(func, message, **kwargs)
+        super().__init__(
+            message, func, reason, clip_width=clip.width, clip_height=clip.height,
+            ref_width=ref.width, ref_height=ref.height, **kwargs
+        )
 
 
-class LengthMismatchError(CustomValueError):
+class LengthMismatchError(MismatchError):
     """Raised when clips with a different number of total frames are given."""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The total frames of every clip must be equal!',
+        self, clip_a: vs.RawNode, clip_b: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The amount of frames for every clip must be equal!',
+        reason: Any = '{a_num_frames} != {b_num_frames}',
         **kwargs: Any
     ) -> None:
-        super().__init__(message, func, **kwargs)
+        super().__init__(
+            message, func, reason, a_num_frames=clip_a.num_frames, b_num_frames=clip_b.num_frames, **kwargs
+        )
 
 
 class LengthRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have a different number of total frames."""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The total frames of the ref and main clip must be equal!',
+        self, clip: vs.RawNode, ref: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The amount of frames for the ref and main clip must be equal!',
+        reason: Any = '{clip_num_frames} != {ref_num_frames}',
         **kwargs: Any
     ) -> None:
-        super().__init__(func, message, **kwargs)
+        super().__init__(
+            message, func, reason, clip_num_frames=clip.num_frames, ref_num_frames=ref.num_frames, **kwargs
+        )
 
 
-class FramerateMismatchError(CustomValueError):
+class FramerateMismatchError(MismatchError):
     """Raised when clips with a different framerate are given."""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The framerate of every clip must be equal!',
+        self, clip_a: vs.RawNode, clip_b: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The framerate of every clip must be equal!',
+        reason: Any = '{a_fps} != {b_fps}',
         **kwargs: Any
     ) -> None:
-        super().__init__(message, func, **kwargs)
+        super().__init__(
+            message, func, reason, a_num_frames=clip_a.fps, b_num_frames=clip_b.fps, **kwargs
+        )
 
 
 class FramerateRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have a different framerate"""
 
     def __init__(
-        self, func: FuncExceptT, message: SupportsString = 'The framerate of the ref and main clip must be equal!',
+        self, clip: vs.RawNode, ref: vs.RawNode, func: FuncExceptT,
+        message: SupportsString = 'The framerate of the ref and main clip must be equal!',
+        reason: Any = '{clip_fps} != {ref_fps}',
         **kwargs: Any
     ) -> None:
-        super().__init__(func, message, **kwargs)
+        super().__init__(
+            message, func, reason, a_num_frames=clip.fps, b_num_frames=ref.fps, **kwargs
+        )
 
 
 class FramePropError(CustomKeyError):
