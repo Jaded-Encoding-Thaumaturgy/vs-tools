@@ -41,9 +41,8 @@ from vapoursynth import (
     get_current_environment, get_output, get_outputs, has_policy, register_policy
 )
 
-from .other import IS_DOCS
-
 from ..exceptions import CustomRuntimeError
+from .other import IS_DOCS
 from .vs_enums import (
     GRAY8, GRAY9, GRAY10, GRAY11, GRAY12, GRAY13, GRAY14, GRAY15, GRAY16, GRAY17, GRAY18, GRAY19, GRAY20, GRAY21,
     GRAY22, GRAY23, GRAY24, GRAY25, GRAY26, GRAY27, GRAY28, GRAY29, GRAY30, GRAY31, GRAY32, GRAYH, GRAYS, RGB24, RGB27,
@@ -429,7 +428,7 @@ class VSCoreProxy(CoreProxyBase):
         """
         Set core affinity.
 
-        :param threads:     How many and which threads to use for VapourSynth. 
+        :param threads:     How many and which threads to use for VapourSynth.
         :param max_cache:   Maximum cache used for frame data in VapourSynth.
         :param reserve:     Reserve n amount of or the specified threads.
 
