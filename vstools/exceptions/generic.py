@@ -174,6 +174,11 @@ class MismatchError(CustomValueError):
     ) -> None:
         super().__init__(message, func, reason, **kwargs, reduced_items=iter(self._reduce(items)))
 
+    @classmethod
+    def check(cls, func: FuncExceptT, *items: T, **kwargs: Any) -> None:
+        if len(cls._reduce(items)) != 1:
+            raise cls(func, items, **kwargs)
+
 
 class FormatsMismatchError(MismatchError):
     """Raised when clips with different formats are given."""
@@ -190,6 +195,13 @@ class FormatsMismatchError(MismatchError):
     ) -> None:
         super().__init__(func, formats, message, **kwargs)
 
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *formats: VideoFormatT | HoldsVideoFormatT, **kwargs: Any
+        ) -> None:
+            ...
+
 
 class FormatsRefClipMismatchError(FormatsMismatchError):
     """Raised when a ref clip and the main clip have different formats"""
@@ -199,6 +211,14 @@ class FormatsRefClipMismatchError(FormatsMismatchError):
         message: SupportsString = 'The format of ref and main clip must be equal!', **kwargs: Any
     ) -> None:
         super().__init__(func, [clip, ref], message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: VideoFormatT | HoldsVideoFormatT,
+            ref: VideoFormatT | HoldsVideoFormatT, /, **kwargs: Any
+        ) -> None:
+            ...
 
 
 class ResolutionsMismatchError(MismatchError):
@@ -216,6 +236,13 @@ class ResolutionsMismatchError(MismatchError):
     ) -> None:
         super().__init__(func, resolutions, message, **kwargs)
 
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *resolutions: Resolution | vs.VideoNode, **kwargs: Any
+        ) -> None:
+            ...
+
 
 class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have different resolutions"""
@@ -226,6 +253,13 @@ class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
     ) -> None:
         super().__init__(func, [clip, ref], message, **kwargs)
 
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: Resolution | vs.VideoNode, ref: Resolution | vs.VideoNode, /, **kwargs: Any
+        ) -> None:
+            ...
+
 
 class LengthMismatchError(MismatchError):
     """Raised when clips with a different number of total frames are given."""
@@ -235,10 +269,17 @@ class LengthMismatchError(MismatchError):
         return str(int(item.num_frames if isinstance(item, vs.RawNode) else item))  # type: ignore
 
     def __init__(
-        self, func: FuncExceptT, clips: Iterable[int | vs.RawNode],
+        self, func: FuncExceptT, lengths: Iterable[int | vs.RawNode],
         message: SupportsString = 'All the lenghts must be equal!', **kwargs: Any
     ) -> None:
-        super().__init__(func, clips, message, **kwargs)
+        super().__init__(func, lengths, message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *lengths: int | vs.RawNode, **kwargs: Any
+        ) -> None:
+            ...
 
 
 class LengthRefClipMismatchError(LengthMismatchError):
@@ -250,6 +291,13 @@ class LengthRefClipMismatchError(LengthMismatchError):
         **kwargs: Any
     ) -> None:
         super().__init__(func, [clip, ref], message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: int | vs.RawNode, ref: int | vs.RawNode, /, **kwargs: Any
+        ) -> None:
+            ...
 
 
 class FramerateMismatchError(MismatchError):
@@ -267,6 +315,12 @@ class FramerateMismatchError(MismatchError):
     ) -> None:
         super().__init__(func, framerates, message, **kwargs)
 
+    if TYPE_CHECKING:
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, *framerates: vs.VideoNode | Fraction | tuple[int, int] | float, **kwargs: Any
+        ) -> None:
+            ...
+
 
 class FramerateRefClipMismatchError(FramerateMismatchError):
     """Raised when a ref clip and the main clip have a different framerate"""
@@ -279,6 +333,15 @@ class FramerateRefClipMismatchError(FramerateMismatchError):
         **kwargs: Any
     ) -> None:
         super().__init__(func, [clip, ref], message, **kwargs)
+
+    if TYPE_CHECKING:
+        @classmethod
+        def check(  # type: ignore[override]
+            cls, func: FuncExceptT, clip: vs.VideoNode | Fraction | tuple[int, int] | float,
+            ref: vs.VideoNode | Fraction | tuple[int, int] | float, /, **kwargs: Any
+        ) -> None:
+
+            ...
 
 
 class FramePropError(CustomKeyError):
