@@ -166,6 +166,17 @@ class Resolution(NamedTuple):
     width: int
     height: int
 
+    @classmethod
+    def from_video(cls, clip: vs.VideoNode):
+        from ..functions import check_variable_resolution
+
+        assert check_variable_resolution(clip, cls.from_video)
+
+        return Resolution(clip.width, clip.height)
+
+    def __str__(self) -> str:
+        return f'{self.width}x{self.height}'
+
 
 class Coordinate:
     """
