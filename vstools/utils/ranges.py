@@ -102,8 +102,9 @@ def replace_ranges(
 
     if clip_a.num_frames != clip_b.num_frames:
         warnings.warn(
-            f"replace_ranges: 'The number of frames ({clip_a.num_frames} vs. {clip_b.num_frames}) do not match! "
-            "The function will still work, but you may run into unintended errors with the output clip!'"
+            f"replace_ranges: 'The number of frames of the clips don't match! "
+            f"({clip_a.num_frames=}, {clip_b.num_frames=})\n"
+            "The function will still work, but you may run into undefined behavior, or a broken output clip!'"
         )
 
     out = clip_a
