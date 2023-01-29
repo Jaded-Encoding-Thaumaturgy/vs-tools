@@ -7,8 +7,8 @@ from typing import Iterable, overload
 import vapoursynth as vs
 
 from ..exceptions import (
-    CustomIndexError, FileNotExistsError, FormatsMismatchError, FramerateMismatchError, LengthMismatchError,
-    ResolutionsMismatchError
+    CustomIndexError, CustomValueError, FileNotExistsError, FormatsMismatchError, FramerateMismatchError,
+    LengthMismatchError, ResolutionsMismatchError
 )
 from ..functions import check_ref_clip
 from ..types import T0, FrameRangeN, FrameRangesN, T
@@ -90,15 +90,17 @@ def replace_ranges(
 
             match msg:
                 case "Clip lengths don't match":
-                    raise LengthMismatchError(clip_a, clip_b, replace_ranges)
+                    raise LengthMismatchError(replace_ranges, clip_a, clip_b)
                 case "Clip dimensions don't match":
-                    raise ResolutionsMismatchError(clip_a, clip_b, replace_ranges)
+                    raise ResolutionsMismatchError(replace_ranges, clip_a, clip_b)
                 case "Clip formats don't match":
-                    raise FormatsMismatchError(clip_a, clip_b, replace_ranges)
+                    raise FormatsMismatchError(replace_ranges, clip_a, clip_b)
                 case "Clip frame rates don't match":
-                    raise FramerateMismatchError(clip_a, clip_b, replace_ranges)
+                    raise FramerateMismatchError(replace_ranges, clip_a, clip_b)
                 case "Failed to open the timecodes file.":
                     raise FileNotExistsError(msg, replace_ranges)
+                case _:
+                    raise CustomValueError(msg, replace_ranges)
 
     if clip_a.num_frames != clip_b.num_frames:
         warnings.warn(
