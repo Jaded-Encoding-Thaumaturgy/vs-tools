@@ -97,8 +97,6 @@ def replace_ranges(
                     raise FormatsMismatchError(replace_ranges, clip_a, clip_b)
                 case "Clip frame rates don't match":
                     raise FramerateMismatchError(replace_ranges, clip_a, clip_b)
-                case "Failed to open the timecodes file.":
-                    raise FileNotExistsError(msg, replace_ranges)
                 case _:
                     raise CustomValueError(msg, replace_ranges)
 
