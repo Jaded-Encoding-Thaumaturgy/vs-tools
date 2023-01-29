@@ -124,6 +124,21 @@ if IS_DOCS:
 else:
     register_on_destroy_poly = __version__.release_major < 61
 
+if not TYPE_CHECKING:
+    import inspect
+    import sys
+    from pathlib import Path
+    from types import ModuleType
+
+    import __main__
+
+    if not hasattr(__main__, '__file__') and '__vapoursynth__' not in sys.modules:
+        first_stack = inspect.stack()[-1]
+
+        sys.modules['__vapoursynth__'] = ModuleType('__vapoursynth__')
+        sys.modules['__vapoursynth__'].__file__ = str((Path.cwd() / first_stack.filename).resolve())
+
+
 if not register_on_destroy_poly:
     from vapoursynth import register_on_destroy, unregister_on_destroy
 else:
