@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 __all__ = [
+    'MismatchError', 'MismatchRefError',
+
     'FramesLengthError', 'ClipLengthError',
 
     'VariableFormatError', 'VariableResolutionError',
@@ -180,6 +182,18 @@ class MismatchError(CustomValueError):
             raise cls(func, items, **kwargs)
 
 
+class MismatchRefError(MismatchError):
+    def __init__(
+        self, func: FuncExceptT, base: T, ref: T, message: SupportsString = 'All items must be equal!', **kwargs: Any
+    ) -> None:
+        super().__init__(func, [base, ref], message, **kwargs)
+
+    @classmethod
+    def check(cls, func: FuncExceptT, *items: T, **kwargs: Any) -> None:
+        if len(cls._reduce(items)) != 1:
+            raise cls(func, *items, **kwargs)
+
+
 class FormatsMismatchError(MismatchError):
     """Raised when clips with different formats are given."""
 
@@ -203,14 +217,14 @@ class FormatsMismatchError(MismatchError):
             ...
 
 
-class FormatsRefClipMismatchError(FormatsMismatchError):
+class FormatsRefClipMismatchError(MismatchRefError, FormatsMismatchError):
     """Raised when a ref clip and the main clip have different formats"""
 
     def __init__(
         self, func: FuncExceptT, clip: VideoFormatT | HoldsVideoFormatT, ref: VideoFormatT | HoldsVideoFormatT,
         message: SupportsString = 'The format of ref and main clip must be equal!', **kwargs: Any
     ) -> None:
-        super().__init__(func, [clip, ref], message, **kwargs)
+        super().__init__(func, clip, ref, message, **kwargs)
 
     if TYPE_CHECKING:
         @classmethod
@@ -244,14 +258,14 @@ class ResolutionsMismatchError(MismatchError):
             ...
 
 
-class ResolutionsRefClipMismatchError(ResolutionsMismatchError):
+class ResolutionsRefClipMismatchError(MismatchRefError, ResolutionsMismatchError):
     """Raised when a ref clip and the main clip have different resolutions"""
 
     def __init__(
         self, func: FuncExceptT, clip: Resolution | vs.VideoNode, ref: Resolution | vs.VideoNode,
         message: SupportsString = 'The resolution of ref and main clip must be equal!', **kwargs: Any
     ) -> None:
-        super().__init__(func, [clip, ref], message, **kwargs)
+        super().__init__(func, clip, ref, message, **kwargs)
 
     if TYPE_CHECKING:
         @classmethod
@@ -282,7 +296,7 @@ class LengthMismatchError(MismatchError):
             ...
 
 
-class LengthRefClipMismatchError(LengthMismatchError):
+class LengthRefClipMismatchError(MismatchRefError, LengthMismatchError):
     """Raised when a ref clip and the main clip have a different number of total frames."""
 
     def __init__(
@@ -290,7 +304,7 @@ class LengthRefClipMismatchError(LengthMismatchError):
         message: SupportsString = 'The main clip and ref clip length must be equal!',
         **kwargs: Any
     ) -> None:
-        super().__init__(func, [clip, ref], message, **kwargs)
+        super().__init__(func, clip, ref, message, **kwargs)
 
     if TYPE_CHECKING:
         @classmethod
@@ -322,7 +336,7 @@ class FramerateMismatchError(MismatchError):
             ...
 
 
-class FramerateRefClipMismatchError(FramerateMismatchError):
+class FramerateRefClipMismatchError(MismatchRefError, FramerateMismatchError):
     """Raised when a ref clip and the main clip have a different framerate"""
 
     def __init__(
@@ -332,7 +346,7 @@ class FramerateRefClipMismatchError(FramerateMismatchError):
         message: SupportsString = 'The framerate of the ref and main clip must be equal!',
         **kwargs: Any
     ) -> None:
-        super().__init__(func, [clip, ref], message, **kwargs)
+        super().__init__(func, clip, ref, message, **kwargs)
 
     if TYPE_CHECKING:
         @classmethod
