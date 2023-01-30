@@ -158,6 +158,8 @@ def check_variable_resolution(clip: vs.VideoNode, func: FuncExceptT) -> None:
     if 0 in (clip.width, clip.height):
         raise VariableResolutionError(func)
 
+    return True
+
 
 def check_variable(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:
     """
