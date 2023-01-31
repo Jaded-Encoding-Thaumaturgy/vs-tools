@@ -279,11 +279,11 @@ class LengthMismatchError(MismatchError):
     """Raised when clips with a different number of total frames are given."""
 
     @classmethod
-    def _item_to_name(cls, item: int | vs.RawNode) -> str:
-        return str(int(item.num_frames if isinstance(item, vs.RawNode) else item))  # type: ignore
+    def _item_to_name(cls, item: int | Sized) -> str:
+        return str(int(item if isinstance(item, int) else len(item)))  # type: ignore
 
     def __init__(
-        self, func: FuncExceptT, lengths: Iterable[int | vs.RawNode],
+        self, func: FuncExceptT, lengths: Iterable[int | Sized],
         message: SupportsString = 'All the lenghts must be equal!', **kwargs: Any
     ) -> None:
         super().__init__(func, lengths, message, **kwargs)
@@ -291,7 +291,7 @@ class LengthMismatchError(MismatchError):
     if TYPE_CHECKING:
         @classmethod
         def check(  # type: ignore[override]
-            cls, func: FuncExceptT, *lengths: int | vs.RawNode, **kwargs: Any
+            cls, func: FuncExceptT, *lengths: int | Sized, **kwargs: Any
         ) -> None:
             ...
 
