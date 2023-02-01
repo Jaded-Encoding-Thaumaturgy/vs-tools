@@ -491,7 +491,7 @@ def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily | None = None) -
 @overload
 def join(planes: Mapping[PlanesT, vs.VideoNode | None], family: vs.ColorFamily | None = None) -> vs.VideoNode:
     """
-    Join a list of planes together to form a single clip.
+    Join a map of planes together to form a single clip.
 
     :param planes:      Planes to combine.
     :param family:      Output clip family.
@@ -519,7 +519,7 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
                 continue
 
             if p_key is None:
-                planes_map |= {i: n for i, n in enumerate(flatten_vnodes(node))}
+                planes_map |= {i: n for i, n in enumerate(flatten_vnodes(node, split_planes=True))}
             else:
                 planes_map |= {i: plane(node, min(i, node.format.num_planes - 1)) for i in to_arr(p_key)}
 
