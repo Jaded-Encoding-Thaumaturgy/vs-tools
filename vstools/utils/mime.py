@@ -261,7 +261,7 @@ class FileType(FileTypeBase):
                     )
 
                 file_type = FileType(stream.codec_type)
-                mime = f'{file_type}/{stream.codec_name}'
+                mime = f'{file_type.value}/{stream.codec_name}'
             except Exception as e:
                 if force_ffprobe:
                     raise e
