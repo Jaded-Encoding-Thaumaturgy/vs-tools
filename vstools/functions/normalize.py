@@ -18,6 +18,16 @@ __all__ = [
 ]
 
 
+@overload
+def normalize_seq(val: Sequence[T], length: int = 3) -> list[T]:
+    ...
+
+
+@overload
+def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
+    ...
+
+
 def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
     """
     Normalize a sequence of values.
