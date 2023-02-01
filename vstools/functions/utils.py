@@ -497,7 +497,7 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
         family = _planes[-1]
         _planes = _planes[:-1]
 
-    planes = list[vs.VideoNode](_planes[0] if isinstance(_planes[0], list) else _planes)
+    planes = list[vs.VideoNode](_planes[0] if isinstance(_planes[0], Sequence) else _planes)
 
     n_clips = len(planes)
 
