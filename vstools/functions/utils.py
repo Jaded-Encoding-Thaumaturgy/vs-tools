@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import string
-from typing import Any, Literal, Sequence, cast, overload
+from typing import Any, Literal, Mapping, Sequence, cast, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
 from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
-from ..types import HoldsVideoFormatT, VideoFormatT
+from ..types import HoldsVideoFormatT, VideoFormatT, PlanesT
 from .check import disallow_variable_format
 
 __all__ = [
@@ -488,14 +488,42 @@ def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily | None = None) -
     """
 
 
+@overload
+def join(planes: Mapping[PlanesT, vs.VideoNode | None], family: vs.ColorFamily | None = None) -> vs.VideoNode:
+    """
+    Join a list of planes together to form a single clip.
+
+    :param planes:      Planes to combine.
+    :param family:      Output clip family.
+                        Default: first clip or detected from props if GRAY and len(planes) > 1.
+
+    :return:            Clip of combined planes.
+    """
+
+
 def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
     from ..utils import get_color_family, get_video_format
+    from ..functions import flatten_vnodes, to_arr
 
     family: vs.ColorFamily | None = kwargs.get('family', None)
 
     if isinstance(_planes[-1], vs.ColorFamily):
         family = _planes[-1]
         _planes = _planes[:-1]
+
+    if isinstance(_planes[0], Mapping):
+        planes_map = dict[int, vs.VideoNode]()
+
+        for p_key, node in _planes[0].items():
+            if node is None:
+                continue
+
+            if p_key is None:
+                planes_map |= {i: n for i, n in enumerate(flatten_vnodes(node))}
+            else:
+                planes_map |= {i: plane(node, min(i, node.format.num_planes - 1)) for i in to_arr(p_key)}
+
+        return join(*(planes_map[i] for i in sorted(planes_map.keys())))
 
     planes = list[vs.VideoNode](_planes[0] if isinstance(_planes[0], Sequence) else _planes)
 
@@ -525,8 +553,8 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
 
     if n_clips in {3, 4}:
         if family is vs.GRAY:
-            for plane in planes[:3]:
-                if (fmt := get_video_format(plane)).num_planes > 1:
+            for pplane in planes[:3]:
+                if (fmt := get_video_format(pplane)).num_planes > 1:
                     family = fmt.color_family
                     break
             else:
