@@ -148,7 +148,7 @@ def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[Co
     return True
 
 
-def check_variable_resolution(clip: vs.VideoNode, func: FuncExceptT) -> None:
+def check_variable_resolution(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[vs.VideoNode]:
     """
     Check for variable width or height and return an error if found.
 
