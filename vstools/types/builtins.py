@@ -81,9 +81,9 @@ T_contra = TypeVar('T_contra', contravariant=True)
 R_contra = TypeVar('R_contra', contravariant=True)
 
 PlanesT: TypeAlias = int | Sequence[int] | None
-FrameRange: TypeAlias = int | Tuple[int, int] | list[int]
+FrameRange: TypeAlias = int | Tuple[int, int] | Sequence[int]
 FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
-FrameRangesN: TypeAlias = list[FrameRangeN]
+FrameRangesN: TypeAlias = Sequence[FrameRangeN]
 
 VideoNodeIterable: TypeAlias = vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]] | Iterable[
     vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]]
