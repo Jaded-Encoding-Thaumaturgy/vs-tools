@@ -7,7 +7,7 @@ from typing import (
     TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, TypeVar, cast, overload
 )
 
-from .builtins import F, F0, P0, P1, R0, R1, T0, T1, T2, KwargsT, P, R, T
+from .builtins import F0, P0, P1, R0, R1, T0, T1, T2, F, KwargsT, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -490,7 +490,7 @@ class VSDebug(Singleton, init=True):
 
     @staticmethod
     def _print_env_live(core_id: int) -> None:
-        from ..utils.vs_proxy import register_on_destroy, core, get_current_environment
+        from ..utils.vs_proxy import core, get_current_environment, register_on_destroy
 
         print(f'New core created with id: {core_id}')
 
