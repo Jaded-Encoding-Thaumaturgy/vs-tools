@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from functools import partial
+from functools import partial, wraps
 from inspect import Signature, isclass
 from typing import (
     TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, TypeVar, cast, overload
@@ -117,6 +117,7 @@ class inject_self_base(Generic[T, P, R]):
         signature = Signature.from_callable(self.function, follow_wrapped=True, eval_str=True)
         first_key = next(iter(list(signature.parameters.keys())), None)
 
+        @wraps(self.function)
         def _wrapper(*args: Any, **kwargs: Any) -> Any:
             first_arg = (args[0] if args else None) or (kwargs.get(first_key, None) if first_key else None)
 
