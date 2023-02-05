@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from typing import (
-    Any, Callable, Iterable, ParamSpec, Protocol, Sequence, SupportsFloat, SupportsIndex, Tuple, TypeAlias, TypeVar,
-    Union, overload, runtime_checkable
+    TYPE_CHECKING, Any, Callable, Iterable, ParamSpec, Protocol, Sequence, SupportsFloat, SupportsIndex, Tuple,
+    TypeAlias, TypeVar, Union, overload, runtime_checkable
 )
 
 import vapoursynth as vs
@@ -83,7 +83,12 @@ R_contra = TypeVar('R_contra', contravariant=True)
 PlanesT: TypeAlias = int | Sequence[int] | None
 FrameRange: TypeAlias = int | Tuple[int, int] | Sequence[int]
 FrameRangeN: TypeAlias = int | Tuple[int | None, int | None] | None
-FrameRangesN: TypeAlias = Sequence[FrameRangeN]
+
+if TYPE_CHECKING:
+    FrameRangesN: TypeAlias = Sequence[FrameRangeN]
+else:
+    FrameRangesN: TypeAlias = list[FrameRangeN]
+
 
 VideoNodeIterable: TypeAlias = vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]] | Iterable[
     vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]]
