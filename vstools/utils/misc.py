@@ -94,10 +94,10 @@ def padder(
         )
 
     reflected = vs.core.resize.Point(
-        clip, width, height,
+        clip.std.CopyFrameProps(clip.std.BlankClip()), width, height,
         src_top=-top, src_left=-left,
         src_width=width, src_height=height
-    )
+    ).std.CopyFrameProps(clip)
 
     if reflect:
         return reflected
