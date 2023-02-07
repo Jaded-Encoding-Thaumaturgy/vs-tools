@@ -156,19 +156,19 @@ class Timecodes(list[Timecode]):
 
     @classmethod
     def from_clip(cls: type[TimecodesBoundT], clip: vs.VideoNode, **kwargs: Any) -> TimecodesBoundT:
-        prop_clip = clip
-
         if hasattr(vs.core, 'akarin'):
-            prop_clip = prop_clip.std.BlankClip(2, 1, vs.GRAY16, keep=True).std.CopyFrameProps(clip)
+            prop_clip = clip.std.BlankClip(2, 1, vs.GRAY16, keep=True).std.CopyFrameProps(clip)
             prop_clip = prop_clip.akarin.Expr('X 1 = x._DurationNum x._DurationDen ?')
 
             def _get_timecode(n: int, f: vs.VideoFrame) -> Timecode:
                 return Timecode(n, (m := f[0])[0, 0], m[0, 1])  # type: ignore
         else:
+            prop_clip = clip
+
             def _get_timecode(n: int, f: vs.VideoFrame) -> Timecode:
                 return Timecode(n, f.props._DurationNum, f.props._DurationDen)  # type: ignore
 
-        return cls(clip_async_render(clip, None, '', _get_timecode, **kwargs))
+        return cls(clip_async_render(prop_clip, None, '', _get_timecode, **kwargs))
 
     @overload
     @classmethod
