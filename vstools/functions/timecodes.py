@@ -32,9 +32,9 @@ def find_scene_changes(clip: vs.VideoNode, mode: SceneChangeMode = SceneChangeMo
     :param mode:            Scene change detection mode.
     :return:                List of scene changes.
     """
-    from ..utils import get_prop
+    from ..utils import get_prop, get_w
 
-    clip = clip.resize.Bilinear(640, 360, format=vs.YUV420P8)
+    clip = clip.resize.Bilinear(get_w(360, clip), 360, format=vs.YUV420P8)
     clip = mode.ensure_presence(clip)
 
     frames = clip_async_render(
