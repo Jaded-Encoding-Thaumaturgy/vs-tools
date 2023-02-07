@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd as max_common_div
-from typing import NamedTuple, TypeVar, overload
+from typing import TYPE_CHECKING, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -16,7 +16,8 @@ __all__ = [
     'Resolution',
     'Coordinate',
     'Position',
-    'Size'
+    'Size',
+    'SceneChangeMode'
 ]
 
 
@@ -223,3 +224,45 @@ class Position(Coordinate):
 
 class Size(Coordinate):
     """Positive set of an (x,y), (horizontal,vertical), size of the image."""
+
+
+class SceneChangeMode(CustomIntEnum):
+    """Enum for various scene change modes."""
+
+    WWXD = 1
+    SCXVID = 2
+
+    if not TYPE_CHECKING:
+        WWXD_SCXVID_UNION = 3  # WWXD | SCXVID
+        WWXD_SCXVID_INTERSECTION = 0  # WWXD & SCXVID
+
+    @property
+    def is_WWXD(self) -> bool:
+        return self in (
+            SceneChangeMode.WWXD, SceneChangeMode.WWXD_SCXVID_UNION,   # type: ignore
+            SceneChangeMode.WWXD_SCXVID_INTERSECTION   # type: ignore
+        )
+
+    @property
+    def is_SCXVID(self) -> bool:
+        return self in (
+            SceneChangeMode.SCXVID, SceneChangeMode.WWXD_SCXVID_UNION,  # type: ignore
+            SceneChangeMode.WWXD_SCXVID_INTERSECTION  # type: ignore
+        )
+
+    def ensure_presence(self, clip: vs.VideoNode) -> vs.VideoNode:
+        if self.is_WWXD:
+            clip = clip.wwxd.WWXD()
+
+        if self.is_SCXVID:
+            clip = clip.scxvid.Scxvid()
+
+        return clip
+
+    @property
+    def prop_keys(self) -> Iterable[str]:
+        if self.is_WWXD:
+            yield 'Scenechange'
+
+        if self.is_SCXVID:
+            yield '_SceneChangePrev'
