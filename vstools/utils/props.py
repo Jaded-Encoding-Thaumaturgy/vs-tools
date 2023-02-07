@@ -73,24 +73,25 @@ def get_prop(
 
     from ..functions import fallback
 
-    func: FuncExceptT = fallback(func, get_prop)  # type: ignore
-
-    if isinstance(obj, vs.RawNode):
-        props = obj.get_frame(0).props  # type: ignore
-    elif isinstance(obj, vs.RawFrame):
+    if isinstance(obj, vs.RawFrame):
         props = obj.props  # type: ignore
+    elif isinstance(obj, vs.RawNode):
+        props = obj.get_frame(0).props  # type: ignore
     else:
         props = obj
-
-    if isinstance(key, type) and issubclass(key, PropEnum):
-        key = key.prop_key
-    else:
-        key = str(key)
 
     prop: Any = MISSING
 
     try:
-        prop = props[key]
+        try:
+            prop = props[key]  # type: ignore
+        except Exception:
+            if isinstance(key, type) and issubclass(key, PropEnum):
+                key = key.prop_key
+            else:
+                key = str(key)
+
+            prop = props[key]  # type: ignore
 
         if not isinstance(prop, t):
             raise TypeError
@@ -102,6 +103,8 @@ def get_prop(
     except BaseException as e:
         if default is not MISSING:
             return default
+
+        func: FuncExceptT = fallback(func, get_prop)  # type: ignore
 
         if isinstance(e, KeyError) or prop is MISSING:
             e = FramePropError(func, key, 'Key {key} not present in props!')  # type: ignore
