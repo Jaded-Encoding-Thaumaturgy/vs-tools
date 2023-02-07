@@ -60,6 +60,12 @@ def scale_thresh(
     :raises CustomValueError:   Threshold is not positive.
     """
 
+    import warnings
+
+    warnings.warn(
+        'scale_thresh is buggy and deprecated! Please replace it. It will be removed in the next major update.'
+    )
+
     fmt = get_video_format(clip)
 
     if thresh < 0:
