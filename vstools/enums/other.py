@@ -168,7 +168,7 @@ class Resolution(NamedTuple):
     height: int
 
     @classmethod
-    def from_video(cls, clip: vs.VideoNode):
+    def from_video(cls, clip: vs.VideoNode) -> Resolution:
         from ..functions import check_variable_resolution
 
         assert check_variable_resolution(clip, cls.from_video)
