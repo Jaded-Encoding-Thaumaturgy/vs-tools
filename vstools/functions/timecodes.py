@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
-from typing import Any, TypeVar, overload
+from typing import Any, ClassVar, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -13,37 +13,9 @@ from ..types import FilePathType, FuncExceptT, Sentinel
 from .render import clip_async_render
 
 __all__ = [
-    'find_scene_changes',
-
-    'Timecodes'
+    'Timecodes',
+    'Keyframes',
 ]
-
-
-def find_scene_changes(clip: vs.VideoNode, mode: SceneChangeMode = SceneChangeMode.WWXD) -> list[int]:
-    """
-    Generate a list of scene changes (keyframes).
-
-    Dependencies:
-
-    * `vapoursynth-wwxd <https://github.com/dubhater/vapoursynth-wwxd>`_
-    * `vapoursynth-scxvid <https://github.com/dubhater/vapoursynth-scxvid>`_
-
-    :param clip:            Clip to search for scene changes. Will be rendered in its entirety.
-    :param mode:            Scene change detection mode.
-    :return:                List of scene changes.
-    """
-    from ..utils import get_prop, get_w
-
-    clip = clip.resize.Bilinear(get_w(360, clip), 360, format=vs.YUV420P8)
-    clip = mode.ensure_presence(clip)
-
-    frames = clip_async_render(
-        clip, None, 'Detecting scene changes...', lambda n, f: Sentinel.check(
-            n, all(get_prop(f, key, int) == 1 for key in mode.prop_keys)
-        )
-    )
-
-    return sorted(list(Sentinel.filter(frames)))
 
 
 @dataclass
@@ -305,3 +277,44 @@ class Timecodes(list[Timecode]):
 
 
 TimecodesBoundT = TypeVar('TimecodesBoundT', bound=Timecodes)
+
+
+class Keyframes(list[int]):
+    WWXD: ClassVar = SceneChangeMode.WWXD
+    SCXVID: ClassVar = SceneChangeMode.SCXVID
+
+    @classmethod
+    def from_clip(cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode = WWXD) -> KeyframesBoundT:
+        from ..utils import get_prop, get_w
+
+        clip = clip.resize.Bilinear(get_w(360, clip), 360, format=vs.YUV420P8)
+        clip = mode.ensure_presence(clip)
+
+        frames = clip_async_render(
+            clip, None, 'Detecting scene changes...', lambda n, f: Sentinel.check(
+                n, all(get_prop(f, key, int) == 1 for key in mode.prop_keys)
+            )
+        )
+
+        return cls(sorted(list(Sentinel.filter(frames))))
+
+    def to_file(self, out: FilePathType, func: FuncExceptT | None = None) -> None:
+        from ..utils import check_perms
+
+        func = func or self.to_file
+
+        out_path = Path(str(out)).resolve()
+
+        check_perms(out_path, 'w+', func=func)
+
+        out_text = [
+            '# keyframe format v1', 'fps 0', '', *map(str, self), ''
+        ]
+
+        out_path.unlink(True)
+        out_path.touch()
+        out_path.write_text('\n'.join(out_text))
+
+
+KeyframesBoundT = TypeVar('KeyframesBoundT', bound=Keyframes)
+
