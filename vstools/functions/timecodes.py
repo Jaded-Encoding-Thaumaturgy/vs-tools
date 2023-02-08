@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
@@ -7,7 +8,7 @@ from typing import Any, ClassVar, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..enums import SceneChangeMode
+from ..enums import SceneChangeMode, Matrix
 from ..exceptions import CustomValueError, FramesLengthError
 from ..types import FilePathType, FuncExceptT, Sentinel
 from .render import clip_async_render
@@ -15,6 +16,7 @@ from .render import clip_async_render
 __all__ = [
     'Timecodes',
     'Keyframes',
+    'LWIndex'
 ]
 
 
@@ -318,3 +320,96 @@ class Keyframes(list[int]):
 
 KeyframesBoundT = TypeVar('KeyframesBoundT', bound=Keyframes)
 
+
+@dataclass
+class LWIndex:
+    stream_info: StreamInfo
+    frame_data: list[Frame]
+    keyframes: Keyframes
+
+    class Regex:
+        frame_first = re.compile(
+            r"Index=(?P<Index>-?[0-9]+),POS=(?P<POS>-?[0-9]+),PTS=(?P<PTS>-?[0-9]+),"
+            r"DTS=(?P<DTS>-?[0-9]+),EDI=(?P<EDI>-?[0-9]+)"
+        )
+
+        frame_second = re.compile(
+            r"Key=(?P<Key>-?[0-9]+),Pic=(?P<Pic>-?[0-9]+),POC=(?P<POC>-?[0-9]+),"
+            r"Repeat=(?P<Repeat>-?[0-9]+),Field=(?P<Field>-?[0-9]+)"
+        )
+
+        streaminfo = re.compile(
+            r"Codec=(?P<Codec>[0-9]+),TimeBase=(?P<TimeBase>[0-9\/]+),Width=(?P<Width>[0-9]+),"
+            r"Height=(?P<Height>[0-9]+),Format=(?P<Format>[0-9a-zA-Z]+),ColorSpace=(?P<ColorSpace>[0-9]+)"
+        )
+
+    class StreamInfo(NamedTuple):
+        codec: int
+        timebase: Fraction
+        width: int
+        height: int
+        format: str
+        colorspace: Matrix
+
+    class Frame(NamedTuple):
+        idx: int
+        pos: int
+        pts: int
+        dts: int
+        edi: int
+        key: int
+        pic: int
+        poc: int
+        repeat: int
+        field: int
+
+    @classmethod
+    def from_file(
+        cls, file: FilePathType, ref_or_length: int | vs.VideoNode | None = None, *, func: FuncExceptT | None = None
+    ) -> LWIndex:
+        func = func or cls.from_file
+
+        file = Path(str(file)).resolve()
+
+        length = ref_or_length.num_frames if isinstance(ref_or_length, vs.VideoNode) else ref_or_length  # type: ignore
+
+        data = file.read_text('latin1').splitlines()
+
+        indexstart, indexend = data.index("</StreamInfo>") + 1, data.index("</LibavReaderIndex>")
+
+        if length and (l := ((indexend - indexstart) // 2)) != length:
+            raise FramesLengthError(
+                func, '', 'index file length mismatch with specified length!',
+                reason=dict(index=l, clip=length)
+            )
+
+        sinfomatch = LWIndex.Regex.streaminfo.match(data[indexstart - 2])
+
+        timebase_num, timebase_den = [
+            int(i) for i in sinfomatch.group("TimeBase").split("/")  # type: ignore
+        ]
+
+        streaminfo = LWIndex.StreamInfo(
+            int(sinfomatch.group("Codec")),  # type: ignore
+            Fraction(timebase_num, timebase_den),
+            int(sinfomatch.group("Width")),  # type: ignore
+            int(sinfomatch.group("Height")),  # type: ignore
+            sinfomatch.group("Format"),  # type: ignore
+            Matrix(int(sinfomatch.group("ColorSpace"))),  # type: ignore
+        )
+
+        frames = sorted([
+            LWIndex.Frame(*(
+                int(x) for x in (
+                    match[0].group(key) for match in [  # type: ignore
+                        (LWIndex.Regex.frame_first.match(data[i]), ['Index', 'POS', 'PTS', 'DTS', 'EDI']),
+                        (LWIndex.Regex.frame_second.match(data[i + 1]), ['Key', 'Pic', 'POC', 'Repeat', 'Field'])
+                    ] for key in match[1]
+                )
+            ))
+            for i in range(indexstart, indexend, 2)
+        ], key=lambda x: x.pts)
+
+        keyframes = Keyframes([i for i, f in enumerate(frames) if f.key])
+
+        return LWIndex(streaminfo, frames, keyframes)
