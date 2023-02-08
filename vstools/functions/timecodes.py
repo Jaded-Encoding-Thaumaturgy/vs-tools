@@ -247,7 +247,7 @@ class Timecodes(list[Timecode]):
             f'# timecode format v{format}'
         ]
 
-        if format == 1:
+        if format == Timecodes.V1:
             major_time, minor_fps = self.separate_norm_timecodes(self)
 
             out_text.append(f'Assume {round(float(major_time), 12)}')
@@ -256,7 +256,7 @@ class Timecodes(list[Timecode]):
                 ','.join(map(str, [*frange, round(float(fps), 12)]))
                 for frange, fps in minor_fps.items()
             ])
-        elif format == 2:
+        elif format == Timecodes.V2:
             acc = 0.0
             for time in self:
                 s_acc = str(round(acc / 100, 12) * 100)
