@@ -222,11 +222,11 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         bits_per_sample = clip.format.bits_per_sample
         cfamily = clip.format.color_family
 
-        if not (not self.allowed_cfamilies or cfamily in self.allowed_cfamilies):
+        if self.allowed_cfamilies and cfamily not in self.allowed_cfamilies:
             if cfamily is vs.RGB:
                 if hasattr(vs.core, 'fmtc'):
                     clip = clip.fmtc.matrix(
-                        fulls=True, fulld=True, col_fam=vs.RGB, coef=[
+                        fulls=True, fulld=True, col_fam=vs.YUV, coef=[
                             1, 1, 2 / 3, 0, 1, 0, -4 / 3, 0, 1, -1, 2 / 3, 0
                         ]
                     )
@@ -322,7 +322,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if self.cfamily_converted:
             if hasattr(vs.core, 'fmtc'):
                 processed = processed.fmtc.matrix(
-                    fulls=True, fulld=True, col_fam=vs.YUV, coef=[
+                    fulls=True, fulld=True, col_fam=vs.RGB, coef=[
                         1 / 3, 1 / 3, 1 / 3, 0, 1 / 2, 0, -1 / 2, 0, 1 / 4, -1 / 2, 1 / 4, 0
                     ]
                 )
