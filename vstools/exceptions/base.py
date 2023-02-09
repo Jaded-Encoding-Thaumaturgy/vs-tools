@@ -102,7 +102,7 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
                 ...
         else:
             if not issubclass(exception, type):
-                exception = exception.__class__
+                exception = exception.__class__  # type: ignore
 
             class inner_exception(cls, exception):  # type: ignore
                 ...

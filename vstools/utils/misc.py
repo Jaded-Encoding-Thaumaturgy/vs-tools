@@ -82,6 +82,7 @@ def padder(
     :param reflect:     Whether to reflect the padded pixels.
                         Default: True.
     """
+    from ..utils import core
 
     width = clip.width + left + right
     height = clip.height + top + bottom
@@ -93,7 +94,7 @@ def padder(
             padder, fmt, 'Values must result in a mod congruent to the clip\'s subsampling ({subsampling})!'
         )
 
-    reflected = vs.core.resize.Point(
+    reflected = core.resize.Point(
         clip.std.CopyFrameProps(clip.std.BlankClip()), width, height,
         src_top=-top, src_left=-left,
         src_width=width, src_height=height
@@ -102,7 +103,7 @@ def padder(
     if reflect:
         return reflected
 
-    return vs.core.fb.FillBorders(
+    return core.fb.FillBorders(  # type: ignore
         reflected, left=left, right=right, top=top, bottom=bottom
     )
 
@@ -157,8 +158,8 @@ def set_output(node: vs.RawNode, name: str | bool = True, **kwargs: Any) -> None
                 break
 
     try:
-        from vspreview import set_output
-        set_output(node, name, **kwargs)
+        from vspreview import set_output as vsp_set_output
+        vsp_set_output(node, name, **kwargs)
     except ModuleNotFoundError:
         if isinstance(name, str) and isinstance(node, vs.VideoNode):
             node = node.std.SetFrameProp('Name', data=name.title())  # type: ignore

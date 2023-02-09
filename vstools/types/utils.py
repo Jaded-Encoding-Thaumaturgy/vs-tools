@@ -113,7 +113,9 @@ class inject_self_base(Generic[T, P, R]):
         self.args = tuple[Any]()
         self.kwargs = dict[str, Any]()
 
-    def __get__(self, class_obj: type[T] | T | None, class_type: type[T] | type[type[T]]) -> injected_self_func[T, P, R]:
+    def __get__(
+        self, class_obj: type[T] | T | None, class_type: type[T] | type[type[T]]  # type: ignore
+    ) -> injected_self_func[T, P, R]:
         signature = Signature.from_callable(self.function, follow_wrapped=True, eval_str=True)
         first_key = next(iter(list(signature.parameters.keys())), None)
 

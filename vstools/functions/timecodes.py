@@ -377,10 +377,10 @@ class LWIndex:
 
         indexstart, indexend = data.index("</StreamInfo>") + 1, data.index("</LibavReaderIndex>")
 
-        if length and (l := ((indexend - indexstart) // 2)) != length:
+        if length and (idxlen := ((indexend - indexstart) // 2)) != length:
             raise FramesLengthError(
                 func, '', 'index file length mismatch with specified length!',
-                reason=dict(index=l, clip=length)
+                reason=dict(index=idxlen, clip=length)
             )
 
         sinfomatch = LWIndex.Regex.streaminfo.match(data[indexstart - 2])

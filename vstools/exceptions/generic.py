@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fractions import Fraction
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Sized
 
 import vapoursynth as vs
 
@@ -168,7 +168,7 @@ class MismatchError(CustomValueError):
 
     @classmethod
     def _reduce(cls, items: Iterable[T]) -> tuple[str]:
-        return tuple[str](dict.fromkeys(map(cls._item_to_name, items)).keys())
+        return tuple[str](dict.fromkeys(map(cls._item_to_name, items)).keys())  # type: ignore
 
     def __init__(
         self, func: FuncExceptT, items: Iterable[T], message: SupportsString = 'All items must be equal!',
@@ -280,7 +280,7 @@ class LengthMismatchError(MismatchError):
 
     @classmethod
     def _item_to_name(cls, item: int | Sized) -> str:
-        return str(int(item if isinstance(item, int) else len(item)))  # type: ignore
+        return str(int(item if isinstance(item, int) else len(item)))
 
     def __init__(
         self, func: FuncExceptT, lengths: Iterable[int | Sized],

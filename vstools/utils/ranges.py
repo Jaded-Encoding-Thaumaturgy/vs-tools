@@ -81,7 +81,7 @@ def replace_ranges(
 
     if use_plugin and hasattr(vs.core, 'remap'):
         try:
-            return vs.core.remap.ReplaceFramesSimple(
+            return vs.core.remap.ReplaceFramesSimple(  # type: ignore
                 clip_a, clip_b, mismatch=mismatch,
                 mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in nranges)
             )
