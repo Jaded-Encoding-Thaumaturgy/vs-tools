@@ -181,7 +181,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
-        ] | None = None, bitdepth: int | None = None, strict: bool = False
+        ] | None = None, bitdepth: int | range | None = None, strict: bool = False
     ) -> None:
         from ..utils import get_color_family
 
@@ -210,8 +210,15 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def norm_clip(self) -> ConstantFormatVideoNode:
         """Get a "normalized" clip. This means color space, and bitdepth conversion if needed."""
 
-        clip: vs.VideoNode = depth(self.clip, self.bitdepth) if self.bitdepth else self.clip
+        if isinstance(self.bitdepth, range) and self.clip.format.bits_per_sample not in self.bitdepth:
+            clip = depth(self.clip, self.bitdepth.stop)
+        elif isinstance(self.bitdepth, int):
+            clip = depth(self.clip, self.bitdepth)
+        else:
+            clip = self.clip
+
         assert clip.format
+
         bits_per_sample = clip.format.bits_per_sample
         cfamily = clip.format.color_family
 
