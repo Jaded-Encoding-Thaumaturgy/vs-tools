@@ -172,7 +172,7 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
     :return:            List of positive frame ranges.
     """
 
-    ranges = ranges if isinstance(ranges, Sequence) else [ranges]
+    ranges = ranges if isinstance(ranges, list) else [ranges]  # type:ignore
 
     out = []
 
