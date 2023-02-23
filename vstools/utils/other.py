@@ -20,22 +20,27 @@ IS_DOCS = not TYPE_CHECKING and (
 """Whether the script is currently running in sphinx docs."""
 
 
+def _str_to_ver(string: str) -> tuple[int, int]:
+    return tuple(int(x) for x in string.strip().split('.', 2))  # type: ignore
+
+
 def get_nvidia_version() -> tuple[int, int] | None:
     """Check if nvidia drivers are installed and if available return the version."""
 
-    nvcc = run(['nvcc', '--version'], capture_output=True)
-
-    ver_string = ''
-
-    if nvcc.returncode:
-        smi = run(['nvidia-smi', '-q'], capture_output=True)
-
-        if not smi.returncode:
-            ver_string = smi.stdout.splitlines()[5].decode().split(':')[-1].strip()
+    try:
+        nvcc = run(['nvcc', '--version'], capture_output=True)
+    except FileNotFoundError:
+        pass
     else:
-        ver_string = nvcc.stdout.splitlines()[3].decode().split(',')[-2].replace('release', '').strip()
+        if not nvcc.returncode:
+            return _str_to_ver(nvcc.stdout.splitlines()[3].decode().split(',')[-2].replace('release', ''))
 
-    if not ver_string:
-        return None
+    try:
+        smi = run(['nvidia-smi', '-q'], capture_output=True)
+    except FileNotFoundError:
+        pass
+    else:
+        if not smi.returncode:
+            return _str_to_ver(smi.stdout.splitlines()[5].decode().split(':')[-1])
 
-    return tuple(int(x) for x in ver_string.split('.', 2))  # type: ignore
+    return None
