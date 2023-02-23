@@ -357,7 +357,7 @@ def get_b(clip: vs.VideoNode, /) -> vs.VideoNode:
     return plane(clip, 2)
 
 
-def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -> vs.VideoNode:
+def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int, strict: bool = True) -> vs.VideoNode:
     """
     Replace frames of a longer clip with those of a shorter one.
 
@@ -366,28 +366,31 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int) -
     :param clip:                Input clip.
     :param insert:              Clip to insert into the input clip.
     :param start_frame:         Frame to start inserting from.
+    :param strict:              Don't throw an error on clip length being too big, rather, cut the clip.
 
     :return:                    Clip with frames replaced by the insert clip.
 
-    :raises CustomValueError:   Insert clip is too long and goes beyond the input clip's final frame.
+    :raises CustomValueError:   Insert clip is too long, ``strict=False`` and goes beyond the input clip's final frame.
     """
 
     if start_frame == 0:
         return insert + clip[insert.num_frames:]
 
     pre = clip[:start_frame]
+    insert_diff = (start_frame + insert.num_frames) - clip.num_frames
 
-    frame_after_insert = start_frame + insert.num_frames
-
-    if frame_after_insert > clip.num_frames:
-        raise ClipLengthError('Inserted clip is too long.', insert_clip)
-
-    if frame_after_insert == clip.num_frames:
+    if insert_diff == 0:
         return pre + insert
 
-    post = clip[start_frame + insert.num_frames:]
+    if insert_diff < 0:
+        return pre + insert + clip[insert_diff:]
 
-    return pre + insert + post
+    if strict:
+        raise ClipLengthError(
+            'Inserted clip is too long.', insert_clip, {'clip': clip.num_frames, 'diff': insert_diff}
+        )
+
+    return pre + insert[:-insert_diff]
 
 
 @overload
