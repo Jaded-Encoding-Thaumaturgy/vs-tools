@@ -11,7 +11,7 @@ from ..types import (
 )
 from .check import check_variable
 from .normalize import normalize_planes, normalize_seq, to_arr
-from .utils import depth, join, plane, split
+from .utils import depth, join, plane
 
 __all__ = [
     'iterate', 'fallback', 'kwargs_fallback',
@@ -219,29 +219,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         assert clip.format
 
-        bits_per_sample = clip.format.bits_per_sample
         cfamily = clip.format.color_family
 
         if self.allowed_cfamilies and cfamily not in self.allowed_cfamilies:
             if cfamily is vs.RGB:
-                if hasattr(vs.core, 'fmtc'):
-                    clip = clip.fmtc.matrix(
-                        fulls=True, fulld=True, col_fam=vs.YUV, coef=[
-                            1, 1, 2 / 3, 0, 1, 0, -4 / 3, 0, 1, -1, 2 / 3, 0
-                        ]
-                    )
-                else:
-                    from ..utils import get_neutral_value
+                from ..utils import ResampleUtil
 
-                    diff = '' if bits_per_sample == 32 else f'{get_neutral_value(clip)} +'
-
-                    R, G, B = split(clip)
-
-                    clip = join([
-                        vs.core.std.Expr([R, G, B], 'x y z + + 1 3 / *'),
-                        vs.core.std.Expr([R, B], f'x y - 1 2 / * {diff}'),
-                        vs.core.std.Expr([R, G, B], f'x z + 1 4 / * y 1 2 / * - {diff}')
-                    ], vs.YUV)
+                clip = ResampleUtil.rgb2opp(clip, self.func)
 
                 self.cfamily_converted = True
 
@@ -314,30 +298,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         assert check_variable(processed, self.func)
 
-        fmt = processed.format
-
         if len(self.chroma_planes):
             processed = join([processed, *self.chroma_planes], self.clip.format.color_family)
 
         if self.cfamily_converted:
-            if hasattr(vs.core, 'fmtc'):
-                processed = processed.fmtc.matrix(
-                    fulls=True, fulld=True, col_fam=vs.RGB, coef=[
-                        1 / 3, 1 / 3, 1 / 3, 0, 1 / 2, 0, -1 / 2, 0, 1 / 4, -1 / 2, 1 / 4, 0
-                    ]
-                )
-            else:
-                from ..utils import get_neutral_value
+            from ..utils import ResampleUtil
 
-                diff = '' if fmt.bits_per_sample == 32 else f'{get_neutral_value(processed)} -'
-
-                Y, U, V = split(processed)
-
-                processed = join([
-                    vs.core.std.Expr([Y, U, V], f'x y {diff} + z {diff} 2 3 / * +'),
-                    vs.core.std.Expr([Y, V], f'x y {diff} 4 3 / * -'),
-                    vs.core.std.Expr([Y, U, V], f'x z {diff} 2 3 / * + y {diff} -')
-                ], vs.RGB)
+            processed = ResampleUtil.opp2rgb(processed, self.func)
 
         if self.bitdepth:
             processed = depth(processed, self.clip)
