@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
-from typing import Any, ClassVar, NamedTuple, TypeVar, overload
+from typing import Any, ClassVar, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -285,6 +285,11 @@ class Keyframes(list[int]):
     WWXD: ClassVar = SceneChangeMode.WWXD
     SCXVID: ClassVar = SceneChangeMode.SCXVID
 
+    def __init__(self, iterable: Iterable[int], end_frame: int) -> None:
+        super().__init__(iterable)
+
+        self.end_frame = end_frame
+
     @classmethod
     def from_clip(cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode = WWXD) -> KeyframesBoundT:
         from ..utils import get_prop, get_w
@@ -298,7 +303,7 @@ class Keyframes(list[int]):
             )
         )
 
-        return cls(sorted(list(Sentinel.filter(frames))))
+        return cls(sorted(list(Sentinel.filter(frames))), clip.num_frames)
 
     def to_file(self, out: FilePathType, func: FuncExceptT | None = None) -> None:
         from ..utils import check_perms
@@ -410,6 +415,6 @@ class LWIndex:
             for i in range(indexstart, indexend, 2)
         ], key=lambda x: x.pts)
 
-        keyframes = Keyframes([i for i, f in enumerate(frames) if f.key])
+        keyframes = Keyframes([i for i, f in enumerate(frames) if f.key], len(frames))
 
         return LWIndex(streaminfo, frames, keyframes)
