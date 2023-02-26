@@ -282,6 +282,9 @@ TimecodesBoundT = TypeVar('TimecodesBoundT', bound=Timecodes)
 
 
 class Keyframes(list[int]):
+    V1 = 1
+    XVID = -1
+
     WWXD: ClassVar = SceneChangeMode.WWXD
     SCXVID: ClassVar = SceneChangeMode.SCXVID
 
@@ -305,7 +308,7 @@ class Keyframes(list[int]):
 
         return cls(sorted(list(Sentinel.filter(frames))), clip.num_frames)
 
-    def to_file(self, out: FilePathType, func: FuncExceptT | None = None) -> None:
+    def to_file(self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None) -> None:
         from ..utils import check_perms
 
         func = func or self.to_file
@@ -314,9 +317,19 @@ class Keyframes(list[int]):
 
         check_perms(out_path, 'w+', func=func)
 
-        out_text = [
-            '# keyframe format v1', 'fps 0', '', *map(str, self), ''
-        ]
+        if format == Keyframes.V1:
+            out_text = [
+                '# keyframe format v1', 'fps 0', '', *map(str, self), ''
+            ]
+        elif format == Keyframes.XVID:
+            lut_self = set(self)
+            out_text = [
+                '# XviD 2pass stat file', '',
+                *(
+                    (lut_self.remove(i) or 'i') if i in lut_self else 'b'  # type: ignore
+                    for i in range(self.end_frame)
+                )
+            ]
 
         out_path.unlink(True)
         out_path.touch()
