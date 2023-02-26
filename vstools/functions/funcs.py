@@ -202,9 +202,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self.bitdepth = bitdepth
 
         self.norm_planes = normalize_planes(self.norm_clip, planes)
-        self.num_planes = self.work_clip.format.num_planes
 
         super().__init__(self.norm_planes)
+
+        self.num_planes = self.work_clip.format.num_planes
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
@@ -238,7 +239,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def work_clip(self) -> ConstantFormatVideoNode:
         """Get the "work clip" as specified from the input planes."""
 
-        return plane(self.norm_clip, 0) if self == [0] else self.norm_clip  # type: ignore
+        return plane(self.norm_clip, 0) if self.luma_only else self.norm_clip  # type: ignore
 
     @cachedproperty
     def chroma_planes(self) -> list[vs.VideoNode]:
