@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from math import sqrt
 from typing import Any, ClassVar
 
 import vapoursynth as vs
@@ -239,19 +240,14 @@ class ResampleOPP(ResampleRGBMatrixUtil):
 class ResampleOPPBM3D(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 3, 1 / 3, 1 / 3,
-        1 / 2, 0, -1 / 2,
-        1 / 4, -1 / 2, 1 / 4
+        1 / sqrt(6), 0, -1 / sqrt(6),
+        1 / (3 * sqrt(2)), sqrt(2) / -3, 1 / (3 * sqrt(2))
     ]
     matrix_csp2rgb = [
-        1, 1, 2 / 3,
-        1, 0, -4 / 3,
-        1, -1, 2 / 3,
+        1, sqrt((3 / 2)), 1 / sqrt(2),
+        1, 0, -sqrt(2),
+        1, -sqrt((3 / 2)), 1 / sqrt(2)
     ]
-
-
-class ResampleOPPBM3DSwap(ResampleRGBMatrixUtil):
-    matrix_rgb2csp = ResampleOPPBM3D.matrix_csp2rgb
-    matrix_csp2rgb = ResampleOPPBM3D.matrix_rgb2csp
 
 
 class ResampleYCgCo(ResampleRGBMatrixUtil):
@@ -273,8 +269,7 @@ class Colorspace(CustomIntEnum):
     RGB = 2
     YCgCo = 3
     OPP = 4
-    OPP_GBR = 5
-    OPP_JOY = 6
+    OPP_BM3D = 5
 
     @property
     def is_opp(self) -> bool:
@@ -296,11 +291,8 @@ class Colorspace(CustomIntEnum):
         if self is self.OPP:
             return ResampleOPP()
 
-        if self is self.OPP_GBR:
+        if self is self.OPP_BM3D:
             return ResampleOPPBM3D()
-
-        if self is self.OPP_JOY:
-            return ResampleOPPBM3DSwap()
 
         if self is self.GRAY:
             return ResampleGRAY()
