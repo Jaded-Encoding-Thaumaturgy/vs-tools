@@ -277,6 +277,18 @@ class Colorspace(CustomIntEnum):
     OPP_JOY = 6
 
     @property
+    def is_opp(self) -> bool:
+        return 'OPP' in self.name
+
+    @property
+    def is_rgb(self) -> bool:
+        return 'RGB' in self.name
+
+    @property
+    def is_yuv(self) -> bool:
+        return 'YUV' in self.name
+
+    @property
     def resampler(self) -> ResampleUtil:
         if self is self.YCgCo:
             return ResampleYCgCo()
