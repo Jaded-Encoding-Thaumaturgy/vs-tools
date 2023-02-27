@@ -1,158 +1,328 @@
-from dataclasses import dataclass
+from abc import abstractmethod
+from typing import Any, ClassVar
 
 import vapoursynth as vs
 
-from ..enums import Matrix
-from ..functions import DitherType, check_variable_format, depth, join, plane, split
+from vstools.types.builtins import KwargsT
+
+from ..enums import CustomIntEnum
+from ..functions import check_variable_format, depth, plane
 from ..types import FuncExceptT, inject_self
+from .ranges import interleave_arr
 
 __all__ = [
-    'ResampleUtil'
+    'ResampleUtil',
+
+    'ResampleRGBUtil', 'ResampleYUVUtil',
+
+    'ResampleRGBMatrixUtil',
+
+    'ResampleRGB', 'ResampleYUV', 'ResampleGRAY',
+
+    'ResampleOPP', 'ResampleOPPBM3D',
+
+    'ResampleYCgCo',
+
+    'Colorspace'
 ]
 
 
-@dataclass
 class ResampleUtil:
-    fp32: bool | None = None
-    """Whether to process in original bitdepth (None) or in int16 (False) or float32 (True)."""
-
     @inject_self
-    def clip2opp(self, clip: vs.VideoNode, is_gray: bool = False, func: FuncExceptT | None = None) -> vs.VideoNode:
+    def clip2csp(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
         """
-        Convert any clip to the OPP colorspace.
+        Convert any clip to the implemented colorspace.
 
         :param clip:    Clip to be processed.
-        :param is_gray: Whether to only extract the luma.
+        :param f32:     Whether to process in original bitdepth (None) or in int16 (False) or float32 (True).
         :param func:    Function from where this was called from.
 
-        :return:        OPP clip.
+        :return:        Converted clip.
         """
-        func = func or self.clip2opp
+
+        func = func or self.clip2csp
 
         assert check_variable_format(clip, func)
 
-        if is_gray:
-            return self.to_gray(clip, func)
+        if clip.format.color_family is vs.RGB:
+            return self.rgb2csp(clip, fp32, func, **kwargs)
 
-        return self.rgb2opp(clip, func) if clip.format.color_family is vs.RGB else self.yuv2opp(clip, func)
-
-    @inject_self
-    def yuv2opp(self, clip: vs.VideoNode, func: FuncExceptT | None = None) -> vs.VideoNode:
-        """
-        Convert a YUV clip to the OPP colorspace.
-
-        :param clip:    YUV clip to be processed.
-        :param func:    Function from where this was called from.
-
-        :return:        OPP clip.
-        """
-        return self.rgb2opp(clip.resize.Bicubic(format=vs.RGBS), func)
+        return self.yuv2csp(clip, fp32, func, **kwargs)
 
     @inject_self
-    def rgb2opp(self, clip: vs.VideoNode, func: FuncExceptT | None = None) -> vs.VideoNode:
+    @abstractmethod
+    def rgb2csp(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
         """
-        Convert an RGB clip to the OPP colorspace.
+        Convert an RGB clip to the implemented colorspace.
 
         :param clip:    RGB clip to be processed.
         :param func:    Function from where this was called from.
 
-        :return:        OPP clip.
+        :return:        Converted clip.
         """
-        assert check_variable_format(clip, (func := func or self.rgb2opp))
-
-        if hasattr(vs.core, 'fmtc'):
-            clip = clip.fmtc.matrix(
-                fulls=True, fulld=True, col_fam=vs.YUV, coef=[
-                    1, 1, 2 / 3, 0, 1, 0, -4 / 3, 0, 1, -1, 2 / 3, 0
-                ]
-            )
-        else:
-            from ..utils import get_neutral_value
-
-            diff = '' if clip.format.bits_per_sample == 32 else f'{get_neutral_value(clip)} +'
-
-            R, G, B = split(clip)
-
-            clip = join([
-                vs.core.std.Expr([R, G, B], 'x y z + + 1 3 / *'),
-                vs.core.std.Expr([R, B], f'x y - 1 2 / * {diff}'),
-                vs.core.std.Expr([R, G, B], f'x z + 1 4 / * y 1 2 / * - {diff}')
-            ], vs.YUV)
-
-        if self.fp32 is None:
-            return clip
-
-        return depth(clip, 32 if self.fp32 else 16)
 
     @inject_self
-    def opp2rgb(self, clip: vs.VideoNode, func: FuncExceptT | None = None) -> vs.VideoNode:
-        """
-        Convert an OPP clip to the RGB colorspace.
-
-        :param clip:    OPP clip to be processed.
-        :param func:    Function from where this was called from.
-
-        :return:        RGB clip.
-        """
-        assert check_variable_format(clip, (func := func or self.opp2rgb))
-
-        if hasattr(vs.core, 'fmtc'):
-            clip = clip.fmtc.matrix(
-                fulls=True, fulld=True, col_fam=vs.RGB, coef=[
-                    1 / 3, 1 / 3, 1 / 3, 0, 1 / 2, 0, -1 / 2, 0, 1 / 4, -1 / 2, 1 / 4, 0
-                ]
-            )
-        else:
-            from ..utils import get_neutral_value
-
-            diff = '' if clip.format.bits_per_sample == 32 else f'{get_neutral_value(clip)} -'
-
-            Y, U, V = split(clip)
-
-            clip = join([
-                vs.core.std.Expr([Y, U, V], f'x y {diff} + z {diff} 2 3 / * +'),
-                vs.core.std.Expr([Y, V], f'x y {diff} 4 3 / * -'),
-                vs.core.std.Expr([Y, U, V], f'x z {diff} 2 3 / * + y {diff} -')
-            ], vs.RGB)
-
-        if self.fp32 is None:
-            return clip
-
-        return depth(clip, 32 if self.fp32 else 16)
-
-    @inject_self
-    def opp2yuv(
-        self, clip: vs.VideoNode, format: vs.VideoFormat, matrix: Matrix | None,
-        dither: DitherType | None = None, func: FuncExceptT | None = None
+    @abstractmethod
+    def yuv2csp(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
     ) -> vs.VideoNode:
         """
-        Convert an OPP clip to the YUV colorspace.
+        Convert a YUV clip to the implemented colorspace.
 
-        :param clip:    OPP clip to be processed.
+        :param clip:    YUV clip to be processed.
         :param func:    Function from where this was called from.
 
-        :return:        YUV clip.
+        :return:        Converted clip.
         """
-        assert check_variable_format(clip, (func := func or self.opp2yuv))
-
-        return self.opp2rgb(clip, func).resize.Bicubic(format=format.id, matrix=matrix, dither_type=dither)
 
     @inject_self
-    def to_gray(self, clip: vs.VideoNode, func: FuncExceptT | None = None) -> vs.VideoNode:
-        """
-        Extract Y plane from a clip.
+    @abstractmethod
+    def csp2rgb(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        ...
 
-        :param clip:    Clip to be processed.
-        :param func:    Function from where this was called from.
+    @inject_self
+    @abstractmethod
+    def csp2yuv(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        ...
 
-        :return:        Gray clip.
-        """
-        assert check_variable_format(clip, func or self.to_gray)
 
-        if clip.format.color_family is vs.RGB:
-            clip = self.rgb2opp(clip, func)
+class ResampleRGBUtil(ResampleUtil):
+    @inject_self
+    def yuv2csp(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, (func := func or self.yuv2csp))
 
-        if self.fp32 is None or (32 if self.fp32 else 16) == clip.format.bits_per_sample:  # type: ignore
+        return self.rgb2csp(
+            clip.resize.Bicubic(**(
+                KwargsT(format=clip.format.replace(color_family=vs.RGB, subsampling_w=0, subsampling_h=0).id) | kwargs
+            )), fp32, func
+        )
+
+    @inject_self
+    def csp2yuv(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, (func := func or self.csp2yuv))
+
+        rgb = self.csp2rgb(clip, fp32, func)
+        assert rgb.format
+
+        return rgb.resize.Bicubic(**(
+            KwargsT(format=rgb.format.replace(color_family=vs.YUV).id) | kwargs
+        ))
+
+
+class ResampleYUVUtil(ResampleUtil):
+    @inject_self
+    def rgb2csp(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, (func := func or self.rgb2csp))
+
+        return self.yuv2csp(
+            clip.resize.Bicubic(**(
+                KwargsT(format=clip.format.replace(color_family=vs.YUV).id) | kwargs
+            )), fp32, func
+        )
+
+    @inject_self
+    def csp2rgb(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, (func := func or self.csp2yuv))
+
+        yuv = self.csp2yuv(clip, fp32, func)
+        assert yuv.format
+
+        return yuv.resize.Bicubic(**(
+            KwargsT(format=yuv.format.replace(color_family=vs.RGB, subsampling_w=0, subsampling_h=0).id) | kwargs
+        ))
+
+
+class ResampleRGBMatrixUtil(ResampleRGBUtil):
+    matrix_rgb2csp: ClassVar[list[float]]
+    matrix_csp2rgb: ClassVar[list[float]]
+
+    @inject_self
+    def rgb2csp(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, (func := func or self.rgb2csp))
+
+        clip = clip.fmtc.matrix(
+            fulls=True, fulld=True, col_fam=vs.YUV, coef=list(interleave_arr(self.matrix_rgb2csp, [0, 0, 0], 3))
+        )
+
+        return clip if fp32 is None else depth(clip, 32 if fp32 else 16)
+
+    @inject_self
+    def csp2rgb(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, (func := func or self.csp2rgb))
+
+        clip = clip.fmtc.matrix(
+            fulls=True, fulld=True, col_fam=vs.RGB, coef=list(interleave_arr(self.matrix_csp2rgb, [0, 0, 0], 3))
+        )
+
+        return clip if fp32 is None else depth(clip, 32 if fp32 else 16)
+
+
+class ResampleRGB(ResampleRGBUtil):
+    @inject_self
+    def rgb2csp(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        return clip if fp32 is None else depth(clip, 32 if fp32 else 16)
+
+    @inject_self
+    def csp2rgb(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        return clip if fp32 is None else depth(clip, 32 if fp32 else 16)
+
+
+class ResampleYUV(ResampleYUVUtil):
+    @inject_self
+    def yuv2csp(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        return clip if fp32 is None else depth(clip, 32 if fp32 else 16)
+
+    @inject_self
+    def csp2yuv(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        return clip if fp32 is None else depth(clip, 32 if fp32 else 16)
+
+
+class ResampleGRAY(ResampleYUV):
+    @inject_self
+    def yuv2csp(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+
+        if fp32 is None or (32 if fp32 else 16) == clip.format.bits_per_sample:  # type: ignore
             return plane(clip, 0)
 
-        return clip.resize.Point(format=vs.GRAYS if self.fp32 else vs.GRAY16)
+        return clip.resize.Point(format=vs.GRAYS if fp32 else vs.GRAY16)
+
+    @inject_self
+    def csp2yuv(  # type: ignore[override]
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        return clip if fp32 is None else depth(clip, 32 if fp32 else 16)
+
+
+class ResampleOPP(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        0.2990, 0.5870, 0.1140,
+        0.5000, 0.5000, -1.0000,
+        0.8660, -0.8660, 0.0000
+    ]
+    matrix_csp2rgb = [
+        1.0000, 0.1140, 0.7436,
+        1.0000, 0.1140, -0.4111,
+        1.0000, -0.8860, 0.1663
+    ]
+
+
+class ResampleOPPBM3D(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 3, 1 / 3, 1 / 3,
+        1 / 2, 0, -1 / 2,
+        1 / 4, -1 / 2, 1 / 4
+    ]
+    matrix_csp2rgb = [
+        1, 1, 2 / 3,
+        1, 0, -4 / 3,
+        1, -1, 2 / 3,
+    ]
+
+
+class ResampleOPPBM3DSwap(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = ResampleOPPBM3D.matrix_csp2rgb
+    matrix_csp2rgb = ResampleOPPBM3D.matrix_rgb2csp
+
+
+class ResampleYCgCo(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 4, 1 / 2, 1 / 4,
+        1, 0, -1,
+        -1 / 2, 1, -1 / 2
+    ]
+    matrix_csp2rgb = [
+        1, 1 / 2, -1 / 2,
+        1, 0, 1 / 2,
+        1, -1 / 2, -1 / 2
+    ]
+
+
+class Colorspace(CustomIntEnum):
+    GRAY = 0
+    YUV = 1
+    RGB = 2
+    YCgCo = 3
+    OPP = 4
+    OPP_GBR = 5
+    OPP_JOY = 6
+
+    @property
+    def resampler(self) -> ResampleUtil:
+        if self is self.YCgCo:
+            return ResampleYCgCo()
+
+        if self is self.OPP:
+            return ResampleOPP()
+
+        if self is self.OPP_GBR:
+            return ResampleOPPBM3D()
+
+        if self is self.OPP_JOY:
+            return ResampleOPPBM3DSwap()
+
+        if self is self.GRAY:
+            return ResampleGRAY()
+
+        if self is self.YUV:
+            return ResampleYUV()
+
+        if self is self.RGB:
+            return ResampleRGB()
+
+        raise NotImplementedError
+
+    def __call__(self, clip: vs.VideoNode, **kwargs: Any) -> vs.VideoNode:
+        assert check_variable_format(clip, self.from_clip)
+
+        return self.resampler.clip2csp(clip, **kwargs)
+
+    def from_clip(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, self.from_clip)
+
+        return self.resampler.clip2csp(clip, fp32, func, **kwargs)
+
+    def to_rgb(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, self.from_clip)
+
+        return self.resampler.csp2rgb(clip, fp32, func, **kwargs)
+
+    def to_yuv(
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+    ) -> vs.VideoNode:
+        assert check_variable_format(clip, self.from_clip)
+
+        return self.resampler.csp2yuv(clip, fp32, func, **kwargs)
