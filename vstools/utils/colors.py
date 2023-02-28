@@ -24,7 +24,7 @@ __all__ = [
     
     'ResampleOPPMawen', 'ResampleOPPMawenSwap',
 
-    'ResampleYCgCoR',
+    'ResampleYCgCo', 'ResampleYCgCoR',
 
     'Colorspace'
 ]
@@ -278,6 +278,19 @@ class ResampleOPPMawenSwap(ResampleRGBMatrixUtil):
     ]
 
 
+class ResampleYCgCo(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 4, 1 / 2, 1 / 4,
+        1 / 2, 0, -1 / 2,
+        -1 / 4, 1 / 2, -1 / 4
+    ]
+    matrix_csp2rgb = [
+        1, 1, -1,
+        1, 0, 1,
+        1, -1, -1
+    ]
+
+
 class ResampleYCgCoR(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 4, 1 / 2, 1 / 4,
@@ -295,11 +308,12 @@ class Colorspace(CustomIntEnum):
     GRAY = 0
     YUV = 1
     RGB = 2
-    YCgCoR = 3
-    OPP = 4
-    OPP_BM3D = 5
-    OPP_Mawen = 6
-    OPP_Mawen_Swap = 7
+    YCgCo = 3
+    YCgCoR = 4
+    OPP = 5
+    OPP_BM3D = 6
+    OPP_Mawen = 7
+    OPP_Mawen_Swap = 8
 
     @property
     def is_opp(self) -> bool:
@@ -315,6 +329,9 @@ class Colorspace(CustomIntEnum):
 
     @property
     def resampler(self) -> ResampleUtil:
+        if self is self.YCgCo:
+            return ResampleYCgCo()
+        
         if self is self.YCgCoR:
             return ResampleYCgCoR()
 
