@@ -310,6 +310,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if self.bitdepth:
             processed = depth(processed, self.clip)
 
+        if self.chroma_only:
+            processed = join(self.clip, processed)
+
         return processed
 
     def norm_seq(self, seq: T | Sequence[T], null: T = 0) -> list[T]:  # type: ignore
