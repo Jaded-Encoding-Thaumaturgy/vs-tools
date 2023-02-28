@@ -224,9 +224,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if self.allowed_cfamilies and cfamily not in self.allowed_cfamilies:
             if cfamily is vs.RGB:
-                from ..utils import ResampleUtil
+                from ..utils import Colorspace
 
-                clip = ResampleUtil.rgb2opp(clip, self.func)
+                clip = Colorspace.OPP(clip)
 
                 self.cfamily_converted = True
 
@@ -303,9 +303,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             processed = join([processed, *self.chroma_planes], self.clip.format.color_family)
 
         if self.cfamily_converted:
-            from ..utils import ResampleUtil
+            from ..utils import Colorspace
 
-            processed = ResampleUtil.opp2rgb(processed, self.func)
+            processed = Colorspace.OPP.to_rgb(processed)
 
         if self.bitdepth:
             processed = depth(processed, self.clip)
