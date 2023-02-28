@@ -21,6 +21,8 @@ __all__ = [
     'ResampleRGB', 'ResampleYUV', 'ResampleGRAY',
 
     'ResampleOPP', 'ResampleOPPBM3D',
+    
+    'ResampleOPPMawen', 'ResampleOPPMawenSwap',
 
     'ResampleYCgCoR',
 
@@ -232,8 +234,8 @@ class ResampleOPP(ResampleRGBMatrixUtil):
     ]
     matrix_csp2rgb = [
         1, 0, -sqrt(2),
-        1, sqrt((3 / 2)), 1 / sqrt(2),
-        1, -sqrt((3 / 2)), 1 / sqrt(2)
+        1, sqrt(3 / 2), 1 / sqrt(2),
+        1, -sqrt(3 / 2), 1 / sqrt(2)
     ]
 
 
@@ -244,9 +246,35 @@ class ResampleOPPBM3D(ResampleRGBMatrixUtil):
         1 / (3 * sqrt(2)), sqrt(2) / -3, 1 / (3 * sqrt(2))
     ]
     matrix_csp2rgb = [
-        1, sqrt((3 / 2)), 1 / sqrt(2),
+        1, sqrt(3 / 2), 1 / sqrt(2),
         1, 0, -sqrt(2),
-        1, -sqrt((3 / 2)), 1 / sqrt(2)
+        1, -sqrt(3 / 2), 1 / sqrt(2)
+    ]
+
+    
+class ResampleOPPMawen(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 3, 1 / 3, 1 / 3,
+        1 / 2, 0, -1 / 2,
+        1 / 4, -1 / 2, 1 / 4
+    ]
+    matrix_csp2rgb = [
+        1, 1, 2 / 3,
+        1, 0, -4 / 3,
+        1, -1, 2 / 3
+    ]
+
+    
+class ResampleOPPMawenSwap(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 3, 1 / 3, 1 / 3,
+        0, 1 / 2, -1 / 2,
+       -1 / 2, 1 / 4, 1 / 4
+    ]
+    matrix_csp2rgb = [
+        1, 0, -4 / 3,
+        1, 1, 2 / 3,
+        1, -1, 2 / 3
     ]
 
 
@@ -270,6 +298,8 @@ class Colorspace(CustomIntEnum):
     YCgCoR = 3
     OPP = 4
     OPP_BM3D = 5
+    OPP_Mawen = 6
+    OPP_Mawen_Swap = 7
 
     @property
     def is_opp(self) -> bool:
@@ -293,6 +323,12 @@ class Colorspace(CustomIntEnum):
 
         if self is self.OPP_BM3D:
             return ResampleOPPBM3D()
+        
+        if self is self.OPP_Mawen:
+            return ResampleOPPMawen()
+
+        if self is self.OPP_Mawen_Swap:
+            return ResampleOPPMawenSwap()
 
         if self is self.GRAY:
             return ResampleGRAY()
