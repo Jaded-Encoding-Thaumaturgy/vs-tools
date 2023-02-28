@@ -20,9 +20,7 @@ __all__ = [
 
     'ResampleRGB', 'ResampleYUV', 'ResampleGRAY',
 
-    'ResampleOPP', 'ResampleOPPBM3D',
-
-    'ResampleYCgCo',
+    'ResampleOPP', 'ResampleYCoCgR',
 
     'Colorspace'
 ]
@@ -226,19 +224,6 @@ class ResampleGRAY(ResampleYUV):
 
 class ResampleOPP(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
-        0.2990, 0.5870, 0.1140,
-        0.5000, 0.5000, -1.0000,
-        0.8660, -0.8660, 0.0000
-    ]
-    matrix_csp2rgb = [
-        1.0000, 0.1140, 0.7436,
-        1.0000, 0.1140, -0.4111,
-        1.0000, -0.8860, 0.1663
-    ]
-
-
-class ResampleOPPBM3D(ResampleRGBMatrixUtil):
-    matrix_rgb2csp = [
         1 / 3, 1 / 3, 1 / 3,
         1 / sqrt(6), 0, -1 / sqrt(6),
         1 / (3 * sqrt(2)), sqrt(2) / -3, 1 / (3 * sqrt(2))
@@ -250,7 +235,7 @@ class ResampleOPPBM3D(ResampleRGBMatrixUtil):
     ]
 
 
-class ResampleYCgCo(ResampleRGBMatrixUtil):
+class ResampleYCoCgR(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 4, 1 / 2, 1 / 4,
         1, 0, -1,
@@ -267,9 +252,8 @@ class Colorspace(CustomIntEnum):
     GRAY = 0
     YUV = 1
     RGB = 2
-    YCgCo = 3
+    YCoCgR = 3
     OPP = 4
-    OPP_BM3D = 5
 
     @property
     def is_opp(self) -> bool:
@@ -286,13 +270,10 @@ class Colorspace(CustomIntEnum):
     @property
     def resampler(self) -> ResampleUtil:
         if self is self.YCgCo:
-            return ResampleYCgCo()
+            return ResampleYCoCgR()
 
         if self is self.OPP:
             return ResampleOPP()
-
-        if self is self.OPP_BM3D:
-            return ResampleOPPBM3D()
 
         if self is self.GRAY:
             return ResampleGRAY()
