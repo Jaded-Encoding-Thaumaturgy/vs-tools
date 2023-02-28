@@ -4,11 +4,9 @@ from typing import Any, ClassVar
 
 import vapoursynth as vs
 
-from vstools.types.builtins import KwargsT
-
 from ..enums import CustomIntEnum
 from ..functions import check_variable_format, depth, plane
-from ..types import FuncExceptT, inject_self
+from ..types import FuncExceptT, KwargsT, inject_self
 from .ranges import interleave_arr
 
 __all__ = [
@@ -20,9 +18,11 @@ __all__ = [
 
     'ResampleRGB', 'ResampleYUV', 'ResampleGRAY',
 
-    'ResampleOPP', 'ResampleOPPBM3D',
+    'ResampleOPP', 'ResampleOPPLCC',
 
-    'ResampleYCgCo',
+    'ResampleOPPBM3D', 'ResampleOPPBM3DS',
+
+    'ResampleYCgCo', 'ResampleYCgCoR',
 
     'Colorspace'
 ]
@@ -226,31 +226,70 @@ class ResampleGRAY(ResampleYUV):
 
 class ResampleOPP(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
-        0.2990, 0.5870, 0.1140,
-        0.5000, 0.5000, -1.0000,
-        0.8660, -0.8660, 0.0000
+        1 / 3, 1 / 3, 1 / 3,
+        0, 1 / sqrt(6), -1 / sqrt(6),
+        -sqrt(2) / 3, 1 / (3 * sqrt(2)), 1 / (3 * sqrt(2))
     ]
     matrix_csp2rgb = [
-        1.0000, 0.1140, 0.7436,
-        1.0000, 0.1140, -0.4111,
-        1.0000, -0.8860, 0.1663
+        1, 0, -sqrt(2),
+        1, sqrt(3 / 2), 1 / sqrt(2),
+        1, -sqrt(3 / 2), 1 / sqrt(2)
     ]
 
 
-class ResampleOPPBM3D(ResampleRGBMatrixUtil):
+class ResampleOPPLCC(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 3, 1 / 3, 1 / 3,
         1 / sqrt(6), 0, -1 / sqrt(6),
         1 / (3 * sqrt(2)), sqrt(2) / -3, 1 / (3 * sqrt(2))
     ]
     matrix_csp2rgb = [
-        1, sqrt((3 / 2)), 1 / sqrt(2),
+        1, sqrt(3 / 2), 1 / sqrt(2),
         1, 0, -sqrt(2),
-        1, -sqrt((3 / 2)), 1 / sqrt(2)
+        1, -sqrt(3 / 2), 1 / sqrt(2)
+    ]
+
+
+class ResampleOPPBM3D(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 3, 1 / 3, 1 / 3,
+        1 / 2, 0, -1 / 2,
+        1 / 4, -1 / 2, 1 / 4
+    ]
+    matrix_csp2rgb = [
+        1, 1, 2 / 3,
+        1, 0, -4 / 3,
+        1, -1, 2 / 3
+    ]
+
+
+class ResampleOPPBM3DS(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 3, 1 / 3, 1 / 3,
+        0, 1 / 2, -1 / 2,
+        -1 / 2, 1 / 4, 1 / 4
+    ]
+    matrix_csp2rgb = [
+        1, 0, -4 / 3,
+        1, 1, 2 / 3,
+        1, -1, 2 / 3
     ]
 
 
 class ResampleYCgCo(ResampleRGBMatrixUtil):
+    matrix_rgb2csp = [
+        1 / 4, 1 / 2, 1 / 4,
+        1 / 2, 0, -1 / 2,
+        -1 / 4, 1 / 2, -1 / 4
+    ]
+    matrix_csp2rgb = [
+        1, 1, -1,
+        1, 0, 1,
+        1, -1, -1
+    ]
+
+
+class ResampleYCgCoR(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 4, 1 / 2, 1 / 4,
         1, 0, -1,
@@ -268,8 +307,11 @@ class Colorspace(CustomIntEnum):
     YUV = 1
     RGB = 2
     YCgCo = 3
-    OPP = 4
-    OPP_BM3D = 5
+    YCgCoR = 4
+    OPP = 5
+    OPP_LCC = 6
+    OPP_BM3D = 7
+    OPP_BM3DS = 8
 
     @property
     def is_opp(self) -> bool:
@@ -284,24 +326,25 @@ class Colorspace(CustomIntEnum):
         return 'YUV' in self.name
 
     @property
-    def resampler(self) -> ResampleUtil:
+    def resampler(self) -> type[ResampleUtil]:
         if self is self.YCgCo:
-            return ResampleYCgCo()
-
-        if self is self.OPP:
-            return ResampleOPP()
-
-        if self is self.OPP_BM3D:
-            return ResampleOPPBM3D()
-
-        if self is self.GRAY:
-            return ResampleGRAY()
-
-        if self is self.YUV:
-            return ResampleYUV()
-
-        if self is self.RGB:
-            return ResampleRGB()
+            return ResampleYCgCo
+        elif self is self.YCgCoR:
+            return ResampleYCgCoR
+        elif self is self.OPP:
+            return ResampleOPP
+        elif self is self.OPP_LCC:
+            return ResampleOPPLCC
+        elif self is self.OPP_BM3D:
+            return ResampleOPPBM3D
+        elif self is self.OPP_BM3DS:
+            return ResampleOPPBM3DS
+        elif self is self.GRAY:
+            return ResampleGRAY
+        elif self is self.YUV:
+            return ResampleYUV
+        elif self is self.RGB:
+            return ResampleRGB
 
         raise NotImplementedError
 
