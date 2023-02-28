@@ -4,11 +4,9 @@ from typing import Any, ClassVar
 
 import vapoursynth as vs
 
-from vstools.types.builtins import KwargsT
-
 from ..enums import CustomIntEnum
 from ..functions import check_variable_format, depth, plane
-from ..types import FuncExceptT, inject_self
+from ..types import FuncExceptT, KwargsT, inject_self
 from .ranges import interleave_arr
 
 __all__ = [
@@ -20,9 +18,9 @@ __all__ = [
 
     'ResampleRGB', 'ResampleYUV', 'ResampleGRAY',
 
-    'ResampleOPP', 'ResampleOPPBM3D',
-    
-    'ResampleOPPMawen', 'ResampleOPPMawenSwap',
+    'ResampleOPP', 'ResampleOPPLCC',
+
+    'ResampleOPPBM3D', 'ResampleOPPBM3DS',
 
     'ResampleYCgCo', 'ResampleYCgCoR',
 
@@ -239,7 +237,7 @@ class ResampleOPP(ResampleRGBMatrixUtil):
     ]
 
 
-class ResampleOPPBM3D(ResampleRGBMatrixUtil):
+class ResampleOPPLCC(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 3, 1 / 3, 1 / 3,
         1 / sqrt(6), 0, -1 / sqrt(6),
@@ -251,8 +249,8 @@ class ResampleOPPBM3D(ResampleRGBMatrixUtil):
         1, -sqrt(3 / 2), 1 / sqrt(2)
     ]
 
-    
-class ResampleOPPMawen(ResampleRGBMatrixUtil):
+
+class ResampleOPPBM3D(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 3, 1 / 3, 1 / 3,
         1 / 2, 0, -1 / 2,
@@ -264,12 +262,12 @@ class ResampleOPPMawen(ResampleRGBMatrixUtil):
         1, -1, 2 / 3
     ]
 
-    
-class ResampleOPPMawenSwap(ResampleRGBMatrixUtil):
+
+class ResampleOPPBM3DS(ResampleRGBMatrixUtil):
     matrix_rgb2csp = [
         1 / 3, 1 / 3, 1 / 3,
         0, 1 / 2, -1 / 2,
-       -1 / 2, 1 / 4, 1 / 4
+        -1 / 2, 1 / 4, 1 / 4
     ]
     matrix_csp2rgb = [
         1, 0, -4 / 3,
@@ -311,9 +309,9 @@ class Colorspace(CustomIntEnum):
     YCgCo = 3
     YCgCoR = 4
     OPP = 5
-    OPP_BM3D = 6
-    OPP_Mawen = 7
-    OPP_Mawen_Swap = 8
+    OPP_LCC = 6
+    OPP_BM3D = 7
+    OPP_BM3DS = 8
 
     @property
     def is_opp(self) -> bool:
@@ -328,33 +326,25 @@ class Colorspace(CustomIntEnum):
         return 'YUV' in self.name
 
     @property
-    def resampler(self) -> ResampleUtil:
+    def resampler(self) -> type[ResampleUtil]:
         if self is self.YCgCo:
-            return ResampleYCgCo()
-        
-        if self is self.YCgCoR:
-            return ResampleYCgCoR()
-
-        if self is self.OPP:
-            return ResampleOPP()
-
-        if self is self.OPP_BM3D:
-            return ResampleOPPBM3D()
-        
-        if self is self.OPP_Mawen:
-            return ResampleOPPMawen()
-
-        if self is self.OPP_Mawen_Swap:
-            return ResampleOPPMawenSwap()
-
-        if self is self.GRAY:
-            return ResampleGRAY()
-
-        if self is self.YUV:
-            return ResampleYUV()
-
-        if self is self.RGB:
-            return ResampleRGB()
+            return ResampleYCgCo
+        elif self is self.YCgCoR:
+            return ResampleYCgCoR
+        elif self is self.OPP:
+            return ResampleOPP
+        elif self is self.OPP_LCC:
+            return ResampleOPPLCC
+        elif self is self.OPP_BM3D:
+            return ResampleOPPBM3D
+        elif self is self.OPP_BM3DS:
+            return ResampleOPPBM3DS
+        elif self is self.GRAY:
+            return ResampleGRAY
+        elif self is self.YUV:
+            return ResampleYUV
+        elif self is self.RGB:
+            return ResampleRGB
 
         raise NotImplementedError
 
