@@ -291,6 +291,12 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         return self == [1, 2]
 
+    @property
+    def chroma_pplanes(self) -> list[int]:
+        """Which chroma planes are getting processed."""
+
+        return list({*self} - {0})
+
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
         """
         Function used at the end of the function, to convert back to original format and
