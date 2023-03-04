@@ -17,7 +17,7 @@ __all__ = [
 
     'HoldsVideoFormatT', 'HoldsPropValueT',
 
-    'VSFunction', 'VSFunctionNoArgs', 'VSFunctionArgs', 'VSFunctionNoKwArgs', 'VSFunctionAllArgs', 'GenericVSFunction',
+    'VSFunction', 'VSFunctionNoArgs', 'VSFunctionArgs', 'VSFunctionKwArgs', 'VSFunctionAllArgs', 'GenericVSFunction',
 
     'StrArr', 'StrArrOpt',
 
@@ -98,7 +98,7 @@ class VSFunctionArgs(Protocol):
         ...
 
 
-class VSFunctionNoKwArgs(Protocol):
+class VSFunctionKwArgs(Protocol):
     def __call__(self, clip: vs.VideoNode, **kwargs: Any) -> vs.VideoNode:
         ...
 
@@ -108,7 +108,7 @@ class VSFunctionAllArgs(Protocol):
         ...
 
 
-VSFunction = VSFunctionNoArgs | VSFunctionArgs | VSFunctionNoKwArgs | VSFunctionAllArgs
+VSFunction = VSFunctionNoArgs | VSFunctionArgs | VSFunctionKwArgs | VSFunctionAllArgs
 """Function that takes a :py:attr:`vs.VideoNode` as its first argument and returns a :py:attr:`vs.VideoNode`."""
 
 GenericVSFunction = Callable[..., vs.VideoNode]
