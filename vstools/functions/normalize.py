@@ -81,7 +81,9 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 def to_arr(val: T | Sequence[T]) -> list[T]:
     """Normalize any value into an iterable."""
 
-    return list(val) if type(val) in {list, tuple, range, zip, set, map, enumerate} else [val]  # type: ignore
+    return list(val) if any(  # type: ignore
+        isinstance(val, x) for x in {list, tuple, range, zip, set, map, enumerate}
+    ) else [val]  # type: ignore
 
 
 @overload
