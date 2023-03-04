@@ -71,7 +71,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
     if pad:
         return normalize_seq(planes, clip.format.num_planes)
 
-    return list(sorted(set(planes)))
+    return list(sorted(set(planes).intersection(*range(clip.format.num_planes))))
 
 
 def to_arr(val: T | Sequence[T]) -> list[T]:
