@@ -17,7 +17,7 @@ __all__ = [
 
     'HoldsVideoFormatT', 'HoldsPropValueT',
 
-    'VSFunction', 'GenericVSFunction',
+    'VSFunction', 'VSFunctionNoArgs', 'VSFunctionArgs', 'VSFunctionNoKwArgs', 'VSFunctionAllArgs', 'GenericVSFunction',
 
     'StrArr', 'StrArrOpt',
 
@@ -88,12 +88,28 @@ If an error occurrs, this will print a clear error ->\n
 FuncExceptT = str | Callable[..., Any] | tuple[Callable[..., Any] | str, str]  # type: ignore
 
 
-class VSFunction(Protocol):
-    """Function that takes a :py:attr:`vs.VideoNode` as its first argument and returns a :py:attr:`vs.VideoNode`."""
+class VSFunctionNoArgs(Protocol):
+    def __call__(self, clip: vs.VideoNode) -> vs.VideoNode:
+        ...
 
+
+class VSFunctionArgs(Protocol):
+    def __call__(self, clip: vs.VideoNode, *args: Any) -> vs.VideoNode:
+        ...
+
+
+class VSFunctionNoKwArgs(Protocol):
+    def __call__(self, clip: vs.VideoNode, **kwargs: Any) -> vs.VideoNode:
+        ...
+
+
+class VSFunctionAllArgs(Protocol):
     def __call__(self, clip: vs.VideoNode, *args: Any, **kwargs: Any) -> vs.VideoNode:
         ...
 
+
+VSFunction = VSFunctionNoArgs | VSFunctionArgs | VSFunctionNoKwArgs | VSFunctionAllArgs
+"""Function that takes a :py:attr:`vs.VideoNode` as its first argument and returns a :py:attr:`vs.VideoNode`."""
 
 GenericVSFunction = Callable[..., vs.VideoNode]
 
