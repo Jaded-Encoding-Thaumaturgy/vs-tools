@@ -297,6 +297,15 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         return list({*self} - {0})
 
+    def normalize_planes(self, planes: PlanesT) -> list[int]:
+        return normalize_planes(self.work_clip, planes)
+
+    def with_planes(self, planes: PlanesT) -> list[int]:
+        return self.normalize_planes(sorted(set(self + self.normalize_planes(planes))))
+
+    def without_planes(self, planes: PlanesT) -> list[int]:
+        return self.normalize_planes(sorted(set(self) - {*self.normalize_planes(planes)}))
+
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
         """
         Function used at the end of the function, to convert back to original format and
