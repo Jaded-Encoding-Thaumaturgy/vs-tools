@@ -63,7 +63,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
 
     assert clip.format
 
-    if planes is None:
+    if planes is None or planes == 4:
         planes = list(range(clip.format.num_planes))
     else:
         planes = to_arr(planes)
