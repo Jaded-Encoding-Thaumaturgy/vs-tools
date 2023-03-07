@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd as max_common_div
-from typing import TYPE_CHECKING, Iterable, NamedTuple, TypeVar, overload
+from typing import Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -231,23 +231,21 @@ class SceneChangeMode(CustomIntEnum):
 
     WWXD = 1
     SCXVID = 2
-
-    if not TYPE_CHECKING:
-        WWXD_SCXVID_UNION = 3  # WWXD | SCXVID
-        WWXD_SCXVID_INTERSECTION = 0  # WWXD & SCXVID
+    WWXD_SCXVID_UNION = 3  # WWXD | SCXVID
+    WWXD_SCXVID_INTERSECTION = 0  # WWXD & SCXVID
 
     @property
     def is_WWXD(self) -> bool:
         return self in (
-            SceneChangeMode.WWXD, SceneChangeMode.WWXD_SCXVID_UNION,   # type: ignore
-            SceneChangeMode.WWXD_SCXVID_INTERSECTION   # type: ignore
+            SceneChangeMode.WWXD, SceneChangeMode.WWXD_SCXVID_UNION,
+            SceneChangeMode.WWXD_SCXVID_INTERSECTION
         )
 
     @property
     def is_SCXVID(self) -> bool:
         return self in (
-            SceneChangeMode.SCXVID, SceneChangeMode.WWXD_SCXVID_UNION,  # type: ignore
-            SceneChangeMode.WWXD_SCXVID_INTERSECTION  # type: ignore
+            SceneChangeMode.SCXVID, SceneChangeMode.WWXD_SCXVID_UNION,
+            SceneChangeMode.WWXD_SCXVID_INTERSECTION
         )
 
     def ensure_presence(self, clip: vs.VideoNode) -> vs.VideoNode:
