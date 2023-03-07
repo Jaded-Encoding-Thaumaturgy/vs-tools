@@ -289,28 +289,30 @@ class Keyframes(list[int]):
     SCXVID: ClassVar = SceneChangeMode.SCXVID
 
     def __init__(self, iterable: Iterable[int], end_frame: int) -> None:
-        super().__init__(iterable)
+        super().__init__(sorted(list(iterable)))
 
         self.end_frame = end_frame
 
     @classmethod
     def from_clip(
-        cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode | int = WWXD
+        cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode | int = WWXD, height: int | None = 360
     ) -> KeyframesBoundT:
-        from ..utils import get_prop, get_w
+        from ..utils import get_w
 
         mode = SceneChangeMode(mode)
 
-        clip = clip.resize.Bilinear(get_w(360, clip), 360, format=vs.YUV420P8)
-        clip = mode.ensure_presence(clip)
+        if height is not None:
+            clip = clip.resize.Bilinear(get_w(360, clip), 360, vs.YUV420P8)
+        else:
+            clip = clip.resize.Bilinear(format=vs.YUV420P8)
+
+        aka_available = hasattr(vs.core, 'akarin')
 
         frames = clip_async_render(
-            clip, None, 'Detecting scene changes...', lambda n, f: Sentinel.check(
-                n, all(get_prop(f, key, int) == 1 for key in mode.prop_keys)  # type: ignore
-            )
+            mode.ensure_presence(clip, aka_available), None, 'Detecting scene changes...', mode.lambda_cb(aka_available)
         )
 
-        return cls(sorted(list(Sentinel.filter(frames))), clip.num_frames)
+        return cls(Sentinel.filter(frames), clip.num_frames)
 
     def to_file(self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None) -> None:
         from ..utils import check_perms

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd as max_common_div
-from typing import Iterable, NamedTuple, TypeVar, overload
+from typing import Callable, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT
+from ..types import FuncExceptT, Sentinel
+from ..types.funcs import SentinelDispatcher
 from .base import CustomIntEnum, CustomStrEnum
 
 __all__ = [
@@ -248,14 +249,33 @@ class SceneChangeMode(CustomIntEnum):
             SceneChangeMode.WWXD_SCXVID_INTERSECTION
         )
 
-    def ensure_presence(self, clip: vs.VideoNode) -> vs.VideoNode:
-        if self.is_WWXD:
-            clip = clip.wwxd.WWXD()
+    def ensure_presence(self, clip: vs.VideoNode, akarin: bool = False) -> vs.VideoNode:
+        from ..utils import merge_clip_props
+
+        stats_clip = []
 
         if self.is_SCXVID:
-            clip = clip.scxvid.Scxvid()
+            stats_clip.append(clip.scxvid.Scxvid())
 
-        return clip
+        if self.is_WWXD:
+            stats_clip.append(clip.wwxd.WWXD())
+
+        if akarin:
+            keys = list(self.prop_keys)
+
+            expr = ' '.join([f'x.{k}' for k in keys]) + ('and' * (len(keys) - 1))
+
+            blank = clip.std.BlankClip(1, 1, vs.GRAY8, keep=True)
+
+            if len(stats_clip) > 1:
+                return merge_clip_props(blank, *stats_clip).akarin.Expr(expr)
+
+            return blank.std.CopyFrameProps(stats_clip[0]).akarin.Expr(expr)
+
+        if len(stats_clip) > 1:
+            return merge_clip_props(clip, *stats_clip)
+
+        return stats_clip[0]
 
     @property
     def prop_keys(self) -> Iterable[str]:
@@ -264,3 +284,16 @@ class SceneChangeMode(CustomIntEnum):
 
         if self.is_SCXVID:
             yield '_SceneChangePrev'
+
+    def lambda_cb(self, akarin: bool) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
+        if akarin:
+            return (lambda n, f: Sentinel.check(n, f[0][0, 0]))  # type: ignore
+
+        if self is SceneChangeMode.WWXD_SCXVID_UNION:
+            return (lambda n, f: Sentinel.check(n, any(f.props[key] == 1 for key in self.prop_keys)))
+        elif self is SceneChangeMode.WWXD_SCXVID_INTERSECTION:
+            return (lambda n, f: Sentinel.check(n, all(f.props[key] == 1 for key in self.prop_keys)))
+
+        prop_key = next(iter(self.prop_keys))
+
+        return (lambda n, f: Sentinel.check(n, f.props[prop_key] == 1))
