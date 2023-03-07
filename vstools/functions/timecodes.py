@@ -294,15 +294,19 @@ class Keyframes(list[int]):
         self.end_frame = end_frame
 
     @classmethod
-    def from_clip(cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode = WWXD) -> KeyframesBoundT:
+    def from_clip(
+        cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode | int = WWXD
+    ) -> KeyframesBoundT:
         from ..utils import get_prop, get_w
+
+        mode = SceneChangeMode(mode)
 
         clip = clip.resize.Bilinear(get_w(360, clip), 360, format=vs.YUV420P8)
         clip = mode.ensure_presence(clip)
 
         frames = clip_async_render(
             clip, None, 'Detecting scene changes...', lambda n, f: Sentinel.check(
-                n, all(get_prop(f, key, int) == 1 for key in mode.prop_keys)
+                n, all(get_prop(f, key, int) == 1 for key in mode.prop_keys)  # type: ignore
             )
         )
 
