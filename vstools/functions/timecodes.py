@@ -295,7 +295,8 @@ class Keyframes(list[int]):
 
     @classmethod
     def from_clip(
-        cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode | int = WWXD, height: int | None = 360
+        cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode | int = WWXD, height: int | None = 360,
+        **kwargs: Any
     ) -> KeyframesBoundT:
         from ..utils import get_w
 
@@ -309,7 +310,8 @@ class Keyframes(list[int]):
         aka_available = hasattr(vs.core, 'akarin')
 
         frames = clip_async_render(
-            mode.ensure_presence(clip, aka_available), None, 'Detecting scene changes...', mode.lambda_cb(aka_available)
+            mode.ensure_presence(clip, aka_available), None,
+            'Detecting scene changes...', mode.lambda_cb(aka_available), **kwargs
         )
 
         return cls(Sentinel.filter(frames), clip.num_frames)
