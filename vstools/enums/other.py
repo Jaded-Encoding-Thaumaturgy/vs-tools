@@ -274,7 +274,7 @@ class SceneChangeMode(CustomIntEnum):
         if akarin:
             keys = list(self.prop_keys)
 
-            expr = ' '.join([f'x.{k}' for k in keys]) + ('and' * (len(keys) - 1))
+            expr = ' '.join([f'x.{k}' for k in keys]) + (' and' * (len(keys) - 1))
 
             blank = clip.std.BlankClip(1, 1, vs.GRAY8, keep=True)
 
