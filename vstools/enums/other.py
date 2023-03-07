@@ -250,14 +250,25 @@ class SceneChangeMode(CustomIntEnum):
         )
 
     def ensure_presence(self, clip: vs.VideoNode, akarin: bool = False) -> vs.VideoNode:
+        from ..exceptions import CustomRuntimeError
         from ..utils import merge_clip_props
 
         stats_clip = []
 
         if self.is_SCXVID:
+            if not hasattr(vs.core, 'scxvid'):
+                raise CustomRuntimeError(
+                    'You are missing scxvid!\n\tDownload it from https://github.com/dubhater/vapoursynth-scxvid',
+                    self.ensure_presence
+                )
             stats_clip.append(clip.scxvid.Scxvid())
 
         if self.is_WWXD:
+            if not hasattr(vs.core, 'wwxd'):
+                raise CustomRuntimeError(
+                    'You are missing wwxd!\n\tDownload it from https://github.com/dubhater/vapoursynth-wwxd',
+                    self.ensure_presence
+                )
             stats_clip.append(clip.wwxd.WWXD())
 
         if akarin:
