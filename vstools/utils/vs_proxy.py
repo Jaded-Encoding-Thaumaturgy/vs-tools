@@ -437,7 +437,7 @@ class VSCoreProxy(CoreProxyBase):
             core_on_destroy_callbacks[env_id].pop(id(callback), None)
 
     def set_affinity(
-        self, threads: int | range | tuple[int, int] | list[int] | None = None,
+        self, threads: int | float | range | tuple[int, int] | list[int] | None = None,
         max_cache: int | None = None, reserve: int | Iterable[int] = 2
     ) -> None:
         """
@@ -458,7 +458,13 @@ class VSCoreProxy(CoreProxyBase):
             raise DependencyNotFoundError(self.set_affinity, e)
 
         if threads is None:
-            threads = ceil(cpu_count() * 0.6)
+            threads = 0.6
+
+        if isinstance(threads, float):
+            if 0.0 <= threads or threads >= 1.0:
+                threads = 1.0
+
+            threads = ceil(cpu_count() * threads)
 
         if isinstance(threads, int):
             threads = range(0, threads)
