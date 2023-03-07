@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
+from math import floor
 from typing import BinaryIO, Callable, overload
 
 import vapoursynth as vs
@@ -14,7 +15,7 @@ from .progress import get_render_progress
 def clip_async_render(  # type: ignore
     clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | None = None,
     callback: None = None, prefetch: int = 0, backlog: int = -1, y4m: bool = False,
-    async_requests: bool = False
+    async_requests: int | bool = False
 ) -> None:
     ...
 
@@ -23,7 +24,7 @@ def clip_async_render(  # type: ignore
 def clip_async_render(
     clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | None = None,
     callback: Callable[[int, vs.VideoFrame], T] = ..., prefetch: int = 0,
-    backlog: int = -1, y4m: bool = False, async_requests: bool = False
+    backlog: int = -1, y4m: bool = False, async_requests: int | bool = False
 ) -> list[T]:
     ...
 
@@ -31,7 +32,7 @@ def clip_async_render(
 def clip_async_render(
     clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | None = None,
     callback: Callable[[int, vs.VideoFrame], T] | None = None, prefetch: int = 0,
-    backlog: int = -1, y4m: bool | None = None, async_requests: bool = False
+    backlog: int = -1, y4m: bool | None = None, async_requests: int | bool = False
 ) -> list[T] | None:
     from .funcs import fallback
 
@@ -40,22 +41,54 @@ def clip_async_render(
     pr_update: Callable[[], None]
 
     if callback:
-        blankclip = clip.std.BlankClip(keep=True)
+        def get_callback(shift: int = 0) -> Callable[[int, vs.VideoFrame], vs.VideoFrame]:
+            if shift:
+                if outfile is None and progress is not None:
+                    def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                        result[n] = callback(n + shift, f)  # type: ignore[misc]
+                        pr_update()
+                        return f
+                else:
+                    def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                        result[n] = callback(n + shift, f)  # type: ignore[misc]
+                        return f
+            else:
+                if outfile is None and progress is not None:
+                    def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                        result[n] = callback(n, f)  # type: ignore[misc]
+                        pr_update()
+                        return f
+                else:
+                    def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                        result[n] = callback(n, f)  # type: ignore[misc]
+                        return f
 
-        if outfile is None and progress is not None:
-            def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                result[n] = callback(n, f)  # type: ignore[misc]
-                pr_update()
-                return f
-        else:
-            def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                result[n] = callback(n, f)  # type: ignore[misc]
-                return f
+            return _cb
 
-        if async_requests:
-            rend_clip = blankclip.std.FrameEval(lambda n: blankclip.std.ModifyFrame(clip, _cb))
+        if isinstance(async_requests, bool):
+            blankclip = clip.std.BlankClip(keep=True)
+
+            _cb = get_callback()
+
+            if async_requests:
+                rend_clip = blankclip.std.FrameEval(lambda n: blankclip.std.ModifyFrame(clip, _cb))
+            else:
+                rend_clip = blankclip.std.ModifyFrame(clip, _cb)
         else:
-            rend_clip = blankclip.std.ModifyFrame(clip, _cb)
+            if outfile:
+                raise CustomValueError('You cannot have and output file with multi async request!')
+
+            chunk = floor(clip.num_frames / async_requests)
+
+            blankclip = clip.std.BlankClip(length=chunk, keep=True)
+
+            rend_clip = vs.core.std.StackHorizontal([
+                blankclip.std.ModifyFrame(clip[chunk * i:chunk * (i + 1)], get_callback(chunk * i))
+                for i in range(async_requests)
+            ])
+
+            if (cl := (chunk * async_requests)) != clip.num_frames:
+                rend_clip = vs.core.std.Splice([rend_clip, clip[cl + 1:]], True)
     else:
         rend_clip = clip
 
