@@ -66,7 +66,7 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
     if planes is None or planes == 4:
         planes = list(range(clip.format.num_planes))
     else:
-        planes = to_arr(planes)
+        planes = to_arr(planes, sub=True)
 
     if pad:
         print(DeprecationWarning(
@@ -78,12 +78,26 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
     return list(sorted(set(planes).intersection(range(clip.format.num_planes))))
 
 
-def to_arr(val: T | Sequence[T]) -> list[T]:
+_iterables_t = (list, tuple, range, zip, set, map, enumerate)
+
+
+@overload
+def to_arr(val: list[T], *, sub: bool = False) -> list[T]:
+    ...
+
+
+@overload
+def to_arr(val: T | Sequence[T], *, sub: bool = False) -> list[T]:
+    ...
+
+
+def to_arr(val: T | Sequence[T], *, sub: bool = False) -> list[T]:
     """Normalize any value into an iterable."""
 
-    return list(val) if any(  # type: ignore
-        isinstance(val, x) for x in {list, tuple, range, zip, set, map, enumerate}
-    ) else [val]  # type: ignore
+    if sub:
+        return list(val) if any(isinstance(val, x) for x in _iterables_t) else [val]  # type: ignore
+
+    return list(val) if type(val) in _iterables_t else [val]  # type: ignore
 
 
 @overload
