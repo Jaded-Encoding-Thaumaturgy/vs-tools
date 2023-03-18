@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 from fractions import Fraction
 from math import floor
-from typing import Any, Callable, Sequence, TypeVar
+from typing import Any, Callable, Iterable, TypeVar
 
 import vapoursynth as vs
 
@@ -130,8 +130,12 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
     return func_float if clip.format.sample_type == vs.FLOAT else func_int
 
 
-def set_output(node: vs.RawNode | Sequence[vs.RawNode], name: str | bool = True, **kwargs: Any) -> None:
+def set_output(
+    node: vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode]]],
+    name: str | bool = True, **kwargs: Any
+) -> None:
     """Set output node with optional name, and if available, use vspreview set_output."""
+    from ..functions import flatten
 
     last_index = len(vs.get_outputs())
 
@@ -139,8 +143,8 @@ def set_output(node: vs.RawNode | Sequence[vs.RawNode], name: str | bool = True,
 
     title = 'Node'
 
-    if isinstance(node, Sequence):
-        node = list(node)
+    if isinstance(node, Iterable):
+        node = list[vs.RawNode](flatten(node))  # type: ignore
         index = ''
     else:
         index = ' ' + str(last_index)
