@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 from fractions import Fraction
 from math import floor
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Sequence, TypeVar
 
 import vapoursynth as vs
 
@@ -130,22 +130,30 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
     return func_float if clip.format.sample_type == vs.FLOAT else func_int
 
 
-def set_output(node: vs.RawNode, name: str | bool = True, **kwargs: Any) -> None:
+def set_output(node: vs.RawNode | Sequence[vs.RawNode], name: str | bool = True, **kwargs: Any) -> None:
     """Set output node with optional name, and if available, use vspreview set_output."""
 
-    index = len(vs.get_outputs())
+    last_index = len(vs.get_outputs())
 
     ref_id = str(id(node))
 
     title = 'Node'
 
-    if isinstance(node, vs.VideoNode):
+    if isinstance(node, Sequence):
+        node = list(node)
+        index = ''
+    else:
+        index = ' ' + str(last_index)
+
+    checktype = node[0] if isinstance(node, list) else node
+
+    if isinstance(checktype, vs.VideoNode):
         title = 'Clip'
-    elif isinstance(node, vs.AudioNode):
+    elif isinstance(checktype, vs.AudioNode):
         title = 'Audio'
 
     if not name or name is True:
-        name = f"{title} {index}"
+        name = f"{title}{index}"
 
         current_frame = inspect.currentframe()
 
@@ -159,9 +167,16 @@ def set_output(node: vs.RawNode, name: str | bool = True, **kwargs: Any) -> None
 
     try:
         from vspreview import set_output as vsp_set_output
-        vsp_set_output(node, name, **kwargs)
+        if isinstance(node, list):
+            for idx, n in enumerate(node, 0 if index else last_index):
+                vsp_set_output(n, f'{name} {idx}', **kwargs)
+        else:
+            vsp_set_output(node, name, **kwargs)
     except ModuleNotFoundError:
         if isinstance(name, str) and isinstance(node, vs.VideoNode):
-            node = node.std.SetFrameProp('Name', data=name.title())  # type: ignore
-
-        node.set_output(index)
+            if isinstance(node, list):
+                for idx, n in enumerate(node, 0 if index else last_index):
+                    n.std.SetFrameProp('Name', data=f'{name.title()} {idx}').set_output(last_index)
+                    last_index += 1
+            else:
+                n.std.SetFrameProp('Name', data=name.title()).set_output(last_index)
