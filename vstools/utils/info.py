@@ -222,7 +222,7 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format  # type: ignore
         aspect_ratio = ref.width / ref.height  # type: ignore
-        mod = 1 << ref.format.subsampling_w  # type: ignore
+        mod = ref.format.subsampling_w and 2 << ref.format.subsampling_w  # type: ignore
     else:
         aspect_ratio = ar_or_ref
 
@@ -268,7 +268,7 @@ def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format  # type: ignore
         aspect_ratio = ref.height / ref.width  # type: ignore
-        mod = 1 << ref.format.subsampling_h  # type: ignore
+        mod = ref.format.subsampling_h and 2 << ref.format.subsampling_h  # type: ignore
     else:
         aspect_ratio = ar_or_ref
 
