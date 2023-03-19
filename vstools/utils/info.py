@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from fractions import Fraction
 from typing import Any, overload
 
 import vapoursynth as vs
-from fractions import Fraction
 
 from ..exceptions import UnsupportedSubsamplingError
-from ..functions import depth, disallow_variable_format
+from ..functions import depth, disallow_variable_format, fallback
 from ..types import HoldsVideoFormatT, VideoFormatT
 from .math import mod_x
 
@@ -197,7 +197,7 @@ def get_w(height: float, ar: float = 16 / 9, /, mod: int = 2) -> int:
 
 
 @overload
-def get_w(height: float, ref: vs.VideoNode | vs.VideoFrame, /) -> int:
+def get_w(height: float, ref: vs.VideoNode | vs.VideoFrame, /, mod: int | None = None) -> int:
     ...
 
 
@@ -222,7 +222,7 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format  # type: ignore
         aspect_ratio = ref.width / ref.height  # type: ignore
-        mod = ref.format.subsampling_w and 2 << ref.format.subsampling_w  # type: ignore
+        mod = fallback(mod, ref.format.subsampling_w and 2 << ref.format.subsampling_w)  # type: ignore
     else:
         aspect_ratio = ar_or_ref
 
@@ -243,7 +243,7 @@ def get_h(width: float, ar: float = 16 / 9, /, mod: int = 2) -> int:
 
 
 @overload
-def get_h(width: float, ref: vs.VideoNode | vs.VideoFrame, /) -> int:
+def get_h(width: float, ref: vs.VideoNode | vs.VideoFrame, /, mod: int | None = None) -> int:
     ...
 
 
@@ -268,7 +268,7 @@ def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
         assert (ref := ar_or_ref).format  # type: ignore
         aspect_ratio = ref.height / ref.width  # type: ignore
-        mod = ref.format.subsampling_h and 2 << ref.format.subsampling_h  # type: ignore
+        mod = fallback(mod, ref.format.subsampling_h and 2 << ref.format.subsampling_h)  # type: ignore
     else:
         aspect_ratio = ar_or_ref
 
