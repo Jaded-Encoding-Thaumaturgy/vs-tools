@@ -105,6 +105,7 @@ def initialize_clip(
     primaries: PrimariesT | None = None,
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     strict: bool = False, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """
@@ -122,6 +123,7 @@ def initialize_clip(
                             If no props are set, guess from the video resolution.
     :param color_range:     ColorRange prop to set. If None, tries to get the ColorRange from existing props.
                             If no props are set, assume Limited Range.
+    :param field_based:     FieldBased prop to set. If None, tries to get the FieldBased from existing props.
     :param strict:          Whether to be strict about existing properties.
                             If True, throws an exception if certain frame properties are not found.
     :param func:            Optional function this was called from.
@@ -132,11 +134,12 @@ def initialize_clip(
     func = fallback(func, initialize_clip)  # type: ignore
 
     values: list[tuple[type[PropEnum], Any]] = [
-        (Matrix, Matrix.from_param(matrix, func) or Matrix(clip)),
-        (Transfer, Transfer.from_param(transfer, func) or Transfer(clip)),
-        (Primaries, Primaries.from_param(primaries, func) or Primaries(clip)),
-        (ChromaLocation, ChromaLocation.from_param(chroma_location, func) or ChromaLocation(clip)),
-        (ColorRange, ColorRange.from_param(color_range, func) or ColorRange.LIMITED)
+        (Matrix, Matrix.from_param(matrix, func) or Matrix.from_video(clip)),
+        (Transfer, Transfer.from_param(transfer, func) or Transfer.from_video(clip)),
+        (Primaries, Primaries.from_param(primaries, func) or Primaries.from_video(clip)),
+        (ChromaLocation, ChromaLocation.from_param(chroma_location, func) or ChromaLocation.from_video(clip)),
+        (ColorRange, ColorRange.from_param(color_range, func) or ColorRange.from_video(clip)),
+        (FieldBased, FieldBased.from_param(field_based, func) or FieldBased.from_video(clip))
     ]
 
     clip = PropEnum.ensure_presences(clip, [
@@ -158,6 +161,7 @@ def initialize_input(
     primaries: PrimariesT | None = None,
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD]:
     ...
@@ -171,6 +175,7 @@ def initialize_input(
     primaries: PrimariesT | None = None,
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     strict: bool = False, func: FuncExceptT | None = None
 ) -> F_VD:
     ...
@@ -183,6 +188,7 @@ def initialize_input(
     primaries: PrimariesT | None = None,
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     strict: bool = False, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     """
@@ -199,12 +205,8 @@ def initialize_input(
         )
 
     init_args = dict[str, Any](
-        bits=bits,
-        matrix=matrix,
-        transfer=transfer,
-        primaries=primaries,
-        chroma_location=chroma_location,
-        color_range=color_range,
+        bits=bits, matrix=matrix, transfer=transfer, primaries=primaries,
+        chroma_location=chroma_location, color_range=color_range, field_based=field_based,
         strict=strict, func=func
     )
 
