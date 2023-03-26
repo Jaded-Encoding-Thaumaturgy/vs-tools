@@ -9,7 +9,7 @@ from ..exceptions import (
     UndefinedTransferError, UnsupportedColorRangeError, UnsupportedMatrixError, UnsupportedPrimariesError,
     UnsupportedTransferError
 )
-from ..types import MISSING, FuncExceptT, classproperty
+from ..types import FuncExceptT, classproperty
 from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
