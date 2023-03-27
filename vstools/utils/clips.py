@@ -134,12 +134,12 @@ def initialize_clip(
     func = fallback(func, initialize_clip)  # type: ignore
 
     values: list[tuple[type[PropEnum], Any]] = [
-        (Matrix, Matrix.from_param(matrix, func) or Matrix.from_video(clip)),
-        (Transfer, Transfer.from_param(transfer, func) or Transfer.from_video(clip)),
-        (Primaries, Primaries.from_param(primaries, func) or Primaries.from_video(clip)),
-        (ChromaLocation, ChromaLocation.from_param(chroma_location, func) or ChromaLocation.from_video(clip)),
-        (ColorRange, ColorRange.from_param(color_range, func) or ColorRange.from_video(clip)),
-        (FieldBased, FieldBased.from_param(field_based, func) or FieldBased.from_video(clip))
+        (Matrix, matrix),
+        (Transfer, transfer),
+        (Primaries, primaries),
+        (ChromaLocation, chroma_location),
+        (ColorRange, color_range),
+        (FieldBased, field_based)
     ]
 
     clip = PropEnum.ensure_presences(clip, [
@@ -195,20 +195,15 @@ def initialize_input(
     Decorator implementation of ``initialize_clip``
     """
 
-    if function is None:
-        return cast(
-            Callable[[F_VD], F_VD],
-            partial(
-                initialize_input, bits=bits, matrix=matrix, transfer=transfer,
-                primaries=primaries, field_based=field_based, strict=strict, func=func
-            )
-        )
-
     init_args = dict[str, Any](
-        bits=bits, matrix=matrix, transfer=transfer, primaries=primaries,
-        chroma_location=chroma_location, color_range=color_range, field_based=field_based,
-        strict=strict, func=func
+        bits=bits,
+        matrix=matrix, transfer=transfer, primaries=primaries,
+        chroma_location=chroma_location, color_range=color_range,
+        field_based=field_based, strict=strict, func=func
     )
+
+    if function is None:
+        return cast(Callable[[F_VD], F_VD], partial(initialize_input, **init_args))
 
     @wraps(function)
     def _wrapper(*args: Any, **kwargs: Any) -> vs.VideoNode:
