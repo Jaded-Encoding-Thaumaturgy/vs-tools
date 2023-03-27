@@ -6,9 +6,10 @@ import vapoursynth as vs
 
 from ..exceptions import (
     ReservedMatrixError, ReservedPrimariesError, ReservedTransferError, UndefinedMatrixError, UndefinedPrimariesError,
-    UndefinedTransferError, UnsupportedMatrixError, UnsupportedPrimariesError, UnsupportedTransferError
+    UndefinedTransferError, UnsupportedColorRangeError, UnsupportedMatrixError, UnsupportedPrimariesError,
+    UnsupportedTransferError
 )
-from ..types import MISSING, FuncExceptT, classproperty
+from ..types import FuncExceptT, classproperty
 from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
@@ -984,6 +985,12 @@ class ColorRange(_ColorRangeMeta):
     """
 
     @classmethod
+    def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ColorRange:
+        """Guess the color range from the frame resolution."""
+
+        return cls.LIMITED
+
+    @classmethod
     def from_video(
         cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
     ) -> ColorRange:
@@ -997,9 +1004,7 @@ class ColorRange(_ColorRangeMeta):
         :return:                            ColorRange object.
         """
 
-        from ..utils import get_prop
-
-        return get_prop(src, '_ColorRange', int, ColorRange, MISSING if strict else ColorRange.LIMITED)
+        return _base_from_video(cls, src, UnsupportedColorRangeError, strict, func)
 
     @property
     def value_vs(self) -> int:

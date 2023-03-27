@@ -100,15 +100,36 @@ def finalize_output(
 
 def initialize_clip(
     clip: vs.VideoNode, bits: int | None = 16,
-    matrix: MatrixT | None = Matrix.BT709,
-    transfer: TransferT | None = Transfer.BT709,
-    primaries: PrimariesT | None = Primaries.BT709,
-    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
-    color_range: ColorRangeT | None = ColorRange.LIMITED,
-    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    matrix: MatrixT | None = None,
+    transfer: TransferT | None = None,
+    primaries: PrimariesT | None = None,
+    chroma_location: ChromaLocationT | None = None,
+    color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     strict: bool = False, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
-    """Initialize a clip with default props."""
+    """
+    Initialize a clip with default props.
+
+    :param clip:            Clip to initialize.
+    :param bits:            Bits to dither to. If None, no dithering is applied.
+    :param matrix:          Matrix property to set. If None, tries to get the Matrix from existing props.
+                            If no props are set or Matrix=2, guess from the video resolution.
+    :param transfer:        Transfer property to set. If None, tries to get the Transfer from existing props.
+                            If no props are set or Transfer=2, guess from the video resolution.
+    :param primaries:       Primaries property to set. If None, tries to get the Primaries from existing props.
+                            If no props are set or Primaries=2, guess from the video resolution.
+    :param chroma_location: ChromaLocation prop to set. If None, tries to get the ChromaLocation from existing props.
+                            If no props are set, guess from the video resolution.
+    :param color_range:     ColorRange prop to set. If None, tries to get the ColorRange from existing props.
+                            If no props are set, assume Limited Range.
+    :param field_based:     FieldBased prop to set. If None, tries to get the FieldBased from existing props.
+    :param strict:          Whether to be strict about existing properties.
+                            If True, throws an exception if certain frame properties are not found.
+    :param func:            Optional function this was called from.
+
+    :return:                Clip with relevant frame properties set, and optionally dithered up to 16 bits.
+    """
 
     func = fallback(func, initialize_clip)  # type: ignore
 
@@ -135,12 +156,12 @@ def initialize_clip(
 @overload
 def initialize_input(
     function: None = None, /, *, bits: int | None = 16,
-    matrix: MatrixT | None = Matrix.BT709,
-    transfer: TransferT | None = Transfer.BT709,
-    primaries: PrimariesT | None = Primaries.BT709,
-    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
-    color_range: ColorRangeT | None = ColorRange.LIMITED,
-    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    matrix: MatrixT | None = None,
+    transfer: TransferT | None = None,
+    primaries: PrimariesT | None = None,
+    chroma_location: ChromaLocationT | None = None,
+    color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD]:
     ...
@@ -149,12 +170,12 @@ def initialize_input(
 @overload
 def initialize_input(
     function: F_VD, /, *, bits: int | None = 16,
-    matrix: MatrixT | None = Matrix.BT709,
-    transfer: TransferT | None = Transfer.BT709,
-    primaries: PrimariesT | None = Primaries.BT709,
-    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
-    color_range: ColorRangeT | None = ColorRange.LIMITED,
-    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    matrix: MatrixT | None = None,
+    transfer: TransferT | None = None,
+    primaries: PrimariesT | None = None,
+    chroma_location: ChromaLocationT | None = None,
+    color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     strict: bool = False, func: FuncExceptT | None = None
 ) -> F_VD:
     ...
@@ -162,33 +183,27 @@ def initialize_input(
 
 def initialize_input(
     function: F_VD | None = None, /, *, bits: int | None = 16,
-    matrix: MatrixT | None = Matrix.BT709,
-    transfer: TransferT | None = Transfer.BT709,
-    primaries: PrimariesT | None = Primaries.BT709,
-    chroma_location: ChromaLocationT | None = ChromaLocation.LEFT,
-    color_range: ColorRangeT | None = ColorRange.LIMITED,
-    field_based: FieldBasedT | None = FieldBased.PROGRESSIVE,
+    matrix: MatrixT | None = None,
+    transfer: TransferT | None = None,
+    primaries: PrimariesT | None = None,
+    chroma_location: ChromaLocationT | None = None,
+    color_range: ColorRangeT | None = None,
+    field_based: FieldBasedT | None = None,
     strict: bool = False, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     """
     Decorator implementation of ``initialize_clip``
     """
 
-    if function is None:
-        return cast(
-            Callable[[F_VD], F_VD],
-            partial(
-                initialize_input, bits=bits, matrix=matrix, transfer=transfer,
-                primaries=primaries, field_based=field_based, strict=strict, func=func
-            )
-        )
-
     init_args = dict[str, Any](
         bits=bits,
         matrix=matrix, transfer=transfer, primaries=primaries,
         chroma_location=chroma_location, color_range=color_range,
-        strict=strict, func=func
+        field_based=field_based, strict=strict, func=func
     )
+
+    if function is None:
+        return cast(Callable[[F_VD], F_VD], partial(initialize_input, **init_args))
 
     @wraps(function)
     def _wrapper(*args: Any, **kwargs: Any) -> vs.VideoNode:
