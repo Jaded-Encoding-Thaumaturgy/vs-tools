@@ -60,6 +60,8 @@ def clip_async_render(
             async_conf = False
         else:
             async_conf = AsyncRenderConf(async_requests)
+    else:
+        async_conf = async_requests
 
     if async_conf and async_conf.one_pix_frame and y4m:
         raise CustomValueError('You cannot have y4m=True and one_pix_frame in AsyncRenderConf!')
@@ -71,12 +73,14 @@ def clip_async_render(
             if shift:
                 if outfile is None and progress is not None:
                     def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                        result[n] = callback(n + shift, f)  # type: ignore[misc]
+                        n += shift
+                        result[n] = callback(n, f)  # type: ignore[misc]
                         pr_update()
                         return f
                 else:
                     def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                        result[n] = callback(n + shift, f)  # type: ignore[misc]
+                        n += shift
+                        result[n] = callback(n, f)  # type: ignore[misc]
                         return f
             else:
                 if outfile is None and progress is not None:
@@ -112,26 +116,32 @@ def clip_async_render(
 
             blankclip = clip.std.BlankClip(length=chunk, keep=True)
 
-            if async_conf.parallel_input:
+            stack = async_conf.parallel_input and not async_conf.one_pix_frame
+
+            if stack:
                 rend_clip = vs.core.std.StackHorizontal([
                     blankclip.std.ModifyFrame(clip[chunk * i:chunk * (i + 1)], get_callback(chunk * i))
                     for i in range(async_conf.n)
                 ])
             else:
-                callbacks = [get_callback(i) for i in range(async_conf.n)]
+                _cb = get_callback()
+
+                clip_indices = list(range(cl))
+                range_indices = list(range(async_conf.n))
+
+                indices = [clip_indices[i::async_conf.n] for i in range_indices]
 
                 def _var(n: int, f: list[vs.VideoFrame]) -> vs.VideoFrame:
-                    for fi, cb in zip(f, callbacks):
-                        cb(n, fi)
+                    for i, fi in zip(range_indices, f):
+                        _cb(indices[i][n], fi)
 
                     return f[0]
 
-                rend_clip = blankclip.std.ModifyFrame([
-                    clip[i::async_conf.n] for i in range(async_conf.n)
-                ], _var)
+                rend_clip = blankclip.std.ModifyFrame([clip[i::async_conf.n] for i in range_indices], _var)
 
             if cl != clip.num_frames:
-                rend_clip = vs.core.std.Splice([rend_clip, clip[cl + 1:]], True)
+                rend_rest = blankclip[:clip.num_frames - cl].std.ModifyFrame(clip[cl:], get_callback(cl))
+                rend_clip = vs.core.std.Splice([rend_clip, rend_rest], stack)
     else:
         rend_clip = clip
 
@@ -171,7 +181,7 @@ def clip_async_render(
 
     if callback:
         try:
-            return [result[i] for i in range(rend_clip.num_frames)]
+            return [result[i] for i in range(clip.num_frames)]
         except KeyError:
             raise CustomRuntimeError('There was an error with the rendering and one frame request was rejected!')
 
