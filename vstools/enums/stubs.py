@@ -95,6 +95,10 @@ class PropEnum(CustomIntEnum):
 
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
 
+    def apply(self: SelfPropEnum, clip: vs.VideoNode) -> vs.VideoNode:
+        """Applies the property in the VideoNode."""
+        return clip.std.SetFrameProp(self.prop_key, self.value)
+
     @staticmethod
     def ensure_presences(
         clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
