@@ -20,14 +20,13 @@ __all__ = [
 
 def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool = False) -> float:
     """
-    Scale to an 8-bit value.
+    Scale from an 8-bit value.
 
     :param clip:        Input clip, frame, or value representing a bitdepth.
     :param value:       Value to scale.
-    :param chroma:      Values are chroma ranges, and must be converted as such.
-                        Default: False.
+    :param chroma:      Values are chroma ranges, and must be converted as such. Default: False.
 
-    :return:            Value scaled to 8-bit.
+    :return:            Value scaled to the clip's bit-depth.
     """
 
     fmt = get_video_format(clip)
