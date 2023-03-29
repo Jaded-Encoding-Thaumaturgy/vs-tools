@@ -79,12 +79,18 @@ def replace_ranges(
 
     nranges = normalize_ranges(clip_b, ranges)
 
-    if use_plugin and hasattr(vs.core, 'remap'):
+    if use_plugin:
         try:
-            return vs.core.remap.ReplaceFramesSimple(  # type: ignore
-                clip_a, clip_b, mismatch=mismatch,
-                mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in nranges)
-            )
+            if hasattr(vs.core, 'julek'):
+                return vs.core.julek.RFS(  # type: ignore
+                    clip_a, clip_b, [y for (s, e) in nranges for y in range(s, e + (exclusive if s != e else 1))],
+                    mismatch=mismatch
+                )
+            elif hasattr(vs.core, 'remap'):
+                return vs.core.remap.ReplaceFramesSimple(  # type: ignore
+                    clip_a, clip_b, mismatch=mismatch,
+                    mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in nranges)
+                )
         except vs.Error as e:
             msg = str(e).replace('vapoursynth.Error: ReplaceFramesSimple: ', '')
 
