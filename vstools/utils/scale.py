@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Sequence
+
+from typing import Literal, Sequence, overload
 
 import vapoursynth as vs
 
@@ -80,6 +81,45 @@ def scale_thresh(
         return round(thresh / (get_peak_value(assume) * peak))
 
     return round(thresh * peak)
+
+
+@overload
+def scale_value(  # type: ignore
+    value: int | float,
+    input_depth: int | VideoFormatT | HoldsVideoFormatT,
+    output_depth: Literal[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+    range_in: ColorRangeT = ColorRange.LIMITED,
+    range_out: ColorRangeT | None = None,
+    scale_offsets: bool = False,
+    chroma: bool = False
+) -> int:
+    ...
+
+
+@overload
+def scale_value(
+    value: int | float,
+    input_depth: int | VideoFormatT | HoldsVideoFormatT,
+    output_depth: Literal[32],
+    range_in: ColorRangeT = ColorRange.LIMITED,
+    range_out: ColorRangeT | None = None,
+    scale_offsets: bool = False,
+    chroma: bool = False
+) -> float:
+    ...
+
+
+@overload
+def scale_value(
+    value: int | float,
+    input_depth: int | VideoFormatT | HoldsVideoFormatT,
+    output_depth: int | VideoFormatT | HoldsVideoFormatT,
+    range_in: ColorRangeT = ColorRange.LIMITED,
+    range_out: ColorRangeT | None = None,
+    scale_offsets: bool = False,
+    chroma: bool = False
+) -> float:
+    ...
 
 
 def scale_value(
