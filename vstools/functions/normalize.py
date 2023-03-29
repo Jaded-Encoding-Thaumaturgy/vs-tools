@@ -12,6 +12,7 @@ __all__ = [
     'normalize_planes',
     'to_arr',
     'flatten', 'flatten_vnodes',
+    'normalize_list_to_ranges',
     'normalize_franges',
     'normalize_ranges',
     'norm_func_name', 'norm_display_name'
@@ -165,6 +166,33 @@ def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
     return franges
 
 
+def normalize_list_to_ranges(flist: list[int], min_length: int = 0) -> list[tuple[int, int]]:
+    flist2 = list[list[int]]()
+    flist3 = list[int]()
+
+    prev_n = -1
+
+    for n in sorted(set(flist)):
+        if prev_n + 1 != n:
+            if flist3:
+                flist2.append(flist3)
+                flist3 = []
+        flist3.append(n)
+        prev_n = n
+
+    if flist3:
+        flist2.append(flist3)
+
+    flist4 = [i for i in flist2 if len(i) > min_length]
+
+    last_idx = len(flist4) - 1
+
+    return list(zip(
+        [i[0] for i in flist4],
+        [i[-1 if j == last_idx else -2] for j, i in enumerate(flist4)]
+    ))
+
+
 def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> list[tuple[int, int]]:
     """
     Normalize ranges to a list of positive ranges.
@@ -184,6 +212,8 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
         [(0, 1000)]
         >>> normalize_ranges(clip, (24, -24))
         [(24, 976)]
+        >>> normalize_ranges(clip, [(24, 100), (80, 150)])
+        [(24, 150)]
 
 
     :param clip:        Input clip.
@@ -218,7 +248,9 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
         out.append((start, end))
 
-    return out
+    return normalize_list_to_ranges([
+        x for start, end in out for x in range(start, end + 1)
+    ])
 
 
 def norm_func_name(func_name: SupportsString | F) -> str:
