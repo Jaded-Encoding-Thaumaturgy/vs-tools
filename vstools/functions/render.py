@@ -61,7 +61,7 @@ def clip_async_render(
         else:
             async_conf = AsyncRenderConf(async_requests)
     else:
-        async_conf = async_requests
+        async_conf = False if async_requests.n <= 1 else async_requests
 
     if async_conf and async_conf.one_pix_frame and y4m:
         raise CustomValueError('You cannot have y4m=True and one_pix_frame in AsyncRenderConf!')
