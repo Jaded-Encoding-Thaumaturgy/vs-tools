@@ -156,7 +156,7 @@ def set_output(
     elif isinstance(checktype, vs.AudioNode):
         title = 'Audio'
 
-    if not name or name is True:
+    if (not name and name is not False) or name is True:
         name = f"{title}{index}"
 
         current_frame = inspect.currentframe()
@@ -173,7 +173,7 @@ def set_output(
         from vspreview import set_output as vsp_set_output
         if isinstance(node, list):
             for idx, n in enumerate(node, 0 if index else last_index):
-                vsp_set_output(n, f'{name} {idx}', **kwargs)
+                vsp_set_output(n, name and f'{name} {idx}', **kwargs)
         else:
             vsp_set_output(node, name, **kwargs)
     except ModuleNotFoundError:
