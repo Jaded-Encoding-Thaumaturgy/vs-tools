@@ -166,7 +166,7 @@ def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
     return franges
 
 
-def normalize_list_to_ranges(flist: list[int], min_length: int = 0) -> list[tuple[int, int]]:
+def normalize_list_to_ranges(flist: Sequence[int], min_length: int = 0) -> list[tuple[int, int]]:
     flist2 = list[list[int]]()
     flist3 = list[int]()
 
