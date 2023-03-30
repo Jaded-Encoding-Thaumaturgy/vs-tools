@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import operator
 from collections import deque
 from dataclasses import dataclass
 from math import floor
@@ -8,13 +9,18 @@ from typing import BinaryIO, Callable, Literal, overload
 import vapoursynth as vs
 
 from ..exceptions import CustomRuntimeError, CustomValueError, InvalidColorFamilyError
-from ..types import T
+from ..types import Sentinel, T
+from ..types.funcs import SentinelDispatcher
+from .normalize import normalize_list_to_ranges
 from .progress import get_render_progress
 
 __all__ = [
     'AsyncRenderConf',
 
-    'clip_async_render'
+    'clip_async_render',
+    'clip_data_gather',
+
+    'find_prop'
 ]
 
 
@@ -186,3 +192,83 @@ def clip_async_render(
             raise CustomRuntimeError('There was an error with the rendering and one frame request was rejected!')
 
     return None
+
+
+def clip_data_gather(
+    clip: vs.VideoNode, progress: str | None,
+    callback: Callable[[int, vs.VideoFrame], SentinelDispatcher | T],
+    async_requests: int | bool | AsyncRenderConf = False, prefetch: int = 0, backlog: int = -1
+) -> list[T]:
+    frames = clip_async_render(clip, None, progress, callback, prefetch, backlog, False, async_requests)
+
+    return list(Sentinel.filter(frames))
+
+
+_operators = {
+    "<": operator.lt,
+    "<=": operator.le,
+    "==": operator.eq,
+    "!=": operator.ne,
+    ">": operator.gt,
+    ">=": operator.ge,
+}
+
+
+@overload
+def find_prop(  # type: ignore
+    src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
+    range_length: Literal[0], async_requests: int = 1
+) -> list[int]:
+    ...
+
+
+@overload
+def find_prop(
+    src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
+    range_length: int, async_requests: int = 1
+) -> list[tuple[int, int]]:
+    ...
+
+
+def find_prop(
+    src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
+    range_length: int, async_requests: int = 1
+) -> list[int] | list[tuple[int, int]]:
+    """
+    :param src:             Input clip.
+    :param prop:            Frame prop to be used.
+    :param op:              Conditional operator to apply between prop and ref ("<", "<=", "==", "!=", ">" or ">=").
+    :param ref:             Value to be compared with prop.
+    :param name:            Output file name.
+    :param range_length:    Amount of frames to finish a sequence, to avoid false negatives.
+                            This will create ranges with a sequence of start-end tuples.
+
+    :return:                Frame ranges at the specified conditions.
+    """
+
+    bool_check = isinstance(ref, bool)
+    one_pix = hasattr(vs.core, 'akarin') and not callable(op)
+    assert (op is None) if bool_check else (op is not None)
+
+    callback: Callable[[int, vs.VideoFrame], SentinelDispatcher | int]
+    if one_pix:
+        src = vs.core.std.BlankClip(
+            None, 1, 1, vs.GRAY8 if bool_check else vs.GRAYS, length=src.num_frames
+        ).std.CopyFrameProps(src).akarin.Expr(
+            f'x.{prop}' if bool_check else f'x.{prop} {ref} {op}'
+        )
+        # no-fmt
+        callback = lambda n, f: Sentinel.check(n, not not f[0][0, 0])  # noqa
+    else:
+        _op = _operators[op] if isinstance(op, str) else op
+        # no-fmt
+        callback = lambda n, f: Sentinel.check(n, _op(f.props[prop], ref))  # type: ignore  # noqa
+
+    aconf = AsyncRenderConf(async_requests, one_pix, False)
+
+    frames = clip_data_gather(src, f'Searching {prop} {op} {ref}...', callback, aconf)
+
+    if range_length > 0:
+        return normalize_list_to_ranges(frames, range_length)
+
+    return frames
