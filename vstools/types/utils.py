@@ -105,23 +105,40 @@ class inject_self_base(Generic[T, P, R]):
         :param cache:       Whether to cache the self object.
         """
 
-        self.function = function
+        self.cache = self.init_kwargs = None
+
         if isinstance(self, inject_self.cached):
             self.cache = True
-        else:
-            self.cache = cache
+
+        self.function = function
+
+        self.signature = self.first_key = self.init_kwargs = None
+
         self.args = tuple[Any]()
         self.kwargs = dict[str, Any]()
+
+        self.clean_kwargs = False
 
     def __get__(
         self, class_obj: type[T] | T | None, class_type: type[T] | type[type[T]]  # type: ignore
     ) -> injected_self_func[T, P, R]:
-        signature = Signature.from_callable(self.function, follow_wrapped=True, eval_str=True)
-        first_key = next(iter(list(signature.parameters.keys())), None)
+        if not self.signature or not self.first_key:
+            self.signature = Signature.from_callable(self.function, follow_wrapped=True, eval_str=True)
+            self.first_key = next(iter(list(self.signature.parameters.keys())), None)
+
+            if isinstance(self, inject_self.init_kwargs):
+                from ..exceptions import CustomValueError
+
+                if 4 not in {x.kind for x in self.signature.parameters.values()}:
+                    raise CustomValueError(
+                        'This function hasn\'t got any kwargs!', 'inject_self.init_kwargs', self.function
+                    )
+
+                self.init_kwargs = list[str](k for k, x in self.signature.parameters.items() if x.kind != 4)
 
         @wraps(self.function)
         def _wrapper(*args: Any, **kwargs: Any) -> Any:
-            first_arg = (args[0] if args else None) or (kwargs.get(first_key, None) if first_key else None)
+            first_arg = (args[0] if args else None) or (kwargs.get(self.first_key, None) if self.first_key else None)
 
             if (
                 first_arg and (
@@ -133,14 +150,20 @@ class inject_self_base(Generic[T, P, R]):
                 obj = first_arg if is_obj else first_arg()
                 if args:
                     args = args[1:]
-                elif kwargs and first_key:
-                    kwargs.pop(first_key)
+                elif kwargs and self.first_key:
+                    kwargs.pop(self.first_key)
             elif class_obj is None:
                 if self.cache:
                     if class_type not in self_objects_cache:
                         obj = self_objects_cache[class_type] = class_type(*self.args, **self.kwargs)
                     else:
                         obj = self_objects_cache[class_type]
+                elif self.init_kwargs:
+                    obj = class_type(
+                        *self.args, **(self.kwargs | {k: v for k, v in kwargs.items() if k not in self.init_kwargs})
+                    )
+                    if self.clean_kwargs:
+                        kwargs = {k: v for k, v in kwargs.items() if k in self.init_kwargs}
                 else:
                     obj = class_type(*self.args, **self.kwargs)
             else:
@@ -172,6 +195,19 @@ class inject_self(Generic[T, P, R], inject_self_base[T, P, R]):  # type: ignore
         Wrap a method so it always has a constructed ``self`` provided to it.
         Once ``self`` is constructed, it will be reused.
         """
+
+    class init_kwargs(Generic[T0, P0, R0], inject_self_base[T0, P0, R0]):  # type: ignore
+        """
+        Wrap a method so it always has a constructed ``self`` provided to it.
+        When contructed, kwargs to the function will be passed to the constructor.
+        """
+
+        @classmethod
+        def clean(cls, function: Callable[Concatenate[T0, P0], R0]) -> inject_self[T0, P0, R0]:
+            """Wrap a method, pass kwargs to the constructor and remove them from actual **kwargs."""
+            inj = cls(function)  # type: ignore
+            inj.clean_kwargs = True
+            return inj  # type: ignore
 
 
 class complex_hash(Generic[T]):
