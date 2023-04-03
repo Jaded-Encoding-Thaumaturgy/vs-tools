@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import string
-from typing import Any, Literal, Mapping, Sequence, cast, overload
+from typing import Any, Iterable, Literal, Mapping, cast, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
 from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
-from ..types import HoldsVideoFormatT, VideoFormatT, PlanesT
+from ..types import HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import disallow_variable_format
 
 __all__ = [
@@ -479,7 +479,7 @@ def join(*planes: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.Vide
 
 
 @overload
-def join(planes: Sequence[vs.VideoNode], family: vs.ColorFamily | None = None) -> vs.VideoNode:
+def join(planes: Iterable[vs.VideoNode], family: vs.ColorFamily | None = None) -> vs.VideoNode:
     """
     Join a list of planes together to form a single clip.
 
@@ -505,8 +505,8 @@ def join(planes: Mapping[PlanesT, vs.VideoNode | None], family: vs.ColorFamily |
 
 
 def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
-    from ..utils import get_color_family, get_video_format
     from ..functions import flatten_vnodes, to_arr
+    from ..utils import get_color_family, get_video_format
 
     family: vs.ColorFamily | None = kwargs.get('family', None)
 
@@ -528,7 +528,9 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
 
         return join(*(planes_map[i] for i in sorted(planes_map.keys())))
 
-    planes = list[vs.VideoNode](_planes[0] if isinstance(_planes[0], Sequence) else _planes)
+    planes = list[vs.VideoNode](_planes[0] if (
+        isinstance(_planes[0], Iterable) and not isinstance(_planes[0], vs.VideoNode)
+    ) else _planes)
 
     n_clips = len(planes)
 
