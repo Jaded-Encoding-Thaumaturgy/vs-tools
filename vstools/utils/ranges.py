@@ -49,7 +49,9 @@ def replace_ranges(
     Alias for this function is ``rfs``.
 
     Optional Dependencies:
-        * `use_plugin=True`: `VSRemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
+        * `use_plugin=True`: Either of the following two plugins:
+            * `VS Julek Plugin <https://github.com/dnjulek/vapoursynth-julek-plugin>`_
+            * `VSRemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
 
     :param clip_a:      Original clip.
     :param clip_b:      Replacement clip.
