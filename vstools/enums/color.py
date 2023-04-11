@@ -781,12 +781,12 @@ class Primaries(_PrimariesMeta):
 
         fmt, width, height = get_var_infos(frame)
 
-        # Some color primaries are expected to have a certain associated matrix
+        # Some matrices are expected to have a certain associated set of primaries
         # regardless of resolution
-        primaries = Matrix.from_video(frame)
-        matrix = Primaries.from_matrix(primaries)
-        if matrix != Matrix.UNKNOWN:
-            return matrix
+        matrix = Matrix.from_video(frame)
+        primaries = Primaries.from_matrix(matrix)
+        if primaries != Matrix.UNKNOWN:
+            return primaries
 
         if fmt.color_family == vs.RGB:
             return Primaries.BT709
