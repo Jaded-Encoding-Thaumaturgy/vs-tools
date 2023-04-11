@@ -212,16 +212,10 @@ class Matrix(_MatrixMeta):
         if fmt.color_family == vs.RGB:
             return Matrix.RGB
 
-        if width <= 1024 and height <= 576:
-            if height == 576:
-                return Matrix.BT470BG
-
-            return Matrix.SMPTE170M
-
-        if width <= 2048 and height <= 1536:
+        if width >= 1280 or height > 576:
             return Matrix.BT709
 
-        return Matrix.BT2020NC
+        return Matrix.BT601
 
     @classmethod
     def from_video(
@@ -466,21 +460,12 @@ class Transfer(_TransferMeta):
 
         from ..utils import get_var_infos
 
-        fmt, width, height = get_var_infos(frame)
+        fmt = get_var_infos(frame)
 
         if fmt.color_family == vs.RGB:
             return Transfer.SRGB
 
-        if width <= 1024 and height <= 576:
-            if height == 576:
-                return Transfer.BT470BG
-
-            return Transfer.BT601
-
-        if width <= 2048 and height <= 1536:
-            return Transfer.BT709
-
-        return Transfer.ST2084
+        return Transfer.BT709
 
     @classmethod
     def from_video(
@@ -794,21 +779,25 @@ class Primaries(_PrimariesMeta):
 
         from ..utils import get_var_infos
 
-        fmt, w, h = get_var_infos(frame)
+        fmt, width, height = get_var_infos(frame)
+
+        # Some color primaries are expected to have a certain associated matrix
+        # regardless of resolution
+        primaries = Matrix.from_video(frame)
+        matrix = Primaries.from_matrix(primaries)
+        if matrix != Matrix.UNKNOWN:
+            return matrix
 
         if fmt.color_family == vs.RGB:
             return Primaries.BT709
 
-        if w <= 1024 and h <= 576:
-            if h == 576:
-                return Primaries.BT470BG
-
-            return Primaries.ST170M
-
-        if w <= 2048 and h <= 1536:
+        if width >= 1280 or height > 576:
             return Primaries.BT709
-
-        return Primaries.BT2020
+        if height == 576:
+            return Primaries.BT470BG
+        if height == 480 or height == 488:
+            return Primaries.ST170M
+        return Primaries.BT709
 
     @classmethod
     def from_video(
@@ -1047,7 +1036,11 @@ _matrix_transfer_map = {
 
 _primaries_transfer_map: dict[Primaries, Transfer] = {}
 
-_matrix_primaries_map: dict[Matrix, Primaries] = {}
+_matrix_primaries_map: dict[Matrix, Primaries] = {
+    Matrix.BT2020NC: Primaries.BT2020,
+    Matrix.BT2020C: Primaries.BT2020,
+    Matrix.BT709: Primaries.BT709
+}
 
 _transfer_primaries_map: dict[Transfer, Primaries] = {}
 
