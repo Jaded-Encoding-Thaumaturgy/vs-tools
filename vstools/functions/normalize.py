@@ -185,11 +185,9 @@ def normalize_list_to_ranges(flist: Sequence[int], min_length: int = 0) -> list[
 
     flist4 = [i for i in flist2 if len(i) > min_length]
 
-    last_idx = len(flist4) - 1
-
     return list(zip(
         [i[0] for i in flist4],
-        [i[-1 if j == last_idx else -2] for j, i in enumerate(flist4)]
+        [i[-1] for j, i in enumerate(flist4)]
     ))
 
 
