@@ -39,6 +39,9 @@ def cround(x: float, *, eps: float = 1e-6) -> int:
 def mod_x(val: int | float, x: int) -> int:
     """Force a value to be divisible by x (val % x == 0)."""
 
+    if x == 0:
+        return cround(val)
+
     return cround(val / x) * x
 
 
