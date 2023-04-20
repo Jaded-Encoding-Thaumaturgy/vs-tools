@@ -43,15 +43,11 @@ def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
 
     factor = (dest_num / dest_den) * (src_den / src_num)
 
-    def _frame_adjuster(n: int) -> vs.VideoNode:
-        original = floor(n / factor)
-        return clip[original] * (clip.num_frames + 100)
-
     new_fps_clip = clip.std.BlankClip(
         length=floor(clip.num_frames * factor), fpsnum=dest_num, fpsden=dest_den
     )
 
-    return new_fps_clip.std.FrameEval(_frame_adjuster)
+    return new_fps_clip.std.FrameEval(lambda n: clip[round(n / factor)])
 
 
 @disallow_variable_format
