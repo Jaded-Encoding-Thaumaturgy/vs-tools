@@ -360,16 +360,6 @@ class VSCoreProxy(CoreProxyBase):
     """Class for wrapping a VapourSynth core."""
 
     def __init__(self, core: Core | None = None) -> None:
-        """
-        Obtain the color range of a clip from the frame properties.
-
-        :param src:                         Input clip, frame, or props.
-        :param strict:                      Be strict about the properties.
-                                            Sets the ColorRange as MISSING if prop is not there.
-
-        :return:                            ColorRange object.
-        """
-
         self._own_core = core is not None
         self._core = core and weakref.ref(core)
 
