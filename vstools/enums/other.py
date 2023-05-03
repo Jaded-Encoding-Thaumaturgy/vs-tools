@@ -6,13 +6,13 @@ from typing import Callable, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..types import FuncExceptT, Sentinel
+from ..types import Sentinel
 from ..types.funcs import SentinelDispatcher
 from .base import CustomIntEnum, CustomStrEnum
 
 __all__ = [
     'Direction',
-    'Dar', 'Par',
+    'Dar', 'Sar',
     'Region',
     'Resolution',
     'Coordinate',
@@ -49,19 +49,28 @@ class Direction(CustomIntEnum):
         return self._name_.lower()
 
 
-class Par(Fraction):
-    @overload
-    @staticmethod
-    def get_ar(width: int, height: int, /) -> Fraction:
-        """Calculate the aspect ratio using a given width and height."""
+class Dar(Fraction):
+    height: int
+
+    def __new__(cls, numerator: int, denominator: int, height: int) -> Dar:
+        self = super().__new__(cls, numerator, denominator)
+
+        self.height = height
+
+        return self
 
     @overload
     @staticmethod
-    def get_ar(clip: vs.VideoNode, /) -> Fraction:
-        """Calculate the aspect ratio using a given clip's width and height."""
+    def from_size(width: int, height: int, /) -> Dar:
+        ...
+
+    @overload
+    @staticmethod
+    def from_size(clip: vs.VideoNode, /) -> Dar:
+        ...
 
     @staticmethod
-    def get_ar(clip_width: vs.VideoNode | int, height: int = 0, /) -> Fraction:
+    def from_size(clip_width: vs.VideoNode | int, height: int = 0, /) -> Dar:
         if isinstance(clip_width, vs.VideoNode):
             width, height = clip_width.width, clip_width.height  # type: ignore
         else:
@@ -69,40 +78,30 @@ class Par(Fraction):
 
         gcd = max_common_div(width, height)
 
-        return Fraction(int(width / gcd), int(height / gcd))
+        return Dar(width // gcd, height // gcd, height)
+
+    def to_sar(self, active_area: float) -> Sar:
+        return Sar.from_dar(self, active_area)
 
 
-class Dar(CustomStrEnum):
-    """StrEnum signifying an analog television aspect ratio."""
+class Sar(Fraction):
+    @staticmethod
+    def from_ar(den: int, num: int, height: int, active_area: float) -> Sar:
+        return Dar(den, num, height).to_sar(active_area)
 
-    WIDE = 'wide'
-    FULL = 'full'
-    SQUARE = 'square'
+    @staticmethod
+    def from_dar(dar: Dar, active_area: float) -> Sar:
+        sar_n, sar_d = dar.numerator * dar.height, dar.denominator * active_area
 
-    @classmethod
-    def from_video(
-        cls, src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func: FuncExceptT | None = None
-    ) -> Dar:
-        """Calculate the Dar using a given clip's frame properties."""
+        if isinstance(active_area, float):
+            sar_n, sar_d = int(sar_n * 10000), int(sar_d * 10000)
 
-        from ..exceptions import CustomValueError, FramePropError
-        from ..utils import get_prop
+        gcd = max_common_div(sar_n, sar_d)
 
-        try:
-            sar = get_prop(src, "_SARDen", int), get_prop(src, "_SARNum", int)
-        except FramePropError:
-            if strict:
-                raise FramePropError(
-                    '', '', 'SAR props not found! Make sure your video indexing plugin sets them!'
-                )
+        return Sar(sar_n // gcd, sar_d // gcd)
 
-            return Dar.WIDE
-
-        match sar:
-            case (11, 10) | (9, 8): return Dar.FULL
-            case (33, 40) | (27, 32): return Dar.WIDE
-
-        raise CustomValueError("Could not calculate DAR. Please set the DAR manually.")
+    def apply(self, clip: vs.VideoNode) -> vs.VideoNode:
+        return clip.std.SetFrameProps(_SARNum=self.numerator, _SARDen=self.denominator)
 
 
 class Region(CustomStrEnum):
