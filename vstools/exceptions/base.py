@@ -165,12 +165,13 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
         if self.reason:
             reason = norm_display_name(self.reason)
 
-            if not isinstance(self.reason, dict):
-                reason = f'({reason})'
+            if reason:
+                if not isinstance(self.reason, dict):
+                    reason = f'({reason})'
 
-            if sys.stdout and sys.stdout.isatty():
-                reason = f'\033[0;33m{reason}\033[0m'
-            reason = f' {reason}'
+                if sys.stdout and sys.stdout.isatty():
+                    reason = f'\033[0;33m{reason}\033[0m'
+                reason = f' {reason}'
         else:
             reason = ''
 
