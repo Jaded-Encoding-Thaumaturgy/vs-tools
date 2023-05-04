@@ -4,13 +4,13 @@ import re
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
-from typing import Any, ClassVar, Iterable, NamedTuple, TypeVar, overload
+from typing import Any, Callable, ClassVar, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
 from ..enums import SceneChangeMode, Matrix
 from ..exceptions import CustomValueError, FramesLengthError
-from ..types import FilePathType, FuncExceptT, Sentinel
+from ..types import FilePathType, FuncExceptT, Sentinel, inject_self
 from .render import clip_async_render
 
 __all__ = [
@@ -294,10 +294,15 @@ class Keyframes(list[int]):
     WWXD: ClassVar = SceneChangeMode.WWXD
     SCXVID: ClassVar = SceneChangeMode.SCXVID
 
+    @overload
     def __init__(self, iterable: Iterable[int], end_frame: int) -> None:
+        ...
+
+    def __init__(self, iterable: Iterable[int] = [], end_frame: int = -1, *, _dummy: bool = False) -> None:
         super().__init__(sorted(list(iterable)))
 
         self.end_frame = end_frame
+        self._dummy = _dummy
 
     @classmethod
     def from_clip(
@@ -321,6 +326,35 @@ class Keyframes(list[int]):
         )
 
         return cls(Sentinel.filter(frames), clip.num_frames)
+
+    @inject_self.with_args(_dummy=True)
+    def to_clip(
+        self, clip: vs.VideoNode, *, mode: SceneChangeMode | int = WWXD, height: int | None = 360,
+        prop_key: str = next(SceneChangeMode.SCXVID.prop_keys)
+    ) -> vs.VideoNode:
+        from ..utils import get_w
+
+        keyframes = set(self)
+        propset_clip = clip.std.SetFrameProp(prop_key, True)
+
+        base_clip = clip.std.BlankClip(keep=True)
+
+        if self.end_frame == -1:
+            mode = SceneChangeMode(mode)
+
+            if height is not None:
+                prop_clip = clip.resize.Bilinear(get_w(360, clip), 360, vs.YUV420P8)
+            else:
+                prop_clip = clip.resize.Bilinear(format=vs.YUV420P8)
+
+            aka_available = hasattr(vs.core, 'akarin')
+
+            prop_clip = mode.ensure_presence(prop_clip, aka_available)
+            callback = mode.check_cb(aka_available)
+
+            return base_clip.std.FrameEval(lambda n, f: propset_clip if callback(f) else clip, prop_clip)
+
+        return base_clip.std.FrameEval(lambda n: propset_clip if n in keyframes else clip)
 
     def to_file(self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None) -> None:
         from ..utils import check_perms
