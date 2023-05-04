@@ -222,7 +222,8 @@ def depth(
     )
 
     return clip.resize.Point(
-        format=new_format.id, range_in=range_in, range=range_out, dither_type=dither_type
+        format=new_format.id, range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg,
+        dither_type=dither_type
     )
 
 
