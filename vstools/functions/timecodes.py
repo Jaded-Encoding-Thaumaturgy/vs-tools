@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from fractions import Fraction
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Iterable, NamedTuple, TypeVar, overload
+from typing import Any, ClassVar, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -362,6 +362,8 @@ class Keyframes(list[int]):
         func = func or self.to_file
 
         out_path = Path(str(out)).resolve()
+
+        out_path.parent.mkdir(parents=True, exist_ok=True)
 
         check_perms(out_path, 'w+', func=func)
 
