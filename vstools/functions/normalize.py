@@ -13,6 +13,7 @@ __all__ = [
     'to_arr',
     'flatten', 'flatten_vnodes',
     'normalize_list_to_ranges',
+    'normalize_ranges_to_list',
     'normalize_franges',
     'normalize_ranges',
     'norm_func_name', 'norm_display_name'
@@ -189,6 +190,15 @@ def normalize_list_to_ranges(flist: Sequence[int], min_length: int = 0) -> list[
         [i[0] for i in flist4],
         [i[-1] for j, i in enumerate(flist4)]
     ))
+
+
+def normalize_ranges_to_list(franges: Iterable[FrameRange]) -> list[int]:
+    out = list[int]()
+
+    for frange in franges:
+        out.extend(normalize_franges(frange))
+
+    return out
 
 
 def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> list[tuple[int, int]]:
