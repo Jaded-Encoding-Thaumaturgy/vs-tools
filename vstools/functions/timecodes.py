@@ -322,6 +322,7 @@ class Keyframes(list[int]):
         self, clip: vs.VideoNode, *, mode: SceneChangeMode | int = WWXD, height: int | None = 360,
         prop_key: str = next(SceneChangeMode.SCXVID.prop_keys)
     ) -> vs.VideoNode:
+        from ..utils import replace_ranges
 
         keyframes = set(self)
         propset_clip = clip.std.SetFrameProp(prop_key, True)
@@ -335,9 +336,7 @@ class Keyframes(list[int]):
 
             return base_clip.std.FrameEval(lambda n, f: propset_clip if callback(f) else clip, prop_clip)
 
-
-
-        return base_clip.std.FrameEval(lambda n: propset_clip if n in keyframes else clip)
+        return replace_ranges(clip, propset_clip, keyframes)
 
     def to_file(self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None) -> None:
         from ..utils import check_perms
