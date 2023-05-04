@@ -225,15 +225,15 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
     out = []
 
     for r in ranges:
+        if r is None:
+            r = (None, None)
+
         if isinstance(r, tuple):
             start, end = r
             if start is None:
                 start = 0
             if end is None:
                 end = clip.num_frames - 1
-        elif r is None:
-            start = clip.num_frames - 1
-            end = clip.num_frames - 1
         else:
             start = r
             end = r
