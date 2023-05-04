@@ -369,7 +369,8 @@ class Keyframes(list[int]):
 
         if format == Keyframes.V1:
             out_text = [
-                '# keyframe format v1', 'fps 0', '', *map(str, self), ''
+                '# keyframe format v1', 'fps 0', '',
+                *(f'{n} I -1' for n in self), ''
             ]
         elif format == Keyframes.XVID:
             lut_self = set(self)
