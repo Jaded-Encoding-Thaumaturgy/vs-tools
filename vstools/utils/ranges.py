@@ -85,7 +85,7 @@ def replace_ranges(
         try:
             if hasattr(vs.core, 'julek'):
                 return vs.core.julek.RFS(  # type: ignore
-                    clip_a, clip_b, [y for (s, e) in nranges for y in range(s, e + (exclusive if s != e else 1))],
+                    clip_a, clip_b, [y for (s, e) in nranges for y in range(s, e + (not exclusive if s != e else 1))],
                     mismatch=mismatch
                 )
             elif hasattr(vs.core, 'remap'):
