@@ -286,7 +286,9 @@ class LengthMismatchError(MismatchError):
         self, func: FuncExceptT, lengths: Iterable[int | Sized],
         message: SupportsString = 'All the lengths must be equal!', **kwargs: Any
     ) -> None:
-        super().__init__(func, lengths, message, **kwargs)
+        super().__init__(
+            func, lengths, message, iter(map(self._item_to_name, lengths)), **kwargs
+        )
 
     if TYPE_CHECKING:
         @classmethod
