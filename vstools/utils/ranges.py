@@ -71,7 +71,7 @@ def replace_ranges(
     :return:            Clip with ranges from clip_a replaced with clip_b.
     """
 
-    from ..functions import normalize_ranges
+    from ..functions import normalize_ranges, normalize_ranges_to_list
 
     if ranges != 0 and not ranges:
         return clip_a
@@ -80,8 +80,9 @@ def replace_ranges(
         check_ref_clip(clip_a, clip_b)
 
     nranges = normalize_ranges(clip_b, ranges)
+    do_splice_trim = len(nranges) <= 5
 
-    if use_plugin:
+    if not do_splice_trim and use_plugin:
         try:
             if hasattr(vs.core, 'julek'):
                 return vs.core.julek.RFS(  # type: ignore
@@ -98,13 +99,13 @@ def replace_ranges(
 
             match msg:
                 case "Clip lengths don't match":
-                    raise LengthMismatchError(replace_ranges, [clip_a, clip_b])
+                    raise LengthMismatchError(replace_ranges, (clip_a, clip_b))
                 case "Clip dimensions don't match":
-                    raise ResolutionsMismatchError(replace_ranges, [clip_a, clip_b])
+                    raise ResolutionsMismatchError(replace_ranges, (clip_a, clip_b))
                 case "Clip formats don't match":
-                    raise FormatsMismatchError(replace_ranges, [clip_a, clip_b])
+                    raise FormatsMismatchError(replace_ranges, (clip_a, clip_b))
                 case "Clip frame rates don't match":
-                    raise FramerateMismatchError(replace_ranges, [clip_a, clip_b])
+                    raise FramerateMismatchError(replace_ranges, (clip_a, clip_b))
                 case _:
                     raise CustomValueError(msg, replace_ranges)
 
@@ -115,21 +116,28 @@ def replace_ranges(
             "The function will still work, but you may run into undefined behavior, or a broken output clip!'"
         )
 
-    out = clip_a
-    shift = 1 + exclusive
+    if do_splice_trim:
+        out = clip_a
+        shift = 1 + exclusive
 
-    for start, end in nranges:
-        tmp = clip_b[start:end + shift]
+        for start, end in nranges:
+            tmp = clip_b[start:end + shift]
 
-        if start != 0:
-            tmp = vs.core.std.Splice([out[: start], tmp], mismatch)
+            if start != 0:
+                tmp = vs.core.std.Splice([out[: start], tmp], mismatch)
 
-        if end < out.num_frames - 1:
-            tmp = vs.core.std.Splice([tmp, out[end + shift:]], mismatch)
+            if end < out.num_frames - 1:
+                tmp = vs.core.std.Splice([tmp, out[end + shift:]], mismatch)
 
-        out = tmp
+            out = tmp
 
-    return out
+        return out
+
+    base_clip = clip_a.std.BlankClip(keep=True)
+
+    b_frames = set(normalize_ranges_to_list(nranges))
+
+    return base_clip.std.FrameEval(lambda n: clip_b if n in b_frames else clip_a)
 
 
 # Aliases
