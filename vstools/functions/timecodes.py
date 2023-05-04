@@ -309,21 +309,12 @@ class Keyframes(list[int]):
         cls: type[KeyframesBoundT], clip: vs.VideoNode, mode: SceneChangeMode | int = WWXD, height: int | None = 360,
         **kwargs: Any
     ) -> KeyframesBoundT:
-        from ..utils import get_w
 
         mode = SceneChangeMode(mode)
 
-        if height is not None:
-            clip = clip.resize.Bilinear(get_w(360, clip), 360, vs.YUV420P8)
-        else:
-            clip = clip.resize.Bilinear(format=vs.YUV420P8)
+        clip = mode.prepare_clip(clip, height)
 
-        aka_available = hasattr(vs.core, 'akarin')
-
-        frames = clip_async_render(
-            mode.ensure_presence(clip, aka_available), None,
-            'Detecting scene changes...', mode.lambda_cb(aka_available), **kwargs
-        )
+        frames = clip_async_render(clip, None, 'Detecting scene changes...', mode.lambda_cb(), **kwargs)
 
         return cls(Sentinel.filter(frames), clip.num_frames)
 
@@ -332,7 +323,6 @@ class Keyframes(list[int]):
         self, clip: vs.VideoNode, *, mode: SceneChangeMode | int = WWXD, height: int | None = 360,
         prop_key: str = next(SceneChangeMode.SCXVID.prop_keys)
     ) -> vs.VideoNode:
-        from ..utils import get_w
 
         keyframes = set(self)
         propset_clip = clip.std.SetFrameProp(prop_key, True)
@@ -342,17 +332,11 @@ class Keyframes(list[int]):
         if self.end_frame == -1:
             mode = SceneChangeMode(mode)
 
-            if height is not None:
-                prop_clip = clip.resize.Bilinear(get_w(360, clip), 360, vs.YUV420P8)
-            else:
-                prop_clip = clip.resize.Bilinear(format=vs.YUV420P8)
-
-            aka_available = hasattr(vs.core, 'akarin')
-
-            prop_clip = mode.ensure_presence(prop_clip, aka_available)
-            callback = mode.check_cb(aka_available)
+            prop_clip, callback = mode.prepare_clip(clip, height), mode.check_cb()
 
             return base_clip.std.FrameEval(lambda n, f: propset_clip if callback(f) else clip, prop_clip)
+
+
 
         return base_clip.std.FrameEval(lambda n: propset_clip if n in keyframes else clip)
 

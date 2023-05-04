@@ -319,3 +319,13 @@ class SceneChangeMode(CustomIntEnum):
     def lambda_cb(self, akarin: bool | None = None) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
         callback = self.check_cb(akarin)
         return (lambda n, f: Sentinel.check(n, callback(f)))
+
+    def prepare_clip(self, clip: vs.VideoNode, height: int | None = 360, akarin: bool | None = None) -> vs.VideoNode:
+        from ..utils import get_w
+
+        if height is not None:
+            clip = clip.resize.Bilinear(get_w(height, clip), height, vs.YUV420P8)
+        elif not clip.format or (clip.format and clip.format.id != vs.YUV420P8):
+            clip = clip.resize.Bilinear(format=vs.YUV420P8)
+
+        return self.ensure_presence(clip, akarin)
