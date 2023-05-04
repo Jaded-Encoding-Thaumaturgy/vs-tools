@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from itertools import chain, zip_longest
-from typing import Iterable, overload
+from typing import Callable, Iterable, Union, overload
 
 import vapoursynth as vs
 
@@ -22,11 +22,15 @@ __all__ = [
 ]
 
 
+CBVFrameT = vs.VideoFrame | list[vs.VideoFrame]
+RangesCallback = Union[Callable[[int], bool], Callable[[CBVFrameT], bool], Callable[[int, CBVFrameT], bool]]
+
+
 def replace_ranges(
     clip_a: vs.VideoNode, clip_b: vs.VideoNode,
-    ranges: FrameRangeN | FrameRangesN | None,
-    exclusive: bool = False, use_plugin: bool | None = None,
-    mismatch: bool = False
+    ranges: FrameRangeN | FrameRangesN | RangesCallback | None,
+    exclusive: bool = False, use_plugin: bool | None = None, mismatch: bool = False,
+    *, prop_src: vs.VideoNode | list[vs.VideoNode] | None = None
 ) -> vs.VideoNode:
     """
     Remaps frame indices in a clip using ints and tuples rather than a string.
@@ -73,11 +77,38 @@ def replace_ranges(
 
     from ..functions import normalize_ranges, normalize_ranges_to_list
 
-    if ranges != 0 and not ranges:
+    if ranges != 0 and not ranges or clip_a is clip_b:
         return clip_a
 
     if not mismatch:
         check_ref_clip(clip_a, clip_b)
+
+    if callable(ranges):
+        from inspect import Signature
+
+        signature = Signature.from_callable(ranges, eval_str=True)
+
+        params = set(signature.parameters.keys())
+
+        base_clip = clip_a.std.BlankClip(keep=True)
+
+        callback: RangesCallback = ranges
+
+        if 'f' in params and not prop_src:
+            raise CustomValueError(
+                'For passing f to the callback you must specify the node(s) to grab the frame from via prop_src.'
+            )
+
+        if 'f' in params and 'n' in params:
+            return base_clip.std.FrameEval(lambda n, f: clip_b if callback(n, f) else clip_a, prop_src)  # type: ignore
+
+        if 'f' in params:
+            return base_clip.std.FrameEval(lambda f: clip_b if callback(f) else clip_a, prop_src)  # type: ignore
+
+        if 'n' in params:
+            return base_clip.std.FrameEval(lambda n: clip_b if callback(n) else clip_a)  # type: ignore
+
+        raise CustomValueError('Callback must have signature ((n, f) | (n) | (f)) -> bool!')
 
     nranges = normalize_ranges(clip_b, ranges)
     do_splice_trim = len(nranges) <= 5
@@ -136,11 +167,8 @@ def replace_ranges(
 
         return out
 
-    base_clip = clip_a.std.BlankClip(keep=True)
-
     b_frames = set(normalize_ranges_to_list(nranges))
-
-    return base_clip.std.FrameEval(lambda n: clip_b if n in b_frames else clip_a)
+    return replace_ranges(clip_a, clip_b, lambda n: n in b_frames)
 
 
 # Aliases
