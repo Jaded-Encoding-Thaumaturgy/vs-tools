@@ -303,7 +303,7 @@ class SceneChangeMode(CustomIntEnum):
             akarin = hasattr(vs.core, 'akarin')
 
         if akarin:
-            return (lambda f: bool(f[0][0, 0]))  # type: ignore
+            return (lambda f: bool(f[0][0, 0]))
 
         keys = set(self.prop_keys)
         prop_key = next(iter(keys))
@@ -318,4 +318,4 @@ class SceneChangeMode(CustomIntEnum):
 
     def lambda_cb(self, akarin: bool | None = None) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
         callback = self.check_cb(akarin)
-        return (lambda n, f: Sentinel.check(n, callback(n, f)))
+        return (lambda n, f: Sentinel.check(n, callback(f)))
