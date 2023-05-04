@@ -22,8 +22,67 @@ __all__ = [
 ]
 
 
-CBVFrameT = vs.VideoFrame | list[vs.VideoFrame]
-RangesCallback = Union[Callable[[int], bool], Callable[[CBVFrameT], bool], Callable[[int, CBVFrameT], bool]]
+RangesCallback = Union[
+    Callable[[int], bool],
+    Callable[[vs.VideoFrame], bool],
+    Callable[[list[vs.VideoFrame]], bool],
+    Callable[[vs.VideoFrame | list[vs.VideoFrame]], bool],
+    Callable[[int, vs.VideoFrame], bool],
+    Callable[[int, list[vs.VideoFrame]], bool],
+    Callable[[int, vs.VideoFrame | list[vs.VideoFrame]], bool]
+]
+
+
+@overload
+def replace_ranges(
+    clip_a: vs.VideoNode, clip_b: vs.VideoNode,
+    ranges: FrameRangeN | FrameRangesN | Callable[[vs.VideoFrame], bool] | Callable[[int, vs.VideoFrame], bool] | None,
+    exclusive: bool = False, use_plugin: bool | None = None, mismatch: bool = False,
+    *, prop_src: vs.VideoNode
+) -> vs.VideoNode:
+    ...
+
+
+@overload
+def replace_ranges(
+    clip_a: vs.VideoNode, clip_b: vs.VideoNode, ranges: FrameRangeN | FrameRangesN | Callable[
+        [list[vs.VideoFrame]], bool
+    ] | Callable[[int, list[vs.VideoFrame]], bool] | None, exclusive: bool = False,
+    use_plugin: bool | None = None, mismatch: bool = False,
+    *, prop_src: list[vs.VideoNode]
+) -> vs.VideoNode:
+    ...
+
+
+@overload
+def replace_ranges(
+    clip_a: vs.VideoNode, clip_b: vs.VideoNode, ranges: FrameRangeN | FrameRangesN | Callable[
+        [vs.VideoFrame | list[vs.VideoFrame]], bool
+    ] | Callable[[int, vs.VideoFrame | list[vs.VideoFrame]], bool] | None, exclusive: bool = False,
+    use_plugin: bool | None = None, mismatch: bool = False,
+    *, prop_src: vs.VideoNode | list[vs.VideoNode] | None = None
+) -> vs.VideoNode:
+    ...
+
+
+@overload
+def replace_ranges(
+    clip_a: vs.VideoNode, clip_b: vs.VideoNode,
+    ranges: FrameRangeN | FrameRangesN | Callable[[int], bool] | None,
+    exclusive: bool = False, use_plugin: bool | None = None, mismatch: bool = False,
+    *, prop_src: None = None
+) -> vs.VideoNode:
+    ...
+
+
+@overload
+def replace_ranges(
+    clip_a: vs.VideoNode, clip_b: vs.VideoNode,
+    ranges: FrameRangeN | FrameRangesN | RangesCallback | None,
+    exclusive: bool = False, use_plugin: bool | None = None, mismatch: bool = False,
+    *, prop_src: vs.VideoNode | list[vs.VideoNode] | None = None
+) -> vs.VideoNode:
+    ...
 
 
 def replace_ranges(
