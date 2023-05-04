@@ -248,7 +248,7 @@ class SceneChangeMode(CustomIntEnum):
             SceneChangeMode.WWXD_SCXVID_INTERSECTION
         )
 
-    def ensure_presence(self, clip: vs.VideoNode, akarin: bool = False) -> vs.VideoNode:
+    def ensure_presence(self, clip: vs.VideoNode, akarin: bool | None = None) -> vs.VideoNode:
         from ..exceptions import CustomRuntimeError
         from ..utils import merge_clip_props
 
@@ -269,6 +269,9 @@ class SceneChangeMode(CustomIntEnum):
                     self.ensure_presence
                 )
             stats_clip.append(clip.wwxd.WWXD())
+
+        if akarin is None:
+            akarin = hasattr(vs.core, 'akarin')
 
         if akarin:
             keys = list(self.prop_keys)
@@ -295,7 +298,10 @@ class SceneChangeMode(CustomIntEnum):
         if self.is_SCXVID:
             yield '_SceneChangePrev'
 
-    def check_cb(self, akarin: bool) -> Callable[[vs.VideoFrame], bool]:
+    def check_cb(self, akarin: bool | None = None) -> Callable[[vs.VideoFrame], bool]:
+        if akarin is None:
+            akarin = hasattr(vs.core, 'akarin')
+
         if akarin:
             return (lambda f: bool(f[0][0, 0]))  # type: ignore
 
@@ -310,6 +316,6 @@ class SceneChangeMode(CustomIntEnum):
 
         return (lambda f: f.props[prop_key] == 1)
 
-    def lambda_cb(self, akarin: bool) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
+    def lambda_cb(self, akarin: bool | None = None) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
         callback = self.check_cb(akarin)
         return (lambda n, f: Sentinel.check(n, callback(n, f)))
