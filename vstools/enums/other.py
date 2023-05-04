@@ -295,15 +295,21 @@ class SceneChangeMode(CustomIntEnum):
         if self.is_SCXVID:
             yield '_SceneChangePrev'
 
-    def lambda_cb(self, akarin: bool) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
+    def check_cb(self, akarin: bool) -> Callable[[vs.VideoFrame], bool]:
         if akarin:
-            return (lambda n, f: Sentinel.check(n, f[0][0, 0]))  # type: ignore
+            return (lambda f: bool(f[0][0, 0]))  # type: ignore
+
+        keys = set(self.prop_keys)
+        prop_key = next(iter(keys))
 
         if self is SceneChangeMode.WWXD_SCXVID_UNION:
-            return (lambda n, f: Sentinel.check(n, any(f.props[key] == 1 for key in self.prop_keys)))
-        elif self is SceneChangeMode.WWXD_SCXVID_INTERSECTION:
-            return (lambda n, f: Sentinel.check(n, all(f.props[key] == 1 for key in self.prop_keys)))
+            return (lambda f: any(f.props[key] == 1 for key in keys))
 
-        prop_key = next(iter(self.prop_keys))
+        if self is SceneChangeMode.WWXD_SCXVID_INTERSECTION:
+            return (lambda f: all(f.props[key] == 1 for key in keys))
 
-        return (lambda n, f: Sentinel.check(n, f.props[prop_key] == 1))
+        return (lambda f: f.props[prop_key] == 1)
+
+    def lambda_cb(self, akarin: bool) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
+        callback = self.check_cb(akarin)
+        return (lambda n, f: Sentinel.check(n, callback(n, f)))
