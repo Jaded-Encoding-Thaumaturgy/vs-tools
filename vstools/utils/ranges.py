@@ -25,7 +25,7 @@ __all__ = [
 def replace_ranges(
     clip_a: vs.VideoNode, clip_b: vs.VideoNode,
     ranges: FrameRangeN | FrameRangesN | None,
-    exclusive: bool = False, use_plugin: bool = True,
+    exclusive: bool = False, use_plugin: bool | None = None,
     mismatch: bool = False
 ) -> vs.VideoNode:
     """
@@ -82,7 +82,10 @@ def replace_ranges(
     nranges = normalize_ranges(clip_b, ranges)
     do_splice_trim = len(nranges) <= 5
 
-    if not do_splice_trim and use_plugin:
+    if use_plugin is not None:
+        warnings.warn('replace_ranges: use_plugin is deprecated!')
+
+    if not do_splice_trim:
         try:
             if hasattr(vs.core, 'julek'):
                 return vs.core.julek.RFS(  # type: ignore
