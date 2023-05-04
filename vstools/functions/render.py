@@ -247,7 +247,7 @@ def find_prop(
     """
 
     bool_check = isinstance(ref, bool)
-    one_pix = hasattr(vs.core, 'akarin') and not callable(op)
+    one_pix = hasattr(vs.core, 'akarin') and not (callable(op) or ' ' in prop)
     assert (op is None) if bool_check else (op is not None)
 
     callback: Callable[[int, vs.VideoFrame], SentinelDispatcher | int]
