@@ -295,13 +295,12 @@ class Keyframes(list[int]):
     SCXVID: ClassVar = SceneChangeMode.SCXVID
 
     @overload
-    def __init__(self, iterable: Iterable[int], end_frame: int) -> None:
+    def __init__(self, iterable: Iterable[int]) -> None:
         ...
 
-    def __init__(self, iterable: Iterable[int] = [], end_frame: int = -1, *, _dummy: bool = False) -> None:
+    def __init__(self, iterable: Iterable[int] = [], *, _dummy: bool = False) -> None:
         super().__init__(sorted(list(iterable)))
 
-        self.end_frame = end_frame
         self._dummy = _dummy
 
     @classmethod
@@ -329,7 +328,7 @@ class Keyframes(list[int]):
 
         base_clip = clip.std.BlankClip(keep=True)
 
-        if self.end_frame == -1:
+        if self._dummy:
             mode = SceneChangeMode(mode)
 
             prop_clip, callback = mode.prepare_clip(clip, height), mode.check_cb()
@@ -362,7 +361,7 @@ class Keyframes(list[int]):
                 '# XviD 2pass stat file', '',
                 *(
                     (lut_self.remove(i) or 'i') if i in lut_self else 'b'  # type: ignore
-                    for i in range(self.end_frame)
+                    for i in range(max(self))
                 )
             ]
 
@@ -463,6 +462,6 @@ class LWIndex:
             for i in range(indexstart, indexend, 2)
         ], key=lambda x: x.pts)
 
-        keyframes = Keyframes([i for i, f in enumerate(frames) if f.key], len(frames))
+        keyframes = Keyframes(i for i, f in enumerate(frames) if f.key)
 
         return LWIndex(streaminfo, frames, keyframes)
