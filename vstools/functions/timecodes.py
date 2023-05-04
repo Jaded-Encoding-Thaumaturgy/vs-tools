@@ -282,6 +282,12 @@ TimecodesBoundT = TypeVar('TimecodesBoundT', bound=Timecodes)
 
 
 class Keyframes(list[int]):
+    """
+    Class representing keyframes, or scenechanges.
+
+    They follow the convention of signaling the start of the new scene.
+    """
+
     V1 = 1
     XVID = -1
 
