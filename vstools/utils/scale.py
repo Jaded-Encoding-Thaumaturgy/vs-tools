@@ -5,13 +5,12 @@ from typing import Literal, Sequence, overload
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT
-from ..exceptions import CustomIndexError
 from ..functions import disallow_variable_format, normalize_seq
 from ..types import HoldsVideoFormatT, VideoFormatT
 from .info import get_depth, get_video_format
 
 __all__ = [
-    'scale_8bit', 'scale_thresh', 'scale_value',
+    'scale_8bit', 'scale_value',
 
     'get_lowest_value', 'get_neutral_value', 'get_peak_value',
     'get_lowest_values', 'get_neutral_values', 'get_peak_values',
@@ -40,46 +39,6 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool 
         return out
 
     return value << get_depth(fmt) - 8
-
-
-def scale_thresh(
-    thresh: float, clip: VideoFormatT | HoldsVideoFormatT,
-    assume: int | None = None, peak: int | float | None = None
-) -> float:
-    """
-    Scale thresholds from float to int or vice versa.
-
-    :param thresh:              Threshold to scale.
-    :param clip:                Input clip.
-    :param assume:              Assumed bit depth of the threshold.
-                                `None` to automatically detect it.
-    :param peak:                Peak value of the clip.
-
-    :return:                    Scaled value.
-
-    :raises CustomValueError:   Threshold is not positive.
-    """
-
-    import warnings
-
-    warnings.warn(
-        'scale_thresh is buggy and deprecated! Please replace it. It will be removed in the next major update.'
-    )
-
-    fmt = get_video_format(clip)
-
-    if thresh < 0:
-        raise CustomIndexError('Thresholds must be positive!', scale_thresh)
-
-    peak = get_peak_value(fmt, False) if peak is None else peak
-
-    if fmt.sample_type == vs.FLOAT or thresh > 1 and not assume:
-        return thresh
-
-    if assume:
-        return round(thresh / (get_peak_value(assume) * peak))
-
-    return round(thresh * peak)
 
 
 @overload

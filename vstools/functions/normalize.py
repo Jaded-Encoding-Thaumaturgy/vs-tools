@@ -50,7 +50,7 @@ def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
     return val[:length]
 
 
-def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = False) -> list[int]:
+def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None) -> list[int]:
     """
     Normalize a sequence of planes.
 
@@ -69,13 +69,6 @@ def normalize_planes(clip: vs.VideoNode, planes: PlanesT = None, pad: bool = Fal
         planes = list(range(clip.format.num_planes))
     else:
         planes = to_arr(planes, sub=True)
-
-    if pad:
-        print(DeprecationWarning(
-            'normalize_planes: pad=True is deprecated as it leads to undefined behaviour!\n'
-            'Please stop using it as it will be removed at a later date'
-        ))
-        return normalize_seq(planes, clip.format.num_planes)
 
     return list(sorted(set(planes).intersection(range(clip.format.num_planes))))
 
