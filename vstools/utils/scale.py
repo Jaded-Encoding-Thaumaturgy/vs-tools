@@ -51,7 +51,7 @@ def scale_thresh(
 
     :param thresh:              Threshold to scale.
     :param clip:                Input clip.
-    :param assume:              Assumed bit depth of the treshold.
+    :param assume:              Assumed bit depth of the threshold.
                                 `None` to automatically detect it.
     :param peak:                Peak value of the clip.
 

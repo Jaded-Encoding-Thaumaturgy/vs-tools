@@ -28,4 +28,4 @@ class UnsupportedFieldBasedError(CustomValueError):
 
 
 class NotFoundEnumValue(CustomKeyError):
-    """Raised when you try to instantiate an Enum with unkown value"""
+    """Raised when you try to instantiate an Enum with unknown value"""

@@ -193,7 +193,7 @@ class CustomOverflowError(CustomError, OverflowError):
 
 
 class CustomKeyError(CustomError, KeyError):
-    """Thrown when tring to access an non-existant key."""
+    """Thrown when trying to access an non-existent key."""
 
 
 class CustomTypeError(CustomError, TypeError):
@@ -205,7 +205,7 @@ class CustomRuntimeError(CustomError, RuntimeError):
 
 
 class CustomNotImplementedError(CustomError, NotImplementedError):
-    """Thrown when you encounter a yet not implemented brach of code."""
+    """Thrown when you encounter a yet not implemented branch of code."""
 
 
 class CustomPermissionError(CustomError, PermissionError):

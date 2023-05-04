@@ -406,7 +406,7 @@ class Transfer(_TransferMeta):
     """
 
     """
-    Extra tranfer characterists from libplacebo
+    Extra transfer characterists from libplacebo
     https://github.com/haasn/libplacebo/blob/master/src/include/libplacebo/colorspace.h#L193
     """
 
@@ -931,13 +931,13 @@ class MatrixCoefficients(NamedTuple):
         return _matrix_matrixcoeff_map[matrix]
 
     @classmethod
-    def from_transfer(cls, tranfer: Transfer) -> MatrixCoefficients:
+    def from_transfer(cls, transfer: Transfer) -> MatrixCoefficients:
         """Matrix Coefficients from a Transfer object's value."""
 
-        if tranfer not in _transfer_matrixcoeff_map:
-            raise UnsupportedTransferError(f'{tranfer} is not supported!', cls.from_transfer)
+        if transfer not in _transfer_matrixcoeff_map:
+            raise UnsupportedTransferError(f'{transfer} is not supported!', cls.from_transfer)
 
-        return _transfer_matrixcoeff_map[tranfer]
+        return _transfer_matrixcoeff_map[transfer]
 
     @classmethod
     def from_primaries(cls, primaries: Primaries) -> MatrixCoefficients:

@@ -30,7 +30,7 @@ def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
     the framerate of a clip, not simply set one.
 
     :param clip:        Input clip.
-    :param fps:         Framerate to conver the clip to. Must be a Fration.
+    :param fps:         Framerate to convert the clip to. Must be a Fration.
 
     :return:            Clip with the framerate converted and frames adjusted as necessary.
     """

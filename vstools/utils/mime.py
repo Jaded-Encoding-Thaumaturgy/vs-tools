@@ -39,7 +39,7 @@ class ParsedFile(NamedTuple):
     """Resolved path of the file."""
 
     ext: str
-    """Extention of the file, from the binary data, not path."""
+    """Extension of the file, from the binary data, not path."""
 
     encoding: str | None
     """Present for text files."""
@@ -59,7 +59,7 @@ class FileSignature(NamedTuple):
     """FileType as a str."""
 
     ext: str
-    """Extention from the signature."""
+    """Extension from the signature."""
 
     mime: str
     """MIME type of the signature."""

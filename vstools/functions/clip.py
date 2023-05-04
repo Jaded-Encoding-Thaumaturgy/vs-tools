@@ -19,7 +19,7 @@ def shift_clip(clip: vs.VideoNode, offset: int) -> vs.VideoNode:
 
     This is useful for cases where you must compare every frame of a clip
     with the frame that comes before or after the current frame,
-    like for example when performing termporal operations.
+    like for example when performing temporal operations.
 
     Both positive and negative integers are allowed.
     Positive values will shift a clip forward, negative will shift a clip backward.

@@ -81,7 +81,7 @@ def some_func() -> None:
     ...
     can_throw(..., func=some_func)
 ```
-If an error occurrs, this will print a clear error ->\n
+If an error occurs, this will print a clear error ->\n
 ``ValueError: (some_func) Some error occurred!!``
 """
 
