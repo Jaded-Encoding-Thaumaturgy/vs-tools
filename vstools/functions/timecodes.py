@@ -326,14 +326,12 @@ class Keyframes(list[int]):
 
         propset_clip = clip.std.SetFrameProp(prop_key, True)
 
-        base_clip = clip.std.BlankClip(keep=True)
-
         if self._dummy:
             mode = SceneChangeMode(mode)
 
             prop_clip, callback = mode.prepare_clip(clip, height), mode.check_cb()
 
-            return base_clip.std.FrameEval(lambda n, f: propset_clip if callback(f) else clip, prop_clip)
+            return replace_ranges(clip, propset_clip, callback, prop_src=prop_clip)
 
         return replace_ranges(clip, propset_clip, self)
 
