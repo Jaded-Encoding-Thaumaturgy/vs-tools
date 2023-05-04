@@ -294,7 +294,7 @@ class Keyframes(list[int]):
     WWXD: ClassVar = SceneChangeMode.WWXD
     SCXVID: ClassVar = SceneChangeMode.SCXVID
 
-    @overload
+    @overload  # type: ignore
     def __init__(self, iterable: Iterable[int]) -> None:
         ...
 
@@ -315,16 +315,15 @@ class Keyframes(list[int]):
 
         frames = clip_async_render(clip, None, 'Detecting scene changes...', mode.lambda_cb(), **kwargs)
 
-        return cls(Sentinel.filter(frames), clip.num_frames)
+        return cls(Sentinel.filter(frames))
 
     @inject_self.with_args(_dummy=True)
     def to_clip(
         self, clip: vs.VideoNode, *, mode: SceneChangeMode | int = WWXD, height: int | None = 360,
-        prop_key: str = next(SceneChangeMode.SCXVID.prop_keys)
+        prop_key: str = next(iter(SceneChangeMode.SCXVID.prop_keys))
     ) -> vs.VideoNode:
         from ..utils import replace_ranges
 
-        keyframes = set(self)
         propset_clip = clip.std.SetFrameProp(prop_key, True)
 
         base_clip = clip.std.BlankClip(keep=True)
@@ -336,7 +335,7 @@ class Keyframes(list[int]):
 
             return base_clip.std.FrameEval(lambda n, f: propset_clip if callback(f) else clip, prop_clip)
 
-        return replace_ranges(clip, propset_clip, keyframes)
+        return replace_ranges(clip, propset_clip, self)
 
     def to_file(self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None) -> None:
         from ..utils import check_perms
