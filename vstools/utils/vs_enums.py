@@ -4,12 +4,16 @@ from enum import IntEnum
 from typing import TYPE_CHECKING
 
 from vapoursynth import FLOAT, GRAY, INTEGER, RGB, YUV
-from vapoursynth import PresetFormat as VSPresetFormat
+
+try:
+    from vapoursynth import PresetFormat as VSPresetVideoFormat
+except ImportError:
+    from vapoursynth import PresetVideoFormat as VSPresetVideoFormat
 
 from .other import IS_DOCS
 
 __all__ = [
-    'PresetFormat',
+    'PresetVideoFormat', 'PresetVideoFormat', 'VSPresetVideoFormat',
     'GRAY8', 'GRAY9', 'GRAY10', 'GRAY11', 'GRAY12', 'GRAY13', 'GRAY14', 'GRAY15', 'GRAY16', 'GRAY17', 'GRAY18',
     'GRAY19', 'GRAY20', 'GRAY21', 'GRAY22', 'GRAY23', 'GRAY24', 'GRAY25', 'GRAY26', 'GRAY27', 'GRAY28', 'GRAY29',
     'GRAY30', 'GRAY31', 'GRAY32', 'GRAYH', 'GRAYS',
@@ -44,14 +48,14 @@ def MAKE_VIDEO_ID(colorFamily: int, sampleType: int, bitsPerSample: int, subSamp
 
 
 if TYPE_CHECKING:
-    PresetFormatBase = VSPresetFormat
+    PresetVideoFormatBase = VSPresetVideoFormat
 else:
-    PresetFormatBase = IntEnum
+    PresetVideoFormatBase = IntEnum
 
 
 ################################################
 
-class PresetFormat(PresetFormatBase):
+class PresetVideoFormat(PresetVideoFormatBase):
     GRAY8 = MAKE_VIDEO_ID(GRAY, INTEGER, 8, 0, 0)  # type: ignore[misc,assignment]
     GRAY9 = MAKE_VIDEO_ID(GRAY, INTEGER, 9, 0, 0)  # type: ignore[misc,assignment]
     GRAY10 = MAKE_VIDEO_ID(GRAY, INTEGER, 10, 0, 0)  # type: ignore[misc,assignment]
@@ -299,219 +303,287 @@ class PresetFormat(PresetFormatBase):
     RGBS = MAKE_VIDEO_ID(RGB, FLOAT, 32, 0, 0)  # type: ignore[misc,assignment]
 
 
-GRAY8 = PresetFormat.GRAY8
-GRAY9 = PresetFormat.GRAY9
-GRAY10 = PresetFormat.GRAY10
-GRAY11 = PresetFormat.GRAY11
-GRAY12 = PresetFormat.GRAY12
-GRAY13 = PresetFormat.GRAY13
-GRAY14 = PresetFormat.GRAY14
-GRAY15 = PresetFormat.GRAY15
-GRAY16 = PresetFormat.GRAY16
-GRAY17 = PresetFormat.GRAY17
-GRAY18 = PresetFormat.GRAY18
-GRAY19 = PresetFormat.GRAY19
-GRAY20 = PresetFormat.GRAY20
-GRAY21 = PresetFormat.GRAY21
-GRAY22 = PresetFormat.GRAY22
-GRAY23 = PresetFormat.GRAY23
-GRAY24 = PresetFormat.GRAY24
-GRAY25 = PresetFormat.GRAY25
-GRAY26 = PresetFormat.GRAY26
-GRAY27 = PresetFormat.GRAY27
-GRAY28 = PresetFormat.GRAY28
-GRAY29 = PresetFormat.GRAY29
-GRAY30 = PresetFormat.GRAY30
-GRAY31 = PresetFormat.GRAY31
-GRAY32 = PresetFormat.GRAY32
-GRAYH = PresetFormat.GRAYH
-GRAYS = PresetFormat.GRAYS
-YUV420P8 = PresetFormat.YUV420P8
-YUV420P9 = PresetFormat.YUV420P9
-YUV420P10 = PresetFormat.YUV420P10
-YUV420P11 = PresetFormat.YUV420P11
-YUV420P12 = PresetFormat.YUV420P12
-YUV420P13 = PresetFormat.YUV420P13
-YUV420P14 = PresetFormat.YUV420P14
-YUV420P15 = PresetFormat.YUV420P15
-YUV420P16 = PresetFormat.YUV420P16
-YUV420P17 = PresetFormat.YUV420P17
-YUV420P18 = PresetFormat.YUV420P18
-YUV420P19 = PresetFormat.YUV420P19
-YUV420P20 = PresetFormat.YUV420P20
-YUV420P21 = PresetFormat.YUV420P21
-YUV420P22 = PresetFormat.YUV420P22
-YUV420P23 = PresetFormat.YUV420P23
-YUV420P24 = PresetFormat.YUV420P24
-YUV420P25 = PresetFormat.YUV420P25
-YUV420P26 = PresetFormat.YUV420P26
-YUV420P27 = PresetFormat.YUV420P27
-YUV420P28 = PresetFormat.YUV420P28
-YUV420P29 = PresetFormat.YUV420P29
-YUV420P30 = PresetFormat.YUV420P30
-YUV420P31 = PresetFormat.YUV420P31
-YUV420P32 = PresetFormat.YUV420P32
-YUV420PH = PresetFormat.YUV420PH
-YUV420PS = PresetFormat.YUV420PS
-YUV444P8 = PresetFormat.YUV444P8
-YUV444P9 = PresetFormat.YUV444P9
-YUV444P10 = PresetFormat.YUV444P10
-YUV444P11 = PresetFormat.YUV444P11
-YUV444P12 = PresetFormat.YUV444P12
-YUV444P13 = PresetFormat.YUV444P13
-YUV444P14 = PresetFormat.YUV444P14
-YUV444P15 = PresetFormat.YUV444P15
-YUV444P16 = PresetFormat.YUV444P16
-YUV444P17 = PresetFormat.YUV444P17
-YUV444P18 = PresetFormat.YUV444P18
-YUV444P19 = PresetFormat.YUV444P19
-YUV444P20 = PresetFormat.YUV444P20
-YUV444P21 = PresetFormat.YUV444P21
-YUV444P22 = PresetFormat.YUV444P22
-YUV444P23 = PresetFormat.YUV444P23
-YUV444P24 = PresetFormat.YUV444P24
-YUV444P25 = PresetFormat.YUV444P25
-YUV444P26 = PresetFormat.YUV444P26
-YUV444P27 = PresetFormat.YUV444P27
-YUV444P28 = PresetFormat.YUV444P28
-YUV444P29 = PresetFormat.YUV444P29
-YUV444P30 = PresetFormat.YUV444P30
-YUV444P31 = PresetFormat.YUV444P31
-YUV444P32 = PresetFormat.YUV444P32
-YUV444PH = PresetFormat.YUV444PH
-YUV444PS = PresetFormat.YUV444PS
-YUV422P8 = PresetFormat.YUV422P8
-YUV422P9 = PresetFormat.YUV422P9
-YUV422P10 = PresetFormat.YUV422P10
-YUV422P11 = PresetFormat.YUV422P11
-YUV422P12 = PresetFormat.YUV422P12
-YUV422P13 = PresetFormat.YUV422P13
-YUV422P14 = PresetFormat.YUV422P14
-YUV422P15 = PresetFormat.YUV422P15
-YUV422P16 = PresetFormat.YUV422P16
-YUV422P17 = PresetFormat.YUV422P17
-YUV422P18 = PresetFormat.YUV422P18
-YUV422P19 = PresetFormat.YUV422P19
-YUV422P20 = PresetFormat.YUV422P20
-YUV422P21 = PresetFormat.YUV422P21
-YUV422P22 = PresetFormat.YUV422P22
-YUV422P23 = PresetFormat.YUV422P23
-YUV422P24 = PresetFormat.YUV422P24
-YUV422P25 = PresetFormat.YUV422P25
-YUV422P26 = PresetFormat.YUV422P26
-YUV422P27 = PresetFormat.YUV422P27
-YUV422P28 = PresetFormat.YUV422P28
-YUV422P29 = PresetFormat.YUV422P29
-YUV422P30 = PresetFormat.YUV422P30
-YUV422P31 = PresetFormat.YUV422P31
-YUV422P32 = PresetFormat.YUV422P32
-YUV422PH = PresetFormat.YUV422PH
-YUV422PS = PresetFormat.YUV422PS
-YUV411P8 = PresetFormat.YUV411P8
-YUV411P9 = PresetFormat.YUV411P9
-YUV411P10 = PresetFormat.YUV411P10
-YUV411P11 = PresetFormat.YUV411P11
-YUV411P12 = PresetFormat.YUV411P12
-YUV411P13 = PresetFormat.YUV411P13
-YUV411P14 = PresetFormat.YUV411P14
-YUV411P15 = PresetFormat.YUV411P15
-YUV411P16 = PresetFormat.YUV411P16
-YUV411P17 = PresetFormat.YUV411P17
-YUV411P18 = PresetFormat.YUV411P18
-YUV411P19 = PresetFormat.YUV411P19
-YUV411P20 = PresetFormat.YUV411P20
-YUV411P21 = PresetFormat.YUV411P21
-YUV411P22 = PresetFormat.YUV411P22
-YUV411P23 = PresetFormat.YUV411P23
-YUV411P24 = PresetFormat.YUV411P24
-YUV411P25 = PresetFormat.YUV411P25
-YUV411P26 = PresetFormat.YUV411P26
-YUV411P27 = PresetFormat.YUV411P27
-YUV411P28 = PresetFormat.YUV411P28
-YUV411P29 = PresetFormat.YUV411P29
-YUV411P30 = PresetFormat.YUV411P30
-YUV411P31 = PresetFormat.YUV411P31
-YUV411P32 = PresetFormat.YUV411P32
-YUV411PH = PresetFormat.YUV411PH
-YUV411PS = PresetFormat.YUV411PS
-YUV440P8 = PresetFormat.YUV440P8
-YUV440P9 = PresetFormat.YUV440P9
-YUV440P10 = PresetFormat.YUV440P10
-YUV440P11 = PresetFormat.YUV440P11
-YUV440P12 = PresetFormat.YUV440P12
-YUV440P13 = PresetFormat.YUV440P13
-YUV440P14 = PresetFormat.YUV440P14
-YUV440P15 = PresetFormat.YUV440P15
-YUV440P16 = PresetFormat.YUV440P16
-YUV440P17 = PresetFormat.YUV440P17
-YUV440P18 = PresetFormat.YUV440P18
-YUV440P19 = PresetFormat.YUV440P19
-YUV440P20 = PresetFormat.YUV440P20
-YUV440P21 = PresetFormat.YUV440P21
-YUV440P22 = PresetFormat.YUV440P22
-YUV440P23 = PresetFormat.YUV440P23
-YUV440P24 = PresetFormat.YUV440P24
-YUV440P25 = PresetFormat.YUV440P25
-YUV440P26 = PresetFormat.YUV440P26
-YUV440P27 = PresetFormat.YUV440P27
-YUV440P28 = PresetFormat.YUV440P28
-YUV440P29 = PresetFormat.YUV440P29
-YUV440P30 = PresetFormat.YUV440P30
-YUV440P31 = PresetFormat.YUV440P31
-YUV440P32 = PresetFormat.YUV440P32
-YUV440PH = PresetFormat.YUV440PH
-YUV440PS = PresetFormat.YUV440PS
-YUV410P8 = PresetFormat.YUV410P8
-YUV410P9 = PresetFormat.YUV410P9
-YUV410P10 = PresetFormat.YUV410P10
-YUV410P11 = PresetFormat.YUV410P11
-YUV410P12 = PresetFormat.YUV410P12
-YUV410P13 = PresetFormat.YUV410P13
-YUV410P14 = PresetFormat.YUV410P14
-YUV410P15 = PresetFormat.YUV410P15
-YUV410P16 = PresetFormat.YUV410P16
-YUV410P17 = PresetFormat.YUV410P17
-YUV410P18 = PresetFormat.YUV410P18
-YUV410P19 = PresetFormat.YUV410P19
-YUV410P20 = PresetFormat.YUV410P20
-YUV410P21 = PresetFormat.YUV410P21
-YUV410P22 = PresetFormat.YUV410P22
-YUV410P23 = PresetFormat.YUV410P23
-YUV410P24 = PresetFormat.YUV410P24
-YUV410P25 = PresetFormat.YUV410P25
-YUV410P26 = PresetFormat.YUV410P26
-YUV410P27 = PresetFormat.YUV410P27
-YUV410P28 = PresetFormat.YUV410P28
-YUV410P29 = PresetFormat.YUV410P29
-YUV410P30 = PresetFormat.YUV410P30
-YUV410P31 = PresetFormat.YUV410P31
-YUV410P32 = PresetFormat.YUV410P32
-YUV410PH = PresetFormat.YUV410PH
-YUV410PS = PresetFormat.YUV410PS
-RGB24 = PresetFormat.RGB24
-RGB27 = PresetFormat.RGB27
-RGB30 = PresetFormat.RGB30
-RGB33 = PresetFormat.RGB33
-RGB36 = PresetFormat.RGB36
-RGB39 = PresetFormat.RGB39
-RGB42 = PresetFormat.RGB42
-RGB45 = PresetFormat.RGB45
-RGB48 = PresetFormat.RGB48
-RGB51 = PresetFormat.RGB51
-RGB54 = PresetFormat.RGB54
-RGB57 = PresetFormat.RGB57
-RGB60 = PresetFormat.RGB60
-RGB63 = PresetFormat.RGB63
-RGB66 = PresetFormat.RGB66
-RGB69 = PresetFormat.RGB69
-RGB72 = PresetFormat.RGB72
-RGB75 = PresetFormat.RGB75
-RGB78 = PresetFormat.RGB78
-RGB81 = PresetFormat.RGB81
-RGB84 = PresetFormat.RGB84
-RGB87 = PresetFormat.RGB87
-RGB90 = PresetFormat.RGB90
-RGB93 = PresetFormat.RGB93
-RGB96 = PresetFormat.RGB96
-RGBH = PresetFormat.RGBH
-RGBS = PresetFormat.RGBS
+class PresetDeprecateProxy(type):
+    @classmethod
+    def _warn(cls) -> None:
+        import warnings
+        warnings.warn('vs.PresetFormat is DEPRECATED! Use PresetVideoFormat from now on!')
+
+    def __bool__(cls):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__bool__()  # type: ignore
+
+    def __call__(  # type: ignore
+        cls, value, names=None, *, module=None, qualname=None, type=None, start=1, boundary=None
+    ):
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__call__(  # type: ignore
+            value, names, module=module, qualname=qualname, type=type, start=start, boundary=boundary
+        )
+
+    def __contains__(cls, member):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__contains__(member)
+
+    def __delattr__(cls, attr):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__delattr__(attr)  # type: ignore
+
+    def __dir__(cls):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__dir__()  # type: ignore
+
+    def __getattr__(cls, name):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__getattr__(name)  # type: ignore
+
+    def __getitem__(cls, name):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__getitem__(name)
+
+    def __iter__(cls):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__iter__()
+
+    def __len__(cls):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__len__()
+
+    @property
+    def __members__(cls):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__members__()
+
+    def __repr__(cls):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__repr__()  # type: ignore
+
+    def __reversed__(cls):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__reversed__()
+
+    def __setattr__(cls, name, value):  # type: ignore
+        PresetDeprecateProxy._warn()
+        return PresetVideoFormat.__setattr__(name, value)  # type: ignore
+
+
+class PresetFormat(metaclass=PresetDeprecateProxy):
+    """Deprecated, use PresetVideoFormat"""
+
+
+GRAY8 = PresetVideoFormat.GRAY8
+GRAY9 = PresetVideoFormat.GRAY9
+GRAY10 = PresetVideoFormat.GRAY10
+GRAY11 = PresetVideoFormat.GRAY11
+GRAY12 = PresetVideoFormat.GRAY12
+GRAY13 = PresetVideoFormat.GRAY13
+GRAY14 = PresetVideoFormat.GRAY14
+GRAY15 = PresetVideoFormat.GRAY15
+GRAY16 = PresetVideoFormat.GRAY16
+GRAY17 = PresetVideoFormat.GRAY17
+GRAY18 = PresetVideoFormat.GRAY18
+GRAY19 = PresetVideoFormat.GRAY19
+GRAY20 = PresetVideoFormat.GRAY20
+GRAY21 = PresetVideoFormat.GRAY21
+GRAY22 = PresetVideoFormat.GRAY22
+GRAY23 = PresetVideoFormat.GRAY23
+GRAY24 = PresetVideoFormat.GRAY24
+GRAY25 = PresetVideoFormat.GRAY25
+GRAY26 = PresetVideoFormat.GRAY26
+GRAY27 = PresetVideoFormat.GRAY27
+GRAY28 = PresetVideoFormat.GRAY28
+GRAY29 = PresetVideoFormat.GRAY29
+GRAY30 = PresetVideoFormat.GRAY30
+GRAY31 = PresetVideoFormat.GRAY31
+GRAY32 = PresetVideoFormat.GRAY32
+GRAYH = PresetVideoFormat.GRAYH
+GRAYS = PresetVideoFormat.GRAYS
+YUV420P8 = PresetVideoFormat.YUV420P8
+YUV420P9 = PresetVideoFormat.YUV420P9
+YUV420P10 = PresetVideoFormat.YUV420P10
+YUV420P11 = PresetVideoFormat.YUV420P11
+YUV420P12 = PresetVideoFormat.YUV420P12
+YUV420P13 = PresetVideoFormat.YUV420P13
+YUV420P14 = PresetVideoFormat.YUV420P14
+YUV420P15 = PresetVideoFormat.YUV420P15
+YUV420P16 = PresetVideoFormat.YUV420P16
+YUV420P17 = PresetVideoFormat.YUV420P17
+YUV420P18 = PresetVideoFormat.YUV420P18
+YUV420P19 = PresetVideoFormat.YUV420P19
+YUV420P20 = PresetVideoFormat.YUV420P20
+YUV420P21 = PresetVideoFormat.YUV420P21
+YUV420P22 = PresetVideoFormat.YUV420P22
+YUV420P23 = PresetVideoFormat.YUV420P23
+YUV420P24 = PresetVideoFormat.YUV420P24
+YUV420P25 = PresetVideoFormat.YUV420P25
+YUV420P26 = PresetVideoFormat.YUV420P26
+YUV420P27 = PresetVideoFormat.YUV420P27
+YUV420P28 = PresetVideoFormat.YUV420P28
+YUV420P29 = PresetVideoFormat.YUV420P29
+YUV420P30 = PresetVideoFormat.YUV420P30
+YUV420P31 = PresetVideoFormat.YUV420P31
+YUV420P32 = PresetVideoFormat.YUV420P32
+YUV420PH = PresetVideoFormat.YUV420PH
+YUV420PS = PresetVideoFormat.YUV420PS
+YUV444P8 = PresetVideoFormat.YUV444P8
+YUV444P9 = PresetVideoFormat.YUV444P9
+YUV444P10 = PresetVideoFormat.YUV444P10
+YUV444P11 = PresetVideoFormat.YUV444P11
+YUV444P12 = PresetVideoFormat.YUV444P12
+YUV444P13 = PresetVideoFormat.YUV444P13
+YUV444P14 = PresetVideoFormat.YUV444P14
+YUV444P15 = PresetVideoFormat.YUV444P15
+YUV444P16 = PresetVideoFormat.YUV444P16
+YUV444P17 = PresetVideoFormat.YUV444P17
+YUV444P18 = PresetVideoFormat.YUV444P18
+YUV444P19 = PresetVideoFormat.YUV444P19
+YUV444P20 = PresetVideoFormat.YUV444P20
+YUV444P21 = PresetVideoFormat.YUV444P21
+YUV444P22 = PresetVideoFormat.YUV444P22
+YUV444P23 = PresetVideoFormat.YUV444P23
+YUV444P24 = PresetVideoFormat.YUV444P24
+YUV444P25 = PresetVideoFormat.YUV444P25
+YUV444P26 = PresetVideoFormat.YUV444P26
+YUV444P27 = PresetVideoFormat.YUV444P27
+YUV444P28 = PresetVideoFormat.YUV444P28
+YUV444P29 = PresetVideoFormat.YUV444P29
+YUV444P30 = PresetVideoFormat.YUV444P30
+YUV444P31 = PresetVideoFormat.YUV444P31
+YUV444P32 = PresetVideoFormat.YUV444P32
+YUV444PH = PresetVideoFormat.YUV444PH
+YUV444PS = PresetVideoFormat.YUV444PS
+YUV422P8 = PresetVideoFormat.YUV422P8
+YUV422P9 = PresetVideoFormat.YUV422P9
+YUV422P10 = PresetVideoFormat.YUV422P10
+YUV422P11 = PresetVideoFormat.YUV422P11
+YUV422P12 = PresetVideoFormat.YUV422P12
+YUV422P13 = PresetVideoFormat.YUV422P13
+YUV422P14 = PresetVideoFormat.YUV422P14
+YUV422P15 = PresetVideoFormat.YUV422P15
+YUV422P16 = PresetVideoFormat.YUV422P16
+YUV422P17 = PresetVideoFormat.YUV422P17
+YUV422P18 = PresetVideoFormat.YUV422P18
+YUV422P19 = PresetVideoFormat.YUV422P19
+YUV422P20 = PresetVideoFormat.YUV422P20
+YUV422P21 = PresetVideoFormat.YUV422P21
+YUV422P22 = PresetVideoFormat.YUV422P22
+YUV422P23 = PresetVideoFormat.YUV422P23
+YUV422P24 = PresetVideoFormat.YUV422P24
+YUV422P25 = PresetVideoFormat.YUV422P25
+YUV422P26 = PresetVideoFormat.YUV422P26
+YUV422P27 = PresetVideoFormat.YUV422P27
+YUV422P28 = PresetVideoFormat.YUV422P28
+YUV422P29 = PresetVideoFormat.YUV422P29
+YUV422P30 = PresetVideoFormat.YUV422P30
+YUV422P31 = PresetVideoFormat.YUV422P31
+YUV422P32 = PresetVideoFormat.YUV422P32
+YUV422PH = PresetVideoFormat.YUV422PH
+YUV422PS = PresetVideoFormat.YUV422PS
+YUV411P8 = PresetVideoFormat.YUV411P8
+YUV411P9 = PresetVideoFormat.YUV411P9
+YUV411P10 = PresetVideoFormat.YUV411P10
+YUV411P11 = PresetVideoFormat.YUV411P11
+YUV411P12 = PresetVideoFormat.YUV411P12
+YUV411P13 = PresetVideoFormat.YUV411P13
+YUV411P14 = PresetVideoFormat.YUV411P14
+YUV411P15 = PresetVideoFormat.YUV411P15
+YUV411P16 = PresetVideoFormat.YUV411P16
+YUV411P17 = PresetVideoFormat.YUV411P17
+YUV411P18 = PresetVideoFormat.YUV411P18
+YUV411P19 = PresetVideoFormat.YUV411P19
+YUV411P20 = PresetVideoFormat.YUV411P20
+YUV411P21 = PresetVideoFormat.YUV411P21
+YUV411P22 = PresetVideoFormat.YUV411P22
+YUV411P23 = PresetVideoFormat.YUV411P23
+YUV411P24 = PresetVideoFormat.YUV411P24
+YUV411P25 = PresetVideoFormat.YUV411P25
+YUV411P26 = PresetVideoFormat.YUV411P26
+YUV411P27 = PresetVideoFormat.YUV411P27
+YUV411P28 = PresetVideoFormat.YUV411P28
+YUV411P29 = PresetVideoFormat.YUV411P29
+YUV411P30 = PresetVideoFormat.YUV411P30
+YUV411P31 = PresetVideoFormat.YUV411P31
+YUV411P32 = PresetVideoFormat.YUV411P32
+YUV411PH = PresetVideoFormat.YUV411PH
+YUV411PS = PresetVideoFormat.YUV411PS
+YUV440P8 = PresetVideoFormat.YUV440P8
+YUV440P9 = PresetVideoFormat.YUV440P9
+YUV440P10 = PresetVideoFormat.YUV440P10
+YUV440P11 = PresetVideoFormat.YUV440P11
+YUV440P12 = PresetVideoFormat.YUV440P12
+YUV440P13 = PresetVideoFormat.YUV440P13
+YUV440P14 = PresetVideoFormat.YUV440P14
+YUV440P15 = PresetVideoFormat.YUV440P15
+YUV440P16 = PresetVideoFormat.YUV440P16
+YUV440P17 = PresetVideoFormat.YUV440P17
+YUV440P18 = PresetVideoFormat.YUV440P18
+YUV440P19 = PresetVideoFormat.YUV440P19
+YUV440P20 = PresetVideoFormat.YUV440P20
+YUV440P21 = PresetVideoFormat.YUV440P21
+YUV440P22 = PresetVideoFormat.YUV440P22
+YUV440P23 = PresetVideoFormat.YUV440P23
+YUV440P24 = PresetVideoFormat.YUV440P24
+YUV440P25 = PresetVideoFormat.YUV440P25
+YUV440P26 = PresetVideoFormat.YUV440P26
+YUV440P27 = PresetVideoFormat.YUV440P27
+YUV440P28 = PresetVideoFormat.YUV440P28
+YUV440P29 = PresetVideoFormat.YUV440P29
+YUV440P30 = PresetVideoFormat.YUV440P30
+YUV440P31 = PresetVideoFormat.YUV440P31
+YUV440P32 = PresetVideoFormat.YUV440P32
+YUV440PH = PresetVideoFormat.YUV440PH
+YUV440PS = PresetVideoFormat.YUV440PS
+YUV410P8 = PresetVideoFormat.YUV410P8
+YUV410P9 = PresetVideoFormat.YUV410P9
+YUV410P10 = PresetVideoFormat.YUV410P10
+YUV410P11 = PresetVideoFormat.YUV410P11
+YUV410P12 = PresetVideoFormat.YUV410P12
+YUV410P13 = PresetVideoFormat.YUV410P13
+YUV410P14 = PresetVideoFormat.YUV410P14
+YUV410P15 = PresetVideoFormat.YUV410P15
+YUV410P16 = PresetVideoFormat.YUV410P16
+YUV410P17 = PresetVideoFormat.YUV410P17
+YUV410P18 = PresetVideoFormat.YUV410P18
+YUV410P19 = PresetVideoFormat.YUV410P19
+YUV410P20 = PresetVideoFormat.YUV410P20
+YUV410P21 = PresetVideoFormat.YUV410P21
+YUV410P22 = PresetVideoFormat.YUV410P22
+YUV410P23 = PresetVideoFormat.YUV410P23
+YUV410P24 = PresetVideoFormat.YUV410P24
+YUV410P25 = PresetVideoFormat.YUV410P25
+YUV410P26 = PresetVideoFormat.YUV410P26
+YUV410P27 = PresetVideoFormat.YUV410P27
+YUV410P28 = PresetVideoFormat.YUV410P28
+YUV410P29 = PresetVideoFormat.YUV410P29
+YUV410P30 = PresetVideoFormat.YUV410P30
+YUV410P31 = PresetVideoFormat.YUV410P31
+YUV410P32 = PresetVideoFormat.YUV410P32
+YUV410PH = PresetVideoFormat.YUV410PH
+YUV410PS = PresetVideoFormat.YUV410PS
+RGB24 = PresetVideoFormat.RGB24
+RGB27 = PresetVideoFormat.RGB27
+RGB30 = PresetVideoFormat.RGB30
+RGB33 = PresetVideoFormat.RGB33
+RGB36 = PresetVideoFormat.RGB36
+RGB39 = PresetVideoFormat.RGB39
+RGB42 = PresetVideoFormat.RGB42
+RGB45 = PresetVideoFormat.RGB45
+RGB48 = PresetVideoFormat.RGB48
+RGB51 = PresetVideoFormat.RGB51
+RGB54 = PresetVideoFormat.RGB54
+RGB57 = PresetVideoFormat.RGB57
+RGB60 = PresetVideoFormat.RGB60
+RGB63 = PresetVideoFormat.RGB63
+RGB66 = PresetVideoFormat.RGB66
+RGB69 = PresetVideoFormat.RGB69
+RGB72 = PresetVideoFormat.RGB72
+RGB75 = PresetVideoFormat.RGB75
+RGB78 = PresetVideoFormat.RGB78
+RGB81 = PresetVideoFormat.RGB81
+RGB84 = PresetVideoFormat.RGB84
+RGB87 = PresetVideoFormat.RGB87
+RGB90 = PresetVideoFormat.RGB90
+RGB93 = PresetVideoFormat.RGB93
+RGB96 = PresetVideoFormat.RGB96
+RGBH = PresetVideoFormat.RGBH
+RGBS = PresetVideoFormat.RGBS

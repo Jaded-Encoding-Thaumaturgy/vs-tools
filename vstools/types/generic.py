@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, Protocol, TypeAlias, TypeVar, Union
+from typing import Any, Callable, Literal, Protocol, TypeAlias, TypeVar, Union, TYPE_CHECKING
 from enum import Enum, auto
 import vapoursynth as vs
 
@@ -58,8 +58,17 @@ BoundVSMapValue = TypeVar('BoundVSMapValue', bound=VSMapValue)
 VSMapValueCallback = Callable[..., VSMapValue]
 """Callback that can be held in a VSMap. It can only return values representable in a VSMap."""
 
-VideoFormatT = Union[vs.PresetFormat, vs.VideoFormat]
-"""Types representing a clear VideoFormat."""
+if TYPE_CHECKING:
+    from ..utils.vs_enums import VSPresetVideoFormat
+    VideoFormatT = Union[VSPresetVideoFormat, vs.VideoFormat]
+    """Types representing a clear VideoFormat."""
+else:
+    if hasattr(vs, 'PresetFormat'):
+        VideoFormatT = Union[vs.PresetFormat, vs.VideoFormat]
+        """Types representing a clear VideoFormat."""
+    else:
+        VideoFormatT = Union[vs.PresetVideoFormat, vs.VideoFormat]
+        """Types representing a clear VideoFormat."""
 
 # TODO change to | when mypy fixes bug upstream
 HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat]

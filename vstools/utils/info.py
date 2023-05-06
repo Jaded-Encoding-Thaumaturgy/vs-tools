@@ -43,13 +43,15 @@ def get_video_format(
 ) -> vs.VideoFormat:
     """Get format of a given value."""
 
+    from ..utils.vs_enums import VSPresetVideoFormat
+
     if sample_type is not None:
         sample_type = vs.SampleType(sample_type)
 
     if isinstance(value, vs.VideoFormat):
         return value  # type: ignore
 
-    if isinstance(value, vs.PresetFormat):
+    if isinstance(value, VSPresetVideoFormat):
         return vs.core.get_video_format(value)
 
     if isinstance(value, int):
