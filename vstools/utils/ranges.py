@@ -134,7 +134,7 @@ def replace_ranges(
     :return:            Clip with ranges from clip_a replaced with clip_b.
     """
 
-    from ..functions import normalize_ranges, normalize_ranges_to_list
+    from ..functions import invert_ranges, normalize_ranges, normalize_ranges_to_list
 
     if ranges != 0 and not ranges or clip_a is clip_b:
         return clip_a
@@ -210,21 +210,16 @@ def replace_ranges(
         )
 
     if do_splice_trim:
-        out = clip_a
-        shift = 1 + exclusive
+        shift = 1 - exclusive
 
-        for start, end in nranges:
-            tmp = clip_b[start:end + shift]
+        a_ranges = invert_ranges(clip_b, clip_a, nranges)
 
-            if start != 0:
-                tmp = vs.core.std.Splice([out[: start], tmp], mismatch)
+        a_trims = [clip_a[start:end + shift] for start, end in a_ranges]
+        b_trims = [clip_b[start:end + shift] for start, end in nranges]
 
-            if end < out.num_frames - 1:
-                tmp = vs.core.std.Splice([tmp, out[end + shift:]], mismatch)
+        main, other = (a_trims, b_trims) if (a_ranges[0][0] == 0) else (b_trims, a_trims)
 
-            out = tmp
-
-        return out
+        return vs.core.std.Splice(list(interleave_arr(main, other, 1)), mismatch)
 
     b_frames = set(normalize_ranges_to_list(nranges))
     return replace_ranges(clip_a, clip_b, lambda n: n in b_frames)
