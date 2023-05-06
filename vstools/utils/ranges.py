@@ -288,7 +288,9 @@ def interleave_arr(arr0: Iterable[T], arr1: Iterable[T0], n: int = 2) -> Iterabl
     :yield:         Elements from either arr0 or arr01.
     """
     if n == 1:
-        return [x for x in chain(*zip_longest(arr0, arr1)) if x is not None]
+        yield from (x for x in chain.from_iterable(zip_longest(arr0, arr1)) if x is not None)
+
+        return
 
     arr0_i, arr1_i = iter(arr0), iter(arr1)
     arr1_vals = arr0_vals = True
