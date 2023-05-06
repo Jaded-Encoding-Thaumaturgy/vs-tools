@@ -92,14 +92,8 @@ def replace_ranges(
     *, prop_src: vs.VideoNode | list[vs.VideoNode] | None = None
 ) -> vs.VideoNode:
     """
-    Remaps frame indices in a clip using ints and tuples rather than a string.
-
+    Replaces frames in a clip, either with pre-calculated indices or on-the-fly with a callback.
     Frame ranges are inclusive. This behaviour can be changed by setting `exclusive=True`.
-
-    If you're trying to splice in clips, it's recommended you use :py:func:`insert_clip` instead.
-
-    This function will try to call the `VapourSynth-RemapFrames` plugin before doing any of its own processing.
-    This should come with a speed boost, so it's recommended you install it.
 
     Examples with clips ``black`` and ``white`` of equal length:
         * ``replace_ranges(black, white, [(0, 1)])``: replace frames 0 and 1 with ``white``
@@ -109,10 +103,8 @@ def replace_ranges(
         * ``replace_ranges(black, white, [(200, -1)])``: replace 200 until the end with ``white``,
                                                          leaving 1 frame of ``black``
 
-    Alias for this function is ``rfs``.
-
     Optional Dependencies:
-        * `use_plugin=True`: Either of the following two plugins:
+        * Either of the following two plugins:
             * `VS Julek Plugin <https://github.com/dnjulek/vapoursynth-julek-plugin>`_
             * `VSRemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
 
@@ -121,6 +113,7 @@ def replace_ranges(
     :param ranges:      Ranges to replace clip_a (original clip) with clip_b (replacement clip).
                         Integer values in the list indicate single frames,
                         Tuple values indicate inclusive ranges.
+                        Callbacks must return true to replace a with b.
                         Negative integer values will be wrapped around based on clip_b's length.
                         None values are context dependent:
                             * None provided as sole value to ranges: no-op
@@ -128,7 +121,6 @@ def replace_ranges(
                             * None as first value of tuple: 0
                             * None as second value of tuple: Last frame in clip_b
     :param exclusive:   Use exclusive ranges (Default: False).
-    :param use_plugin:  Use the ReplaceFramesSimple plugin for the rfs call (Default: True).
     :param mismatch:    Accept format or resolution mismatch between clips.
 
     :return:            Clip with ranges from clip_a replaced with clip_b.
