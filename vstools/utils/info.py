@@ -270,7 +270,7 @@ def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9
         aspect_ratio = ref.height / ref.width  # type: ignore
         mod = fallback(mod, ref.format.subsampling_h and 2 << ref.format.subsampling_h)  # type: ignore
     else:
-        aspect_ratio = ar_or_ref
+        aspect_ratio = 1 / ar_or_ref
 
         if mod is None:
             mod = 0 if width % 2 else 2

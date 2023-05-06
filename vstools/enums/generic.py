@@ -86,6 +86,7 @@ class ChromaLocation(_ChromaLocationMeta):
         if isinstance(chroma_loc, vs.VideoNode):
             assert chroma_loc.format  # type: ignore
             subsampling = (chroma_loc.format.subsampling_w, chroma_loc.format.subsampling_h)  # type: ignore
+            offsets = (0, 0)
 
             if subsampling in [(1, 0), (1, 1)]:
                 offsets = (0.5, 0)
@@ -184,7 +185,7 @@ class FieldBased(_FieldBasedMeta):
         :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
         """
 
-        if self.PROGRESSIVE:
+        if self == self.PROGRESSIVE:
             raise UnsupportedFieldBasedError(
                 'Progressive video aren\'t field based!',
                 f'{self.__class__.__name__}.field'

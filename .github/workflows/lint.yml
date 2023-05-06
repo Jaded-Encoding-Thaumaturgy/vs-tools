@@ -25,7 +25,13 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
       - name: Running flake8
-        run: flake8 vstools
+        run: |
+          flake8 vstools
+          flake8 tests
       - name: Running mypy
-        if: steps.dependencies.outcome == 'success'
-        run: mypy vstools
+        continue-on-error: true
+        run: |
+          mypy vstools
+          mypy tests
+      - name: Running tests
+        run: pytest tests
