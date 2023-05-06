@@ -16,6 +16,7 @@ __all__ = [
     'normalize_ranges_to_list',
     'normalize_franges',
     'normalize_ranges',
+    'invert_ranges',
     'norm_func_name', 'norm_display_name'
 ]
 
@@ -251,6 +252,19 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
     return normalize_list_to_ranges([
         x for start, end in out for x in range(start, end + 1)
+    ])
+
+
+def invert_ranges(
+        clipa: vs.VideoNode, clipb: vs.VideoNode | None, ranges: FrameRangeN | FrameRangesN) -> list[
+        tuple[int, int]]:
+    norm_ranges = normalize_ranges(clipb or clipa, ranges)
+
+    b_frames = set(normalize_ranges_to_list(norm_ranges))
+
+    return normalize_list_to_ranges([
+        i for i in range(0, clipa.num_frames + 1)
+        if i not in b_frames
     ])
 
 
