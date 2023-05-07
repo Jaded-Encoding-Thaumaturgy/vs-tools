@@ -211,9 +211,9 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
         >>> clip.num_frames
         1000
         >>> normalize_ranges(clip, (None, None))
-        [(0, 1000)]
+        [(0, 999)]
         >>> normalize_ranges(clip, (24, -24))
-        [(24, 976)]
+        [(24, 975)]
         >>> normalize_ranges(clip, [(24, 100), (80, 150)])
         [(24, 150)]
 
@@ -237,7 +237,7 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
             if start is None:
                 start = 0
             if end is None:
-                end = clip.num_frames
+                end = clip.num_frames - 1
         else:
             start = r
             end = r
@@ -246,7 +246,7 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
             start = clip.num_frames - 1 + start
 
         if end < 0:
-            end = clip.num_frames + end
+            end = clip.num_frames - 1 + end
 
         out.append((start, end))
 
