@@ -86,7 +86,6 @@ class ChromaLocation(_ChromaLocationMeta):
         if isinstance(chroma_loc, vs.VideoNode):
             assert chroma_loc.format  # type: ignore
             subsampling = (chroma_loc.format.subsampling_w, chroma_loc.format.subsampling_h)  # type: ignore
-            offsets = (0, 0)
 
             if subsampling in [(1, 0), (1, 1)]:
                 offsets = (0.5, 0)
@@ -96,6 +95,8 @@ class ChromaLocation(_ChromaLocationMeta):
                 offsets = (2.5, 0)
             elif subsampling == (2, 2):
                 offsets = (2.5, 1)
+            else:
+                offsets = (0, 0)
 
             return offsets
 
