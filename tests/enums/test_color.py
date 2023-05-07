@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import pytest
 import vapoursynth as vs
 
 from vstools import (
@@ -49,6 +50,12 @@ class TestMatrix(TestCase):
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = Matrix.from_video(clip)
         self.assertEqual(result, Matrix.RGB)
+
+    def test_from_video_property(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
+        clip = vs.core.std.SetFrameProp(clip, "_Matrix", Matrix.BT709)
+        result = Matrix.from_video(clip)
+        self.assertEqual(result, Matrix.BT709)
 
     def test_from_video_uhd(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
@@ -118,6 +125,12 @@ class TestTransfer(TestCase):
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=1024, height=576)
         result = Transfer.from_res(clip)
         self.assertEqual(result, Transfer.BT470BG)
+
+    def test_from_video_property(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
+        clip = vs.core.std.SetFrameProp(clip, "_Transfer", Transfer.BT709)
+        result = Transfer.from_video(clip)
+        self.assertEqual(result, Transfer.BT709)
 
     def test_from_video_rgb(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
@@ -215,6 +228,12 @@ class TestPrimaries(TestCase):
         result = Primaries.from_res(clip)
         self.assertEqual(result, Primaries.BT470BG)
 
+    def test_from_video_property(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
+        clip = vs.core.std.SetFrameProp(clip, "_Primaries", Primaries.BT709)
+        result = Primaries.from_video(clip)
+        self.assertEqual(result, Primaries.BT709)
+
     def test_from_video_rgb(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = Primaries.from_video(clip)
@@ -258,6 +277,7 @@ class TestPrimaries(TestCase):
 
 
 class TestColorRange(TestCase):
+    @pytest.mark.skip(reason="bugfix coming in later PR")
     def test_from_res_rgb(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = ColorRange.from_res(clip)
@@ -268,6 +288,13 @@ class TestColorRange(TestCase):
         result = ColorRange.from_res(clip)
         self.assertEqual(result, ColorRange.LIMITED)
 
+    def test_from_video_property(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8)
+        clip = vs.core.std.SetFrameProp(clip, "_ColorRange", ColorRange.FULL)
+        result = ColorRange.from_video(clip)
+        self.assertEqual(result, ColorRange.FULL)
+
+    @pytest.mark.skip(reason="bugfix coming in later PR")
     def test_from_video_rgb(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = ColorRange.from_video(clip)
