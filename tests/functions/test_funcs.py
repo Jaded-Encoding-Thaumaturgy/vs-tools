@@ -1,13 +1,12 @@
+from typing import Callable, cast
 from unittest import TestCase
 
-import vapoursynth as vs
-
-from vstools import fallback, iterate, kwargs_fallback
+from vstools import fallback, iterate, kwargs_fallback, vs
 
 
 class TestFuncs(TestCase):
     def test_iterate(self) -> None:
-        result = iterate(5, lambda x: x * 2, 2)
+        result = iterate(5, cast(Callable[[int], int], lambda x: x * 2), 2)
         self.assertEqual(result, 20)
 
     def test_iterate_clip(self) -> None:

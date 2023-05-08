@@ -1,12 +1,10 @@
 from unittest import TestCase
 
-import vapoursynth as vs
-
-from vstools import ColorRange, scale_8bit, scale_value
+from vstools import ColorRange, scale_8bit, scale_value, vs
 
 
 class TestScale(TestCase):
-    def test_scale_8bit_to_8bit(self):
+    def test_scale_8bit_to_8bit(self) -> None:
         result = scale_8bit(vs.YUV420P8, 0)
         self.assertEqual(result, 0)
 
@@ -19,7 +17,7 @@ class TestScale(TestCase):
         result = scale_8bit(vs.YUV420P8, 255)
         self.assertEqual(result, 255)
 
-    def test_scale_8bit_to_10bit(self):
+    def test_scale_8bit_to_10bit(self) -> None:
         result = scale_8bit(vs.YUV420P10, 0)
         self.assertEqual(result, 0)
 
@@ -32,7 +30,7 @@ class TestScale(TestCase):
         result = scale_8bit(vs.YUV420P10, 255)
         self.assertEqual(result, 1020)
 
-    def test_scale_8bit_to_float(self):
+    def test_scale_8bit_to_float(self) -> None:
         result = scale_8bit(vs.YUV444PS, 0)
         self.assertEqual(result, 0)
 
@@ -45,7 +43,7 @@ class TestScale(TestCase):
         result = scale_8bit(vs.YUV444PS, 255)
         self.assertEqual(result, 1)
 
-    def test_scale_value_no_change(self):
+    def test_scale_value_no_change(self) -> None:
         result = scale_value(0, 8, 8)
         self.assertEqual(result, 0)
 
@@ -58,7 +56,7 @@ class TestScale(TestCase):
         result = scale_value(255, 8, 8)
         self.assertEqual(result, 255)
 
-    def test_scale_value_to_10bit(self):
+    def test_scale_value_to_10bit(self) -> None:
         result = scale_value(0, 8, 10)
         self.assertEqual(result, 0)
 
@@ -71,7 +69,7 @@ class TestScale(TestCase):
         result = scale_value(255, 8, 10)
         self.assertEqual(result, 1020)
 
-    def test_scale_value_from_10bit(self):
+    def test_scale_value_from_10bit(self) -> None:
         result = scale_value(0, 10, 8)
         self.assertEqual(result, 0)
 
@@ -84,7 +82,7 @@ class TestScale(TestCase):
         result = scale_value(1020, 10, 8)
         self.assertEqual(result, 255)
 
-    def test_scale_value_to_float(self):
+    def test_scale_value_to_float(self) -> None:
         result = scale_value(0, 8, vs.YUV444PS)
         self.assertEqual(result, 0)
 
@@ -97,7 +95,7 @@ class TestScale(TestCase):
         result = scale_value(255, 8, vs.YUV444PS)
         self.assertEqual(result, 1)
 
-    def test_scale_value_from_float(self):
+    def test_scale_value_from_float(self) -> None:
         result = scale_value(0, vs.YUV444PS, 8)
         self.assertEqual(result, 0)
 
@@ -110,7 +108,7 @@ class TestScale(TestCase):
         result = scale_value(1, vs.YUV444PS, 8)
         self.assertEqual(result, 255)
 
-    def test_scale_value_to_limited(self):
+    def test_scale_value_to_limited(self) -> None:
         result = scale_value(
             0, 8, 8, range_in=ColorRange.FULL, range_out=ColorRange.LIMITED
         )
@@ -131,7 +129,7 @@ class TestScale(TestCase):
         )
         self.assertEqual(result, 235)
 
-    def test_scale_value_from_limited(self):
+    def test_scale_value_from_limited(self) -> None:
         result = scale_value(
             0, 8, 8, range_in=ColorRange.LIMITED, range_out=ColorRange.FULL
         )

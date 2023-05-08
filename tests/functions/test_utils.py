@@ -1,19 +1,7 @@
 from unittest import TestCase
 
-import vapoursynth as vs
-
 from vstools import (
-    ColorRange,
-    DitherType,
-    InvalidColorFamilyError,
-    depth,
-    get_b,
-    get_g,
-    get_r,
-    get_u,
-    get_v,
-    get_y,
-    plane,
+    ColorRange, DitherType, InvalidColorFamilyError, depth, get_b, get_g, get_r, get_u, get_v, get_y, plane, vs
 )
 
 
@@ -60,15 +48,18 @@ class TestUtils(TestCase):
     def test_depth(self) -> None:
         src_8 = vs.core.std.BlankClip(format=vs.YUV420P8)
         src_10 = depth(src_8, 10)
+        assert src_10.format
         self.assertEqual(src_10.format.name, "YUV420P10")
 
         src2_10 = vs.core.std.BlankClip(format=vs.RGB30)
         src2_8 = depth(src2_10, 8, dither_type=DitherType.RANDOM)
+        assert src2_8.format
         self.assertEqual(src2_8.format.name, "RGB24")
 
     def test_get_y(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
         result = get_y(clip)
+        assert result.format
         self.assertEqual(result.format.name, "Gray8")
 
     def test_get_y_invalid(self) -> None:
@@ -79,6 +70,7 @@ class TestUtils(TestCase):
     def test_get_u(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
         result = get_u(clip)
+        assert result.format
         self.assertEqual(result.format.name, "Gray8")
 
     def test_get_u_invalid(self) -> None:
@@ -89,6 +81,7 @@ class TestUtils(TestCase):
     def test_get_v(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
         result = get_v(clip)
+        assert result.format
         self.assertEqual(result.format.name, "Gray8")
 
     def test_get_v_invalid(self) -> None:
@@ -99,6 +92,7 @@ class TestUtils(TestCase):
     def test_get_r(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = get_r(clip)
+        assert result.format
         self.assertEqual(result.format.name, "Gray8")
 
     def test_get_r_invalid(self) -> None:
@@ -109,6 +103,7 @@ class TestUtils(TestCase):
     def test_get_g(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = get_g(clip)
+        assert result.format
         self.assertEqual(result.format.name, "Gray8")
 
     def test_get_g_invalid(self) -> None:
@@ -119,6 +114,7 @@ class TestUtils(TestCase):
     def test_get_b(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = get_b(clip)
+        assert result.format
         self.assertEqual(result.format.name, "Gray8")
 
     def test_get_b_invalid(self) -> None:
@@ -129,4 +125,5 @@ class TestUtils(TestCase):
     def test_plane(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
         result = plane(clip, 0)
+        assert result.format
         self.assertEqual(result.format.name, "Gray8")

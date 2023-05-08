@@ -1,8 +1,6 @@
 from unittest import TestCase
 
-import vapoursynth as vs
-
-from vstools import FramesLengthError, shift_clip, shift_clip_multi
+from vstools import FramesLengthError, shift_clip, shift_clip_multi, vs
 
 
 class TestClip(TestCase):

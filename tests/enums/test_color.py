@@ -1,16 +1,10 @@
 from unittest import TestCase
 
 import pytest
-import vapoursynth as vs
 
 from vstools import (
-    ColorRange,
-    Matrix,
-    Primaries,
-    Transfer,
-    UnsupportedMatrixError,
-    UnsupportedPrimariesError,
-    UnsupportedTransferError,
+    ColorRange, Matrix, Primaries, Transfer, UnsupportedMatrixError, UnsupportedPrimariesError,
+    UnsupportedTransferError, vs
 )
 
 

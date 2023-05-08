@@ -1,13 +1,11 @@
 from unittest import TestCase
 
-import vapoursynth as vs
-
-from vstools import flatten, normalize_ranges
+from vstools import flatten, normalize_ranges, vs
 
 
 class TestNormalize(TestCase):
     def test_flatten(self) -> None:
-        result = flatten(["a", "b", ["c", "d", ["e"]]])
+        result: list[str] = flatten(["a", "b", ["c", "d", ["e"]]])  # type: ignore
         self.assertEqual(list(result), ["a", "b", "c", "d", "e"])
 
     def test_normalize_ranges(self) -> None:

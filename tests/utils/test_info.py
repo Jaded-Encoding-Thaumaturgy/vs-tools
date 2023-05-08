@@ -1,13 +1,12 @@
 from unittest import TestCase
 
 import pytest
-import vapoursynth as vs
 
-from vstools import get_h, get_w
+from vstools import get_h, get_w, vs
 
 
 class TestInfo(TestCase):
-    def test_get_w(self):
+    def test_get_w(self) -> None:
         self.assertEqual(get_w(1080, 16 / 9), 1920)
         self.assertEqual(get_w(1080, 4 / 3), 1440)
 
@@ -15,7 +14,7 @@ class TestInfo(TestCase):
         self.assertEqual(get_w(1080, clip), 1920)
 
     @pytest.mark.skip(reason="bugfix coming in later PR")
-    def test_get_h(self):
+    def test_get_h(self) -> None:
         self.assertEqual(get_h(1920, 16 / 9), 1080)
         self.assertEqual(get_h(1440, 4 / 3), 1080)
 

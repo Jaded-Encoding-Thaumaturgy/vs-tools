@@ -1,9 +1,8 @@
 from unittest import TestCase
 
 import pytest
-import vapoursynth as vs
 
-from vstools import ChromaLocation, FieldBased, Resolution, UnsupportedFieldBasedError
+from vstools import ChromaLocation, FieldBased, Resolution, UnsupportedFieldBasedError, vs
 
 
 class TestChromaLocation(TestCase):

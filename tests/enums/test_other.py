@@ -1,9 +1,7 @@
 from fractions import Fraction
 from unittest import TestCase
 
-import vapoursynth as vs
-
-from vstools import Dar, Direction, Region, Sar, get_prop
+from vstools import Dar, Direction, Region, Sar, get_prop, vs
 
 
 class TestDirection(TestCase):
