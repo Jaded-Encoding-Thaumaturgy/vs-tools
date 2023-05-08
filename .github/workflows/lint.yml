@@ -29,7 +29,7 @@ jobs:
           flake8 vstools
           flake8 tests
       - name: Running mypy
-        continue-on-error: true
+        if: steps.dependencies.outcome == 'success'
         run: |
           mypy vstools
           mypy tests
