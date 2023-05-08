@@ -43,10 +43,9 @@ def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
     :return:        List of normalized values with a set amount of items.
     """
 
-    if not isinstance(val, Sequence):
-        return [val] * length
+    val = to_arr(val)
 
-    val = list(val) + [val[-1]] * (length - len(val))
+    val += [val[-1]] * (length - len(val))
 
     return val[:length]
 
