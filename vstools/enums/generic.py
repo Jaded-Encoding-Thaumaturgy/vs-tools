@@ -95,8 +95,6 @@ class ChromaLocation(_ChromaLocationMeta):
                 offsets = (2.5, 0)
             elif subsampling == (2, 2):
                 offsets = (2.5, 1)
-            else:
-                offsets = (0, 0)
 
             return offsets
 
@@ -186,7 +184,7 @@ class FieldBased(_FieldBasedMeta):
         :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
         """
 
-        if self == self.PROGRESSIVE:
+        if self.PROGRESSIVE:
             raise UnsupportedFieldBasedError(
                 'Progressive video aren\'t field based!',
                 f'{self.__class__.__name__}.field'

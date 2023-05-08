@@ -172,7 +172,7 @@ def depth(
     .. code-block:: python
 
         >>> src2_10 = vs.core.std.BlankClip(format=vs.RGB30)
-        >>> src2_8 = depth(src2_10, 8, dither_type=DitherType.RANDOM)  # override default dither behavior
+        >>> src2_8 = depth(src2_10, 8, dither_type=Dither.RANDOM)  # override default dither behavior
         >>> src2_8.format.name
         'RGB24'
 
