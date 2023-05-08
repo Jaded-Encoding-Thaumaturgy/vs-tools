@@ -31,14 +31,11 @@ from vapoursynth import (
     TRANSFER_UNSPECIFIED, UNDEFINED, VIDEO, WIDE_LEFT, WIDE_RIGHT, YUV, AudioChannels, AudioFrame, AudioNode,
     ChromaLocation, ColorFamily, ColorPrimaries, ColorRange, Core, CoreCreationFlags, Environment, EnvironmentData,
     EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased, FilterMode, FrameProps, FramePtr, Func, FuncData,
-    Function, LogHandle, MatrixCoefficients, MediaType, MessageType, Plugin
-)
-from vapoursynth import PresetFormat as VSPresetFormat
-from vapoursynth import (
-    RawFrame, RawNode, SampleType, TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple,
-    __api_version__, __version__, _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading,
-    ccfEnableGraphInspection, clear_output, clear_outputs, fmFrameState, fmParallel, fmParallelRequests, fmUnordered,
-    get_current_environment, get_output, get_outputs, has_policy, register_policy
+    Function, LogHandle, MatrixCoefficients, MediaType, MessageType, Plugin, RawFrame, RawNode, SampleType,
+    TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __version__,
+    _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, clear_output,
+    clear_outputs, fmFrameState, fmParallel, fmParallelRequests, fmUnordered, get_current_environment, get_output,
+    get_outputs, has_policy, register_policy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -63,7 +60,7 @@ from .vs_enums import (
     YUV440P28, YUV440P29, YUV440P30, YUV440P31, YUV440P32, YUV440PH, YUV440PS, YUV444P8, YUV444P9, YUV444P10, YUV444P11,
     YUV444P12, YUV444P13, YUV444P14, YUV444P15, YUV444P16, YUV444P17, YUV444P18, YUV444P19, YUV444P20, YUV444P21,
     YUV444P22, YUV444P23, YUV444P24, YUV444P25, YUV444P26, YUV444P27, YUV444P28, YUV444P29, YUV444P30, YUV444P31,
-    YUV444P32, YUV444PH, YUV444PS, PresetFormat
+    YUV444P32, YUV444PH, YUV444PS, PresetFormat, PresetVideoFormat, VSPresetVideoFormat
 )
 
 __all__ = [
@@ -82,7 +79,8 @@ __all__ = [
     'MESSAGE_TYPE_INFORMATION', 'MESSAGE_TYPE_WARNING', 'MatrixCoefficients', 'MediaType', 'MessageType', 'NONE',
     'PRIMARIES_BT2020', 'PRIMARIES_BT470_BG', 'PRIMARIES_BT470_M', 'PRIMARIES_BT709', 'PRIMARIES_EBU3213_E',
     'PRIMARIES_FILM', 'PRIMARIES_ST170_M', 'PRIMARIES_ST240_M', 'PRIMARIES_ST428', 'PRIMARIES_ST431_2',
-    'PRIMARIES_ST432_1', 'PRIMARIES_UNSPECIFIED', 'Plugin', 'PresetFormat', 'PythonVSScriptLoggingBridge', 'RANGE_FULL',
+    'PRIMARIES_ST432_1', 'PRIMARIES_UNSPECIFIED', 'Plugin', 'PresetFormat', 'PresetVideoFormat',
+    'PythonVSScriptLoggingBridge', 'RANGE_FULL',
     'RANGE_LIMITED', 'RGB', 'RGB24', 'RGB27', 'RGB30', 'RGB33', 'RGB36', 'RGB39', 'RGB42', 'RGB45', 'RGB48', 'RGB51',
     'RGB54', 'RGB57', 'RGB60', 'RGB63', 'RGB66', 'RGB69', 'RGB72', 'RGB75', 'RGB78', 'RGB81', 'RGB84', 'RGB87', 'RGB90',
     'RGB93', 'RGB96', 'RGBH', 'RGBS', 'RawFrame', 'RawNode', 'SIDE_LEFT', 'SIDE_RIGHT', 'STEREO_LEFT', 'STEREO_RIGHT',
@@ -265,7 +263,10 @@ def vstools_isinstance(
     if __class_or_tuple in (_CoreProxy, Core) and builtins_isinstance(__obj, CoreProxy):
         return True
 
-    if __class_or_tuple is VSPresetFormat and builtins_isinstance(__obj, PresetFormat):
+    if __class_or_tuple is VSPresetVideoFormat and (
+        builtins_isinstance(__obj, PresetVideoFormat)
+        or builtins_isinstance(__obj, PresetFormat)  # LEGACY SUPPORT, PresetFormat is DEPRECATED
+    ):
         return True
 
     return builtins_isinstance(__obj, __class_or_tuple)
