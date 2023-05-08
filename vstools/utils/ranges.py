@@ -154,7 +154,7 @@ def replace_ranges(
             return base_clip.std.FrameEval(lambda n, f: clip_b if callback(n, f) else clip_a, prop_src)  # type: ignore
 
         if 'f' in params:
-            return base_clip.std.FrameEval(lambda f: clip_b if callback(f) else clip_a, prop_src)  # type: ignore
+            return base_clip.std.FrameEval(lambda n, f: clip_b if callback(f) else clip_a, prop_src)  # type: ignore
 
         if 'n' in params:
             return base_clip.std.FrameEval(lambda n: clip_b if callback(n) else clip_a)  # type: ignore
