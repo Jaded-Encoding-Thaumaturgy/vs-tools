@@ -57,6 +57,12 @@ class TestMatrix(TestCase):
         result = Matrix.from_video(clip)
         self.assertEqual(result, Matrix.BT709)
 
+    def test_apply(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
+        clip = Matrix.BT709.apply(clip)
+        result = Matrix.from_video(clip)
+        self.assertEqual(result, Matrix.BT709)
+
     def test_from_video_uhd(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
         result = Matrix.from_video(clip)
@@ -129,6 +135,12 @@ class TestTransfer(TestCase):
     def test_from_video_property(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
         clip = vs.core.std.SetFrameProp(clip, "_Transfer", Transfer.BT709)
+        result = Transfer.from_video(clip)
+        self.assertEqual(result, Transfer.BT709)
+
+    def test_apply(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
+        clip = Transfer.BT709.apply(clip)
         result = Transfer.from_video(clip)
         self.assertEqual(result, Transfer.BT709)
 
@@ -234,6 +246,12 @@ class TestPrimaries(TestCase):
         result = Primaries.from_video(clip)
         self.assertEqual(result, Primaries.BT709)
 
+    def test_apply(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
+        clip = Primaries.BT709.apply(clip)
+        result = Primaries.from_video(clip)
+        self.assertEqual(result, Primaries.BT709)
+
     def test_from_video_rgb(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.RGB24)
         result = Primaries.from_video(clip)
@@ -291,6 +309,12 @@ class TestColorRange(TestCase):
     def test_from_video_property(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
         clip = vs.core.std.SetFrameProp(clip, "_ColorRange", ColorRange.FULL)
+        result = ColorRange.from_video(clip)
+        self.assertEqual(result, ColorRange.FULL)
+
+    def test_apply(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8)
+        clip = ColorRange.FULL.apply(clip)
         result = ColorRange.from_video(clip)
         self.assertEqual(result, ColorRange.FULL)
 
