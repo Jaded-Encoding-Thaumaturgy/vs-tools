@@ -210,9 +210,9 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
         >>> clip.num_frames
         1000
         >>> normalize_ranges(clip, (None, None))
-        [(0, 1000)]
+        [(0, 999)]
         >>> normalize_ranges(clip, (24, -24))
-        [(24, 976)]
+        [(24, 975)]
         >>> normalize_ranges(clip, [(24, 100), (80, 150)])
         [(24, 150)]
 
