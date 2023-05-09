@@ -184,7 +184,7 @@ class FieldBased(_FieldBasedMeta):
         :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
         """
 
-        if self.PROGRESSIVE:
+        if self == self.PROGRESSIVE:
             raise UnsupportedFieldBasedError(
                 'Progressive video aren\'t field based!',
                 f'{self.__class__.__name__}.field'
