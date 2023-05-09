@@ -988,6 +988,13 @@ class ColorRange(_ColorRangeMeta):
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ColorRange:
         """Guess the color range from the frame resolution."""
 
+        from ..utils import get_var_infos
+
+        fmt, w, h = get_var_infos(frame)
+
+        if fmt.color_family == vs.RGB:
+            return cls.FULL
+
         return cls.LIMITED
 
     @classmethod
