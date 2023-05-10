@@ -134,7 +134,12 @@ if not TYPE_CHECKING:
         first_stack = inspect.stack()[-1]
 
         sys.modules['__vapoursynth__'] = ModuleType('__vapoursynth__')
-        sys.modules['__vapoursynth__'].__file__ = str((Path.cwd() / first_stack.filename).resolve())
+
+        cope = (Path.cwd() / first_stack.filename).resolve()
+
+        sys.modules['__vapoursynth__'].__file__ = str(cope)
+
+        sys.path.append(str(cope.parent))
 
 
 if not register_on_destroy_poly:
