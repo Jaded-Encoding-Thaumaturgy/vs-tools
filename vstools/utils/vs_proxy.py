@@ -366,11 +366,14 @@ class VSCoreProxy(CoreProxyBase):
     """Class for wrapping a VapourSynth core."""
 
     def __init__(self, core: Core | None = None) -> None:
-        self._own_core = core is not None
-        self._core = core and weakref.ref(core)
+        object.__setattr__(self, '_own_core', core is not None)
+        object.__setattr__(self, '_core', core and weakref.ref(core))
 
     def __getattr__(self, name: str) -> Plugin:
         return getattr(_get_core_with_cb(self), name)  # type: ignore
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        return setattr(_get_core_with_cb(self), name, value)
 
     @property
     def core(self) -> Core:
