@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeVar, overload
+from typing import Any, Callable, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -45,7 +45,7 @@ def get_prop(
 @overload
 def get_prop(
     obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-    cast: type[CT], default: DT | MissingT = MISSING,
+    cast: type[CT] | Callable[[BoundVSMapValue], CT], default: DT | MissingT = MISSING,
     func: FuncExceptT | None = None
 ) -> CT | DT:
     ...
@@ -53,7 +53,7 @@ def get_prop(
 
 def get_prop(
     obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-    cast: type[CT] | None = None, default: DT | MissingT = MISSING,
+    cast: type[CT] | Callable[[BoundVSMapValue], CT] | None = None, default: DT | MissingT = MISSING,
     func: FuncExceptT | None = None
 ) -> BoundVSMapValue | CT | DT:
     """
