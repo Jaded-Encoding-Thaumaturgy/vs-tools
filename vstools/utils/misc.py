@@ -8,7 +8,6 @@ from typing import Any, Callable, Iterable, TypeVar
 import vapoursynth as vs
 
 from ..exceptions import InvalidSubsamplingError
-from ..functions import disallow_variable_format, disallow_variable_resolution
 from .info import get_video_format
 
 __all__ = [
@@ -50,8 +49,6 @@ def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
     return new_fps_clip.std.FrameEval(lambda n: clip[round(n / factor)])
 
 
-@disallow_variable_format
-@disallow_variable_resolution
 def padder(
     clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0, reflect: bool = True
 ) -> vs.VideoNode:
@@ -78,7 +75,10 @@ def padder(
     :param reflect:     Whether to reflect the padded pixels.
                         Default: True.
     """
+    from ..functions import check_variable
     from ..utils import core
+
+    assert check_variable(clip, padder)
 
     width = clip.width + left + right
     height = clip.height + top + bottom
@@ -108,8 +108,6 @@ FINT = TypeVar('FINT', bound=Callable[..., vs.VideoNode])
 FFLOAT = TypeVar('FFLOAT', bound=Callable[..., vs.VideoNode])
 
 
-@disallow_variable_format
-@disallow_variable_resolution
 def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> FINT | FFLOAT:
     """
     Pick the function matching the sample type of the clip's format.

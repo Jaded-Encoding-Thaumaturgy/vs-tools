@@ -103,8 +103,6 @@ def disallow_variable_resolution(function: F | None = None, /, *, only_first: bo
     )
 
 
-@disallow_variable_format
-@disallow_variable_resolution
 def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExceptT | None = None) -> None:
     """
     Decorator for ensuring the ref clip's format matches that of the input clip.

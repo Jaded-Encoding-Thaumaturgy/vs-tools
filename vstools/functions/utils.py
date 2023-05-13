@@ -9,7 +9,7 @@ import vapoursynth as vs
 from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
 from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
 from ..types import HoldsVideoFormatT, PlanesT, VideoFormatT
-from .check import disallow_variable_format
+from .check import check_variable_format, disallow_variable_format
 
 __all__ = [
     'EXPR_VARS',
@@ -256,7 +256,6 @@ def frame2clip(frame: vs.VideoFrame) -> vs.VideoNode:
     return blank_clip.std.ModifyFrame(blank_clip, lambda n, f: frame_cp)
 
 
-@disallow_variable_format
 def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
     """
     Extract the luma (Y) plane of the given clip.
@@ -273,7 +272,6 @@ def get_y(clip: vs.VideoNode, /) -> vs.VideoNode:
     return plane(clip, 0)
 
 
-@disallow_variable_format
 def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
     """
     Extract the first chroma (U) plane of the given clip.
@@ -290,7 +288,6 @@ def get_u(clip: vs.VideoNode, /) -> vs.VideoNode:
     return plane(clip, 1)
 
 
-@disallow_variable_format
 def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
     """
     Extract the second chroma (V) plane of the given clip.
@@ -307,7 +304,6 @@ def get_v(clip: vs.VideoNode, /) -> vs.VideoNode:
     return plane(clip, 2)
 
 
-@disallow_variable_format
 def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
     """
     Extract the red plane of the given clip.
@@ -324,7 +320,6 @@ def get_r(clip: vs.VideoNode, /) -> vs.VideoNode:
     return plane(clip, 0)
 
 
-@disallow_variable_format
 def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
     """
     Extract the green plane of the given clip.
@@ -341,7 +336,6 @@ def get_g(clip: vs.VideoNode, /) -> vs.VideoNode:
     return plane(clip, 1)
 
 
-@disallow_variable_format
 def get_b(clip: vs.VideoNode, /) -> vs.VideoNode:
     """
     Extract the blue plane of the given clip.
@@ -579,7 +573,6 @@ def join(*_planes: Any, **kwargs: Any) -> vs.VideoNode:
     raise CustomValueError('Not enough clips or planes passed!', join)
 
 
-@disallow_variable_format
 def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNode:
     """
     Extract a plane from the given clip.
@@ -590,7 +583,7 @@ def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNod
     :return:            Grayscale clip of the clip's plane.
     """
 
-    assert clip.format
+    assert check_variable_format(clip, plane)
 
     if clip.format.num_planes == 1 and index == 0:
         return clip
@@ -602,7 +595,6 @@ def plane(clip: vs.VideoNode, index: int, /, strict: bool = True) -> vs.VideoNod
     return vs.core.std.ShufflePlanes(clip, index, vs.GRAY)
 
 
-@disallow_variable_format
 def split(clip: vs.VideoNode, /) -> list[vs.VideoNode]:
     """
     Split a clip into a list of individual planes.
@@ -612,7 +604,7 @@ def split(clip: vs.VideoNode, /) -> list[vs.VideoNode]:
     :return:        List of individual planes.
     """
 
-    assert clip.format
+    assert check_variable_format(clip, split)
 
     return [clip] if clip.format.num_planes == 1 else cast(list[vs.VideoNode], clip.std.SplitPlanes())
 

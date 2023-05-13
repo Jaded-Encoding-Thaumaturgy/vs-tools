@@ -5,7 +5,7 @@ from typing import Literal, Sequence, overload
 import vapoursynth as vs
 
 from ..enums import ColorRange, ColorRangeT
-from ..functions import disallow_variable_format, normalize_seq
+from ..functions import normalize_seq
 from ..types import HoldsVideoFormatT, VideoFormatT
 from .info import get_depth, get_video_format
 
@@ -143,7 +143,6 @@ def scale_value(
     return out_value
 
 
-@disallow_variable_format
 def get_lowest_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
     range_in: ColorRangeT = ColorRange.FULL
@@ -169,20 +168,19 @@ def get_lowest_value(
     return 0.
 
 
-@disallow_variable_format
 def get_lowest_values(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range_in: ColorRangeT = ColorRange.FULL
 ) -> Sequence[float]:
     """Get all planes lowest values of a format."""
 
     fmt = get_video_format(clip_or_depth)
-    return normalize_seq(
-        [get_lowest_value(fmt, False, range_in),
-         get_lowest_value(fmt, True, range_in)],
-        fmt.num_planes)
+
+    return normalize_seq([
+        get_lowest_value(fmt, False, range_in),
+        get_lowest_value(fmt, True, range_in)
+    ], fmt.num_planes)
 
 
-@disallow_variable_format
 def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False) -> float:
     """
     Returns the mid point value for the specified bit depth, or bit depth of the clip/format specified.
@@ -201,7 +199,6 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chr
     return float(1 << (get_depth(fmt) - 1))
 
 
-@disallow_variable_format
 def get_neutral_values(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> Sequence[float]:
     """Get all planes neutral values of a format."""
 
@@ -209,7 +206,6 @@ def get_neutral_values(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) ->
     return normalize_seq([get_neutral_value(fmt, False), get_neutral_value(fmt, True)], fmt.num_planes)
 
 
-@disallow_variable_format
 def get_peak_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
     range_in: ColorRangeT = ColorRange.FULL
@@ -235,7 +231,6 @@ def get_peak_value(
     return (1 << get_depth(fmt)) - 1.
 
 
-@disallow_variable_format
 def get_peak_values(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range_in: ColorRangeT = ColorRange.FULL
 ) -> Sequence[float]:
