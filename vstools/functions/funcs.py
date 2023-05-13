@@ -4,6 +4,7 @@ from typing import Callable, Concatenate, Iterable, Sequence, overload
 
 import vapoursynth as vs
 
+from ..enums import ColorRange, ColorRangeT, Matrix, MatrixT
 from ..exceptions import CustomRuntimeError, InvalidColorFamilyError
 from ..types import (
     MISSING, ConstantFormatVideoNode, FuncExceptT, HoldsVideoFormatT, KwargsT, MissingT, P, PlanesT, R, T, VideoFormatT,
@@ -182,6 +183,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
         ] | None = None, bitdepth: int | range | tuple[int, int] | None = None, strict: bool = False,
+        *, matrix: MatrixT | None = None, range_in: ColorRangeT | None = None
     ) -> None:
         from ..utils import get_color_family
 
@@ -203,6 +205,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self.allowed_cfamilies = color_family
         self.cfamily_converted = False
         self.bitdepth = bitdepth
+
+        self._matrix = matrix
+        self._range_in = range_in
 
         self.norm_planes = normalize_planes(self.norm_clip, planes)
 
@@ -251,6 +256,20 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
         return [plane(self.norm_clip, i) for i in {1, 2}]
+
+    @cachedproperty
+    def matrix(self) -> Matrix:
+        return (
+            Matrix.from_param(self._matrix, self.func)
+            or Matrix.from_video(self.work_clip, self.strict, self.func)
+        )
+
+    @cachedproperty
+    def color_range(self) -> ColorRange:
+        return (
+            ColorRange.from_param(self._range_in, self.func)
+            or ColorRange.from_video(self.work_clip, self.strict, self.func)
+        )
 
     @property
     def is_float(self) -> bool:
