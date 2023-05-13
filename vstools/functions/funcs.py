@@ -181,7 +181,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
-        ] | None = None, bitdepth: int | range | None = None, strict: bool = False
+        ] | None = None, bitdepth: int | range | tuple[int, int] | None = None, strict: bool = False,
     ) -> None:
         from ..utils import get_color_family
 
@@ -192,6 +192,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
             if strict:
                 InvalidColorFamilyError.check(clip, color_family, func)
+
+        if isinstance(bitdepth, tuple):
+            bitdepth = range(*bitdepth)
 
         self.clip = clip
         self.planes = planes
