@@ -262,7 +262,7 @@ def invert_ranges(
     b_frames = set(normalize_ranges_to_list(norm_ranges))
 
     return normalize_list_to_ranges([
-        i for i in range(0, clipa.num_frames + 1)
+        i for i in range(0, clipa.num_frames)
         if i not in b_frames
     ])
 
