@@ -114,7 +114,7 @@ __all__ = [
     'construct_type', 'core', 'fmFrameState', 'fmParallel', 'fmParallelRequests', 'fmUnordered',
     'get_current_environment', 'get_output', 'get_outputs', 'has_policy', 'pyx_capi', 'register_on_creation',
     'register_on_destroy', 'register_policy', 'try_enable_introspection', 'unregister_on_creation',
-    'unregister_on_destroy', 'vs_file'
+    'unregister_on_destroy', 'vs_file', 'clear_cache'
 ]
 
 if IS_DOCS:
@@ -160,6 +160,22 @@ def register_on_creation(callback: Callable[..., None]) -> None:
 def unregister_on_creation(callback: Callable[..., None]) -> None:
     """Unregister this callback from every core creation."""
     core_on_creation_callbacks.pop(id(callback), None)
+
+
+def clear_cache() -> None:
+    try:
+        cache_size = core.max_cache_size
+        core.max_cache_size = 1
+        try:
+            for output in list(get_outputs().values()):
+                if isinstance(output, VideoOutputTuple):
+                    output.clip.get_frame(0)
+                    break
+        except Exception:
+            core.std.BlankClip().get_frame(0)
+        core.max_cache_size = cache_size
+    except Exception:
+        ...
 
 
 if TYPE_CHECKING:
