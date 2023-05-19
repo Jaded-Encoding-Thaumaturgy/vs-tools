@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from itertools import chain, zip_longest
-from typing import Callable, Iterable, Union, overload
+from typing import Any, Callable, Iterable, Union, overload
 
 import vapoursynth as vs
 
@@ -11,7 +11,7 @@ from ..exceptions import (
     ResolutionsMismatchError
 )
 from ..functions import check_ref_clip
-from ..types import T0, FrameRangeN, FrameRangesN, T
+from ..types import T0, FrameRangeN, FrameRangesN, T, copy_signature
 
 __all__ = [
     'replace_ranges', 'rfs',
@@ -218,7 +218,11 @@ def replace_ranges(
 
 
 # Aliases
-rfs = replace_ranges
+@copy_signature(replace_ranges)
+def rfs(*args: Any, **kwargs: Any) -> Any:
+    import warnings
+    warnings.warn('rfs: This alias is D-E-P-R-E-C-A-T-E-D and BIG EVIL. Use replace_ranges!')
+    return replace_ranges(*args, **kwargs)
 
 
 @overload
