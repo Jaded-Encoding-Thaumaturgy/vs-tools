@@ -229,7 +229,7 @@ class Timecodes(list[Timecode]):
         for other_fps, fps_ranges in minor_fps.items():
             assumed_clip = replace_ranges(
                 assumed_clip, clip.std.AssumeFPS(None, other_fps.numerator, other_fps.denominator),
-                fps_ranges, False, False, False
+                fps_ranges, mismatch=True
             )
 
         return assumed_clip
