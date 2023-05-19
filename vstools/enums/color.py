@@ -480,7 +480,13 @@ class Transfer(_TransferMeta):
         if width <= 2048 and height <= 1536:
             return Transfer.BT709
 
-        return Transfer.ST2084
+        if fmt.bits_per_sample == 10:
+            return Transfer.BT2020_10bits
+
+        if fmt.bits_per_sample == 12:
+            return Transfer.BT2020_12bits
+
+        return Transfer.BT709
 
     @classmethod
     def from_video(
