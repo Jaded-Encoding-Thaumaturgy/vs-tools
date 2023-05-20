@@ -161,8 +161,8 @@ def replace_ranges(
 
         raise CustomValueError('Callback must have signature ((n, f) | (n) | (f)) -> bool!')
 
-    nranges = normalize_ranges(clip_b, ranges)
-    do_splice_trim = len(nranges) <= 5
+    b_ranges = normalize_ranges(clip_b, ranges)
+    do_splice_trim = len(b_ranges) <= 5
 
     if use_plugin is not None:
         warnings.warn('replace_ranges: use_plugin is deprecated!')
@@ -171,13 +171,13 @@ def replace_ranges(
         try:
             if hasattr(vs.core, 'julek'):
                 return vs.core.julek.RFS(  # type: ignore
-                    clip_a, clip_b, [y for (s, e) in nranges for y in range(s, e + (not exclusive if s != e else 1))],
+                    clip_a, clip_b, [y for (s, e) in b_ranges for y in range(s, e + (not exclusive if s != e else 1))],
                     mismatch=mismatch
                 )
             elif hasattr(vs.core, 'remap'):
                 return vs.core.remap.ReplaceFramesSimple(  # type: ignore
                     clip_a, clip_b, mismatch=mismatch,
-                    mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in nranges)
+                    mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in b_ranges)
                 )
         except vs.Error as e:
             msg = str(e).replace('vapoursynth.Error: ReplaceFramesSimple: ', '')
@@ -204,16 +204,19 @@ def replace_ranges(
     if do_splice_trim:
         shift = 1 - exclusive
 
-        a_ranges = invert_ranges(clip_b, clip_a, nranges)
+        a_ranges = invert_ranges(clip_b, clip_a, b_ranges)
 
         a_trims = [clip_a[start:end + shift] for start, end in a_ranges]
-        b_trims = [clip_b[start:end + shift] for start, end in nranges]
+        b_trims = [clip_b[start:end + shift] for start, end in b_ranges]
 
-        main, other = (a_trims, b_trims) if (a_ranges[0][0] == 0) else (b_trims, a_trims)
+        if a_ranges:
+            main, other = (a_trims, b_trims) if (a_ranges[0][0] == 0) else (b_trims, a_trims)
+        else:
+            main, other = (b_trims, a_trims) if (b_ranges[0][0] == 0) else (a_trims, b_trims)
 
         return vs.core.std.Splice(list(interleave_arr(main, other, 1)), mismatch)
 
-    b_frames = set(normalize_ranges_to_list(nranges))
+    b_frames = set(normalize_ranges_to_list(b_ranges))
     return replace_ranges(clip_a, clip_b, lambda n: n in b_frames)
 
 

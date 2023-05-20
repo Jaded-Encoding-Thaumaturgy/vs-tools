@@ -160,7 +160,7 @@ def normalize_franges(franges: FrameRange, /) -> Iterable[int]:
     return franges
 
 
-def normalize_list_to_ranges(flist: Sequence[int], min_length: int = 0) -> list[tuple[int, int]]:
+def normalize_list_to_ranges(flist: Iterable[int], min_length: int = 0) -> list[tuple[int, int]]:
     flist2 = list[list[int]]()
     flist3 = list[int]()
 
@@ -255,16 +255,13 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
 
 def invert_ranges(
-        clipa: vs.VideoNode, clipb: vs.VideoNode | None, ranges: FrameRangeN | FrameRangesN) -> list[
-        tuple[int, int]]:
+    clipa: vs.VideoNode, clipb: vs.VideoNode | None, ranges: FrameRangeN | FrameRangesN
+) -> list[tuple[int, int]]:
     norm_ranges = normalize_ranges(clipb or clipa, ranges)
 
-    b_frames = set(normalize_ranges_to_list(norm_ranges))
+    b_frames = {*normalize_ranges_to_list(norm_ranges)}
 
-    return normalize_list_to_ranges([
-        i for i in range(0, clipa.num_frames)
-        if i not in b_frames
-    ])
+    return normalize_list_to_ranges({*range(clipa.num_frames)} - b_frames)
 
 
 def norm_func_name(func_name: SupportsString | F) -> str:
