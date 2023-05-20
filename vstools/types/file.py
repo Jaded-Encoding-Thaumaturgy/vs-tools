@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from os import PathLike, path
 from pathlib import Path
-from typing import Any, Callable, Literal, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Literal, TypeAlias, Union
 
 __all__ = [
     'FilePathType', 'FileDescriptor',
@@ -58,6 +58,10 @@ class SPath(Path):
     """Modified version of pathlib.Path"""
     _flavour = type(Path())._flavour  # type: ignore
 
+    if TYPE_CHECKING:
+        def __new__(cls, *args: SPathLike, **kwargs: Any) -> SPath:
+            ...
+
     def format(self, *args: Any, **kwargs: Any) -> SPath:
         return SPath(self.to_str().format(*args, **kwargs))
 
@@ -74,6 +78,17 @@ class SPath(Path):
 
     def mkdirp(self) -> None:
         return self.get_folder().mkdir(parents=True, exist_ok=True)
+
+    def read_lines(
+        self, encoding: str | None = None, errors: str | None = None, keepends: bool = False
+    ) -> list[str]:
+        return super().read_text(encoding, errors).splitlines(keepends)
+
+    def write_lines(
+        self, data: Iterable[str], encoding: str | None = None,
+        errors: str | None = None, newline: str | None = None
+    ) -> int:
+        return super().write_text('\n'.join(data), encoding, errors, newline)
 
 
 SPathLike = Union[str, Path, SPath]
