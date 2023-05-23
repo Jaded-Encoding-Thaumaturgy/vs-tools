@@ -109,7 +109,17 @@ class TestTransfer(TestCase):
     def test_from_res_uhd(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
         result = Transfer.from_res(clip)
-        self.assertEqual(result, Transfer.ST2084)
+        self.assertEqual(result, Transfer.BT709)
+
+    def test_from_res_uhd_10b(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P10, width=3840, height=2160)
+        result = Transfer.from_res(clip)
+        self.assertEqual(result, Transfer.BT2020_10bits)
+
+    def test_from_res_uhd_12b(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P12, width=3840, height=2160)
+        result = Transfer.from_res(clip)
+        self.assertEqual(result, Transfer.BT2020_12bits)
 
     def test_from_res_hd(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=1920, height=1080)
@@ -146,7 +156,17 @@ class TestTransfer(TestCase):
     def test_from_video_uhd(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=3840, height=2160)
         result = Transfer.from_video(clip)
-        self.assertEqual(result, Transfer.ST2084)
+        self.assertEqual(result, Transfer.BT709)
+
+    def test_from_video_uhd_10b(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P10, width=3840, height=2160)
+        result = Transfer.from_video(clip)
+        self.assertEqual(result, Transfer.BT2020_10bits)
+
+    def test_from_video_uhd_12b(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P12, width=3840, height=2160)
+        result = Transfer.from_video(clip)
+        self.assertEqual(result, Transfer.BT2020_12bits)
 
     def test_from_video_hd(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=1920, height=1080)
