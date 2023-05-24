@@ -1,4 +1,5 @@
 from . import vs_proxy as vapoursynth
+from .cache import *  # noqa: F401, F403
 from .clips import *  # noqa: F401, F403
 from .colors import *  # noqa: F401, F403
 from .ffprobe import *  # noqa: F401, F403
