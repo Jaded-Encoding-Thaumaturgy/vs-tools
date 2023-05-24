@@ -126,11 +126,18 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
 
 def set_output(
     node: vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode]]],
-    name: str | bool = True, cache: bool = False, **kwargs: Any
+    name: str | bool = True, cache: bool | None = None, **kwargs: Any
 ) -> None:
     """Set output node with optional name, and if available, use vspreview set_output."""
     from ..functions import flatten
     from ..utils import cache_clip
+
+    if cache is None:
+        try:
+            from vspreview import is_preview
+            cache = is_preview()
+        except Exception:
+            ...
 
     last_index = len(vs.get_outputs())
 
