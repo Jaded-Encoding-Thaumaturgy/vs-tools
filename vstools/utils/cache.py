@@ -5,7 +5,9 @@ from . import vs_proxy as vs
 from typing import Generic, TypeVar
 
 __all__ = [
+    'ClipsCache',
     'FramesCache',
+    'ClipFramesCache',
 
     'cache_clip'
 ]
@@ -13,6 +15,11 @@ __all__ = [
 
 NodeT = TypeVar('NodeT', bound=vs.RawNode)
 FrameT = TypeVar('FrameT', bound=vs.RawFrame)
+
+
+class ClipsCache(vs_object, dict[vs.VideoNode, vs.VideoNode]):
+    def __vs_del__(self, core_id: int) -> None:
+        self.clear()
 
 
 class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
@@ -33,9 +40,34 @@ class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
         if self.cache_size < len(self):
             del self[next(iter(self.keys()))]
 
+    def __getitem__(self, __key: int) -> FrameT:
+        if __key not in self:
+            self.add_frame(__key, self.clip.get_frame(__key))
+
+        return super().__getitem__(__key)
+
     def __vs_del__(self, core_id: int) -> None:
         self.clear()
         del self.clip
+
+
+class ClipFramesCache(vs_object, dict[vs.VideoNode, FramesCache[vs.VideoFrame]]):
+    def _ensure_key(self, key: vs.VideoNode) -> None:
+        if key not in self:
+            super().__setitem__(key, FramesCache[vs.VideoFrame](key))
+
+    def __setitem__(self, key: vs.VideoNode, value: FramesCache[vs.VideoFrame]) -> None:
+        self._ensure_key(key)
+
+        return super().__setitem__(key, value)
+
+    def __getitem__(self, key: vs.VideoNode) -> FramesCache[vs.VideoFrame]:
+        self._ensure_key(key)
+
+        return super().__getitem__(key)
+
+    def __vs_del__(self, core_id: int) -> None:
+        self.clear()
 
 
 def cache_clip(_clip: NodeT, cache_size: int = 10) -> NodeT:
