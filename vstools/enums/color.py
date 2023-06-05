@@ -9,7 +9,7 @@ from ..exceptions import (
     UndefinedTransferError, UnsupportedColorRangeError, UnsupportedMatrixError, UnsupportedPrimariesError,
     UnsupportedTransferError
 )
-from ..types import FuncExceptT, classproperty
+from ..types import FuncExceptT, HoldsPropValueT, classproperty
 from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
@@ -1210,14 +1210,14 @@ _primaries_pretty_name_map = {
 }
 
 
-MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix]
+MatrixT: TypeAlias = Union[int, vs.MatrixCoefficients, Matrix, HoldsPropValueT]
 """Type alias for values that can be used to initialize a :py:attr:`Matrix`."""
 
-TransferT: TypeAlias = Union[int, vs.TransferCharacteristics, Transfer]
+TransferT: TypeAlias = Union[int, vs.TransferCharacteristics, Transfer, HoldsPropValueT]
 """Type alias for values that can be used to initialize a :py:attr:`Transfer`."""
 
-PrimariesT: TypeAlias = Union[int, vs.ColorPrimaries, Primaries]
+PrimariesT: TypeAlias = Union[int, vs.ColorPrimaries, Primaries, HoldsPropValueT]
 """Type alias for values that can be used to initialize a :py:attr:`Primaries`."""
 
-ColorRangeT: TypeAlias = Union[int, vs.ColorRange, ColorRange]
+ColorRangeT: TypeAlias = Union[int, vs.ColorRange, ColorRange, HoldsPropValueT]
 """Type alias for values that can be used to initialize a :py:attr:`ColorRange`."""
