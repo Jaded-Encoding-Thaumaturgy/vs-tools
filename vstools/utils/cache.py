@@ -18,6 +18,12 @@ FrameT = TypeVar('FrameT', bound=vs.RawFrame)
 
 
 class ClipsCache(vs_object, dict[vs.VideoNode, vs.VideoNode]):
+    def __delitem__(self, __key: vs.VideoNode) -> None:
+        if __key not in self:
+            return
+
+        return super().__delitem__(__key)
+
     def __vs_del__(self, core_id: int) -> None:
         self.clear()
 
@@ -42,7 +48,7 @@ class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
 
     def __getitem__(self, __key: int) -> FrameT:
         if __key not in self:
-            self.add_frame(__key, self.clip.get_frame(__key))
+            self.add_frame(__key, self.clip.get_frame(__key))  # type: ignore
 
         return super().__getitem__(__key)
 
