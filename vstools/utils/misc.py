@@ -13,6 +13,8 @@ from .info import get_video_format
 __all__ = [
     'change_fps',
 
+    'match_clip',
+
     'padder',
 
     'pick_func_stype',
@@ -47,6 +49,33 @@ def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
     )
 
     return new_fps_clip.std.FrameEval(lambda n: clip[round(n / factor)])
+
+
+def match_clip(
+    clip: vs.VideoNode, ref: vs.VideoNode, dimensions: bool = True,
+    vformat: bool = True, matrices: bool = True, length: bool = False
+) -> vs.VideoNode:
+    from ..enums import Matrix, Primaries, Transfer
+    from ..functions import check_variable
+
+    assert check_variable(clip, match_clip)
+    assert check_variable(ref, match_clip)
+
+    clip = clip * ref.num_frames if length else clip
+    clip = clip.resize.Bicubic(ref.width, ref.height) if dimensions else clip
+
+    if vformat:
+        assert ref.format
+        clip = clip.resize.Bicubic(format=ref.format, matrix=Matrix.from_video(ref))
+
+    if matrices:
+        ref_frame = ref.get_frame(0)
+        clip = clip.std.SetFrameProps(
+            _Matrix=Matrix(ref_frame), _Transfer=Transfer(ref_frame), _Primaries=Primaries(ref_frame)
+        )
+
+    return clip.std.AssumeFPS(fpsnum=ref.fps.numerator, fpsden=ref.fps.denominator)
+
 
 
 def padder(
