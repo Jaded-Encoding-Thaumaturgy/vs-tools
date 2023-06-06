@@ -124,7 +124,9 @@ else:
 
 if not TYPE_CHECKING:
     import inspect
+    import re
     import sys
+    import warnings
     from pathlib import Path
     from types import ModuleType
 
@@ -140,6 +142,9 @@ if not TYPE_CHECKING:
         sys.modules['__vapoursynth__'].__file__ = str(cope)
 
         sys.path.append(str(cope.parent))
+
+    warnings._add_filter('ignore', re.compile('.*smallest subnormal.*numpy.*'), Warning, None, 0, append=False)
+    warnings._add_filter('ignore', re.compile('.*divide by zero.*'), Warning, None, 0, append=False)
 
 
 if not register_on_destroy_poly:
