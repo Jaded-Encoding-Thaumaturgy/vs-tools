@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import string
-from typing import Any, Iterable, Literal, Mapping, cast, overload
+from typing import Any, Iterable, Literal, Mapping, Sequence, cast, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
@@ -27,6 +27,8 @@ __all__ = [
 
     'plane',
     'join', 'split',
+
+    'stack_clips'
 ]
 
 
@@ -610,3 +612,26 @@ def split(clip: vs.VideoNode, /) -> list[vs.VideoNode]:
 
 
 depth_func = depth
+
+
+def stack_clips(
+    clips: Sequence[vs.VideoNode | Sequence[vs.VideoNode | Sequence[
+        vs.VideoNode | Sequence[vs.VideoNode | Sequence[vs.VideoNode | Sequence[vs.VideoNode]]]
+    ]]]
+) -> vs.VideoNode:
+    """
+    Stack clips in the following repeating order: hor->ver->hor->ver->...
+
+    :param clips:   Sequence of clips to stack recursively.
+
+    :return:        Stacked clips.
+    """
+
+    return vs.core.std.StackHorizontal([
+        inner_clips if isinstance(inner_clips, vs.VideoNode) else (
+            vs.core.std.StackVertical([
+                clipa if isinstance(clipa, vs.VideoNode) else stack_clips(clipa) for clipa in inner_clips
+            ])
+        )
+        for inner_clips in clips
+    ])
