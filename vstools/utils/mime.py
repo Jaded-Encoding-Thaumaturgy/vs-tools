@@ -206,13 +206,17 @@ class FileType(FileTypeBase):
         if value is None:
             return FileType.AUTO
 
-        if isinstance(value, str) and '/' in value:
-            fbase, ftype, *_ = value.split('/')
+        if isinstance(value, str):
+            if '/' in value:
+                fbase, ftype, *_ = value.split('/')
 
-            if fbase == 'index':
-                return FileType.INDEX(ftype)
+                if fbase == 'index':
+                    return FileType.INDEX(ftype)
 
-            return FileType(ftype)
+                if value.endswith('-image'):
+                    return FileType.IMAGE
+
+                return FileType(ftype)
 
         return FileType.OTHER
 
