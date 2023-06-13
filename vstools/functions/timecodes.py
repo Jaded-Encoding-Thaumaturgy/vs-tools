@@ -335,12 +335,21 @@ class Keyframes(list[int]):
 
         return replace_ranges(clip, propset_clip, self)
 
-    def to_file(self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None) -> None:
+    def to_file(
+        self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None,
+        header: bool = True, force: bool = False
+    ) -> None:
         from ..utils import check_perms
 
         func = func or self.to_file
 
         out_path = Path(str(out)).resolve()
+
+        if out_path.exists():
+            if not force:
+                return
+
+            out_path.unlink()
 
         out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -348,13 +357,13 @@ class Keyframes(list[int]):
 
         if format == Keyframes.V1:
             out_text = [
-                '# keyframe format v1', 'fps 0', '',
+                *(['# keyframe format v1', 'fps 0', ''] if header else []),
                 *(f'{n} I -1' for n in self), ''
             ]
         elif format == Keyframes.XVID:
             lut_self = set(self)
             out_text = [
-                '# XviD 2pass stat file', '',
+                *(['# XviD 2pass stat file', '',] if header else []),
                 *(
                     (lut_self.remove(i) or 'i') if i in lut_self else 'b'  # type: ignore
                     for i in range(max(self))
