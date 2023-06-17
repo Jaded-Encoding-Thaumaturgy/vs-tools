@@ -155,15 +155,13 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
         else:
             func_header = ''
 
-        kwargs = self.kwargs.copy()
-
-        if kwargs:
-            kwargs = {
-                key: norm_display_name(value) for key, value in kwargs.items()
+        if self.kwargs:
+            self.kwargs = {
+                key: norm_display_name(value) for key, value in self.kwargs.items()
             }
 
         if self.reason:
-            reason = norm_display_name(self.reason)
+            reason = self.reason = norm_display_name(self.reason)
 
             if reason:
                 if not isinstance(self.reason, dict):
@@ -175,7 +173,7 @@ class CustomError(ExceptionT, metaclass=CustomErrorMeta):
         else:
             reason = ''
 
-        return f'{func_header}{self.message!s}{reason}'.format(**kwargs).strip()
+        return f'{func_header}{self.message!s}{reason}'.format(**self.kwargs).strip()
 
 
 SelfError = TypeVar('SelfError', bound=CustomError)
