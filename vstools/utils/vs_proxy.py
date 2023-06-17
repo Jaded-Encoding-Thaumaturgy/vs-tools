@@ -202,6 +202,9 @@ class FunctionProxy(FunctionProxyBase):
         self.__dict__['func_ref'] = (plugin, func_name)
 
     def __getattr__(self, name: str) -> Function:
+        if name == '__isabstractmethod__':
+            return False  # type: ignore
+
         function = proxy_utils.get_vs_function(self)
 
         return getattr(function, name)  # type: ignore
