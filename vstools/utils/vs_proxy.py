@@ -160,10 +160,10 @@ def unregister_on_creation(callback: Callable[..., None]) -> None:
 
 def clear_cache() -> None:
     try:
-        cache_size = core.max_cache_size
+        cache_size = int(core.max_cache_size)
         core.max_cache_size = 1
         try:
-            for output in list(get_outputs().values()):
+            for output in get_outputs().values():
                 if isinstance(output, VideoOutputTuple):
                     output.clip.get_frame(0)
                     break
