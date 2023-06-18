@@ -305,7 +305,7 @@ def _get_core(self: VSCoreProxy) -> Core | None:
 
 
 if TYPE_CHECKING:
-    core_on_destroy_callbacks = dict[int, dict[int, weakref.ReferenceType[Callable[..., None]]]]()
+    core_on_destroy_callbacks = dict[int, dict[int, tuple[weakref.ReferenceType[Callable[..., None]], bool]]]()
 else:
     core_on_destroy_callbacks = {}
 
@@ -319,7 +319,7 @@ core_on_creation_callbacks_cores = set[int]()
 added_callback_cores = set[int]()
 
 
-def _finalize_core(env_id: int, core_id: int) -> None:
+def _finalize_core(env_id: int, core_id: int, _forced: bool = True) -> None:
     if env_id not in core_on_destroy_callbacks:
         return
 
@@ -328,9 +328,9 @@ def _finalize_core(env_id: int, core_id: int) -> None:
     for cb_id in list(core_on_destroy_callbacks[env_id].keys()):
         callback_ref = core_on_destroy_callbacks[env_id].get(cb_id)
 
-        pop_cb = True
+        pop_cb = not _forced
 
-        if callback_ref and (callback := callback_ref()):
+        if callback_ref and (callback_ref[1] if _forced else True) and (callback := callback_ref[0]()):
             if hasattr(callback, '_is_core_unbound') and callback._is_core_unbound:
                 pop_cb = destroy_env = False
 
@@ -420,7 +420,7 @@ class VSCoreProxy(CoreProxyBase):
 
         return _objproxies[self]['lazy']  # type: ignore
 
-    def register_on_destroy(self, callback: Callable[..., None]) -> None:
+    def register_on_destroy(self, callback: Callable[..., None], on_forced: bool = True) -> None:
         """Register a callback on this core destroy."""
 
         _check_environment()
@@ -428,9 +428,9 @@ class VSCoreProxy(CoreProxyBase):
         env_id = get_current_environment().env_id
 
         if env_id not in core_on_destroy_callbacks:
-            core_on_destroy_callbacks[env_id] = {id(callback): weakref.ref(callback)}
+            core_on_destroy_callbacks[env_id] = {id(callback): (weakref.ref(callback), on_forced)}
         else:
-            core_on_destroy_callbacks[env_id] |= {id(callback): weakref.ref(callback)}
+            core_on_destroy_callbacks[env_id] |= {id(callback): (weakref.ref(callback), on_forced)}
 
     def unregister_on_destroy(self, callback: Callable[..., None]) -> None:
         """Unregister a callback from this core destroy."""
