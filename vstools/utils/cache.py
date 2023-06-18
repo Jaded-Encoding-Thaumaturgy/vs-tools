@@ -54,7 +54,7 @@ class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
 
     def __vs_del__(self, core_id: int) -> None:
         self.clear()
-        del self.clip
+        self.clip = None
 
 
 class ClipFramesCache(vs_object, dict[vs.VideoNode, FramesCache[vs.VideoFrame]]):
