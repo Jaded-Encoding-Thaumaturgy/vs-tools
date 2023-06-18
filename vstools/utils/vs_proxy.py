@@ -245,9 +245,9 @@ class proxy_utils:
         if vs_core_ref and vs_core is None:
             if object.__getattribute__(vs_proxy, '_own_core'):
                 raise CustomRuntimeError('The VapourSynth core has been freed!', CoreProxy)
-            else:
-                vs_core = _get_core(vs_proxy)
-                core.__dict__['vs_core_ref'] = (vs_core and weakref.ref(vs_core), vs_proxy)
+
+            vs_core = _get_core(vs_proxy)
+            core.__dict__['vs_core_ref'] = (vs_core and weakref.ref(vs_core), vs_proxy)
 
         return vs_core or _get_core_with_cb()
 
