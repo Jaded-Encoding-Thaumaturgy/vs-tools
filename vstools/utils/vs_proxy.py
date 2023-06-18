@@ -142,9 +142,15 @@ if not TYPE_CHECKING:
     warnings._add_filter('ignore', re.compile('.*divide by zero.*'), Warning, None, 0, append=False)
 
 
-def register_on_creation(callback: Callable[..., None]) -> None:
+def register_on_creation(callback: Callable[..., None], strict: bool = False) -> None:
     """Register a callback on every core creation."""
     core_on_creation_callbacks.update({id(callback): weakref.ref(callback)})
+
+    if not strict and core.active:
+        try:
+            callback(core.core_id)
+        except TypeError:
+            callback()
 
 
 def unregister_on_creation(callback: Callable[..., None]) -> None:
@@ -327,26 +333,25 @@ def _finalize_core(env_id: int, core_id: int, _forced: bool = True) -> None:
     if env_id not in core_on_destroy_callbacks:
         return
 
-    destroy_env = env_id in core_on_destroy_callbacks
-
     for cb_id in list(core_on_destroy_callbacks[env_id].keys()):
-        callback_ref = core_on_destroy_callbacks[env_id].get(cb_id)
+        if _forced:
+            callback_ref = core_on_destroy_callbacks[env_id].get(cb_id)
+        else:
+            callback_ref = core_on_destroy_callbacks[env_id].pop(cb_id)
 
-        pop_cb = not _forced
+        if callback_ref and (callback_ref[1] if _forced else True):
+            callback = callback_ref[0]()
 
-        if callback_ref and (callback_ref[1] if _forced else True) and (callback := callback_ref[0]()):
-            if hasattr(callback, '_is_core_unbound') and callback._is_core_unbound:
-                pop_cb = destroy_env = False
+            if not callback:
+                core_on_destroy_callbacks[env_id].pop(cb_id, None)
+                continue
 
             try:
                 callback(env_id, core_id)
             except TypeError:
                 callback()
 
-        if pop_cb:
-            core_on_destroy_callbacks[env_id].pop(cb_id, None)
-
-    if destroy_env:
+    if not _forced:
         core_on_destroy_callbacks.pop(env_id)
 
     gc.collect()
@@ -360,11 +365,16 @@ def _get_core_with_cb(self: VSCoreProxy | None = None) -> Core:
 
     if (core_id := id(_vs_core)) not in core_on_creation_callbacks_cores:
         for cb_id in list(core_on_creation_callbacks.keys()):
-            if (callback_ref := core_on_creation_callbacks.pop(cb_id, None)) and (callback := callback_ref()):
+            callback_ref = core_on_creation_callbacks.get(cb_id, None)
+
+            if callback_ref and (callback := callback_ref()):
                 try:
                     callback(core_id)
                 except TypeError:
                     callback()
+            else:
+                # remove dead references
+                core_on_creation_callbacks.pop(cb_id, None)
 
         core_on_creation_callbacks_cores.add(id(_vs_core))
 
@@ -429,7 +439,16 @@ class EnvironmentProxy(EnvironmentProxyBase):
 
     @property
     def has_core(self) -> bool:
-        return _find_ref(self.data, Core) is not None
+        import gc
+
+        found_core = _find_ref(self.data, Core)
+
+        if not found_core:
+            return False
+
+        core_refs = gc.get_referrers(found_core)
+
+        return len(core_refs) > 1
 
 
 _curr_env_proxy = EnvironmentProxy()
@@ -454,6 +473,17 @@ class VSCoreProxy(CoreProxyBase):
             raise CustomRuntimeError('No policy has been registered!')
 
         return _curr_env_proxy
+
+    @property
+    def core_id(self) -> int:
+        if not self.active:
+            raise CustomRuntimeError("Core hasn't been fetched yet!")
+
+        return id(self.core)
+
+    @property
+    def active(self) -> bool:
+        return (has_policy() and self.env.has_core) or (_get_core(self) is not None)
 
     @property
     def core(self) -> Core:
@@ -663,7 +693,6 @@ if TYPE_CHECKING:
     class _FastManager:
         ...
 else:
-    from vapoursynth import _FastManager
     from vapoursynth import (
         CallbackData, PythonVSScriptLoggingBridge, StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy
     )
@@ -671,5 +700,6 @@ else:
     from vapoursynth import __pyx_capi__ as pyx_capi
     from vapoursynth import _construct_parameter as construct_parameter
     from vapoursynth import _construct_type as construct_type
+    from vapoursynth import _FastManager
     from vapoursynth import _try_enable_introspection as try_enable_introspection
     from vapoursynth import construct_signature

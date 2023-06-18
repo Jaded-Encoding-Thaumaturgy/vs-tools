@@ -440,7 +440,7 @@ class vs_object(ABC, metaclass=ABCMeta):
     __vsdel_register: Callable[[int], None] | None = None
 
     def __new__(cls: type[VSObjSelf], *args: Any, **kwargs: Any) -> VSObjSelf:
-        from ..utils.vs_proxy import register_on_creation, register_on_destroy
+        from ..utils.vs_proxy import core, register_on_creation
 
         try:
             self = super().__new__(cls, *args, **kwargs)
@@ -449,7 +449,8 @@ class vs_object(ABC, metaclass=ABCMeta):
 
         if hasattr(self, '__vs_del__'):
             def _register(core_id: int) -> None:
-                register_on_destroy(partial(self.__vs_del__, core_id))
+                self.__vsdel_partial_register = partial(self.__vs_del__, core_id)
+                core.register_on_destroy(self.__vsdel_partial_register)
 
             # [un]register_on_creation/destroy will only hold a weakref to the object
             self.__vsdel_register = _register
@@ -463,16 +464,6 @@ class vs_object(ABC, metaclass=ABCMeta):
     if TYPE_CHECKING:
         def __vs_del__(self, core_id: int) -> None:
             """Special dunder that will be called when a core is getting freed."""
-
-    @staticmethod
-    def core_unbound(deleter: F) -> F:
-        """
-        Decorate a __vs_del__ with this to indicate that it should
-        be called when the environment is getting freed instead of the core.
-        """
-
-        deleter._is_core_unbound = True  # type: ignore
-        return deleter
 
 
 VSObjSelf = TypeVar('VSObjSelf', bound=vs_object)
@@ -529,10 +520,10 @@ class VSDebug(Singleton, init=True):
             VSDebug._print_func = print
 
         if env_life:
-            register_on_creation(VSDebug._print_env_live)
+            register_on_creation(VSDebug._print_env_live, True)
 
         if core_fetch:
-            register_on_creation(VSDebug._print_stack)
+            register_on_creation(VSDebug._print_stack, True)
 
     @staticmethod
     def _print_stack(core_id: int) -> None:
@@ -540,12 +531,12 @@ class VSDebug(Singleton, init=True):
 
     @staticmethod
     def _print_env_live(core_id: int) -> None:
-        from ..utils.vs_proxy import core, get_current_environment, register_on_destroy
+        from ..utils.vs_proxy import core, register_on_destroy
 
         VSDebug._print_func(f'New core created with id: {core_id}')
 
-        core.register_on_destroy(VSDebug._print_core_destroy)
-        register_on_destroy(partial(VSDebug._print_destroy, get_current_environment().env_id, core_id))
+        core.register_on_destroy(VSDebug._print_core_destroy, False)
+        register_on_destroy(partial(VSDebug._print_destroy, core.env.env_id, core_id))
 
     @staticmethod
     def _print_destroy(env_id: int, core_id: int) -> None:
