@@ -178,8 +178,12 @@ if TYPE_CHECKING:
     class CoreProxyBase(Core):
         def __init__(self) -> None:
             ...
+
+    class EnvironmentProxyBase(Environment):
+        def __init__(self) -> None:
+            ...
 else:
-    FunctionProxyBase = PluginProxyBase = CoreProxyBase = object
+    FunctionProxyBase = PluginProxyBase = CoreProxyBase = EnvironmentProxyBase = object
 
 
 class FunctionProxy(FunctionProxyBase):
@@ -354,7 +358,6 @@ def _get_core_with_cb(self: VSCoreProxy | None = None) -> Core:
     if not _vs_core:
         _vs_core = vs.core.core
 
-
     if (core_id := id(_vs_core)) not in core_on_creation_callbacks_cores:
         for cb_id in list(core_on_creation_callbacks.keys()):
             if (callback_ref := core_on_creation_callbacks.pop(cb_id, None)) and (callback := callback_ref()):
@@ -372,6 +375,65 @@ def _get_core_with_cb(self: VSCoreProxy | None = None) -> Core:
     return _vs_core
 
 
+def _find_ref(start_data: Any, to_return: type | tuple[type, ...], it: int = 3) -> Any:
+    if not it:
+        return None
+
+    for objects in [gc.get_referents(start_data), gc.get_referrers(start_data)]:
+        for obj in objects:
+            if isinstance(obj, to_return):
+                return obj
+
+            if (isinstance(obj, dict) and '__name__' in obj):
+                continue
+
+            if isinstance(obj, (Core, _CoreProxy, _FastManager)):
+                continue
+
+            for obj_obj in gc.get_referents(obj):
+                if isinstance(obj_obj, to_return):
+                    return obj_obj
+
+                value = _find_ref(obj, to_return, it - 1)
+
+                if value:
+                    return value
+
+    return None
+
+
+class EnvironmentProxy(EnvironmentProxyBase):
+    def __getattr__(self, name: str) -> Plugin:
+        return getattr(get_current_environment(), name)  # type: ignore
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        return setattr(get_current_environment(), name, value)
+
+    @property
+    def data(self) -> None:
+        data = self.env()  # type: ignore
+        assert data
+        return data  # type: ignore
+
+    @property
+    def policy(self) -> EnvironmentPolicy:
+        policy = _find_ref(self.data, (EnvironmentPolicy, VSScriptEnvironmentPolicy, StandaloneEnvironmentPolicy))
+        assert policy is not None
+        return policy  # type: ignore
+
+    @property
+    def api(self) -> EnvironmentPolicyAPI:
+        api = _find_ref(self.policy, EnvironmentPolicyAPI)
+        assert api is not None
+        return api  # type: ignore
+
+    @property
+    def has_core(self) -> bool:
+        return _find_ref(self.data, Core) is not None
+
+
+_curr_env_proxy = EnvironmentProxy()
+
 
 class VSCoreProxy(CoreProxyBase):
     """Class for wrapping a VapourSynth core."""
@@ -385,6 +447,13 @@ class VSCoreProxy(CoreProxyBase):
 
     def __setattr__(self, name: str, value: Any) -> None:
         return setattr(_get_core_with_cb(self), name, value)
+
+    @property
+    def env(self) -> EnvironmentProxy:
+        if not has_policy():
+            raise CustomRuntimeError('No policy has been registered!')
+
+        return _curr_env_proxy
 
     @property
     def core(self) -> Core:
@@ -590,7 +659,11 @@ if TYPE_CHECKING:
 
         def emit(self, record: LogRecord) -> None:
             ...
+
+    class _FastManager:
+        ...
 else:
+    from vapoursynth import _FastManager
     from vapoursynth import (
         CallbackData, PythonVSScriptLoggingBridge, StandaloneEnvironmentPolicy, VSScriptEnvironmentPolicy
     )
