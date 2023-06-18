@@ -35,11 +35,10 @@ from vapoursynth import (
     TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __version__,
     _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, clear_output,
     clear_outputs, fmFrameState, fmParallel, fmParallelRequests, fmUnordered, get_current_environment, get_output,
-    get_outputs, has_policy, register_policy
+    get_outputs, has_policy, register_on_destroy, register_policy, unregister_on_destroy
 )
 
 from ..exceptions import CustomRuntimeError
-from .other import IS_DOCS
 from .vs_enums import (
     GRAY8, GRAY9, GRAY10, GRAY11, GRAY12, GRAY13, GRAY14, GRAY15, GRAY16, GRAY17, GRAY18, GRAY19, GRAY20, GRAY21,
     GRAY22, GRAY23, GRAY24, GRAY25, GRAY26, GRAY27, GRAY28, GRAY29, GRAY30, GRAY31, GRAY32, GRAYH, GRAYS, RGB24, RGB27,
@@ -117,10 +116,6 @@ __all__ = [
     'unregister_on_destroy', 'vs_file', 'clear_cache'
 ]
 
-if IS_DOCS:
-    register_on_destroy_poly = True
-else:
-    register_on_destroy_poly = __version__.release_major < 61
 
 if not TYPE_CHECKING:
     import inspect
@@ -145,16 +140,6 @@ if not TYPE_CHECKING:
 
     warnings._add_filter('ignore', re.compile('.*smallest subnormal.*numpy.*'), Warning, None, 0, append=False)
     warnings._add_filter('ignore', re.compile('.*divide by zero.*'), Warning, None, 0, append=False)
-
-
-if not register_on_destroy_poly:
-    from vapoursynth import register_on_destroy, unregister_on_destroy
-else:
-    def register_on_destroy(callback: Callable[..., None]) -> None:
-        core.register_on_destroy(callback)
-
-    def unregister_on_destroy(callback: Callable[..., None]) -> None:
-        core.unregister_on_destroy(callback)
 
 
 def register_on_creation(callback: Callable[..., None]) -> None:
@@ -516,9 +501,6 @@ def _core_on_destroy_try() -> None:
 
 def _check_environment() -> None:
     try:
-        if register_on_destroy_poly:
-            raise RuntimeError
-
         register_on_destroy(_core_on_destroy_try)
         unregister_on_destroy(_core_on_destroy_try)
     except Exception as e:
