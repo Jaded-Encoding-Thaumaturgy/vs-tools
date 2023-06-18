@@ -508,7 +508,9 @@ class Singleton(metaclass=SingletonMeta):
 class VSDebug(Singleton, init=True):
     """Special class that follows the VapourSynth lifecycle for debug purposes."""
 
-    def __init__(self, *, env_life: bool = True, core_fetch: bool = False) -> None:
+    _print_func = print
+
+    def __init__(self, *, env_life: bool = True, core_fetch: bool = False, use_logging: bool = False) -> None:
         """
         Print useful debug information.
 
@@ -519,6 +521,12 @@ class VSDebug(Singleton, init=True):
         """
 
         from ..utils.vs_proxy import register_on_creation
+
+        if use_logging:
+            import logging
+            VSDebug._print_func = logging.debug
+        else:
+            VSDebug._print_func = print
 
         if env_life:
             register_on_creation(VSDebug._print_env_live)
@@ -534,15 +542,15 @@ class VSDebug(Singleton, init=True):
     def _print_env_live(core_id: int) -> None:
         from ..utils.vs_proxy import core, get_current_environment, register_on_destroy
 
-        print(f'New core created with id: {core_id}')
+        VSDebug._print_func(f'New core created with id: {core_id}')
 
         core.register_on_destroy(VSDebug._print_core_destroy)
         register_on_destroy(partial(VSDebug._print_destroy, get_current_environment().env_id, core_id))
 
     @staticmethod
     def _print_destroy(env_id: int, core_id: int) -> None:
-        print(f'Environment destroyed with id: {env_id}, current core id: {core_id}')
+        VSDebug._print_func(f'Environment destroyed with id: {env_id}, current core id: {core_id}')
 
     @staticmethod
     def _print_core_destroy(_: int, core_id: int) -> None:
-        print(f'Core destroyed with id: {core_id}')
+        VSDebug._print_func(f'Core destroyed with id: {core_id}')
