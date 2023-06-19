@@ -154,18 +154,10 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
 
 def set_output(
     node: vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode]]],
-    name: str | bool = True, cache: bool | None = None, **kwargs: Any
+    name: str | bool = True, **kwargs: Any
 ) -> None:
     """Set output node with optional name, and if available, use vspreview set_output."""
-    from ..functions import flatten
-    from ..utils import cache_clip
-
-    if cache is None:
-        try:
-            from vspreview import is_preview
-            cache = is_preview()
-        except Exception:
-            ...
+    from ..functions import flatten_vnodes
 
     last_index = len(vs.get_outputs())
 
@@ -174,7 +166,7 @@ def set_output(
     title = 'Node'
 
     if isinstance(node, Iterable):
-        node = list[vs.RawNode](flatten(node))  # type: ignore
+        node = list[vs.RawNode](flatten_vnodes(node))  # type: ignore
         index = ''
     else:
         index = ' ' + str(last_index)
@@ -203,20 +195,9 @@ def set_output(
         from vspreview import set_output as vsp_set_output
         if isinstance(node, list):
             for idx, n in enumerate(node, 0 if index else last_index):
-                if cache:
-                    n = cache_clip(n)
                 vsp_set_output(n, name and f'{name} {idx}', **kwargs)
         else:
-            vsp_set_output(cache_clip(node) if cache else node, name, **kwargs)
+            vsp_set_output(node, name, **kwargs)
     except ModuleNotFoundError:
-        if isinstance(name, str) and isinstance(node, vs.VideoNode):
-            if isinstance(node, list):
-                for idx, n in enumerate(node, 0 if index else last_index):
-                    if cache:
-                        n = cache_clip(n)
-                    n.std.SetFrameProp('Name', data=f'{name.title()} {idx}').set_output(last_index)
-                    last_index += 1
-            else:
-                if cache:
-                    n = cache_clip(n)
-                n.std.SetFrameProp('Name', data=name.title()).set_output(last_index)
+        for idx, n in enumerate(node if isinstance(node, list) else [node], last_index):
+            n.set_output(idx)
