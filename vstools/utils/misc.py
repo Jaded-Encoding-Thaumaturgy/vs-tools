@@ -66,7 +66,7 @@ def match_clip(
 
     if vformat:
         assert ref.format
-        clip = clip.resize.Bicubic(format=ref.format, matrix=Matrix.from_video(ref))
+        clip = clip.resize.Bicubic(format=ref.format.id, matrix=Matrix.from_video(ref))
 
     if matrices:
         ref_frame = ref.get_frame(0)
@@ -75,7 +75,6 @@ def match_clip(
         )
 
     return clip.std.AssumeFPS(fpsnum=ref.fps.numerator, fpsden=ref.fps.denominator)
-
 
 
 def padder(
