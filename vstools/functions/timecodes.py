@@ -383,7 +383,7 @@ class Keyframes(list[int]):
         out_path = Path(str(out)).resolve()
 
         if out_path.exists():
-            if not force:
+            if not force and out_path.stat().st_size > 0:
                 return
 
             out_path.unlink()
