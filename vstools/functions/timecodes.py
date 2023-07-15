@@ -142,7 +142,7 @@ class Timecodes(list[Timecode]):
             def _get_timecode(n: int, f: vs.VideoFrame) -> Timecode:
                 return Timecode(n, f.props._DurationNum, f.props._DurationDen)  # type: ignore
 
-        return cls(clip_async_render(prop_clip, None, '', _get_timecode, **kwargs))
+        return cls(clip_async_render(prop_clip, None, 'Fetching timecodes...', _get_timecode, **kwargs))
 
     @overload
     @classmethod
