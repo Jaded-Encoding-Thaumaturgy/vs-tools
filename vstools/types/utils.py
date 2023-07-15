@@ -24,7 +24,7 @@ __all__ = [
 
     'vs_object', 'VSDebug',
 
-    'Singleton'
+    'Singleton', 'to_singleton'
 ]
 
 
@@ -494,6 +494,22 @@ SingletonSelf = TypeVar('SingletonSelf', bound=SingletonMeta)
 
 class Singleton(metaclass=SingletonMeta):
     """Handy class to inherit to have the SingletonMeta metaclass."""
+
+
+class to_singleton:
+    _ts_args = tuple[str, ...]()
+    _ts_kwargs = dict[str, Any]()
+
+    def __new__(_cls, cls: type[T]) -> T:  # type: ignore
+        return cls(*_cls._ts_args, **_cls._ts_kwargs)
+
+    @staticmethod
+    def with_args(*args: Any, **kwargs: Any) -> to_singleton:
+        class _inner_singl(to_singleton):
+            _ts_args = args
+            _ts_kwargs = kwargs
+
+        return _inner_singl
 
 
 class VSDebug(Singleton, init=True):
