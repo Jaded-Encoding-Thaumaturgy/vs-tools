@@ -3,11 +3,10 @@ from __future__ import annotations
 from abc import ABC, ABCMeta
 from functools import partial, wraps
 from inspect import Signature, isclass
-from typing import (
-    TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable, Protocol, Sequence, TypeVar, cast, overload
-)
+from typing import (TYPE_CHECKING, Any, Callable, Concatenate, Generator, Generic, Iterable,
+                    Iterator, Mapping, NoReturn, Protocol, Sequence, TypeVar, cast, overload)
 
-from .builtins import F0, P0, P1, R0, R1, T0, T1, T2, F, KwargsT, P, R, T
+from .builtins import F0, P0, P1, R0, R1, T0, T1, T2, KwargsT, P, R, T
 
 __all__ = [
     'copy_signature',
@@ -24,7 +23,9 @@ __all__ = [
 
     'vs_object', 'VSDebug',
 
-    'Singleton', 'to_singleton'
+    'Singleton', 'to_singleton',
+
+    'LinearRangeLut'
 ]
 
 
@@ -561,3 +562,38 @@ class VSDebug(Singleton, init=True):
     @staticmethod
     def _print_core_destroy(_: int, core_id: int) -> None:
         VSDebug._print_func(f'Core destroyed with id: {core_id}')
+
+
+class LinearRangeLut(Mapping[int, int]):
+    __slots__ = ('ranges', '_ranges_idx_lut', '_misses_n')
+
+    def __init__(self, ranges: Mapping[int, range]) -> None:
+        self.ranges = ranges
+
+        self._ranges_idx_lut = list(self.ranges.items())
+        self._misses_n = 0
+
+    def __getitem__(self, n: int) -> int:
+        for missed_hit, (idx, k) in enumerate(self._ranges_idx_lut):
+            if n in k:
+                break
+
+        if missed_hit:
+            self._misses_n += 1
+
+            if self._misses_n > 2:
+                self._ranges_idx_lut = self._ranges_idx_lut[missed_hit:] + self._ranges_idx_lut[:missed_hit]
+
+        return idx
+
+    def __len__(self) -> int:
+        return len(self.ranges)
+
+    def __iter__(self) -> Iterator[int]:
+        return iter(range(len(self)))
+
+    def __setitem__(self, n: int, _range: range) -> NoReturn:
+        raise NotImplementedError
+
+    def __delitem__(self, n: int) -> NoReturn:
+        raise NotImplementedError

@@ -8,9 +8,9 @@ from typing import Any, ClassVar, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..enums import SceneChangeMode, Matrix
+from ..enums import Matrix, SceneChangeMode
 from ..exceptions import CustomValueError, FramesLengthError
-from ..types import FilePathType, FuncExceptT, Sentinel, inject_self, SPath
+from ..types import FilePathType, FuncExceptT, LinearRangeLut, Sentinel, SPath, inject_self
 from .render import clip_async_render
 
 __all__ = [
@@ -294,6 +294,17 @@ class Keyframes(list[int]):
     WWXD: ClassVar = SceneChangeMode.WWXD
     SCXVID: ClassVar = SceneChangeMode.SCXVID
 
+    class _Scenes(dict[int, range]):
+        __slots__ = ('indices', )
+
+        def __init__(self, kf: Keyframes) -> None:
+            if kf:
+                super().__init__({
+                    i: range(x, y) for i, (x, y) in enumerate(zip(kf, kf[1:] + [1 << 32]))
+                })
+
+            self.indices = LinearRangeLut(self)
+
     @overload  # type: ignore
     def __init__(self, iterable: Iterable[int]) -> None:
         ...
@@ -302,6 +313,8 @@ class Keyframes(list[int]):
         super().__init__(sorted(list(iterable)))
 
         self._dummy = _dummy
+
+        self.scenes = self.__class__._Scenes(self)
 
     @staticmethod
     def _get_unique_path(clip: vs.VideoNode, key: str) -> SPath:
@@ -361,22 +374,10 @@ class Keyframes(list[int]):
         if not scene_idx_prop:
             return out
 
-        scene_idx_lookup = [
-            (i, range(x, y)) for i, (x, y) in enumerate(zip(self, self[1:] + [clip.num_frames]))
-        ]
-
         def _add_scene_idx(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-            nonlocal scene_idx_lookup
-
             f = f.copy()
-            for missed_hit, (idx, k) in enumerate(scene_idx_lookup):
-                if n in k:
-                    break
 
-            if missed_hit:
-                scene_idx_lookup = scene_idx_lookup[missed_hit:] + scene_idx_lookup[:missed_hit]
-
-            f.props._SceneIdx = idx
+            f.props._SceneIdx = self.scenes.indices[n]
 
             return f
 
