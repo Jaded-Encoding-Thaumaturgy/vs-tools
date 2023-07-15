@@ -335,6 +335,43 @@ class Keyframes(list[int]):
 
         return replace_ranges(clip, propset_clip, self)
 
+    @classmethod
+    def from_file(cls: type[KeyframesBoundT], file: FilePathType, **kwargs: Any) -> KeyframesBoundT:
+        file = SPath(str(file)).resolve()
+
+        if not file.exists():
+            raise FileNotFoundError
+
+        if file.stat().st_size <= 0:
+            raise OSError('File is empty!')
+
+        lines = [
+            line.strip() for line in file.read_lines('utf-8')
+            if line and not line.startswith('#')
+        ]
+
+        if not lines:
+            raise ValueError('No keyframe could be found!')
+
+        kf_type: int | None = None
+        if lines[0].startswith('fps'):
+            kf_type = Keyframes.XVID
+        elif lines[0].lower() in ('i', 'b', 'p', 'n'):
+            kf_type = Keyframes.V1
+
+        if kf_type is None:
+            raise ValueError('Could not determine keyframe file type!')
+
+        if kf_type == Keyframes.V1:
+            return cls(i for i, line in enumerate(lines) if line == 'i')
+
+        if kf_type == Keyframes.XVID:
+            split_lines = [line.split(' ') for line in lines]
+
+            return cls(int(n) for n, t, *_ in split_lines if t.lower() == 'i')
+
+        raise ValueError('Invalid keyframe file type!')
+
     def to_file(
         self, out: FilePathType, format: int = V1, func: FuncExceptT | None = None,
         header: bool = True, force: bool = False
