@@ -1,24 +1,41 @@
 from __future__ import annotations
 
-import sys
 import ctypes
+import sys
 from io import BufferedRandom, BufferedReader, BufferedWriter, FileIO, TextIOWrapper
-from os import F_OK, R_OK, W_OK, X_OK, access, path, getenv
+from os import F_OK, R_OK, W_OK, X_OK, access, getenv, path
 from pathlib import Path
 from typing import IO, Any, BinaryIO, Literal, overload
 
 from ..exceptions import FileIsADirectoryError, FileNotExistsError, FilePermissionError, FileWasNotFoundError
 from ..types import (
     FileOpener, FilePathType, FuncExceptT, OpenBinaryMode, OpenBinaryModeReading, OpenBinaryModeUpdating,
-    OpenBinaryModeWriting, OpenTextMode
+    OpenBinaryModeWriting, OpenTextMode, SPath
 )
 
 __all__ = [
+    'get_script_path',
+
     'get_user_data_dir',
 
     'check_perms',
     'open_file'
 ]
+
+
+def get_script_path() -> SPath:
+    try:
+        from vspreview import is_preview
+
+        if is_preview():
+            from vspreview.core import main_window
+            return SPath(main_window().script_path)
+    except ModuleNotFoundError:
+        ...
+
+    import __main__
+
+    return SPath(__main__.__file__)
 
 
 def get_user_data_dir() -> Path:
