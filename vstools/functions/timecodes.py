@@ -320,7 +320,7 @@ class Keyframes(list[int]):
     @inject_self.with_args(_dummy=True)
     def to_clip(
         self, clip: vs.VideoNode, *, mode: SceneChangeMode | int = WWXD, height: int | None = 360,
-        prop_key: str = next(iter(SceneChangeMode.SCXVID.prop_keys))
+        prop_key: str = next(iter(SceneChangeMode.SCXVID.prop_keys)), scene_idx_prop: bool = False
     ) -> vs.VideoNode:
         from ..utils import replace_ranges
 
@@ -331,9 +331,33 @@ class Keyframes(list[int]):
 
             prop_clip, callback = mode.prepare_clip(clip, height), mode.check_cb()
 
-            return replace_ranges(clip, propset_clip, callback, prop_src=prop_clip)
+            out = replace_ranges(clip, propset_clip, callback, prop_src=prop_clip)
+        else:
+            out = replace_ranges(clip, propset_clip, self)
 
-        return replace_ranges(clip, propset_clip, self)
+        if not scene_idx_prop:
+            return out
+
+        scene_idx_lookup = [
+            (i, range(x, y)) for i, (x, y) in enumerate(zip(self, self[1:] + [clip.num_frames]))
+        ]
+
+        def _add_scene_idx(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+            nonlocal scene_idx_lookup
+
+            f = f.copy()
+            for missed_hit, (idx, k) in enumerate(scene_idx_lookup):
+                if n in k:
+                    break
+
+            if missed_hit:
+                scene_idx_lookup = scene_idx_lookup[missed_hit:] + scene_idx_lookup[:missed_hit]
+
+            f.props._SceneIdx = idx
+
+            return f
+
+        return out.std.ModifyFrame(out, _add_scene_idx)
 
     @classmethod
     def from_file(cls: type[KeyframesBoundT], file: FilePathType, **kwargs: Any) -> KeyframesBoundT:
