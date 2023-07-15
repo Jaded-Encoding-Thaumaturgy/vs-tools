@@ -10,7 +10,7 @@ import vapoursynth as vs
 
 from ..enums import SceneChangeMode, Matrix
 from ..exceptions import CustomValueError, FramesLengthError
-from ..types import FilePathType, FuncExceptT, Sentinel, inject_self
+from ..types import FilePathType, FuncExceptT, Sentinel, inject_self, SPath
 from .render import clip_async_render
 
 __all__ = [
@@ -302,6 +302,29 @@ class Keyframes(list[int]):
         super().__init__(sorted(list(iterable)))
 
         self._dummy = _dummy
+
+    @staticmethod
+    def _get_unique_path(clip: vs.VideoNode, key: str) -> SPath:
+        key = SPath(str(key)).stem + f'_{clip.num_frames}_{clip.fps_num}_{clip.fps_den}'
+
+        return (SPath.cwd() / '.vsiew' / 'keyframes' / key).with_suffix('.txt').resolve()
+
+    @classmethod
+    def unique(
+        cls: type[KeyframesBoundT], clip: vs.VideoNode, key: str, **kwargs: Any
+    ) -> KeyframesBoundT:
+        file = cls._get_unique_path(clip, key)
+
+        if file.exists():
+            if file.stat().st_size > 0:
+                return cls.from_file(file, **kwargs)
+
+            file.unlink()
+
+        keyframes = cls.from_clip(clip, **kwargs)
+        keyframes.to_file(file, force=True)
+
+        return keyframes
 
     @classmethod
     def from_clip(
