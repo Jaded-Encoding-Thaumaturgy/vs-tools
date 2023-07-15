@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from ..types import vs_object
+from ..types import vs_object, T
 from . import vs_proxy as vs
 from typing import Generic, TypeVar
 
 __all__ = [
-    'ClipsCache',
+    'ClipsCache', 'DynamicClipsCache',
     'FramesCache',
     'ClipFramesCache',
 
@@ -28,6 +28,23 @@ class ClipsCache(vs_object, dict[vs.VideoNode, vs.VideoNode]):
         self.clear()
 
 
+class DynamicClipsCache(vs_object, dict[T, vs.VideoNode]):
+    def __init__(self, cache_size: int = 2) -> None:
+        self.cache_size = cache_size
+
+    def get_clip(self, key: T) -> vs.VideoNode:
+        raise NotImplementedError
+
+    def __getitem__(self, __key: T) -> vs.VideoNode:
+        if __key not in self:
+            self[__key] = self.get_clip(__key)
+
+            if len(self) > self.cache_size:
+                del self[next(iter(self.keys()))]
+
+        return super().__getitem__(__key)
+
+
 class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
     def __init__(self, clip: vs.VideoNode, cache_size: int = 10) -> None:
         self.clip = clip
@@ -43,7 +60,7 @@ class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
     def __setitem__(self, __key: int, __value: FrameT) -> None:
         super().__setitem__(__key, __value)
 
-        if self.cache_size < len(self):
+        if len(self) > self.cache_size:
             del self[next(iter(self.keys()))]
 
     def __getitem__(self, __key: int) -> FrameT:
