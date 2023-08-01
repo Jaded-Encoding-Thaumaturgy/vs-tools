@@ -103,11 +103,11 @@ def disallow_variable_resolution(function: F | None = None, /, *, only_first: bo
     )
 
 
-def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExceptT | None = None) -> None:
+def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExceptT | None = None) -> vs.VideoNode:
     """
-    Decorator for ensuring the ref clip's format matches that of the input clip.
+    Function for ensuring the ref clip's format matches that of the input clip.
 
-    If no ref clip can be found, this decorator will simply do nothing.
+    If no ref clip can be found, this function will simply do nothing.
 
     :param src:     Input clip.
     :param ref:     Reference clip.
@@ -117,12 +117,14 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExcept
     :raises VariableResolutionError:            The resolution of either clip is variable.
     :raises FormatsRefClipMismatchError:        The formats of the two clips do not match.
     :raises ResolutionsRefClipMismatchError:    The resolutions of the two clips do not match.
+
+    :return:        Ref clip.
     """
 
     from .funcs import fallback
 
     if ref is None:
-        return
+        return src
 
     func = fallback(func, check_ref_clip)  # type: ignore
 
@@ -131,6 +133,8 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExcept
 
     FormatsRefClipMismatchError.check(func, src, ref)  # type: ignore
     ResolutionsRefClipMismatchError.check(func, src, ref)  # type: ignore
+
+    return ref
 
 
 def check_variable_format(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantFormatVideoNode]:

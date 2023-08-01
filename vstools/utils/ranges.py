@@ -21,6 +21,7 @@ __all__ = [
     'interleave_arr'
 ]
 
+_gc_func_gigacope = []
 
 RangesCallback = Union[
     Callable[[int], bool],
@@ -151,18 +152,24 @@ def replace_ranges(
             )
 
         if 'f' in params and 'n' in params:
-            return base_clip.std.FrameEval(lambda n, f: clip_b if callback(n, f) else clip_a, prop_src)  # type: ignore
+            def _func(n: int, f: vs.VideoFrame) -> vs.VideoNode:
+                return clip_b if callback(n, f) else clip_a  # type: ignore
+        elif 'f' in params:
+            def _func(n: int, f: vs.VideoFrame) -> vs.VideoNode:
+                return clip_b if callback(f) else clip_a  # type: ignore
+        elif 'n' in params:
+            def _func(n: int) -> vs.VideoNode:
+                return clip_b if callback(n) else clip_a  # type: ignore
+        else:
+            raise CustomValueError('Callback must have signature ((n, f) | (n) | (f)) -> bool!')
 
-        if 'f' in params:
-            return base_clip.std.FrameEval(lambda n, f: clip_b if callback(f) else clip_a, prop_src)  # type: ignore
+        _func.__callback = callback  # type: ignore
+        _gc_func_gigacope.append(_func)
 
-        if 'n' in params:
-            return base_clip.std.FrameEval(lambda n: clip_b if callback(n) else clip_a)  # type: ignore
-
-        raise CustomValueError('Callback must have signature ((n, f) | (n) | (f)) -> bool!')
+        return base_clip.std.FrameEval(_func, prop_src if 'f' in params else None, [clip_a, clip_b])
 
     b_ranges = normalize_ranges(clip_b, ranges)
-    do_splice_trim = len(b_ranges) <= 5
+    do_splice_trim = len(b_ranges) <= 15
 
     if use_plugin is not None:
         warnings.warn('replace_ranges: use_plugin is deprecated!')
