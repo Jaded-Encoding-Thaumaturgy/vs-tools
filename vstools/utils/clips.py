@@ -26,7 +26,8 @@ __all__ = [
 
 
 def finalize_clip(
-    clip: vs.VideoNode, bits: VideoFormatT | HoldsVideoFormatT | int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
+    clip: vs.VideoNode, bits: VideoFormatT | HoldsVideoFormatT | int | None = 10,
+    clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """
     Finalize a clip for output to the encoder.
