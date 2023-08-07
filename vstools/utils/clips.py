@@ -10,7 +10,7 @@ from ..enums import (
 )
 from ..exceptions import CustomValueError, InvalidColorFamilyError
 from ..functions import check_variable, depth, fallback, get_y, join
-from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P
+from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, VideoFormatT, P
 from . import vs_proxy as vs
 from .info import get_depth, get_video_format, get_w
 from .scale import scale_8bit
@@ -26,7 +26,7 @@ __all__ = [
 
 
 def finalize_clip(
-    clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
+    clip: vs.VideoNode, bits: VideoFormatT | HoldsVideoFormatT | int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """
     Finalize a clip for output to the encoder.
@@ -64,7 +64,8 @@ def finalize_clip(
 
 @overload
 def finalize_output(
-    function: None = None, /, *, bits: int | None = 10,
+    function: None = None, /, *,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 10,
     clamp_tv_range: bool = True, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     ...
@@ -72,14 +73,16 @@ def finalize_output(
 
 @overload
 def finalize_output(
-    function: F_VD, /, *, bits: int | None = 10,
+    function: F_VD, /, *,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 10,
     clamp_tv_range: bool = True, func: FuncExceptT | None = None
 ) -> F_VD:
     ...
 
 
 def finalize_output(
-    function: F_VD | None = None, /, *, bits: int | None = 10,
+    function: F_VD | None = None, /, *,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 10,
     clamp_tv_range: bool = True, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     """Decorator implementation of finalize_clip."""
@@ -99,7 +102,8 @@ def finalize_output(
 
 
 def initialize_clip(
-    clip: vs.VideoNode, bits: int | None = 16,
+    clip: vs.VideoNode,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 16,
     matrix: MatrixT | None = None,
     transfer: TransferT | None = None,
     primaries: PrimariesT | None = None,
@@ -155,7 +159,8 @@ def initialize_clip(
 
 @overload
 def initialize_input(
-    function: None = None, /, *, bits: int | None = 16,
+    function: None = None, /, *,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 16,
     matrix: MatrixT | None = None,
     transfer: TransferT | None = None,
     primaries: PrimariesT | None = None,
@@ -169,7 +174,8 @@ def initialize_input(
 
 @overload
 def initialize_input(
-    function: F_VD, /, *, bits: int | None = 16,
+    function: F_VD, /, *,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 16,
     matrix: MatrixT | None = None,
     transfer: TransferT | None = None,
     primaries: PrimariesT | None = None,
@@ -182,7 +188,8 @@ def initialize_input(
 
 
 def initialize_input(
-    function: F_VD | None = None, /, *, bits: int | None = 16,
+    function: F_VD | None = None, /, *,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 16,
     matrix: MatrixT | None = None,
     transfer: TransferT | None = None,
     primaries: PrimariesT | None = None,
