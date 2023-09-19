@@ -3,12 +3,11 @@ from __future__ import annotations
 import string
 from typing import Any, Iterable, Literal, Mapping, Sequence, cast, overload
 from weakref import WeakValueDictionary
-from jvsfunc import Dither
 
 import vapoursynth as vs
 
-from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix, CustomIntEnum
-from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError, CustomNotImplementedError
+from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
+from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
 from ..types import HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import check_variable_format, disallow_variable_format
 
