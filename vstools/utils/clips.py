@@ -12,7 +12,7 @@ from ..exceptions import CustomValueError, InvalidColorFamilyError
 from ..functions import check_variable, depth, fallback, get_y, join
 from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P, VideoFormatT
 from . import vs_proxy as vs
-from .info import get_depth, get_video_format, get_w
+from .info import get_video_format, get_w
 from .scale import scale_8bit
 
 __all__ = [
