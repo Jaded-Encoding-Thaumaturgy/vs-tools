@@ -9,7 +9,7 @@ from ..enums import (
     PrimariesT, PropEnum, Transfer, TransferT
 )
 from ..exceptions import CustomValueError, InvalidColorFamilyError
-from ..functions import check_variable, depth, fallback, get_y, join
+from ..functions import DitherType, check_variable, depth, fallback, get_y, join
 from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P
 from . import vs_proxy as vs
 from .info import get_depth, get_video_format, get_w
@@ -26,7 +26,8 @@ __all__ = [
 
 
 def finalize_clip(
-    clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True, *, func: FuncExceptT | None = None
+    clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True,
+    *, dither_type: DitherType = DitherType.ERROR_DIFFUSION, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """
     Finalize a clip for output to the encoder.
@@ -42,7 +43,7 @@ def finalize_clip(
     assert check_variable(clip, func or finalize_clip)
 
     if bits:
-        clip = depth(clip, bits)
+        clip = depth(clip, bits, dither_type=dither_type)
     else:
         bits = get_depth(clip)
 
