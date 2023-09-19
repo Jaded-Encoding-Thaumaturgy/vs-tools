@@ -57,8 +57,8 @@ class DitherType(CustomStrEnum):
     ERROR_DIFFUSION_FMTC = 'error_diffusion_fmtc'
     """Floyd-Steinberg error diffusion, modified for serpentine scan (avoids worm artefacts)."""
 
-    SIERRA_LITE = 'sierra_lite'
-    """Another type of error diffusion with more focus on speed."""
+    SIERRA_2_4A = 'sierra_2_4a'
+    """Another type of error diffusion. Quick and excellent quality, similar to Floyd-Steinberg."""
 
     STUCKI = 'stucki'
     """Another error diffusion kernel that preserves delicate edges better but distorts gradients."""
@@ -75,27 +75,22 @@ class DitherType(CustomStrEnum):
     QUASIRANDOM = 'quasirandom'
     """Dither using quasirandom sequences. Good intermediated between Void and cluster and error diffusion algorithms."""
 
-    def apply(self, clip: vs.VideoNode, format: vs.VideoFormat, range_in: ColorRange, range_out: ColorRange, format_in: vs.VideoFormat) -> vs.VideoNode:
+    def apply(self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange, range_out: ColorRange) -> vs.VideoNode:
         if self == DitherType.AUTO:
             raise CustomValueError("DitherType: Cannot apply AUTO.")
         
-        if self == DitherType.OSTROMOUKHOV and format_in.sample_type == vs.FLOAT:
+        if self == DitherType.OSTROMOUKHOV and clip.format.sample_type == vs.FLOAT:
             raise CustomValueError("DitherType: Ostromoukhov can't be used for float input.")
                 
-        if not self._is_fmtc:
-            return clip.resize.Point(format=format.id, range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg, dither_type=self.value.lower())
+        if not self.is_fmtc:
+            return clip.resize.Point(format=fmt_out.id, range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg, dither_type=self.value.lower())
         else:
-            return clip.fmtc.bitdepth(dmode=DitherType._fmtc_types().get(self.value), bits=format.bits_per_sample, 
+            return clip.fmtc.bitdepth(dmode=fmtc_types.get(self.value), bits=fmt_out.bits_per_sample, 
                                       fulls=None if not range_in else range_in == ColorRange.FULL, 
-                                      fulld=None if not range_out else range_out == ColorRange.FULL)
+                                      fulld=None if not range_out else range_out == ColorRange.FULL)    
     @property
-    def _is_fmtc(self) -> bool:
-        return self.value in DitherType._fmtc_types().keys()
-
-    @staticmethod
-    def _fmtc_types() -> dict[DitherType, int]:
-        return {DitherType.SIERRA_LITE: 3, DitherType.STUCKI: 4, DitherType.ATKINSON: 5, DitherType.ERROR_DIFFUSION_FMTC: 6,
-                DitherType.OSTROMOUKHOV: 7, DitherType.VOID: 8, DitherType.QUASIRANDOM: 9}
+    def is_fmtc(self) -> bool:
+        return self.value in fmtc_types.keys()
     
     @overload
     @staticmethod
@@ -196,6 +191,8 @@ class DitherType(CustomStrEnum):
 
         return in_range == ColorRange.FULL and (in_bits, out_bits) != (8, 16)
 
+fmtc_types: dict[DitherType, int] = {DitherType.SIERRA_2_4A: 3, DitherType.STUCKI: 4, DitherType.ATKINSON: 5, DitherType.ERROR_DIFFUSION_FMTC: 6,
+                                    DitherType.OSTROMOUKHOV: 7, DitherType.VOID: 8, DitherType.QUASIRANDOM: 9}
 
 @disallow_variable_format
 def depth(
@@ -266,7 +263,7 @@ def depth(
         bits_per_sample=out_fmt.bits_per_sample, sample_type=out_fmt.sample_type
     )
 
-    return dither_type.apply(clip, new_format, range_in, range_out, in_fmt)
+    return dither_type.apply(clip, new_format, range_in, range_out)
 
 
 _f2c_cache = WeakValueDictionary[int, vs.VideoNode]()
