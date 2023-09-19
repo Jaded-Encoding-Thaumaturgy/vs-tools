@@ -55,43 +55,64 @@ class DitherType(CustomStrEnum):
     """Floyd-Steinberg error diffusion."""
 
     ERROR_DIFFUSION_FMTC = 'error_diffusion_fmtc'
-    """Floyd-Steinberg error diffusion, modified for serpentine scan (avoids worm artefacts)."""
+    """
+    Floyd-Steinberg error diffusion.
+    Modified for serpentine scan (avoids worm artefacts).
+    """
 
     SIERRA_2_4A = 'sierra_2_4a'
-    """Another type of error diffusion. Quick and excellent quality, similar to Floyd-Steinberg."""
+    """
+    Another type of error diffusion.
+    Quick and excellent quality, similar to Floyd-Steinberg.
+    """
 
     STUCKI = 'stucki'
-    """Another error diffusion kernel that preserves delicate edges better but distorts gradients."""
+    """
+    Another error diffusion kernel.
+    Preserves delicate edges better but distorts gradients.
+    """
 
     ATKINSON = 'atkinson'
-    """Another error diffusion kernel that generates distinct patterns but keeps clean the flat areas (noise modulation)."""
+    """
+    Another error diffusion kernel.
+    Generates distinct patterns but keeps clean the flat areas (noise modulation).
+    """
 
     OSTROMOUKHOV = 'ostromoukhov'
-    """Another error diffusion kernel. Slow, available only for integer input at the moment. Avoids usual F-S artefacts."""
+    """
+    Another error diffusion kernel.
+    Slow, available only for integer input at the moment. Avoids usual F-S artefacts.
+    """
 
     VOID = 'void'
     """A way to generate blue-noise dither and has a much better visual aspect than ordered dithering."""
 
     QUASIRANDOM = 'quasirandom'
-    """Dither using quasirandom sequences. Good intermediated between Void and cluster and error diffusion algorithms."""
+    """
+    Dither using quasirandom sequences.
+    Good intermediated between Void and cluster and error diffusion algorithms.
+    """
 
-    def apply(self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange, range_out: ColorRange) -> vs.VideoNode:
+    def apply(self, clip: vs.VideoNode, fmt_out: vs.VideoFormat,
+              range_in: ColorRange, range_out: ColorRange) -> vs.VideoNode:
         if self == DitherType.AUTO:
             raise CustomValueError("Cannot apply AUTO.", self.__class__)
-        
+
         if self == DitherType.OSTROMOUKHOV and clip.format.sample_type == vs.FLOAT:
             raise CustomValueError("Ostromoukhov can't be used for float input.", self.__class__)
-                
+
         if not self.is_fmtc:
-            return clip.resize.Point(format=fmt_out.id, range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg, dither_type=self.value.lower())
+            return clip.resize.Point(format=fmt_out.id, range_in=range_in and range_in.value_zimg,
+                                     range=range_out and range_out.value_zimg, dither_type=self.value.lower())
         else:
-            return clip.fmtc.bitdepth(dmode=fmtc_types.get(self.value), bits=fmt_out.bits_per_sample, 
-                                      fulls=None if not range_in else range_in == ColorRange.FULL, 
-                                      fulld=None if not range_out else range_out == ColorRange.FULL)    
+            return clip.fmtc.bitdepth(dmode=fmtc_types.get(self.value), bits=fmt_out.bits_per_sample,
+                                      fulls=None if not range_in else range_in == ColorRange.FULL,
+                                      fulld=None if not range_out else range_out == ColorRange.FULL)
+
     @property
     def is_fmtc(self) -> bool:
         return self.value in fmtc_types.keys()
-    
+
     @overload
     @staticmethod
     def should_dither(
@@ -191,8 +212,17 @@ class DitherType(CustomStrEnum):
 
         return in_range == ColorRange.FULL and (in_bits, out_bits) != (8, 16)
 
-fmtc_types: dict[DitherType, int] = {DitherType.SIERRA_2_4A: 3, DitherType.STUCKI: 4, DitherType.ATKINSON: 5, DitherType.ERROR_DIFFUSION_FMTC: 6,
-                                    DitherType.OSTROMOUKHOV: 7, DitherType.VOID: 8, DitherType.QUASIRANDOM: 9}
+
+fmtc_types: dict[DitherType, int] = {
+    DitherType.SIERRA_2_4A: 3,
+    DitherType.STUCKI: 4,
+    DitherType.ATKINSON: 5,
+    DitherType.ERROR_DIFFUSION_FMTC: 6,
+    DitherType.OSTROMOUKHOV: 7,
+    DitherType.VOID: 8,
+    DitherType.QUASIRANDOM: 9,
+}
+
 
 @disallow_variable_format
 def depth(
@@ -257,7 +287,10 @@ def depth(
     if dither_type is DitherType.AUTO:
         should_dither = DitherType.should_dither(in_fmt, out_fmt, range_in, range_out)
 
-        dither_type = DitherType.VOID if hasattr(clip, "fmtc") else (DitherType.ERROR_DIFFUSION if out_fmt.bits_per_sample == 8 else DitherType.ORDERED)
+        if hasattr(clip, "fmtc"):
+            dither_type = DitherType.VOID
+        else:
+            dither_type = DitherType.ERROR_DIFFUSION if out_fmt.bits_per_sample == 8 else DitherType.ORDERED
         dither_type = dither_type if should_dither else DitherType.NONE
 
     new_format = in_fmt.replace(
