@@ -257,7 +257,8 @@ def depth(
     if dither_type is DitherType.AUTO:
         should_dither = DitherType.should_dither(in_fmt, out_fmt, range_in, range_out)
 
-        dither_type = DitherType.VOID if should_dither else DitherType.NONE
+        dither_type = DitherType.VOID if hasattr(clip, "fmtc") else (DitherType.ERROR_DIFFUSION if out_fmt.bits_per_sample == 8 else DitherType.ORDERED)
+        dither_type = dither_type if should_dither else DitherType.NONE
 
     new_format = in_fmt.replace(
         bits_per_sample=out_fmt.bits_per_sample, sample_type=out_fmt.sample_type
