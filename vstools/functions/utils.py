@@ -77,10 +77,10 @@ class DitherType(CustomStrEnum):
 
     def apply(self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange, range_out: ColorRange) -> vs.VideoNode:
         if self == DitherType.AUTO:
-            raise CustomValueError("DitherType: Cannot apply AUTO.")
+            raise CustomValueError("Cannot apply AUTO.", self.__class__)
         
         if self == DitherType.OSTROMOUKHOV and clip.format.sample_type == vs.FLOAT:
-            raise CustomValueError("DitherType: Ostromoukhov can't be used for float input.")
+            raise CustomValueError("Ostromoukhov can't be used for float input.", self.__class__)
                 
         if not self.is_fmtc:
             return clip.resize.Point(format=fmt_out.id, range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg, dither_type=self.value.lower())
