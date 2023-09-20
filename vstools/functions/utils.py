@@ -90,7 +90,7 @@ class DitherType(CustomStrEnum):
     QUASIRANDOM = 'quasirandom'
     """
     Dither using quasirandom sequences.
-    Good intermediated between Void and cluster and error diffusion algorithms.
+    Good intermediary between void, cluster, and error diffusion algorithms.
     """
 
     def apply(
