@@ -93,28 +93,38 @@ class DitherType(CustomStrEnum):
     Good intermediated between Void and cluster and error diffusion algorithms.
     """
 
-    def apply(self, clip: vs.VideoNode, fmt_out: vs.VideoFormat,
-              range_in: ColorRange, range_out: ColorRange) -> vs.VideoNode:
-        if self == DitherType.AUTO:
-            raise CustomValueError("Cannot apply AUTO.", self.__class__)
+    def apply(
+        self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange | None, range_out: ColorRange | None
+    ) -> vs.VideoNode:
+        from ..utils import get_video_format
 
-        if self == DitherType.OSTROMOUKHOV and clip.format.sample_type == vs.FLOAT:
-            raise CustomValueError("Ostromoukhov can't be used for float input.", self.__class__)
+        assert self != DitherType.AUTO, CustomValueError("Cannot apply AUTO.", self.__class__)
+
+        fmt = get_video_format(clip)
 
         if not self.is_fmtc:
-            return clip.resize.Point(format=fmt_out.id, range_in=range_in and range_in.value_zimg,
-                                     range=range_out and range_out.value_zimg, dither_type=self.value.lower())
-        else:
+            return clip.resize.Point(
+                format=fmt_out.id, dither_type=self.value.lower(),
+                range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg
+            )
+
+        if fmt.sample_type is vs.FLOAT:
+            if self == DitherType.OSTROMOUKHOV:
+                raise CustomValueError("Ostromoukhov can't be used for float input.", self.__class__)
+
             # Workaround because fmtc doesn't support FLOAT 16 input
-            if clip.format.sample_type == vs.FLOAT and clip.format.bits_per_sample < 32:
-                clip = clip.resize.Point(format=clip.format.replace(bits_per_sample=32), dither_type='none')
-            return clip.fmtc.bitdepth(dmode=fmtc_types.get(self.value), bits=fmt_out.bits_per_sample,
-                                      fulls=None if not range_in else range_in == ColorRange.FULL,
-                                      fulld=None if not range_out else range_out == ColorRange.FULL)
+            if fmt.bits_per_sample < 32:
+                clip = clip.resize.Point(format=fmt.replace(bits_per_sample=32).id, dither_type='none')
+
+        return clip.fmtc.bitdepth(
+            dmode=_dither_fmtc_types.get(self), bits=fmt_out.bits_per_sample,
+            fulls=None if not range_in else range_in == ColorRange.FULL,
+            fulld=None if not range_out else range_out == ColorRange.FULL
+        )
 
     @property
     def is_fmtc(self) -> bool:
-        return self.value in fmtc_types.keys()
+        return self in _dither_fmtc_types
 
     @overload
     @staticmethod
@@ -216,7 +226,7 @@ class DitherType(CustomStrEnum):
         return in_range == ColorRange.FULL and (in_bits, out_bits) != (8, 16)
 
 
-fmtc_types: dict[DitherType, int] = {
+_dither_fmtc_types: dict[DitherType, int] = {
     DitherType.SIERRA_2_4A: 3,
     DitherType.STUCKI: 4,
     DitherType.ATKINSON: 5,
@@ -273,7 +283,7 @@ def depth(
     from .funcs import fallback
 
     in_fmt = get_video_format(clip)
-    out_fmt = get_video_format(fallback(bitdepth, clip), sample_type=sample_type)  # type: ignore
+    out_fmt = get_video_format(fallback(bitdepth, clip), sample_type=sample_type)
 
     range_out = ColorRange.from_param(range_out)
     range_in = ColorRange.from_param(range_in)
