@@ -4,19 +4,22 @@ from enum import IntEnum
 
 import vapoursynth as vs
 
-from ..enums import ColorRange, Matrix, Primaries, Transfer
+from ..enums import ChromaLocation, ColorRange, Matrix, Primaries, Transfer
+from ..enums.stubs import SelfPropEnum
 
 __all__ = [
     'video_heuristics'
 ]
 
 
-def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | None = None, prop_in: bool = True) -> dict[str, int]:
+def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True) -> dict[str, int]:
     """
     Determine the video heuristics from the frame properties.
 
     :param clip:        Input clip.
-    :param props:       FrameProps object. If None, obtains from input clip.
+    :param props:       FrameProps object.
+                        If true, it will grab props info from the clip.
+                        If None/False, obtains from just from input clip.
                         Default: None.
     :param prop_in:     Return the dict with keys in the form of `{prop_name}_in` parameter.
                         For example, `matrix_in` instead of `matrix`.
@@ -25,17 +28,35 @@ def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | None = None, pro
                         Default: True.
     """
 
+    props_dict: vs.FrameProps | None
     heuristics = dict[str, IntEnum]()
+
+    if props is True:
+        props_dict = clip.get_frame(0).props
+    else:
+        props_dict = props or None
+
+    def try_or_fallback(prop_type: type[SelfPropEnum]) -> SelfPropEnum:
+        try:
+            assert props_dict
+            if prop_type.prop_key in props_dict:
+                return prop_type.from_video(props_dict, True)
+        except Exception as e:
+            ...
+
+        return prop_type.from_video(clip)
 
     if props:
         heuristics |= {
-            'matrix': Matrix.from_video(clip), 'primaries': Primaries.from_video(clip),
-            'transfer': Transfer.from_video(clip), 'range': ColorRange.from_video(clip)
+            'matrix': try_or_fallback(Matrix), 'primaries': try_or_fallback(Primaries),
+            'transfer': try_or_fallback(Transfer), 'range': try_or_fallback(ColorRange),
+            'chromaloc': try_or_fallback(ChromaLocation)
         }
     else:
         heuristics |= {
             'matrix': Matrix.from_res(clip), 'primaries': Primaries.from_res(clip),
-            'transfer': Transfer.from_res(clip), 'range': ColorRange.LIMITED
+            'transfer': Transfer.from_res(clip), 'range': ColorRange.LIMITED,
+            'chromaloc': ChromaLocation.from_res(clip)
         }
 
     return {f'{k}_in' if prop_in else k: v for k, v in heuristics.items()}
