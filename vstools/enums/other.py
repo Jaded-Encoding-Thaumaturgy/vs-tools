@@ -6,7 +6,7 @@ from typing import Callable, Iterable, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 
-from ..types import Sentinel
+from ..types import Sentinel, HoldsPropValueT
 from ..types.funcs import SentinelDispatcher
 from .base import CustomIntEnum, CustomStrEnum
 
@@ -85,6 +85,19 @@ class Dar(Fraction):
 
 
 class Sar(Fraction):
+    @staticmethod
+    def from_clip(clip: HoldsPropValueT) -> Sar:
+        from ..utils import get_prop
+
+        if isinstance(clip, vs.RawFrame):
+            props = clip.props  # type: ignore
+        elif isinstance(clip, vs.RawNode):
+            props = clip.get_frame(0).props  # type: ignore
+        else:
+            props = clip
+
+        return Sar(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))
+
     @staticmethod
     def from_ar(den: int, num: int, height: int, active_area: float) -> Sar:
         return Dar(den, num, height).to_sar(active_area)
