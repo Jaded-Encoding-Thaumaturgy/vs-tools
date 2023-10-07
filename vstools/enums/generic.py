@@ -48,12 +48,15 @@ class ChromaLocation(_ChromaLocationMeta):
 
         :return:            ChromaLocation object.
         """
+        from .color import Matrix, Transfer, Primaries
 
-        from ..utils import get_var_infos
+        matrix, transfer, primaries = Matrix(frame), Transfer(frame), Primaries(frame)
 
-        _, width, _ = get_var_infos(frame)
-
-        if width >= 3840:
+        if (
+            primaries == Primaries.BT2020
+            or matrix in (Matrix.BT2020C, Matrix.BT2020NC)
+            or transfer in (Transfer.BT2020_10bits, Transfer.BT2020_12bits)
+        ):
             return ChromaLocation.TOP_LEFT
 
         return ChromaLocation.LEFT
