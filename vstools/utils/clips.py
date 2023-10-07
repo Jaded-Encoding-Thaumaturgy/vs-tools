@@ -9,8 +9,8 @@ from ..enums import (
     PrimariesT, PropEnum, Transfer, TransferT
 )
 from ..exceptions import CustomValueError, InvalidColorFamilyError
-from ..functions import check_variable, depth, fallback, get_y, join
-from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P, VideoFormatT
+from ..functions import check_variable, depth, fallback, get_y, join, DitherType
+from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P
 from . import vs_proxy as vs
 from .info import get_video_format, get_w
 from .scale import scale_8bit
@@ -72,7 +72,7 @@ def finalize_clip(
 @overload
 def finalize_output(
     function: None = None, /, *, bits: int | None = 10,
-    clamp_tv_range: bool = True, func: FuncExceptT | None = None
+    clamp_tv_range: bool = True, dither_type: DitherType = DitherType.AUTO, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     ...
 
@@ -80,27 +80,27 @@ def finalize_output(
 @overload
 def finalize_output(
     function: F_VD, /, *, bits: int | None = 10,
-    clamp_tv_range: bool = True, func: FuncExceptT | None = None
+    clamp_tv_range: bool = True, dither_type: DitherType = DitherType.AUTO, func: FuncExceptT | None = None
 ) -> F_VD:
     ...
 
 
 def finalize_output(
     function: F_VD | None = None, /, *, bits: int | None = 10,
-    clamp_tv_range: bool = True, func: FuncExceptT | None = None
+    clamp_tv_range: bool = True, dither_type: DitherType = DitherType.AUTO, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     """Decorator implementation of finalize_clip."""
 
     if function is None:
         return cast(
             Callable[[F_VD], F_VD],
-            partial(finalize_output, bits=bits, clamp_tv_range=clamp_tv_range, func=func)
+            partial(finalize_output, bits=bits, clamp_tv_range=clamp_tv_range, dither_type=dither_type, func=func)
         )
 
     @wraps(function)
     def _wrapper(*args: Any, **kwargs: Any) -> vs.VideoNode:
         assert function
-        return finalize_clip(function(*args, **kwargs), bits, clamp_tv_range, func=func)
+        return finalize_clip(function(*args, **kwargs), bits, clamp_tv_range, dither_type, func=func)
 
     return cast(F_VD, _wrapper)
 
@@ -113,7 +113,8 @@ def initialize_clip(
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
     field_based: FieldBasedT | None = None,
-    strict: bool = False, *, func: FuncExceptT | None = None
+    strict: bool = False,
+    dither_type: DitherType = DitherType.AUTO, *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """
     Initialize a clip with default props.
@@ -133,6 +134,7 @@ def initialize_clip(
     :param field_based:     FieldBased prop to set. If None, tries to get the FieldBased from existing props.
     :param strict:          Whether to be strict about existing properties.
                             If True, throws an exception if certain frame properties are not found.
+    :param dither_type:     Dithering used for the bitdepth conversion.
     :param func:            Optional function this was called from.
 
     :return:                Clip with relevant frame properties set, and optionally dithered up to 16 bits.
@@ -157,7 +159,7 @@ def initialize_clip(
     if bits is None:
         return clip
 
-    return depth(clip, bits)
+    return depth(clip, bits, dither_type=dither_type)
 
 
 @overload
@@ -169,6 +171,7 @@ def initialize_input(
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
     field_based: FieldBasedT | None = None,
+    dither_type: DitherType = DitherType.AUTO,
     func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD]:
     ...
@@ -183,7 +186,8 @@ def initialize_input(
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
     field_based: FieldBasedT | None = None,
-    strict: bool = False, func: FuncExceptT | None = None
+    strict: bool = False,
+    dither_type: DitherType = DitherType.AUTO, func: FuncExceptT | None = None
 ) -> F_VD:
     ...
 
@@ -196,7 +200,8 @@ def initialize_input(
     chroma_location: ChromaLocationT | None = None,
     color_range: ColorRangeT | None = None,
     field_based: FieldBasedT | None = None,
-    strict: bool = False, func: FuncExceptT | None = None
+    strict: bool = False,
+    dither_type: DitherType = DitherType.AUTO, func: FuncExceptT | None = None
 ) -> Callable[[F_VD], F_VD] | F_VD:
     """
     Decorator implementation of ``initialize_clip``
@@ -206,7 +211,7 @@ def initialize_input(
         bits=bits,
         matrix=matrix, transfer=transfer, primaries=primaries,
         chroma_location=chroma_location, color_range=color_range,
-        field_based=field_based, strict=strict, func=func
+        field_based=field_based, strict=strict, dither_type=dither_type, func=func
     )
 
     if function is None:

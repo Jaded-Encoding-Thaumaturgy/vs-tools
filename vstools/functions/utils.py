@@ -37,7 +37,7 @@ EXPR_VARS = (alph := list(string.ascii_lowercase))[(idx := alph.index('x')):] + 
 
 
 class DitherType(CustomStrEnum):
-    """Enum for `zimg_dither_type_e`."""
+    """Enum for `zimg_dither_type_e` and fmtc `dmode`."""
 
     AUTO = 'auto'
     """Choose automatically."""
@@ -53,6 +53,78 @@ class DitherType(CustomStrEnum):
 
     ERROR_DIFFUSION = 'error_diffusion'
     """Floyd-Steinberg error diffusion."""
+
+    ERROR_DIFFUSION_FMTC = 'error_diffusion_fmtc'
+    """
+    Floyd-Steinberg error diffusion.
+    Modified for serpentine scan (avoids worm artefacts).
+    """
+
+    SIERRA_2_4A = 'sierra_2_4a'
+    """
+    Another type of error diffusion.
+    Quick and excellent quality, similar to Floyd-Steinberg.
+    """
+
+    STUCKI = 'stucki'
+    """
+    Another error diffusion kernel.
+    Preserves delicate edges better but distorts gradients.
+    """
+
+    ATKINSON = 'atkinson'
+    """
+    Another error diffusion kernel.
+    Generates distinct patterns but keeps clean the flat areas (noise modulation).
+    """
+
+    OSTROMOUKHOV = 'ostromoukhov'
+    """
+    Another error diffusion kernel.
+    Slow, available only for integer input at the moment. Avoids usual F-S artefacts.
+    """
+
+    VOID = 'void'
+    """A way to generate blue-noise dither and has a much better visual aspect than ordered dithering."""
+
+    QUASIRANDOM = 'quasirandom'
+    """
+    Dither using quasirandom sequences.
+    Good intermediary between void, cluster, and error diffusion algorithms.
+    """
+
+    def apply(
+        self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange | None, range_out: ColorRange | None
+    ) -> vs.VideoNode:
+        from ..utils import get_video_format
+
+        assert self != DitherType.AUTO, CustomValueError("Cannot apply AUTO.", self.__class__)
+
+        fmt = get_video_format(clip)
+
+        if not self.is_fmtc:
+            return clip.resize.Point(
+                format=fmt_out.id, dither_type=self.value.lower(),
+                range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg
+            )
+
+        if fmt.sample_type is vs.FLOAT:
+            if self == DitherType.OSTROMOUKHOV:
+                raise CustomValueError("Ostromoukhov can't be used for float input.", self.__class__)
+
+            # Workaround because fmtc doesn't support FLOAT 16 input
+            if fmt.bits_per_sample < 32:
+                clip = clip.resize.Point(format=fmt.replace(bits_per_sample=32).id, dither_type='none')
+
+        return clip.fmtc.bitdepth(
+            dmode=_dither_fmtc_types.get(self), bits=fmt_out.bits_per_sample,
+            fulls=None if not range_in else range_in == ColorRange.FULL,
+            fulld=None if not range_out else range_out == ColorRange.FULL
+        )
+
+    @property
+    def is_fmtc(self) -> bool:
+        return self in _dither_fmtc_types
 
     @overload
     @staticmethod
@@ -154,6 +226,17 @@ class DitherType(CustomStrEnum):
         return in_range == ColorRange.FULL and (in_bits, out_bits) != (8, 16)
 
 
+_dither_fmtc_types: dict[DitherType, int] = {
+    DitherType.SIERRA_2_4A: 3,
+    DitherType.STUCKI: 4,
+    DitherType.ATKINSON: 5,
+    DitherType.ERROR_DIFFUSION_FMTC: 6,
+    DitherType.OSTROMOUKHOV: 7,
+    DitherType.VOID: 8,
+    DitherType.QUASIRANDOM: 9,
+}
+
+
 @disallow_variable_format
 def depth(
     clip: vs.VideoNode, bitdepth: VideoFormatT | HoldsVideoFormatT | int | None = None, /,
@@ -183,7 +266,7 @@ def depth(
     :param sample_type:     Desired sample type of output clip. Allows overriding default float/integer behavior.
                             Accepts ``vapoursynth.SampleType`` enums ``vapoursynth.INTEGER`` and ``vapoursynth.FLOAT``
                             or their values, ``0`` and ``1`` respectively.
-    :param range_in:       Input pixel range (defaults to input `clip`'s range).
+    :param range_in:        Input pixel range (defaults to input `clip`'s range).
     :param range_out:       Output pixel range (defaults to input `clip`'s range).
     :param dither_type:     Dithering algorithm. Allows overriding default dithering behavior. See :py:class:`Dither`.
 
@@ -200,7 +283,7 @@ def depth(
     from .funcs import fallback
 
     in_fmt = get_video_format(clip)
-    out_fmt = get_video_format(fallback(bitdepth, clip), sample_type=sample_type)  # type: ignore
+    out_fmt = get_video_format(fallback(bitdepth, clip), sample_type=sample_type)
 
     range_out = ColorRange.from_param(range_out)
     range_in = ColorRange.from_param(range_in)
@@ -217,16 +300,17 @@ def depth(
     if dither_type is DitherType.AUTO:
         should_dither = DitherType.should_dither(in_fmt, out_fmt, range_in, range_out)
 
-        dither_type = DitherType.ERROR_DIFFUSION if should_dither else DitherType.NONE
+        if hasattr(clip, "fmtc"):
+            dither_type = DitherType.VOID
+        else:
+            dither_type = DitherType.ERROR_DIFFUSION if out_fmt.bits_per_sample == 8 else DitherType.ORDERED
+        dither_type = dither_type if should_dither else DitherType.NONE
 
     new_format = in_fmt.replace(
         bits_per_sample=out_fmt.bits_per_sample, sample_type=out_fmt.sample_type
     )
 
-    return clip.resize.Point(
-        format=new_format.id, range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg,
-        dither_type=dither_type
-    )
+    return dither_type.apply(clip, new_format, range_in, range_out)
 
 
 _f2c_cache = WeakValueDictionary[int, vs.VideoNode]()
