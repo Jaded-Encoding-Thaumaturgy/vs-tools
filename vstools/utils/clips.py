@@ -48,7 +48,10 @@ def finalize_clip(
         clip = depth(clip, bits)
 
     if clamp_tv_range is None:
-        clamp_tv_range = ColorRange.from_video(clip).is_limited
+        try:
+            clamp_tv_range = ColorRange.from_video(clip, strict=True).is_limited
+        except Exception:
+            clamp_tv_range = True
 
     if clamp_tv_range:
         low_luma, high_luma = scale_8bit(clip, 16), scale_8bit(clip, 235)
