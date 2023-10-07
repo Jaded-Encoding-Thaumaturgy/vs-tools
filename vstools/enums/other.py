@@ -188,6 +188,9 @@ class Resolution(NamedTuple):
 
         return Resolution(clip.width, clip.height)
 
+    def transpose(self) -> Resolution:
+        return Resolution(self.height, self.width)
+
     def __str__(self) -> str:
         return f'{self.width}x{self.height}'
 
