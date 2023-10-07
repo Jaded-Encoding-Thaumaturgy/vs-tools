@@ -10,9 +10,9 @@ from ..enums import (
 )
 from ..exceptions import CustomValueError, InvalidColorFamilyError
 from ..functions import check_variable, depth, fallback, get_y, join, DitherType
-from ..types import F_VD, FuncExceptT, HoldsVideoFormatT, P
+from ..types import F_VD, FuncExceptT, VideoFormatT, HoldsVideoFormatT, P
 from . import vs_proxy as vs
-from .info import get_depth, get_video_format, get_w
+from .info import get_video_format, get_w
 from .scale import scale_8bit
 
 __all__ = [
@@ -26,15 +26,18 @@ __all__ = [
 
 
 def finalize_clip(
-    clip: vs.VideoNode, bits: int | None = 10, clamp_tv_range: bool = True,
-    dither_type: DitherType = DitherType.AUTO, *, func: FuncExceptT | None = None
+    clip: vs.VideoNode,
+    bits: VideoFormatT | HoldsVideoFormatT | int | None = 10,
+    clamp_tv_range: bool | None = None,
+    dither_type: DitherType = DitherType.AUTO,
+    *, func: FuncExceptT | None = None
 ) -> vs.VideoNode:
     """
     Finalize a clip for output to the encoder.
 
     :param clip:            Clip to output.
-    :param bits:            Output bits.
-    :param clamp_tv_range:  Whether to clamp to tv range.
+    :param bits:            Bitdepth to output to.
+    :param clamp_tv_range:  Whether to clamp to tv range. If None, decide based on clip properties.
     :param dither_type:     Dithering used for the bitdepth conversion.
     :param func:            Optional function this was called from.
 
@@ -45,8 +48,12 @@ def finalize_clip(
 
     if bits:
         clip = depth(clip, bits, dither_type=dither_type)
-    else:
-        bits = get_depth(clip)
+
+    if clamp_tv_range is None:
+        try:
+            clamp_tv_range = ColorRange.from_video(clip, strict=True).is_limited
+        except Exception:
+            clamp_tv_range = True
 
     if clamp_tv_range:
         low_luma, high_luma = scale_8bit(clip, 16), scale_8bit(clip, 235)
