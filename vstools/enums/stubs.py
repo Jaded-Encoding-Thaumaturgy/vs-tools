@@ -70,7 +70,7 @@ class PropEnum(CustomIntEnum):
     @classmethod
     def _missing_(cls: type[SelfPropEnum], value: Any) -> SelfPropEnum | None:
         if isinstance(value, vs.VideoNode | vs.VideoFrame | vs.FrameProps):
-            return cls.from_video(value, True)
+            return cls.from_video(value)
         return super().from_param(value)
 
     @classmethod
