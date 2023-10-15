@@ -385,7 +385,10 @@ class cachedproperty(property, Generic[P, R, T, T0, P0]):
 
         if not TYPE_CHECKING:
             def __new__(cls, *args: Any, **kwargs: Any) -> None:
-                self = super().__new__(cls, *args, **kwargs)
+                try:
+                    self = super().__new__(cls, *args, **kwargs)
+                except TypeError:
+                    self = super().__new__(cls)
                 self.__dict__.__setitem__(cachedproperty.cache_key, dict[str, Any]())
                 return self
 
