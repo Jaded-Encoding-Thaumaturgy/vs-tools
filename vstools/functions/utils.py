@@ -94,7 +94,7 @@ class DitherType(CustomStrEnum):
     """
 
     def apply(
-        self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange | None, range_out: ColorRange | None
+        self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange, range_out: ColorRange
     ) -> vs.VideoNode:
         from ..utils import get_video_format
 
@@ -114,12 +114,11 @@ class DitherType(CustomStrEnum):
 
             # Workaround because fmtc doesn't support FLOAT 16 input
             if fmt.bits_per_sample < 32:
-                clip = clip.resize.Point(format=fmt.replace(bits_per_sample=32).id, dither_type='none')
+                clip = DitherType.NONE.apply(clip, fmt.replace(bits_per_sample=32), range_in, range_out)
 
         return clip.fmtc.bitdepth(
             dmode=_dither_fmtc_types.get(self), bits=fmt_out.bits_per_sample,
-            fulls=None if not range_in else range_in == ColorRange.FULL,
-            fulld=None if not range_out else range_out == ColorRange.FULL
+            fulls=range_in == ColorRange.FULL, fulld=range_out == ColorRange.FULL
         )
 
     @property
@@ -285,8 +284,8 @@ def depth(
     in_fmt = get_video_format(clip)
     out_fmt = get_video_format(fallback(bitdepth, clip), sample_type=sample_type)
 
-    range_out = ColorRange.from_param(range_out)
-    range_in = ColorRange.from_param(range_in)
+    range_out = ColorRange.from_param(range_out) or ColorRange.from_video(clip)
+    range_in = ColorRange.from_param(range_in) or ColorRange.from_video(clip)
 
     if (
         in_fmt.bits_per_sample, in_fmt.sample_type, range_in
