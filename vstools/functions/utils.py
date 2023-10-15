@@ -105,7 +105,7 @@ class DitherType(CustomStrEnum):
         if not self.is_fmtc:
             return clip.resize.Point(
                 format=fmt_out.id, dither_type=self.value.lower(),
-                range_in=range_in and range_in.value_zimg, range=range_out and range_out.value_zimg
+                range_in=range_in.value_zimg, range=range_out.value_zimg
             )
 
         if fmt.sample_type is vs.FLOAT:
@@ -118,7 +118,7 @@ class DitherType(CustomStrEnum):
 
         return clip.fmtc.bitdepth(
             dmode=_dither_fmtc_types.get(self), bits=fmt_out.bits_per_sample,
-            fulls=range_in == ColorRange.FULL, fulld=range_out == ColorRange.FULL
+            fulls=range_in is ColorRange.FULL, fulld=range_out is ColorRange.FULL
         )
 
     @property
