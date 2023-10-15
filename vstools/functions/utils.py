@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import string
-from typing import Any, Iterable, Literal, Mapping, Sequence, cast, overload
+from typing import Any, Iterable, Literal, Mapping, Sequence, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
@@ -691,7 +691,9 @@ def split(clip: vs.VideoNode, /) -> list[vs.VideoNode]:
 
     assert check_variable_format(clip, split)
 
-    return [clip] if clip.format.num_planes == 1 else cast(list[vs.VideoNode], clip.std.SplitPlanes())
+    return [clip] if clip.format.num_planes == 1 else [
+        plane(clip, i, False) for i in range(clip.format.num_planes)
+    ]
 
 
 depth_func = depth
