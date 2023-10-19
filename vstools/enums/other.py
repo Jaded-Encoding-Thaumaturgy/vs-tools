@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd as max_common_div
-from typing import Callable, Iterable, NamedTuple, TypeVar, overload
+from typing import Callable, Iterable, NamedTuple, TypeVar, overload, Literal
 
 import vapoursynth as vs
 
@@ -61,24 +61,34 @@ class Dar(Fraction):
 
     @overload
     @staticmethod
-    def from_size(width: int, height: int, /) -> Dar:
+    def from_size(width: int, height: int, sar: Sar | bool = True, /) -> Dar:
         ...
 
     @overload
     @staticmethod
-    def from_size(clip: vs.VideoNode, /) -> Dar:
+    def from_size(clip: vs.VideoNode, sar: Sar | bool = True, /) -> Dar:
         ...
 
     @staticmethod
-    def from_size(clip_width: vs.VideoNode | int, height: int = 0, /) -> Dar:
+    def from_size(clip_width: vs.VideoNode | int, _height: int | Sar | bool = True, _sar: Sar | bool = True, /) -> Dar:
+        width: int
+        height: int
+        sar: Sar | Literal[False]
+
         if isinstance(clip_width, vs.VideoNode):
-            width, height = clip_width.width, clip_width.height  # type: ignore
+            width, height, sar = clip_width.width, clip_width.height, _height  # type: ignore
+
+            if sar is True:
+                sar = Sar.from_clip(clip_width)  # type: ignore
         else:
-            width, height = clip_width, height
+            width, height, sar = clip_width, _height, _sar if isinstance(_sar, Sar) else False  # type: ignore
 
         gcd = max_common_div(width, height)
 
-        return Dar(width // gcd, height // gcd, height)
+        if sar is False:
+            sar = Sar(1, 1)
+
+        return Dar(width // gcd * sar.numerator, height // gcd * sar.denominator, height)
 
     def to_sar(self, active_area: float) -> Sar:
         return Sar.from_dar(self, active_area)
