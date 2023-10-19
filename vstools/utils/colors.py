@@ -1,10 +1,10 @@
 from abc import abstractmethod
 from math import sqrt
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TYPE_CHECKING
 
 import vapoursynth as vs
 
-from ..enums import CustomIntEnum
+from ..enums import CustomIntEnum, Matrix, Transfer, Primaries
 from ..functions import check_variable_format, depth, plane
 from ..types import FuncExceptT, KwargsT, inject_self
 from .ranges import interleave_arr
@@ -312,6 +312,95 @@ class Colorspace(CustomIntEnum):
     OPP_LCC = 6
     OPP_BM3D = 7
     OPP_BM3DS = 8
+
+    if TYPE_CHECKING:
+        class to:
+            @staticmethod
+            def GRAY(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def YUV(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def RGB(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def YCgCo(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def YCgCoR(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def OPP(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def OPP_LCC(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def OPP_BM3D(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+
+            @staticmethod
+            def OPP_BM3DS(
+                clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+            ) -> vs.VideoNode:
+                ...
+    else:
+        @property
+        def to(self):
+            class to(CustomIntEnum):
+                GRAY = 0
+                YUV = 1
+                RGB = 2
+                YCgCo = 3
+                YCgCoR = 4
+                OPP = 5
+                OPP_LCC = 6
+                OPP_BM3D = 7
+                OPP_BM3DS = 8
+
+                def __call__(
+                    self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+                ) -> vs.VideoNode:
+                    if self._from.value == self:
+                        return clip
+
+                    to_csp = Colorspace.from_param(self)
+                    assert to_csp
+
+                    if not to_csp.is_rgb and not self._from.is_rgb:
+                        kwargs.setdefault('matrix', Matrix.from_video(clip))
+                        kwargs.setdefault('transfer', Transfer.from_video(clip))
+                        kwargs.setdefault('primaries', Primaries.from_video(clip))
+
+                    return to_csp.from_clip(self._from.to_rgb(clip, fp32, func), fp32, func, **kwargs)
+
+            to._from = self
+
+            return to
 
     @property
     def is_opp(self) -> bool:
