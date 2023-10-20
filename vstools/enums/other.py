@@ -50,15 +50,6 @@ class Direction(CustomIntEnum):
 
 
 class Dar(Fraction):
-    height: int
-
-    def __new__(cls, numerator: int, denominator: int, height: int) -> Dar:
-        self = super().__new__(cls, numerator, denominator)
-
-        self.height = height
-
-        return self
-
     @overload
     @staticmethod
     def from_size(width: int, height: int, sar: Sar | bool = True, /) -> Dar:
@@ -88,10 +79,10 @@ class Dar(Fraction):
         if sar is False:
             sar = Sar(1, 1)
 
-        return Dar(width // gcd * sar.numerator, height // gcd * sar.denominator, height)
+        return Dar(width // gcd * sar.numerator, height // gcd * sar.denominator)
 
-    def to_sar(self, active_area: float) -> Sar:
-        return Sar.from_dar(self, active_area)
+    def to_sar(self, height: int, active_area: float) -> Sar:
+        return Sar.from_dar(self, height, active_area)
 
 
 class Sar(Fraction):
@@ -106,15 +97,15 @@ class Sar(Fraction):
         else:
             props = clip
 
-        return Sar(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))
+        return Sar(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))  # type: ignore
 
     @staticmethod
     def from_ar(den: int, num: int, height: int, active_area: float) -> Sar:
-        return Dar(den, num, height).to_sar(active_area)
+        return Dar(den, num).to_sar(height, active_area)
 
     @staticmethod
-    def from_dar(dar: Dar, active_area: float) -> Sar:
-        sar_n, sar_d = dar.numerator * dar.height, dar.denominator * active_area
+    def from_dar(dar: Dar, height: int, active_area: float) -> Sar:
+        sar_n, sar_d = dar.numerator * height, dar.denominator * active_area
 
         if isinstance(active_area, float):
             sar_n, sar_d = int(sar_n * 10000), int(sar_d * 10000)
