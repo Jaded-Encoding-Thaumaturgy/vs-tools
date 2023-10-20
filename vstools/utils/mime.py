@@ -136,13 +136,13 @@ class FileSignatures(list[FileSignature]):
                 header_data.extend(json.loads(filename.read_text()))
 
             _file_headers_data = list(
-                set(
+                dict({
                     FileSignature(
                         info['file_type'], info['ext'], info['mime'], info['offset'],
                         # This is so when checking a file head we first compare the most specific and long signatures
                         sorted([bytes.fromhex(signature) for signature in info['signatures']], reverse=True)
-                    ) for info in header_data
-                )
+                    ): 0 for info in header_data
+                }).keys()
             )
 
             cls._file_headers_data = _file_headers_data
@@ -185,9 +185,9 @@ class FileSignatures(list[FileSignature]):
         ]
 
         if signature_match_ext:
-            return signature_match_ext.pop()
+            return signature_match_ext[0]
 
-        return found_signatures.pop()
+        return found_signatures[0]
 
 
 class FileType(FileTypeBase):
