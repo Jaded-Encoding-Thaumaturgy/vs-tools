@@ -94,6 +94,8 @@ def get_prop(
             prop = props[key]  # type: ignore
 
         if not isinstance(prop, t):
+            if issubclass(t, str) and isinstance(prop, bytes):
+                return prop.decode('utf-8')
             raise TypeError
 
         if cast is None:
