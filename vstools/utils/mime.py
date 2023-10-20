@@ -213,6 +213,15 @@ class FileType(FileTypeBase):
     IMAGE = 'image'
     """File type for image files."""
 
+    ARCHIVE = 'archive'
+    """File type for archive files."""
+
+    FONT = 'font'
+    """File type for font files."""
+
+    DOCUMENT = 'document'
+    """File type for documents."""
+
     OTHER = 'other'
     """File type for generic files, like applications."""
 
