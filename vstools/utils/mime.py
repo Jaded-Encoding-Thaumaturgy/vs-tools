@@ -80,16 +80,18 @@ class FileSignature(NamedTuple):
         :return:            Length of the found signature.
         """
 
+        max_signature_length = 0
+
         for signature in self.signatures:
             signature_len = len(signature)
 
-            if signature_len < ignore:
+            if signature_len < ignore or signature_len <= max_signature_length:
                 continue
 
             if signature == file_bytes[self.offset:signature_len + self.offset]:
-                return signature_len
+                max_signature_length = signature_len
 
-        return 0
+        return max_signature_length
 
 
 class FileSignatures(list[FileSignature]):
@@ -163,16 +165,29 @@ class FileSignatures(list[FileSignature]):
         with open(filename, 'rb') as file:
             file_bytes = file.read(self.max_signature_len)
 
-        info: FileSignature | None = None
         max_signature_len = 0
+        found_signatures = list[FileSignature]()
 
         for mimetype in self:
             found_signature = mimetype.check_signature(file_bytes, ignore=max_signature_len)
 
             if found_signature > max_signature_len:
-                info, max_signature_len = mimetype, found_signature
+                max_signature_len = found_signature
+                found_signatures = [mimetype]
+            elif found_signature == max_signature_len:
+                found_signatures.append(mimetype)
 
-        return info
+        if not found_signatures:
+            return None
+
+        signature_match_ext = [
+            mime for mime in found_signatures if f'.{mime.ext}' == filename.suffix
+        ]
+
+        if signature_match_ext:
+            return signature_match_ext.pop()
+
+        return found_signatures.pop()
 
 
 class FileType(FileTypeBase):
