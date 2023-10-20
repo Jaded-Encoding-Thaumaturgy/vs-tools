@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         versions:
-          - 62
+          - 64
         python-version:
           - "3.11"
     steps:

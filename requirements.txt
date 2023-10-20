@@ -1,2 +1,2 @@
-VapourSynth>=63
+VapourSynth>=64
 rich>=12.6.0
