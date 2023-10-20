@@ -309,7 +309,8 @@ class FileType(FileTypeBase):
 
         encoding = encodings_map.get(filename.suffix, None)
 
-        assert file_type and mime
+        if not file_type or not mime:
+            return ParsedFile(filename, ext, encoding, FileType.OTHER, 'file/unknown')
 
         if self is not FileType.AUTO and self is not file_type:
             raise CustomValueError(
