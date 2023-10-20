@@ -12,7 +12,9 @@ __all__ = [
 ]
 
 
-def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True) -> dict[str, int]:
+def video_heuristics(
+    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True
+) -> dict[str, int]:
     """
     Determine the video heuristics from the frame properties.
 
@@ -41,7 +43,7 @@ def video_heuristics(clip: vs.VideoNode, props: vs.FrameProps | bool | None = No
             assert props_dict
             if prop_type.prop_key in props_dict:
                 return prop_type.from_video(props_dict, True)
-        except Exception as e:
+        except Exception:
             ...
 
         return prop_type.from_video(clip)
