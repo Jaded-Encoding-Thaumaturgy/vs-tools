@@ -79,6 +79,15 @@ class SPath(Path):
     def mkdirp(self) -> None:
         return self.get_folder().mkdir(parents=True, exist_ok=True)
 
+    def rmdirs(self, missing_ok: bool = False, ignore_errors: bool = True) -> None:
+        from shutil import rmtree
+
+        try:
+            return rmtree(str(self.get_folder()), ignore_errors)
+        except FileNotFoundError:
+            if not missing_ok:
+                raise
+
     def read_lines(
         self, encoding: str | None = None, errors: str | None = None, keepends: bool = False
     ) -> list[str]:
