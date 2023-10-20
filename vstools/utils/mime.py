@@ -171,6 +171,9 @@ class FileSignatures(list[FileSignature]):
         for mimetype in self:
             found_signature = mimetype.check_signature(file_bytes, ignore=max_signature_len)
 
+            if not found_signature:
+                continue
+
             if found_signature > max_signature_len:
                 max_signature_len = found_signature
                 found_signatures = [mimetype]
