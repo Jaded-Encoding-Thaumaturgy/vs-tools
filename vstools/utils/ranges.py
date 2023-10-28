@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from itertools import chain, zip_longest
-from typing import Any, Callable, Iterable, Union, overload
+from typing import Any, Callable, Iterable, Sequence, Union, overload
 
 import vapoursynth as vs
 
@@ -10,11 +10,13 @@ from ..exceptions import (
     CustomIndexError, CustomValueError, FormatsMismatchError, FramerateMismatchError, LengthMismatchError,
     ResolutionsMismatchError
 )
-from ..functions import check_ref_clip
+from ..functions import check_ref_clip, flatten
 from ..types import T0, FrameRangeN, FrameRangesN, T, copy_signature
 
 __all__ = [
     'replace_ranges', 'rfs',
+
+    'remap_frames',
 
     'ranges_product',
 
@@ -222,7 +224,18 @@ def replace_ranges(
     return replace_ranges(clip_a, clip_b, lambda n: n in b_frames)
 
 
+def remap_frames(clip: vs.VideoNode, ranges: Sequence[int | tuple[int, int]]) -> vs.VideoNode:
+    frame_map = list(flatten(
+        f if isinstance(f, int) else range(f[0], f[1] + 1) for f in ranges
+    ))
+
+    base = clip.std.BlankClip(length=len(frame_map))
+
+    return base.std.FrameEval(lambda n: clip[frame_map[n]], None, clip)
+
 # Aliases
+
+
 @copy_signature(replace_ranges)
 def rfs(*args: Any, **kwargs: Any) -> Any:
     import warnings
