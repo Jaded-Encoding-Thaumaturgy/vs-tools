@@ -4,11 +4,11 @@ from fractions import Fraction
 from typing import Any, overload
 
 import vapoursynth as vs
+from stgpytools import fallback, mod_x
 
 from ..exceptions import UnsupportedSubsamplingError
-from ..functions import depth, disallow_variable_format, fallback
+from ..functions import depth, disallow_variable_format
 from ..types import HoldsVideoFormatT, VideoFormatT
-from .math import mod_x
 
 __all__ = [
     'get_var_infos',

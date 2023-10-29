@@ -5,12 +5,12 @@ from functools import partial, wraps
 from typing import Any, Callable, TypeGuard, cast, overload
 
 import vapoursynth as vs
+from stgpytools import CustomError, F, FuncExceptT
 
 from ..exceptions import (
-    CustomError, FormatsRefClipMismatchError, ResolutionsRefClipMismatchError, VariableFormatError,
-    VariableResolutionError
+    FormatsRefClipMismatchError, ResolutionsRefClipMismatchError, VariableFormatError, VariableResolutionError
 )
-from ..types import ConstantFormatVideoNode, F, FuncExceptT
+from ..types import ConstantFormatVideoNode
 
 __all__ = [
     'disallow_variable_format',

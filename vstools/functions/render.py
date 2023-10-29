@@ -7,11 +7,9 @@ from math import floor
 from typing import BinaryIO, Callable, Literal, overload
 
 import vapoursynth as vs
+from stgpytools import CustomRuntimeError, CustomValueError, Sentinel, T, normalize_list_to_ranges
 
-from ..exceptions import CustomRuntimeError, CustomValueError, InvalidColorFamilyError
-from ..types import Sentinel, T
-from ..types.funcs import SentinelDispatcher
-from .normalize import normalize_list_to_ranges
+from ..exceptions import InvalidColorFamilyError
 from .progress import get_render_progress
 
 __all__ = [
@@ -196,7 +194,7 @@ def clip_async_render(
 
 def clip_data_gather(
     clip: vs.VideoNode, progress: str | None,
-    callback: Callable[[int, vs.VideoFrame], SentinelDispatcher | T],
+    callback: Callable[[int, vs.VideoFrame], Sentinel.Type | T],
     async_requests: int | bool | AsyncRenderConf = False, prefetch: int = 0, backlog: int = -1
 ) -> list[T]:
     frames = clip_async_render(clip, None, progress, callback, prefetch, backlog, False, async_requests)
@@ -250,7 +248,7 @@ def find_prop(
     one_pix = hasattr(vs.core, 'akarin') and not (callable(op) or ' ' in prop)
     assert (op is None) if bool_check else (op is not None)
 
-    callback: Callable[[int, vs.VideoFrame], SentinelDispatcher | int]
+    callback: Callable[[int, vs.VideoFrame], Sentinel.Type | int]
     if one_pix:
         src = vs.core.std.BlankClip(
             None, 1, 1, vs.GRAY8 if bool_check else vs.GRAYS, length=src.num_frames

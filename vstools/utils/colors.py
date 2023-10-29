@@ -1,13 +1,12 @@
 from abc import abstractmethod
 from math import sqrt
-from typing import Any, ClassVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import vapoursynth as vs
+from stgpytools import CustomIntEnum, FuncExceptT, KwargsT, inject_self, interleave_arr
 
-from ..enums import CustomIntEnum, Matrix, Transfer, Primaries
+from ..enums import Matrix, Primaries, Transfer
 from ..functions import check_variable_format, depth, plane
-from ..types import FuncExceptT, KwargsT, inject_self
-from .ranges import interleave_arr
 
 __all__ = [
     'ResampleUtil',

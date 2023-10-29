@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .base import CustomKeyError, CustomValueError
+from stgpytools import CustomValueError, NotFoundEnumValue
 
 __all__ = [
     'UndefinedChromaLocationError',
@@ -25,7 +25,3 @@ class UndefinedFieldBasedError(CustomValueError):
 
 class UnsupportedFieldBasedError(CustomValueError):
     """Raised when an unsupported field type is passed."""
-
-
-class NotFoundEnumValue(CustomKeyError):
-    """Raised when you try to instantiate an Enum with unknown value"""

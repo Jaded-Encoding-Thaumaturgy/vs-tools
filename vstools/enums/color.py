@@ -3,13 +3,14 @@ from __future__ import annotations
 from typing import Any, NamedTuple, TypeAlias, Union
 
 import vapoursynth as vs
+from stgpytools import FuncExceptT, classproperty
 
 from ..exceptions import (
     ReservedMatrixError, ReservedPrimariesError, ReservedTransferError, UndefinedMatrixError, UndefinedPrimariesError,
     UndefinedTransferError, UnsupportedColorRangeError, UnsupportedMatrixError, UnsupportedPrimariesError,
     UnsupportedTransferError
 )
-from ..types import FuncExceptT, HoldsPropValueT, classproperty
+from ..types import HoldsPropValueT
 from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [

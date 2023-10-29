@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, Protocol, TypeAlias, TypeVar, Union, TYPE_CHECKING
-from enum import Enum, auto
-import vapoursynth as vs
+from typing import TYPE_CHECKING, Any, Callable, Protocol, TypeVar, Union
 
-from .builtins import F, SingleOrArr, SingleOrArrOpt, SupportsString
+import vapoursynth as vs
+from stgpytools import MISSING, DataType, FuncExceptT, MissingT, PassthroughC, SingleOrArr, StrArr, StrArrOpt
 
 __all__ = [
     'MissingT', 'MISSING',
@@ -25,17 +24,6 @@ __all__ = [
 
     'ConstantFormatVideoNode'
 ]
-
-
-class MissingTBase(Enum):
-    MissingT = auto()
-
-
-MissingT: TypeAlias = Literal[MissingTBase.MissingT]
-MISSING = MissingTBase.MissingT
-
-
-DataType = Union[str, bytes, bytearray, SupportsString]
 
 _VSMapValue = Union[
     SingleOrArr[int],
@@ -77,25 +65,6 @@ HoldsVideoFormatT = Union[vs.VideoNode, vs.VideoFrame, vs.VideoFormat]
 HoldsPropValueT = Union[vs.FrameProps, vs.VideoFrame, vs.AudioFrame, vs.VideoNode, vs.AudioNode]
 """Types that can hold :py:attr:`vs.FrameProps`."""
 
-FuncExceptT = str | Callable[..., Any] | tuple[Callable[..., Any] | str, str]  # type: ignore
-"""
-This type is used in specific functions that can throw an exception.
-```
-def can_throw(..., *, func: FuncExceptT) -> None:
-    ...
-    if some_error:
-        raise CustomValueError('Some error occurred!!', func)
-
-def some_func() -> None:
-    ...
-    can_throw(..., func=some_func)
-```
-If an error occurs, this will print a clear error ->\n
-``ValueError: (some_func) Some error occurred!!``
-"""
-
-FuncExceptT = str | Callable[..., Any] | tuple[Callable[..., Any] | str, str]  # type: ignore
-
 
 class VSFunctionNoArgs(Protocol):
     def __call__(self, clip: vs.VideoNode) -> vs.VideoNode:
@@ -121,12 +90,6 @@ VSFunction = VSFunctionNoArgs | VSFunctionArgs | VSFunctionKwArgs | VSFunctionAl
 """Function that takes a :py:attr:`vs.VideoNode` as its first argument and returns a :py:attr:`vs.VideoNode`."""
 
 GenericVSFunction = Callable[..., vs.VideoNode]
-
-
-StrArr = SingleOrArr[SupportsString]
-StrArrOpt = SingleOrArrOpt[SupportsString]
-
-PassthroughC = Callable[[F], F]
 
 
 class ConstantFormatVideoNode(vs.VideoNode):

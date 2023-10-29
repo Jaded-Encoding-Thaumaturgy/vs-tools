@@ -4,10 +4,7 @@ from string import capwords
 from typing import TYPE_CHECKING, Any, Iterable, TypeVar, overload
 
 import vapoursynth as vs
-
-from ..types import MISSING, FuncExceptT, classproperty
-from .base import CustomIntEnum
-from ..exceptions import CustomError
+from stgpytools import MISSING, CustomError, CustomIntEnum, FuncExceptT, classproperty
 
 __all__ = [
     'PropEnum',
@@ -134,8 +131,8 @@ def _base_from_video(
     cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[CustomError],
     strict: bool, func: FuncExceptT | None = None
 ) -> SelfPropEnum:
-    from ..utils import get_prop
     from ..functions import fallback
+    from ..utils import get_prop
 
     func = fallback(func, cls.from_video)  # type: ignore
 

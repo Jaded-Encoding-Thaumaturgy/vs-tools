@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Literal, Sequence, overload
 
 import vapoursynth as vs
+from stgpytools import normalize_seq
 
 from ..enums import ColorRange, ColorRangeT
-from ..functions import normalize_seq
 from ..types import HoldsVideoFormatT, VideoFormatT
 from .info import get_depth, get_video_format
 

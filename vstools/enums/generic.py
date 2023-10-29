@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 import vapoursynth as vs
+from stgpytools import FuncExceptT
 
 from ..exceptions import (
     UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
 )
-from ..types import FuncExceptT
 from .stubs import _base_from_video, _ChromaLocationMeta, _FieldBasedMeta
 
 __all__ = [
@@ -48,7 +48,7 @@ class ChromaLocation(_ChromaLocationMeta):
 
         :return:            ChromaLocation object.
         """
-        from .color import Matrix, Transfer, Primaries
+        from .color import Matrix, Primaries, Transfer
 
         matrix, transfer, primaries = Matrix(frame), Transfer(frame), Primaries(frame)
 

@@ -5,9 +5,10 @@ from typing import Any, Iterable, Literal, Mapping, Sequence, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
+from stgpytools import CustomIndexError, CustomStrEnum, CustomValueError
 
-from ..enums import ColorRange, ColorRangeT, CustomStrEnum, Matrix
-from ..exceptions import ClipLengthError, CustomIndexError, CustomValueError, InvalidColorFamilyError
+from ..enums import ColorRange, ColorRangeT, Matrix
+from ..exceptions import ClipLengthError, InvalidColorFamilyError
 from ..types import HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import check_variable_format, disallow_variable_format
 

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from ..types import vs_object, T
-from . import vs_proxy as vs
 from typing import Generic, TypeVar
+
+from stgpytools import T
+
+from ..types import vs_object
+from . import vs_proxy as vs
 
 __all__ = [
     'ClipsCache', 'DynamicClipsCache',

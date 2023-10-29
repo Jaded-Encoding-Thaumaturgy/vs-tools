@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..enums import CustomStrEnum
+from stgpytools import CustomStrEnum
 
 __all__ = [
     'FileTypeBase',

@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd as max_common_div
-from typing import Callable, Iterable, NamedTuple, TypeVar, overload, Literal
+from typing import Callable, Iterable, Literal, NamedTuple, overload
 
 import vapoursynth as vs
+from stgpytools import Coordinate, CustomIntEnum, CustomStrEnum, Position, Sentinel, Size
 
-from ..types import Sentinel, HoldsPropValueT
-from ..types.funcs import SentinelDispatcher
-from .base import CustomIntEnum, CustomStrEnum
+from ..types import HoldsPropValueT
 
 __all__ = [
     'Direction',
@@ -196,53 +195,6 @@ class Resolution(NamedTuple):
         return f'{self.width}x{self.height}'
 
 
-class Coordinate:
-    """
-    Positive set of (x, y) coordinates.
-
-    :raises ValueError:     Negative values were passed.
-    """
-
-    x: int
-    """Horizontal coordinate."""
-
-    y: int
-    """Vertical coordinate."""
-
-    @overload
-    def __init__(self: SelfCoord, other: tuple[int, int] | SelfCoord, /) -> None:
-        ...
-
-    @overload
-    def __init__(self: SelfCoord, x: int, y: int, /) -> None:
-        ...
-
-    def __init__(self: SelfCoord, x_or_self: int | tuple[int, int] | SelfCoord, y: int, /) -> None:  # type: ignore
-        from ..exceptions import CustomValueError
-
-        if isinstance(x_or_self, int):
-            x = x_or_self
-        else:
-            x, y = x_or_self if isinstance(x_or_self, tuple) else (x_or_self.x, x_or_self.y)
-
-        if x < 0 or y < 0:
-            raise CustomValueError("Values can't be negative!", self.__class__)
-
-        self.x = x
-        self.y = y
-
-
-SelfCoord = TypeVar('SelfCoord', bound=Coordinate)
-
-
-class Position(Coordinate):
-    """Positive set of an (x,y) offset relative to the top left corner of the image."""
-
-
-class Size(Coordinate):
-    """Positive set of an (x,y), (horizontal,vertical), size of the image."""
-
-
 class SceneChangeMode(CustomIntEnum):
     """Enum for various scene change modes."""
 
@@ -333,7 +285,7 @@ class SceneChangeMode(CustomIntEnum):
 
         return (lambda f: f.props[prop_key] == 1)
 
-    def lambda_cb(self, akarin: bool | None = None) -> Callable[[int, vs.VideoFrame], SentinelDispatcher | int]:
+    def lambda_cb(self, akarin: bool | None = None) -> Callable[[int, vs.VideoFrame], Sentinel.Type | int]:
         callback = self.check_cb(akarin)
         return (lambda n, f: Sentinel.check(n, callback(f)))
 

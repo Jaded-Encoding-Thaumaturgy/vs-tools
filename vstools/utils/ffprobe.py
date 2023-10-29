@@ -7,9 +7,8 @@ from shutil import which
 from subprocess import PIPE, run
 from typing import Any, Literal, overload
 
-from ..exceptions import CustomRuntimeError, CustomIndexError
-from ..types import FuncExceptT, inject_self
-from .file import check_perms
+from stgpytools import CustomIndexError, CustomRuntimeError, FuncExceptT, check_perms, inject_self
+
 from .mime import FileType
 
 __all__ = [

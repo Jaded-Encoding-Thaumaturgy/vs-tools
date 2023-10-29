@@ -3,10 +3,11 @@ from __future__ import annotations
 from typing import Any, Callable, TypeVar, overload
 
 import vapoursynth as vs
+from stgpytools import MISSING, FuncExceptT, MissingT, SupportsString
 
 from ..enums import PropEnum
 from ..exceptions import FramePropError
-from ..types import MISSING, BoundVSMapValue, FuncExceptT, HoldsPropValueT, MissingT, SupportsString
+from ..types import BoundVSMapValue, HoldsPropValueT
 
 __all__ = [
     'get_prop',

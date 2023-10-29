@@ -1,8 +1,8 @@
 from __future__ import annotations
+
 from typing import Any
 
-from ..types import FuncExceptT, SupportsString
-from .base import CustomPermissionError, CustomValueError
+from stgpytools import CustomPermissionError, CustomValueError, FuncExceptT, SupportsString
 
 __all__ = [
     'UndefinedMatrixError',

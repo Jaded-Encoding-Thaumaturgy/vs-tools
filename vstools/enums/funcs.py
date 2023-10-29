@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .base import CustomStrEnum
+from stgpytools import CustomStrEnum
 
 __all__ = [
     'ConvMode'

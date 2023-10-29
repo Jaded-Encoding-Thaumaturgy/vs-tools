@@ -1,9 +1,7 @@
 from __future__ import annotations
+from typing import Sequence
 
-from functools import update_wrapper
-from types import FunctionType
-
-from ..types import F
+from stgpytools import copy_func, erase_module as stg_erase_module, F
 
 __all__ = [
     'copy_func',
@@ -11,26 +9,5 @@ __all__ = [
 ]
 
 
-def copy_func(f: F) -> FunctionType:
-    """Try copying a function."""
-
-    try:
-        g = FunctionType(
-            f.__code__, f.__globals__, name=f.__name__, argdefs=f.__defaults__, closure=f.__closure__
-        )
-        g = update_wrapper(g, f)
-        g.__kwdefaults__ = f.__kwdefaults__
-        return g
-    except BaseException:  # for builtins
-        return f  # type: ignore
-
-
-def erase_module(func: F, *, vs_only: bool = False) -> F:
-    """Delete the __module__ of the function."""
-
-    if hasattr(func, '__module__') and (
-        func.__module__ == '__vapoursynth__' if vs_only else True
-    ):
-        func.__module__ = None  # type: ignore
-
-    return func
+def erase_module(func: F, modules: Sequence[str] | None = None, *, vs_only: bool = False) -> F:
+    return stg_erase_module(func, ['__vapoursynth__', *(modules or [])] if vs_only else modules)
