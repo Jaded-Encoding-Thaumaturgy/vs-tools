@@ -25,7 +25,7 @@ This will be less stable, but will feature the most up-to-date features, as well
 
 .. code-block:: console
 
-    pip install git+https://github.com/Irrational-Encoding-Wizardry/vs-tools.git -U
+    pip install git+https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools.git -U
 
 It's recommended you use a release version over building from git
 unless you require new functionality only available upstream.
