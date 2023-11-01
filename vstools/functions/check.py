@@ -18,7 +18,8 @@ __all__ = [
     'check_ref_clip',
     'check_variable_format',
     'check_variable_resolution',
-    'check_variable'
+    'check_variable',
+    'check_correct_subsampling'
 ]
 
 
@@ -175,3 +176,17 @@ def check_variable(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantF
     check_variable_resolution(clip, func)
 
     return True
+
+
+def check_correct_subsampling(clip: vs.VideoNode, width: int | None = None, height: int | None = None, func: FuncExceptT | None = None) -> None:
+    from ..exceptions import InvalidSubsamplingError
+
+    if clip.format:
+        if (
+            (width is not None and width % (1 << clip.format.subsampling_w))
+            or (height is not None and height % (1 << clip.format.subsampling_h))
+        ):
+            raise InvalidSubsamplingError(
+                func, clip, 'The {subsampling} subsampling is not supported for this resolution!',
+                reason=dict(width=width, height=height)
+            )
