@@ -178,7 +178,9 @@ def check_variable(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantF
     return True
 
 
-def check_correct_subsampling(clip: vs.VideoNode, width: int | None = None, height: int | None = None, func: FuncExceptT | None = None) -> None:
+def check_correct_subsampling(
+    clip: vs.VideoNode, width: int | None = None, height: int | None = None, func: FuncExceptT | None = None
+) -> None:
     from ..exceptions import InvalidSubsamplingError
 
     if clip.format:
