@@ -189,6 +189,7 @@ def check_correct_subsampling(
             or (height is not None and height % (1 << clip.format.subsampling_h))
         ):
             raise InvalidSubsamplingError(
-                func, clip, 'The {subsampling} subsampling is not supported for this resolution!',
+                func or check_correct_subsampling, clip,
+                'The {subsampling} subsampling is not supported for this resolution!',
                 reason=dict(width=width, height=height)
             )
