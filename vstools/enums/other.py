@@ -156,9 +156,22 @@ class Region(CustomStrEnum):
         return _region_framerate_map[self]
 
     @classmethod
-    def from_framerate(cls, framerate: float | Fraction) -> Region:
+    def from_framerate(cls, framerate: float | Fraction, strict: bool = False) -> Region:
         """Determine the Region using a given framerate."""
-        return _framerate_region_map[Fraction(framerate)]
+
+        key = Fraction(framerate)
+
+        if strict:
+            return _framerate_region_map[key]
+
+        if key not in _framerate_region_map:
+            diffs = [(k, abs(float(key) - float(v))) for k, v in _region_framerate_map.items()]
+
+            diffs.sort(key=lambda x: x[1])
+
+            return diffs[0][0]
+
+        return _framerate_region_map[key]
 
 
 _region_framerate_map = {
