@@ -285,8 +285,8 @@ def depth(
     in_fmt = get_video_format(clip)
     out_fmt = get_video_format(fallback(bitdepth, clip), sample_type=sample_type)
 
-    range_out = ColorRange.from_param(range_out) or ColorRange.from_video(clip)
-    range_in = ColorRange.from_param(range_in) or ColorRange.from_video(clip)
+    range_out = ColorRange.from_param_or_video(range_out, clip)
+    range_in = ColorRange.from_param_or_video(range_in, clip)
 
     if (
         in_fmt.bits_per_sample, in_fmt.sample_type, range_in
