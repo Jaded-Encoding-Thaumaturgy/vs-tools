@@ -31,7 +31,7 @@ class AsyncRenderConf:
 
 @overload
 def clip_async_render(  # type: ignore
-    clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | None = None,
+    clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | Callable[[int, int], None] | None = None,
     callback: None = None, prefetch: int = 0, backlog: int = -1, y4m: bool = False,
     async_requests: int | bool | AsyncRenderConf = False
 ) -> None:
@@ -40,7 +40,7 @@ def clip_async_render(  # type: ignore
 
 @overload
 def clip_async_render(
-    clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | None = None,
+    clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | Callable[[int, int], None] | None = None,
     callback: Callable[[int, vs.VideoFrame], T] = ..., prefetch: int = 0,
     backlog: int = -1, y4m: bool = False, async_requests: int | bool | AsyncRenderConf = False
 ) -> list[T]:
@@ -48,7 +48,7 @@ def clip_async_render(
 
 
 def clip_async_render(
-    clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | None = None,
+    clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | Callable[[int, int], None] | None = None,
     callback: Callable[[int, vs.VideoFrame], T] | None = None, prefetch: int = 0,
     backlog: int = -1, y4m: bool | None = None, async_requests: int | bool | AsyncRenderConf = False
 ) -> list[T] | None:
@@ -70,17 +70,27 @@ def clip_async_render(
     if async_conf and async_conf.one_pix_frame and y4m:
         raise CustomValueError('You cannot have y4m=True and one_pix_frame in AsyncRenderConf!')
 
+    num_frames = len(clip)
+
     pr_update: Callable[[], None]
+    pr_update_custom: Callable[[int, int], None]
 
     if callback:
         def get_callback(shift: int = 0) -> Callable[[int, vs.VideoFrame], vs.VideoFrame]:
             if shift:
                 if outfile is None and progress is not None:
-                    def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                        n += shift
-                        result[n] = callback(n, f)  # type: ignore[misc]
-                        pr_update()
-                        return f
+                    if isinstance(progress, str):
+                        def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                            n += shift
+                            result[n] = callback(n, f)  # type: ignore[misc]
+                            pr_update()
+                            return f
+                    else:
+                        def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                            n += shift
+                            result[n] = callback(n, f)  # type: ignore[misc]
+                            pr_update_custom(n, num_frames)
+                            return f
                 else:
                     def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
                         n += shift
@@ -88,10 +98,16 @@ def clip_async_render(
                         return f
             else:
                 if outfile is None and progress is not None:
-                    def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                        result[n] = callback(n, f)  # type: ignore[misc]
-                        pr_update()
-                        return f
+                    if isinstance(progress, str):
+                        def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                            result[n] = callback(n, f)  # type: ignore[misc]
+                            pr_update()
+                            return f
+                    else:
+                        def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
+                            result[n] = callback(n, f)  # type: ignore[misc]
+                            pr_update_custom(n, num_frames)
+                            return f
                 else:
                     def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
                         result[n] = callback(n, f)  # type: ignore[misc]
@@ -157,7 +173,7 @@ def clip_async_render(
 
         if progress is None:
             deque(clip_it, 0)
-        else:
+        elif isinstance(progress, str):
             with get_render_progress(progress, clip.num_frames) as pr:
                 if callback:
                     pr_update = pr.update
@@ -165,6 +181,14 @@ def clip_async_render(
                 else:
                     for _ in clip_it:
                         pr.update()
+        else:
+            if callback:
+                pr_update_custom = progress
+                deque(clip_it, 0)
+            else:
+                for i, _ in enumerate(clip_it):
+                    progress(i, num_frames)
+
     else:
         y4m = fallback(y4m, bool(rend_clip.format and (rend_clip.format.color_family is vs.YUV)))
 
@@ -179,9 +203,11 @@ def clip_async_render(
 
         if progress is None:
             rend_clip.output(outfile, y4m, None, prefetch, backlog)
-        else:
+        elif isinstance(progress, str):
             with get_render_progress(progress, clip.num_frames) as pr:
                 rend_clip.output(outfile, y4m, pr.update, prefetch, backlog)
+        else:
+            rend_clip.output(outfile, y4m, progress, prefetch, backlog)
 
     if callback:
         try:
@@ -193,7 +219,7 @@ def clip_async_render(
 
 
 def clip_data_gather(
-    clip: vs.VideoNode, progress: str | None,
+    clip: vs.VideoNode, progress: str | Callable[[int, int], None] | None,
     callback: Callable[[int, vs.VideoFrame], Sentinel.Type | T],
     async_requests: int | bool | AsyncRenderConf = False, prefetch: int = 0, backlog: int = -1
 ) -> list[T]:
