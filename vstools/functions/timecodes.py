@@ -459,6 +459,16 @@ class Keyframes(list[int]):
         out_path.touch()
         out_path.write_text('\n'.join(out_text))
 
+    @classmethod
+    def from_param(cls: type[KeyframesBoundT], clip: vs.VideoNode, param: KeyframesBoundT | str) -> KeyframesBoundT:
+        if isinstance(param, str):
+            return cls.unique(clip, param)
+
+        if isinstance(param, cls):
+            return param
+
+        return cls(param)
+
 
 KeyframesBoundT = TypeVar('KeyframesBoundT', bound=Keyframes)
 
