@@ -8,6 +8,7 @@ from typing import BinaryIO, Callable, Literal, overload
 
 import vapoursynth as vs
 from stgpytools import CustomRuntimeError, CustomValueError, Sentinel, T, normalize_list_to_ranges
+from stgpytools.types.funcs import SentinelDispatcher
 
 from ..exceptions import InvalidColorFamilyError
 from .progress import get_render_progress
@@ -220,7 +221,7 @@ def clip_async_render(
 
 def clip_data_gather(
     clip: vs.VideoNode, progress: str | Callable[[int, int], None] | None,
-    callback: Callable[[int, vs.VideoFrame], Sentinel.Type | T],
+    callback: Callable[[int, vs.VideoFrame], SentinelDispatcher | T],
     async_requests: int | bool | AsyncRenderConf = False, prefetch: int = 0, backlog: int = -1
 ) -> list[T]:
     frames = clip_async_render(clip, None, progress, callback, prefetch, backlog, False, async_requests)
