@@ -278,9 +278,6 @@ class proxy_utils:
         return plugin.__dict__['plugin_ref']  # type: ignore
 
 
-builtins_isinstance = builtins.isinstance
-
-
 def vstools_isinstance(
     __obj: object, __class_or_tuple: type | UnionType | tuple[type | UnionType | tuple[Any, ...], ...]
 ) -> bool:
@@ -296,7 +293,9 @@ def vstools_isinstance(
     return builtins_isinstance(__obj, __class_or_tuple)
 
 
-builtins.isinstance = vstools_isinstance
+if builtins.isinstance is not vstools_isinstance:
+    builtins_isinstance = builtins.isinstance
+    builtins.isinstance = vstools_isinstance
 
 
 def _get_core(self: VSCoreProxy) -> Core | None:
