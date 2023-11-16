@@ -1,16 +1,23 @@
 from __future__ import annotations
 
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from stgpytools import T
 
+from ..functions import Keyframes
 from ..types import vs_object
 from . import vs_proxy as vs
 
 __all__ = [
-    'ClipsCache', 'DynamicClipsCache',
+    'ClipsCache',
+
+    'DynamicClipsCache',
+
     'FramesCache',
+
     'ClipFramesCache',
+
+    'SceneBasedDynamicCache',
 
     'cache_clip'
 ]
@@ -94,6 +101,24 @@ class ClipFramesCache(vs_object, dict[vs.VideoNode, FramesCache[vs.VideoFrame]])
 
     def __vs_del__(self, core_id: int) -> None:
         self.clear()
+
+
+class SceneBasedDynamicCache(DynamicClipsCache[int]):
+    def __init__(self, clip: vs.VideoNode, keyframes: Keyframes | str, cache_size: int = 5) -> None:
+        super().__init__(cache_size)
+
+        self.clip = clip
+        self.keyframes = Keyframes.from_param(clip, keyframes)
+
+    def get_clip(self, key: int) -> vs.VideoNode:
+        raise NotImplementedError
+
+    def get_eval(self) -> vs.VideoNode:
+        return self.clip.std.FrameEval(lambda n: self[self.keyframes.scenes.indices[n]])
+
+    @classmethod
+    def from_clip(cls, clip: vs.VideoNode, keyframes: Keyframes | str, *args: Any, **kwargs: Any) -> vs.VideoNode:
+        return cls(clip, keyframes, *args, **kwargs).get_eval()
 
 
 def cache_clip(_clip: NodeT, cache_size: int = 10) -> NodeT:
