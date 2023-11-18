@@ -19,7 +19,9 @@ __all__ = [
     'clip_async_render',
     'clip_data_gather',
 
-    'find_prop'
+    'prop_compare_cb',
+
+    'find_prop',
 ]
 
 
@@ -240,6 +242,59 @@ _operators = {
 
 
 @overload
+def prop_compare_cb(
+    src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
+    return_frame_n: Literal[False] = ...
+) -> tuple[vs.VideoNode, Callable[[int, vs.VideoFrame], bool]]:
+    ...
+
+
+@overload
+def prop_compare_cb(
+    src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
+    return_frame_n: Literal[True] = ...
+) -> tuple[vs.VideoNode, Callable[[int, vs.VideoFrame], int | SentinelDispatcher]]:
+    ...
+
+
+def prop_compare_cb(
+    src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
+    return_frame_n: bool = False
+) -> (
+    tuple[vs.VideoNode, Callable[[int, vs.VideoFrame], bool]]  # noqa
+    | tuple[vs.VideoNode, Callable[[int, vs.VideoFrame], int | SentinelDispatcher]]
+):
+    bool_check = isinstance(ref, bool)
+    one_pix = hasattr(vs.core, 'akarin') and not (callable(op) or ' ' in prop)
+    assert (op is None) if bool_check else (op is not None)
+
+    callback: Callable[[int, vs.VideoFrame], Sentinel.Type | int]
+    if one_pix:
+        src = vs.core.std.BlankClip(
+            None, 1, 1, vs.GRAY8 if bool_check else vs.GRAYS, length=src.num_frames
+        ).std.CopyFrameProps(src).akarin.Expr(
+            f'x.{prop}' if bool_check else f'x.{prop} {ref} {op}'
+        )
+        if return_frame_n:
+            # no-fmt
+            callback = lambda n, f: Sentinel.check(n, not not f[0][0, 0])  # noqa
+        else:
+            # no-fmt
+            callback = lambda n, f: not not f[0][0, 0]  # noqa
+    else:
+        _op = _operators[op] if isinstance(op, str) else op
+
+        if return_frame_n:
+            # no-fmt
+            callback = lambda n, f: Sentinel.check(n, _op(f.props[prop], ref))  # type: ignore  # noqa
+        else:
+            # no-fmt
+            callback = lambda n, f: _op(f.props[prop], ref)  # type: ignore  # noqa
+
+    return src, callback  # type: ignore
+
+
+@overload
 def find_prop(  # type: ignore
     src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
     range_length: Literal[0], async_requests: int = 1
@@ -270,28 +325,11 @@ def find_prop(
 
     :return:                Frame ranges at the specified conditions.
     """
+    prop_src, callback = prop_compare_cb(src, prop, op, ref, True)
 
-    bool_check = isinstance(ref, bool)
-    one_pix = hasattr(vs.core, 'akarin') and not (callable(op) or ' ' in prop)
-    assert (op is None) if bool_check else (op is not None)
+    aconf = AsyncRenderConf(async_requests, (prop_src.width, prop_src.height) == (1, 1), False)
 
-    callback: Callable[[int, vs.VideoFrame], Sentinel.Type | int]
-    if one_pix:
-        src = vs.core.std.BlankClip(
-            None, 1, 1, vs.GRAY8 if bool_check else vs.GRAYS, length=src.num_frames
-        ).std.CopyFrameProps(src).akarin.Expr(
-            f'x.{prop}' if bool_check else f'x.{prop} {ref} {op}'
-        )
-        # no-fmt
-        callback = lambda n, f: Sentinel.check(n, not not f[0][0, 0])  # noqa
-    else:
-        _op = _operators[op] if isinstance(op, str) else op
-        # no-fmt
-        callback = lambda n, f: Sentinel.check(n, _op(f.props[prop], ref))  # type: ignore  # noqa
-
-    aconf = AsyncRenderConf(async_requests, one_pix, False)
-
-    frames = clip_data_gather(src, f'Searching {prop} {op} {ref}...', callback, aconf)
+    frames = clip_data_gather(prop_src, f'Searching {prop} {op} {ref}...', callback, aconf)
 
     if range_length > 0:
         return normalize_list_to_ranges(frames, range_length)
