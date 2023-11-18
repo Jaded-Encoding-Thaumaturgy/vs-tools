@@ -22,6 +22,8 @@ __all__ = [
     'prop_compare_cb',
 
     'find_prop',
+
+    'find_prop_rfs'
 ]
 
 
@@ -335,3 +337,15 @@ def find_prop(
         return normalize_list_to_ranges(frames, range_length)
 
     return frames
+
+
+def find_prop_rfs(
+    clip_a: vs.VideoNode, clip_b: vs.VideoNode,
+    prop: str, op: str | Callable[[float, float], bool] | None, prop_ref: float | bool,
+    ref: vs.VideoNode | None = None, mismatch: bool = False
+) -> vs.VideoNode:
+    from ..utils import replace_ranges
+
+    prop_src, callback = prop_compare_cb(ref or clip_a, prop, op, prop_ref, False)
+
+    return replace_ranges(clip_a, clip_b, callback, False, mismatch, prop_src=prop_src)
