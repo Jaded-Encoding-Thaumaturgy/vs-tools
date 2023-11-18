@@ -139,7 +139,10 @@ def replace_ranges(
 
         params = set(signature.parameters.keys())
 
-        base_clip = clip_a.std.BlankClip(keep=True)
+        base_clip = clip_a.std.BlankClip(
+            keep=True, varformat=(clip_a.format != clip_b.format),
+            varsize=(clip_a.width, clip_a.height) != (clip_b.width, clip_b.height)
+        )
 
         callback: RangesCallback = ranges
 
