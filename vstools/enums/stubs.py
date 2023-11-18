@@ -86,7 +86,8 @@ class PropEnum(CustomIntEnum):
     @classmethod
     def from_param_or_video(
         cls: type[SelfPropEnum], value: Any,
-        src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func_except: FuncExceptT | None = None
+        src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
+        strict: bool = False, func_except: FuncExceptT | None = None
     ) -> SelfPropEnum:
         value = cls.from_param(value, func_except)
 
@@ -205,7 +206,8 @@ if TYPE_CHECKING:
         @classmethod
         def from_param_or_video(  # type: ignore
             cls: type[Matrix], value: int | Matrix | MatrixT | None,
-            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func_except: FuncExceptT | None = None
+            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
+            strict: bool = False, func_except: FuncExceptT | None = None
         ) -> Matrix:
             ...
 
@@ -248,7 +250,8 @@ if TYPE_CHECKING:
         @classmethod
         def from_param_or_video(  # type: ignore
             cls: type[Transfer], value: int | Transfer | TransferT | None,
-            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func_except: FuncExceptT | None = None
+            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
+            strict: bool = False, func_except: FuncExceptT | None = None
         ) -> Transfer:
             ...
 
@@ -291,7 +294,8 @@ if TYPE_CHECKING:
         @classmethod
         def from_param_or_video(  # type: ignore
             cls: type[Primaries], value: int | Primaries | PrimariesT | None,
-            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func_except: FuncExceptT | None = None
+            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
+            strict: bool = False, func_except: FuncExceptT | None = None
         ) -> Primaries:
             ...
 
@@ -334,7 +338,8 @@ if TYPE_CHECKING:
         @classmethod
         def from_param_or_video(  # type: ignore
             cls: type[ColorRange], value: int | ColorRange | ColorRangeT | None,
-            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func_except: FuncExceptT | None = None
+            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
+            strict: bool = False, func_except: FuncExceptT | None = None
         ) -> ColorRange:
             ...
 
@@ -379,7 +384,8 @@ if TYPE_CHECKING:
         @classmethod
         def from_param_or_video(  # type: ignore
             cls: type[ChromaLocation], value: int | ChromaLocation | ChromaLocationT | None,
-            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func_except: FuncExceptT | None = None
+            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
+            strict: bool = False, func_except: FuncExceptT | None = None
         ) -> ChromaLocation:
             ...
 
@@ -423,7 +429,8 @@ if TYPE_CHECKING:
         @classmethod
         def from_param_or_video(  # type: ignore
             cls: type[FieldBased], value_or_tff: int | FieldBasedT | bool | None,
-            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False, func_except: FuncExceptT | None = None
+            src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
+            strict: bool = False, func_except: FuncExceptT | None = None
         ) -> FieldBased:
             ...
 
