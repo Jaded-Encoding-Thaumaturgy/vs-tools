@@ -1045,7 +1045,15 @@ class ColorRange(_ColorRangeMeta):
         return not self.value
 
 
-_transfer_matrix_map: dict[Transfer, Matrix] = {}
+_transfer_matrix_map: dict[Transfer, Matrix] = {
+    Transfer.SRGB: Matrix.RGB,
+    Transfer.BT709: Matrix.BT709,
+    Transfer.BT601: Matrix.SMPTE170M,
+    Transfer.BT470BG: Matrix.BT470BG,
+    Transfer.ST2084: Matrix.BT2020NC,
+    Transfer.BT2020_10bits: Matrix.BT2020NC,
+    Transfer.BT2020_12bits: Matrix.BT2020NC,
+}
 
 _primaries_matrix_map: dict[Primaries, Matrix] = {}
 
