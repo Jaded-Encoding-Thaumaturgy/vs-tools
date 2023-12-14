@@ -3,7 +3,7 @@ from __future__ import annotations
 import inspect
 from fractions import Fraction
 from math import floor
-from typing import Any, Callable, Iterable, TypeVar
+from typing import Any, Callable, Iterable, Sequence, TypeVar
 
 import vapoursynth as vs
 
@@ -77,60 +77,148 @@ def match_clip(
     return clip.std.AssumeFPS(fpsnum=ref.fps.numerator, fpsden=ref.fps.denominator)
 
 
-def padder(
-    clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0, reflect: bool = True
-) -> vs.VideoNode:
-    """
-    Pad out the pixels on the side by the given amount of pixels.
+class _padder:
+    """Pad out the pixels on the sides by the given amount of pixels."""
 
-    There are two padding modes:
+    def _base(self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0) -> tuple[
+        int, int, vs.VideoFormat, int, int
+    ]:
+        from ..functions import check_variable
 
-        * Filling: This will simply duplicate the row/column *n* amount of pixels.
-        * Reflect: This will reflect the clip for *n* amount of pixels.
+        assert check_variable(clip, padder)
 
-    Default mode is `Reflect`. `Filling` can be enabled by setting `reflect=False`.
+        width = clip.width + left + right
+        height = clip.height + top + bottom
 
-    Optional Dependencies:
-        * `reflect=False`: `VapourSynth-fillborders <https://github.com/dubhater/vapoursynth-fillborders>`_
+        fmt = get_video_format(clip)
 
-    For a 4:2:0 clip, the output must be an even resolution.
+        w_sub, h_sub = 1 << fmt.subsampling_w, 1 << fmt.subsampling_h
 
-    :param clip:        Input clip.
-    :param left:        Padding added to the left side of the clip.
-    :param right:       Padding added to the right side of the clip.
-    :param top:         Padding added to the top side of the clip.
-    :param bottom:      Padding added to the bottom side of the clip.
-    :param reflect:     Whether to reflect the padded pixels.
-                        Default: True.
-    """
-    from ..functions import check_variable
-    from ..utils import core
+        if width % w_sub and height % h_sub:
+            raise InvalidSubsamplingError(
+                padder, fmt, 'Values must result in a mod congruent to the clip\'s subsampling ({subsampling})!'
+            )
 
-    assert check_variable(clip, padder)
+        return width, height, fmt, w_sub, h_sub
 
-    width = clip.width + left + right
-    height = clip.height + top + bottom
+    def __call__(
+        self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0,
+        reflect: bool = True
+    ) -> vs.VideoNode:
+        import warnings
+        warnings.warn('The use of padder(reflect=...) is deprecated! Use padder.MIRROR/REPEAT().', UserWarning)
 
-    fmt = get_video_format(clip)
+        if reflect:
+            return self.MIRROR(clip, left, right, top, bottom)
 
-    if (width % (1 << fmt.subsampling_w) != 0) or (height % (1 << fmt.subsampling_h) != 0):
-        raise InvalidSubsamplingError(
-            padder, fmt, 'Values must result in a mod congruent to the clip\'s subsampling ({subsampling})!'
-        )
+        return self.REPEAT(clip, left, right, top, bottom)
 
-    reflected = core.resize.Point(
-        clip.std.CopyFrameProps(clip.std.BlankClip()), width, height,
-        src_top=-top, src_left=-left,
-        src_width=width, src_height=height
-    ).std.CopyFrameProps(clip)
+    def MIRROR(self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0) -> vs.VideoNode:
+        """
+        Pad a clip with reflect mode. This will reflect each side.
 
-    if reflect:
-        return reflected
+        :param clip:        Input clip.
+        :param left:        Padding added to the left side of the clip.
+        :param right:       Padding added to the right side of the clip.
+        :param top:         Padding added to the top side of the clip.
+        :param bottom:      Padding added to the bottom side of the clip.
+        """
 
-    return core.fb.FillBorders(  # type: ignore
-        reflected, left=left, right=right, top=top, bottom=bottom
-    )
+        from ..utils import core
 
+        width, height, *_ = self._base(clip, left, right, top, bottom)
+
+        return core.resize.Point(
+            clip.std.CopyFrameProps(clip.std.BlankClip()), width, height,
+            src_top=-top, src_left=-left,
+            src_width=width, src_height=height
+        ).std.CopyFrameProps(clip)
+
+    def REPEAT(self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0) -> vs.VideoNode:
+        """
+        Pad a clip with repeat mode. This will simply repeat the last row/column till the end.
+
+        :param clip:        Input clip.
+        :param left:        Padding added to the left side of the clip.
+        :param right:       Padding added to the right side of the clip.
+        :param top:         Padding added to the top side of the clip.
+        :param bottom:      Padding added to the bottom side of the clip.
+        """
+
+        *_, fmt, w_sub, h_sub = self._base(clip, left, right, top, bottom)
+
+        padded = clip.std.AddBorders(left, right, top, bottom)
+
+        right, bottom = clip.width + left, clip.height + top
+
+        pads = [
+            (left, right, top, bottom),
+            (left // w_sub, right // w_sub, top // h_sub, bottom // h_sub),
+        ][:fmt.num_planes]
+
+        return padded.akarin.Expr([
+            """
+                X {left} < L! Y {top} < T! X {right} > R! Y {bottom} > B!
+
+                T@ B@ or L@ R@ or and
+                    L@
+                        T@ {left} {top}  x[] {left} {bottom} x[] ?
+                        T@ {right} {top} x[] {right} {bottom} x[] ?
+                    ?
+                    L@
+                        {left} Y x[]
+                        R@
+                            {right} Y x[]
+                            T@
+                                X {top} x[]
+                                B@
+                                    X {bottom} x[]
+                                    x
+                                ?
+                            ?
+                        ?
+                    ?
+                ?
+            """.format(
+                left=l_, right=r_ - 1, top=t_, bottom=b_ - 1
+            )
+            for l_, r_, t_, b_ in pads
+        ])
+
+    def COLOR(
+        self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0,
+        color: int | float | Sequence[int | float] | bool | None = False
+    ) -> vs.VideoNode:
+        """
+        Pad a clip with a constant color.
+
+        :param clip:        Input clip.
+        :param left:        Padding added to the left side of the clip.
+        :param right:       Padding added to the right side of the clip.
+        :param top:         Padding added to the top side of the clip.
+        :param bottom:      Padding added to the bottom side of the clip.
+        :param color:       Constant color that should be added on the sides.
+                                * number: This will be treated as such and not converted or clamped.
+                                * False: Lowest value for this clip format and color range.
+                                * True: Highest value for this clip format and color range.
+                                * None: Neutral value for this clip format.
+        """
+
+        from ..utils import get_lowest_values, get_neutral_values, get_peak_values
+
+        self._base(clip, left, right, top, bottom)
+
+        if color is False:
+            color = get_lowest_values(clip, clip)
+        elif color is True:
+            color = get_peak_values(clip, clip)
+        elif color is None:
+            color = get_neutral_values(clip)
+
+        return clip.std.AddBorders(left, right, top, bottom, color)
+
+
+padder = _padder()
 
 FINT = TypeVar('FINT', bound=Callable[..., vs.VideoNode])
 FFLOAT = TypeVar('FFLOAT', bound=Callable[..., vs.VideoNode])
