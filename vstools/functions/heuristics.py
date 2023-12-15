@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 from enum import IntEnum
+from typing import Any
 
 import vapoursynth as vs
+from stgpytools import KwargsT
 
 from ..enums import ChromaLocation, ColorRange, Matrix, Primaries, Transfer
 from ..enums.stubs import SelfPropEnum
 
 __all__ = [
-    'video_heuristics'
+    'video_heuristics',
+
+    'video_resample_heuristics'
 ]
 
 
@@ -62,3 +66,14 @@ def video_heuristics(
         }
 
     return {f'{k}_in' if prop_in else k: v for k, v in heuristics.items()}
+
+
+def video_resample_heuristics(clip: vs.VideoNode, kwargs: KwargsT | None = None, **fmt_kwargs: Any) -> KwargsT:
+    assert clip.format
+
+    video_fmt = clip.format.replace(**fmt_kwargs)
+
+    def_kwargs_in = video_heuristics(clip, False, True)
+    def_kwargs_out = video_heuristics(clip.std.BlankClip(format=video_fmt.id), False, False)
+
+    return KwargsT(format=video_fmt.id, **def_kwargs_in, **def_kwargs_out) | (kwargs or KwargsT())
