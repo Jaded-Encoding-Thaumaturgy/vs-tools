@@ -3,10 +3,10 @@ from math import sqrt
 from typing import TYPE_CHECKING, Any, ClassVar
 
 import vapoursynth as vs
-from stgpytools import CustomIntEnum, FuncExceptT, KwargsT, inject_self, interleave_arr
+from stgpytools import CustomIntEnum, FuncExceptT, inject_self, interleave_arr
 
 from ..enums import Matrix, Primaries, Transfer
-from ..functions import check_variable_format, depth, plane
+from ..functions import check_variable_format, depth, plane, video_resample_heuristics
 
 __all__ = [
     'ResampleUtil',
@@ -101,11 +101,9 @@ class ResampleRGBUtil(ResampleUtil):
     ) -> vs.VideoNode:
         assert check_variable_format(clip, (func := func or self.yuv2csp))
 
-        return self.rgb2csp(
-            clip.resize.Bicubic(**(
-                KwargsT(format=clip.format.replace(color_family=vs.RGB, subsampling_w=0, subsampling_h=0).id) | kwargs
-            )), fp32, func
-        )
+        conv_args = video_resample_heuristics(clip, kwargs, color_family=vs.RGB, subsampling_w=0, subsampling_h=0)
+
+        return self.rgb2csp(clip.resize.Bicubic(**conv_args), fp32, func)
 
     @inject_self
     def csp2yuv(  # type: ignore[override]
@@ -114,11 +112,10 @@ class ResampleRGBUtil(ResampleUtil):
         assert check_variable_format(clip, (func := func or self.csp2yuv))
 
         rgb = self.csp2rgb(clip, fp32, func)
-        assert rgb.format
 
-        return rgb.resize.Bicubic(**(
-            KwargsT(format=rgb.format.replace(color_family=vs.YUV).id) | kwargs
-        ))
+        conv_args = video_resample_heuristics(rgb, kwargs, color_family=vs.YUV)
+
+        return rgb.resize.Bicubic(**conv_args)
 
 
 class ResampleYUVUtil(ResampleUtil):
@@ -128,11 +125,9 @@ class ResampleYUVUtil(ResampleUtil):
     ) -> vs.VideoNode:
         assert check_variable_format(clip, (func := func or self.rgb2csp))
 
-        return self.yuv2csp(
-            clip.resize.Bicubic(**(
-                KwargsT(format=clip.format.replace(color_family=vs.YUV).id) | kwargs
-            )), fp32, func
-        )
+        conv_args = video_resample_heuristics(clip, kwargs, color_family=vs.YUV)
+
+        return self.yuv2csp(clip.resize.Bicubic(**conv_args), fp32, func)
 
     @inject_self
     def csp2rgb(  # type: ignore[override]
@@ -141,11 +136,10 @@ class ResampleYUVUtil(ResampleUtil):
         assert check_variable_format(clip, (func := func or self.csp2yuv))
 
         yuv = self.csp2yuv(clip, fp32, func)
-        assert yuv.format
 
-        return yuv.resize.Bicubic(**(
-            KwargsT(format=yuv.format.replace(color_family=vs.RGB, subsampling_w=0, subsampling_h=0).id) | kwargs
-        ))
+        conv_args = video_resample_heuristics(yuv, kwargs, color_family=vs.RGB, subsampling_w=0, subsampling_h=0)
+
+        return yuv.resize.Bicubic(**conv_args)
 
 
 class ResampleRGBMatrixUtil(ResampleRGBUtil):
