@@ -10,8 +10,7 @@ from ..enums import (
     ChromaLocation, ChromaLocationT, ColorRange, ColorRangeT, FieldBased, FieldBasedT, Matrix, MatrixT, Primaries,
     PrimariesT, PropEnum, Transfer, TransferT
 )
-from ..exceptions import InvalidColorFamilyError
-from ..functions import DitherType, check_variable, depth, get_y, join
+from ..functions import DitherType, check_variable, depth
 from ..types import F_VD, HoldsVideoFormatT, VideoFormatT
 from . import vs_proxy as vs
 from .info import get_video_format, get_w
@@ -22,7 +21,6 @@ __all__ = [
     'finalize_output',
     'initialize_clip',
     'initialize_input',
-    'chroma_injector',
     'allow_variable_clip'
 ]
 
@@ -249,101 +247,6 @@ def initialize_input(
 
 
 @overload
-def chroma_injector(
-    function: None = None, *,
-    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.lazy.resize.Bicubic,
-    func: FuncExceptT | None = None
-) -> Callable[[F_VD], F_VD]:
-    ...
-
-
-@overload
-def chroma_injector(
-    function: F_VD, *,
-    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.lazy.resize.Bicubic,
-    func: FuncExceptT | None = None
-) -> F_VD:
-    ...
-
-
-def chroma_injector(
-    function: F_VD | None = None, *,
-    scaler: Callable[[vs.VideoNode, int, int, int], vs.VideoNode] = vs.core.lazy.resize.Bicubic,
-    func: FuncExceptT | None = None
-) -> Callable[[F_VD], F_VD] | F_VD:
-    """Separate luma and chroma, pass luma to the decorated function, and merge optionally scaled chroma after."""
-
-    if function is None:
-        return cast(
-            Callable[[F_VD], F_VD],
-            partial(chroma_injector, scaler=scaler, func=func)
-        )
-
-    @wraps(function)
-    def inner(_chroma: vs.VideoNode, clip: vs.VideoNode, *args: Any, **kwargs: Any) -> vs.VideoNode:
-        assert function
-
-        _cached_clips = dict[str, vs.VideoNode]()
-
-        def upscale_chroma(n: int, f: vs.VideoFrame) -> vs.VideoNode:
-            key = f'{f.width}_{f.height}_{f.format.id}'
-
-            if key not in _cached_clips:
-                fmt = vs.core.query_video_format(
-                    vs.YUV, f.format.sample_type, f.format.bits_per_sample
-                ) if out_fmt is None else out_fmt
-
-                _cached_clips[key] = join(
-                    y.resize.Point(f.width, f.height, f.format.id),
-                    scaler(_chroma, f.width, f.height, fmt.id),
-                    vs.YUV
-                )
-
-            return _cached_clips[key]
-
-        fmt = get_video_format(clip)
-        out_fmt: vs.VideoFormat | None = None
-
-        if clip.format is not None:
-            InvalidColorFamilyError.check(clip, (vs.GRAY, vs.YUV), func or chroma_injector)
-
-            in_fmt = vs.core.query_video_format(vs.GRAY, fmt.sample_type, fmt.bits_per_sample)
-            out_fmt = vs.core.query_video_format(vs.YUV, fmt.sample_type, fmt.bits_per_sample)
-
-            y = allow_variable_clip(get_y, format=in_fmt)(clip)
-        else:
-            y = allow_variable_clip(get_y)(clip)
-
-        if y.width != 0 and y.height != 0 and out_fmt is not None:
-            clip_in = join(y, scaler(_chroma, y.width, y.height, out_fmt.id), vs.YUV)
-        else:
-            clip_in = (
-                y.resize.Point(format=out_fmt.id) if out_fmt is not None else y
-            ).std.FrameEval(upscale_chroma, y)
-
-        result = function(clip_in, *args, **kwargs)
-
-        if result.format is None:
-            return allow_variable_clip(get_y)(result)
-
-        InvalidColorFamilyError.check(
-            result, (vs.GRAY, vs.YUV), chroma_injector,
-            'Can only decorate function returning clips having {correct} color family!'
-        )
-
-        if result.format.color_family == vs.GRAY:
-            return result
-
-        res_fmt = vs.core.query_video_format(
-            vs.GRAY, result.format.sample_type, result.format.bits_per_sample
-        )
-
-        return allow_variable_clip(get_y, format=res_fmt)(result)
-
-    return cast(F_VD, inner)
-
-
-@overload
 def allow_variable_clip(
     function: None = None,
     width: int | None = None, height: int | None = None, format: int | HoldsVideoFormatT | None = None,
@@ -379,7 +282,7 @@ def allow_variable_clip(
             Callable[
                 [Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]],
                 Callable[Concatenate[vs.VideoNode, P], vs.VideoNode]
-            ], partial(chroma_injector, width=width, height=height, format=format, func=func)
+            ], partial(allow_variable_clip, width=width, height=height, format=format, func=func)
         )
 
     wrapped_function = function
