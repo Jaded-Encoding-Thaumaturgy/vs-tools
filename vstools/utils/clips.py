@@ -289,6 +289,13 @@ class ProcessVariableClip(DynamicClipsCache[T]):
         return self.process(self.normalize(self.clip, key))
 
     @classmethod
+    def from_clip(
+        cls: type[ProcVarClipSelf],
+        clip: vs.VideoNode
+    ) -> vs.VideoNode:
+        return cls(clip).eval_clip()
+
+    @classmethod
     def from_func(
         cls: type[ProcVarClipSelf],
         clip: vs.VideoNode,
