@@ -283,6 +283,12 @@ class ProcessVariableClip(DynamicClipsCache[T]):
         self.clip, self.out = clip, clip.std.BlankClip(**bk_args)
 
     def eval_clip(self) -> vs.VideoNode:
+        if self.out.format and (0 not in (self.out.width, self.out.height)):
+            try:
+                return self.get_clip(self.get_key(self.clip))  # type: ignore
+            except Exception:
+                ...
+
         return self.out.std.FrameEval(lambda n, f: self[self.get_key(f)], self.clip)
 
     def get_clip(self, key: T) -> vs.VideoNode:
