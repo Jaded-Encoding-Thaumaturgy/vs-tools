@@ -322,7 +322,7 @@ class ProcessVariableClip(DynamicClipsCache[T]):
         raise NotImplementedError
 
     def process(self, clip: vs.VideoNode) -> vs.VideoNode:
-        raise NotImplementedError
+        return clip
 
 
 ProcVarClipSelf = TypeVar('ProcVarClipSelf', bound=ProcessVariableClip)  # type: ignore
