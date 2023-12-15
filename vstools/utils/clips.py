@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import inspect
 from functools import partial, wraps
-from typing import Any, Callable, cast, overload
+from typing import Any, Callable, Literal, TypeVar, cast, overload
 
-from stgpytools import CustomValueError, FuncExceptT, fallback
+from stgpytools import CustomValueError, FuncExceptT, KwargsT, T, fallback
 
 from ..enums import (
     ChromaLocation, ChromaLocationT, ColorRange, ColorRangeT, FieldBased, FieldBasedT, Matrix, MatrixT, Primaries,
@@ -13,13 +13,19 @@ from ..enums import (
 from ..functions import DitherType, check_variable, depth
 from ..types import F_VD, HoldsVideoFormatT, VideoFormatT
 from . import vs_proxy as vs
+from .cache import DynamicClipsCache
 from .scale import scale_8bit
 
 __all__ = [
     'finalize_clip',
     'finalize_output',
     'initialize_clip',
-    'initialize_input'
+    'initialize_input',
+
+    'ProcessVariableClip',
+    'ProcessVariableResClip',
+    'ProcessVariableFormatClip',
+    'ProcessVariableResFormatClip'
 ]
 
 
@@ -242,3 +248,92 @@ def initialize_input(
         )
 
     return cast(F_VD, _wrapper)
+
+
+class ProcessVariableClip(DynamicClipsCache[T]):
+    def __init__(
+        self, clip: vs.VideoNode,
+        out_dim: tuple[int, int] | Literal[False] | None = None,
+        out_fmt: int | vs.VideoFormat | Literal[False] | None = None,
+        cache_size: int = 10
+    ) -> None:
+        bk_args = KwargsT(length=clip.num_frames, keep=True)
+
+        if out_dim is None:
+            out_dim = (clip.width, clip.height)
+
+        if out_fmt is None:
+            out_fmt = clip.format or False
+
+        if out_dim is not False and 0 in out_dim:
+            out_dim = False
+
+        if out_dim is False:
+            bk_args.update(width=8, height=8, varsize=True)
+        else:
+            bk_args.update(width=out_dim[0], height=out_dim[1])
+
+        if out_fmt is False:
+            bk_args.update(format=vs.GRAY8, varformat=True)
+        else:
+            bk_args.update(format=out_fmt)  # type: ignore
+
+        super().__init__(cache_size)
+
+        self.clip, self.out = clip, clip.std.BlankClip(**bk_args)
+
+    def eval_clip(self) -> vs.VideoNode:
+        return self.out.std.FrameEval(lambda n, f: self[self.get_key(f)], self.clip)
+
+    def get_clip(self, key: T) -> vs.VideoNode:
+        return self.process(self.normalize(self.clip, key))
+
+    @classmethod
+    def from_func(
+        cls: type[ProcVarClipSelf],
+        clip: vs.VideoNode,
+        func: Callable[[vs.VideoNode], vs.VideoNode],
+        out_dim: tuple[int, int] | Literal[False] | None = None,
+        out_fmt: int | vs.VideoFormat | Literal[False] | None = None,
+        cache_size: int = 10
+    ) -> vs.VideoNode:
+        class _inner(cls):  # type: ignore
+            process = staticmethod(func)
+
+        return _inner(clip, out_dim, out_fmt, cache_size).eval_clip()  # type: ignore
+
+    def get_key(self, frame: vs.VideoFrame) -> T:
+        raise NotImplementedError
+
+    def normalize(self, clip: vs.VideoNode, cast_to: T) -> vs.VideoNode:
+        raise NotImplementedError
+
+    def process(self, clip: vs.VideoNode) -> vs.VideoNode:
+        raise NotImplementedError
+
+
+ProcVarClipSelf = TypeVar('ProcVarClipSelf', bound=ProcessVariableClip)  # type: ignore
+
+
+class ProcessVariableResClip(ProcessVariableClip[tuple[int, int]]):
+    def get_key(self, frame: vs.VideoFrame) -> tuple[int, int]:
+        return (frame.width, frame.height)
+
+    def normalize(self, clip: vs.VideoNode, cast_to: tuple[int, int]) -> vs.VideoNode:
+        return clip.resize.Point(*cast_to)
+
+
+class ProcessVariableFormatClip(ProcessVariableClip[vs.VideoFormat]):
+    def get_key(self, frame: vs.VideoFrame) -> vs.VideoFormat:
+        return frame.format
+
+    def normalize(self, clip: vs.VideoNode, cast_to: vs.VideoFormat) -> vs.VideoNode:
+        return clip.resize.Point(format=cast_to)  # type: ignore
+
+
+class ProcessVariableResFormatClip(ProcessVariableClip[tuple[int, int, vs.VideoFormat]]):
+    def get_key(self, frame: vs.VideoFrame) -> tuple[int, int, vs.VideoFormat]:
+        return (frame.width, frame.height, frame.format)
+
+    def normalize(self, clip: vs.VideoNode, cast_to: tuple[int, int, vs.VideoFormat]) -> vs.VideoNode:
+        return clip.resize.Point(*cast_to)  # type: ignore
