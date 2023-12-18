@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fractions import Fraction
 from math import gcd as max_common_div
-from typing import Callable, Iterable, Literal, NamedTuple, overload
+from typing import Callable, Iterable, Literal, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
 from stgpytools import Coordinate, CustomIntEnum, CustomStrEnum, Position, Sentinel, Size
@@ -50,17 +50,23 @@ class Direction(CustomIntEnum):
 
 class Dar(Fraction):
     @overload
-    @staticmethod
-    def from_size(width: int, height: int, sar: Sar | bool = True, /) -> Dar:
+    @classmethod
+    def from_size(cls: type[DarSelf], width: int, height: int, sar: Sar | bool = True, /) -> DarSelf:
         ...
 
     @overload
-    @staticmethod
-    def from_size(clip: vs.VideoNode, sar: Sar | bool = True, /) -> Dar:
+    @classmethod
+    def from_size(cls: type[DarSelf], clip: vs.VideoNode, sar: Sar | bool = True, /) -> DarSelf:
         ...
 
-    @staticmethod
-    def from_size(clip_width: vs.VideoNode | int, _height: int | Sar | bool = True, _sar: Sar | bool = True, /) -> Dar:
+    @classmethod
+    def from_size(
+        cls: type[DarSelf],
+        clip_width: vs.VideoNode | int,
+        _height: int | Sar | bool = True,
+        _sar: Sar | bool = True,
+        /,
+    ) -> DarSelf:
         width: int
         height: int
         sar: Sar | Literal[False]
@@ -78,10 +84,13 @@ class Dar(Fraction):
         if sar is False:
             sar = Sar(1, 1)
 
-        return Dar(width // gcd * sar.numerator, height // gcd * sar.denominator)
+        return cls(Dar(width // gcd * sar.numerator, height // gcd * sar.denominator))
 
     def to_sar(self, height: int, active_area: float) -> Sar:
         return Sar.from_dar(self, height, active_area)
+
+
+DarSelf = TypeVar('DarSelf', bound=Dar)
 
 
 class Sar(Fraction):
@@ -98,12 +107,12 @@ class Sar(Fraction):
 
         return Sar(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))  # type: ignore
 
-    @staticmethod
-    def from_ar(den: int, num: int, height: int, active_area: float) -> Sar:
-        return Dar(den, num).to_sar(height, active_area)
+    @classmethod
+    def from_ar(cls: type[SarSelf], den: int, num: int, height: int, active_area: float) -> SarSelf:
+        return cls(Dar(den, num).to_sar(height, active_area))
 
-    @staticmethod
-    def from_dar(dar: Dar, height: int, active_area: float) -> Sar:
+    @classmethod
+    def from_dar(cls: type[SarSelf], dar: Dar, height: int, active_area: float) -> SarSelf:
         sar_n, sar_d = dar.numerator * height, dar.denominator * active_area
 
         if isinstance(active_area, float):
@@ -111,10 +120,13 @@ class Sar(Fraction):
 
         gcd = max_common_div(sar_n, sar_d)
 
-        return Sar(sar_n // gcd, sar_d // gcd)
+        return cls(sar_n // gcd, sar_d // gcd)
 
     def apply(self, clip: vs.VideoNode) -> vs.VideoNode:
         return clip.std.SetFrameProps(_SARNum=self.numerator, _SARDen=self.denominator)
+
+
+SarSelf = TypeVar('SarSelf', bound=Sar)
 
 
 class Region(CustomStrEnum):
