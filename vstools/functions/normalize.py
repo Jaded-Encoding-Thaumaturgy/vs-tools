@@ -139,7 +139,7 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
 
 def invert_ranges(
-    clip_a: vs.VideoNode, clip_b: vs.VideoNode | None, ranges: FrameRangeN | FrameRangesN
+    clipa: vs.VideoNode, clipb: vs.VideoNode | None, ranges: FrameRangeN | FrameRangesN
 ) -> list[tuple[int, int]]:
     """
     Invert FrameRanges.
@@ -152,12 +152,12 @@ def invert_ranges(
         >>> invert_ranges(core.std.BlankClip(length=10000), core.std.BlankClip(length=10000), franges)
         [(0, 99), (201, 599), (601, 1199), (2401, 9999)]
 
-    :param clip_a:          Original clip.
-    :param clip_b:          Replacement clip.
-    :param ranges:          Ranges to replace clip_a (original clip) with clip_b (replacement clip).
-                            These ranges will be inverted. For more info, see `replace_ranges`.
+    :param clipa:          Original clip.
+    :param clipb:          Replacement clip.
+    :param ranges:         Ranges to replace clipa (original clip) with clipb (replacement clip).
+                           These ranges will be inverted. For more info, see `replace_ranges`.
 
     :return:                A list of inverted frame ranges.
     """
 
-    return stg_invert_ranges(ranges, clip_a.num_frames, None if clip_b is None else clip_b.num_frames)
+    return stg_invert_ranges(ranges, clipa.num_frames, None if clipb is None else clipb.num_frames)

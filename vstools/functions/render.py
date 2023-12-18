@@ -304,19 +304,19 @@ def prop_compare_cb(
         )
         if return_frame_n:
             # no-fmt
-            def callback(n, f): return Sentinel.check(n, not not f[0][0, 0])  # noqa
+            callback = lambda n, f: Sentinel.check(n, not not f[0][0, 0])  # noqa
         else:
             # no-fmt
-            def callback(n, f): return not not f[0][0, 0]  # noqa
+            callback = lambda n, f: not not f[0][0, 0]  # noqa
     else:
         _op = _operators[op] if isinstance(op, str) else op
 
         if return_frame_n:
             # no-fmt
-            def callback(n, f): return Sentinel.check(n, _op(f.props[prop], ref))  # type: ignore  # noqa
+            callback = lambda n, f: Sentinel.check(n, _op(f.props[prop], ref))  # type: ignore  # noqa
         else:
             # no-fmt
-            def callback(n, f): return _op(f.props[prop], ref)  # type: ignore  # noqa
+            callback = lambda n, f: _op(f.props[prop], ref)  # type: ignore  # noqa
 
     return src, callback  # type: ignore
 
