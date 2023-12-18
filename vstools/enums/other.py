@@ -74,7 +74,7 @@ class Dar(Fraction):
         if isinstance(clip_width, vs.VideoNode):
             from ..functions import check_variable_resolution
 
-            assert check_variable_resolution(clip_width, cls.from_size)  # type:ignore
+            check_variable_resolution(clip_width, cls.from_size)  # type:ignore
 
             width, height, sar = clip_width.width, clip_width.height, _height  # type: ignore
 
