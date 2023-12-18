@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 
-def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
+def change_fps(clip: vs.VideoNode, fps: Fraction | tuple[int, int]) -> vs.VideoNode:
     """
     Convert the framerate of a clip.
 
@@ -31,12 +31,16 @@ def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
     the framerate of a clip, not simply set one.
 
     :param clip:        Input clip.
-    :param fps:         Framerate to convert the clip to. Must be a Fration.
+    :param fps:         Framerate to convert the clip to. Must be a Fraction or tuple of integers.
 
     :return:            Clip with the framerate converted and frames adjusted as necessary.
     """
 
     src_num, src_den = clip.fps_num, clip.fps_den
+
+    if isinstance(fps, tuple):
+        fps = Fraction(*fps)
+
     dest_num, dest_den = fps.as_integer_ratio()
 
     if (dest_num, dest_den) == (src_num, src_den):
