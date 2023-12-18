@@ -72,6 +72,10 @@ class Dar(Fraction):
         sar: Sar | Literal[False]
 
         if isinstance(clip_width, vs.VideoNode):
+            from ..functions.check import check_variable_resolution
+
+            check_variable_resolution(clip_width, cls.from_size)  # type:ignore
+
             width, height, sar = clip_width.width, clip_width.height, _height  # type: ignore
 
             if sar is True:
