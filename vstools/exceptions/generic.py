@@ -135,13 +135,15 @@ class InvalidColorFamilyError(CustomValueError):
         """
         Check whether the given values are correct, and if not, throw this exception.
 
+        :param to_check:                    Value to check. Must be either a ColorFamily value,
+                                            or a value a ColorFamily can be derived from such as VideoFormat.
+        :param correct:                     A correct value or an array of correct color families.
         :param func:                        Function returned for custom error handling.
                                             This should only be set by VS package developers.
-        :param to_check:                    Value to check. Must be either a VideoFormat, a VideoNode
-                                            that holds the correct color family, or a ColorFamily object.
-        :param correct:                     A correct value or an array of correct values.
         :param message:                     Message to print when throwing the exception.
-        :param kwargs:                      Kwargs to pass on to the exception.
+                                            The message will be formatted to display the correct and wrong values
+                                            (`{correct}` and `{wrong}` respectively).
+        :param kwargs:                      Keyword arguments to pass on to the exception.
 
         :raises InvalidColorFamilyError:    Given color family is not in list of correct color families.
         """
@@ -382,12 +384,14 @@ class InvalidFramerateError(CustomValueError):
         """
         Check whether the given values are correct, and if not, throw this exception.
 
-        :param func:                    Function returned for custom error handling.
-                                        This should only be set by VS package developers.
         :param to_check:                Value to check. Must be either a VideoNode holding the correct framerate,
                                         a Fraction, a tuple representing a fraction, or a float.
         :param correct:                 A correct value or an array of correct values.
+        :param func:                    Function returned for custom error handling.
+                                        This should only be set by VS package developers.
         :param message:                 Message to print when throwing the exception.
+                                        The message will be formatted to display the correct and wrong values
+                                        (`{correct}` and `{wrong}` respectively).
         :param kwargs:                  Keyword arguments to pass on to the exception.
 
         :raises InvalidFramerateError:  Given framerate is not in list of correct framerates.
@@ -425,12 +429,14 @@ class InvalidTimecodeVersionError(CustomValueError):
         """
         Check whether the given values are correct, and if not, throw this exception.
 
-        :param func:                            Function returned for custom error handling.
-                                                This should only be set by VS package developers.
         :param to_check:                        Value to check. Must be an integer representing the timecodes version.
         :param correct:                         A correct value or an array of correct values.
                                                 Defaults to [1, 2] (V1, V2).
+        :param func:                            Function returned for custom error handling.
+                                                This should only be set by VS package developers.
         :param message:                         Message to print when throwing the exception.
+                                                The message will be formatted to display the correct and wrong values
+                                                (`{correct}` and `{wrong}` respectively).
         :param kwargs:                          Keyword arguments to pass on to the exception.
 
         :raises InvalidTimecodeVersionError:    Given timecodes version is not in list of correct versions.

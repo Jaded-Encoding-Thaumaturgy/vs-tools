@@ -60,7 +60,7 @@ def get_prop(
     """
     Get FrameProp ``prop`` from frame ``frame`` with expected type ``t`` to satisfy the type checker.
 
-    :param frame:               Frame containing props.
+    :param obj:                 Clip or frame containing props.
     :param key:                 Prop to get.
     :param t:                   type of prop.
     :param cast:                Cast value to this type, if specified.

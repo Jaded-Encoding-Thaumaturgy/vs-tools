@@ -66,19 +66,19 @@ def clip_async_render(
     It's highly recommended to perform as little filtering as possible on the input clip for speed purposes.
 
     :param clip:            Clip to render.
-    :param outfile:         Optional binary output to write. @@EXPAND@@
-    :param progress:        @@PLACEHOLDER@@
+    :param outfile:         Optional binary output to write.
+    :param progress:        A message to display during rendering. This is shown alongside the progress.
     :param callback:        Callback function. Must accept `n` and `f` (like a frameeval would) and return some value.
                             This function is used to determine what information gets returned per frame.
                             Default: None.
-    :param prefetch:        The amount of frames to render concurrently. 0 means automatically determine.
+    :param prefetch:        The amount of frames to prefetch. 0 means automatically determine.
                             Default: 0.
-    :param backlog:         @@PLACEHOLDER@@
+    :param backlog:         How many frames to hold. Useful for if your write of callback is slower
+                            than your frame rendering.
     :param y4m:             Whether to add YUV4MPEG2 headers to the rendered output. If None, automatically determine.
                             Default: None.
-    :param async_requests:  Whether to make async requests. This may create rendering inconsistencies.
-                            @@FACTCHECK (I remember hearing about frames getting called in the wrong order
-                            being a thing)@@
+    :param async_requests:  Whether to render frames non-consecutively.
+                            If int, determines the number of requests.
                             Default: False.
     """
 
@@ -348,19 +348,23 @@ def find_prop(
 
     .. code-block:: python
 
-        # Compare a clip with its descaled -> reupscaled clip for diff values exceeding 0.035.
-        >>> find_prop(clip, descaled_up, 'PlaneStatsDiff', '>', 0.035)
+        # Return a list of all frames that were marked as combed.
+        >>> find_prop(clip, "_Combed", None, True, 0)
 
     :param src:                 Input clip.
     :param prop:                Frame prop to perform checks on.
     :param op:                  Conditional operator to apply between prop and ref ("<", "<=", "==", "!=", ">" or ">=").
+                                If None, check whether a prop is truthy.
     :param ref:                 Value to be compared with prop.
-    :param name:                Output file name.
     :param range_length:        Amount of frames to finish a sequence, to avoid false negatives.
                                 This will create ranges with a sequence of start-end tuples.
+    :param async_requests:      Whether to render frames non-consecutively.
+                                If int, determines the number of requests.
+                                Default: 1.
 
     :return:                    Frame ranges at the specified conditions.
     """
+
     prop_src, callback = prop_compare_cb(src, prop, op, ref, True)
 
     aconf = AsyncRenderConf(async_requests, (prop_src.width, prop_src.height) == (1, 1), False)
@@ -386,16 +390,17 @@ def find_prop_rfs(
     .. code-block:: python
 
         # Replace a rescaled clip with the original clip for frames where the error
-        # (defined on another clip) is equal to or greater than 0.02.
-        >>> find_prop_rfs(scaled, src, 'PlaneStatsAverage', '>=', 0.02, err_clip)
+        # (defined on another clip) is equal to or greater than 0.025.
+        >>> find_prop_rfs(scaled, src, 'PlaneStatsAverage', '>=', 0.025, err_clip)
 
     :param clip_a:          Original clip.
     :param clip_b:          Replacement clip.
     :param prop:            Frame prop to perform checks on.
     :param op:              Conditional operator to apply between prop and ref ("<", "<=", "==", "!=", ">" or ">=").
+                            If None, check whether a prop is truthy. Default: None.
     :param prop_ref:        Value to be compared with prop.
-    :param ref:             Optional reference clip to read frame properties from.
-    :param mismatch:        Accept format or resolution mismatch between clips.
+    :param ref:             Optional reference clip to read frame properties from. Default: None.
+    :param mismatch:        Accept format or resolution mismatch between clips. Default: False.
 
     :return:                Clip where frames that meet the specified criteria were replaced with a different clip.
     """

@@ -167,7 +167,7 @@ class FieldBased(_FieldBasedMeta):
 
         :param src:                             Input clip, frame, or props.
         :param strict:                          Be strict about the properties.
-                                                Will ALWAYS error if the FieldBased is UNKNOWN.
+                                                Will ALWAYS error if the FieldBased is missing.
 
         :return:                                FieldBased object.
 

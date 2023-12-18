@@ -29,7 +29,7 @@ def shift_clip(clip: vs.VideoNode, offset: int) -> vs.VideoNode:
                             Positive values will shift a clip forward,
                             negative will shift a clip backward.
 
-    :returns:               Clip that has been shifted forwards or backwards by *N* frames.
+    :return:                Clip that has been shifted forwards or backwards by *N* frames.
     """
 
     if offset > clip.num_frames - 1:

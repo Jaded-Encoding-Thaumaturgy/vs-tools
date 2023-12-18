@@ -72,7 +72,16 @@ def video_heuristics(
 
 
 def video_resample_heuristics(clip: vs.VideoNode, kwargs: KwargsT | None = None, **fmt_kwargs: Any) -> KwargsT:
-    """Get a kwargs object for a video's heuristics to pass to video plugins."""
+    """
+    Get a kwargs object for a video's heuristics to pass to the resize plugin or Kernel.resample.
+
+    :param clip:            Clip to derive the heuristics from.
+    :param kwargs:          Keyword arguments for the _out parameters.
+    :param fmt_kwargs:      Keyword arguments to pass to the output kwargs.
+                            These will override any heuristics that were derived from the input clip!
+
+    :return:                Keyword arguments to pass on to the resize plugin or Kernel.resample.
+    """
     assert clip.format
 
     video_fmt = clip.format.replace(**fmt_kwargs)

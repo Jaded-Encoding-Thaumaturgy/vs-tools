@@ -89,7 +89,17 @@ class PropEnum(CustomIntEnum):
         src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
         strict: bool = False, func_except: FuncExceptT | None = None
     ) -> SelfPropEnum:
-        """Get the enum member from its int representation or the frame properties."""
+        """
+        Get the enum member from a value that can be casted to this prop value
+        or grab it from frame properties.
+
+        If `strict=False`, gather the heuristics using the clip's size or format.
+
+        :param value:           Value to cast.
+        :param src:             Clip to get prop from.
+        :param strict:          Be strict about the frame properties. Default: False.
+        :param func_except:     Function returned for custom error handling.
+        """
         value = cls.from_param(value, func_except)
 
         if value is not None:
@@ -135,7 +145,7 @@ class PropEnum(CustomIntEnum):
 
     @classmethod
     def is_valid(cls, value: int) -> bool:
-        """Check if the given value is valid."""
+        """Check if the given value is a valid int value of this enum."""
         return value in map(int, cls.__members__.values())
 
 
@@ -201,7 +211,6 @@ if TYPE_CHECKING:
 
             :param value:           Value or Matrix object.
             :param func_except:     Function returned for custom error handling.
-                                    This should only be set by VS package developers.
 
             :return:                Matrix object or None.
             """

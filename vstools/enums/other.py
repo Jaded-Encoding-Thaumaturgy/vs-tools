@@ -59,28 +59,34 @@ class Dar(Fraction):
     @overload
     @staticmethod
     def from_size(width: int, height: int, sar: Sar | bool = True, /) -> Dar:
+        """
+        Get the Display Aspect Ratio from the clip's dimensions or Sample Aspect Ratio (SAR).
+
+        :param width:               The width of the display.
+        :param height:              The height of the display.
+        :param sar:                 The SAR of the pixels. Only used if `clip_width` is an integer.
+                                    Can be either a SAR object or a boolean. If False, assume 1/1 (square pixel).
+
+        :return:                    DAR object representing the aspect ratio of the display based on heuristics.
+        """
         ...
 
     @overload
     @staticmethod
     def from_size(clip: vs.VideoNode, sar: Sar | bool = True, /) -> Dar:
-        ...
-
-    @staticmethod
-    def from_size(clip_width: vs.VideoNode | int, _height: int | Sar | bool = True, _sar: Sar | bool = True, /) -> Dar:
         """
-        Get the Display Aspect Ratio from the clip's dimensions or Sample Aspect Ratio (SAR).
+        Get the Display Aspect Ratio from the clip's Sample Aspect Ratio (SAR).
 
-        :param clip_width:          The width of the display. This can either be a VideoNode
-                                    holding this information or the width as an integer.
-        :param _height:             The height of the display. Can be either an integer or a SAR object.
-                                    If True, will create a SAR object from the ``clip_width``.
-                                    If False, assume a SAR of 1/1 (square pixel).
-        :param _sar:                The SAR of the pixels. Only used if `clip_width` is an integer.
+        :param clip=:               The clip to get the dimensions from.
+        :param sar:                 The SAR of the pixels. Only used if `clip_width` is an integer.
                                     Can be either a SAR object or a boolean. If False, assume 1/1 (square pixel).
 
         :return:                    DAR object representing the aspect ratio of the display based on heuristics.
         """
+        ...
+
+    @staticmethod
+    def from_size(clip_width: vs.VideoNode | int, _height: int | Sar | bool = True, _sar: Sar | bool = True, /) -> Dar:
         width: int
         height: int
         sar: Sar | Literal[False]
@@ -130,7 +136,7 @@ class Sar(Fraction):
         """
         Get the SAR from the clip's frame properties.
 
-        :param clip:        Clip that holds the frame properties.
+        :param clip:        Clip or frame that holds the frame properties.
 
         :return:            A SAR object of the SAR properties from the given clip.
         """
@@ -148,9 +154,9 @@ class Sar(Fraction):
     @staticmethod
     def from_ar(den: int, num: int, height: int, active_area: float) -> Sar:
         """
-        Calculate the SAR from the given aspect ratio and active image area.
+        Calculate the SAR from the given display aspect ratio and active image area.
 
-        This is most useful for displaying the correct dimensions of anamorphic content.
+        This method is used to obtain metadata to set in the video container for anamorphic video.
         To get a ballpark estimation of the image's active area, subtract the number of
         faded pixels from the base width of the image.
 
@@ -179,7 +185,7 @@ class Sar(Fraction):
         return Sar(sar_n // gcd, sar_d // gcd)
 
     def apply(self, clip: vs.VideoNode) -> vs.VideoNode:
-        """Apply the SAR vlues as _SARNum and _SARDen frame properties to a clip."""
+        """Apply the SAR values as _SARNum and _SARDen frame properties to a clip."""
         return clip.std.SetFrameProps(_SARNum=self.numerator, _SARDen=self.denominator)
 
 
@@ -285,10 +291,10 @@ class SceneChangeMode(CustomIntEnum):
     """Get the scene changes using the vapoursynth-scxvid plugin <https://github.com/dubhater/vapoursynth-scxvid>."""
 
     WWXD_SCXVID_UNION = 3  # WWXD | SCXVID
-    """Only get the scene changes if both wwxd and scxvid mark a frame as being a scene change."""
+    """Get every scene change detected by both wwxd or scxvid."""
 
     WWXD_SCXVID_INTERSECTION = 0  # WWXD & SCXVID
-    """Get every scene change detected by both wwxd or scxvid."""
+    """Only get the scene changes if both wwxd and scxvid mark a frame as being a scene change."""
 
     @property
     def is_WWXD(self) -> bool:
@@ -309,7 +315,7 @@ class SceneChangeMode(CustomIntEnum):
         )
 
     def ensure_presence(self, clip: vs.VideoNode, akarin: bool | None = None) -> vs.VideoNode:
-        """Ensure all the relevant plugins are installed and the frame properties have been created."""
+        """Ensures all the frame properties necessary for scene change detection are created."""
         from ..exceptions import CustomRuntimeError
         from ..utils import merge_clip_props
 
@@ -385,14 +391,15 @@ class SceneChangeMode(CustomIntEnum):
         """
         Prepare a clip for scene change metric calculations.
 
-        The clip will always be resampled to YUV420 8bit if it's not already.
+        The clip will always be resampled to YUV420 8bit if it's not already,
+        as that's what the plugins support.
 
         :param clip:        Clip to process.
         :param height:      Output height of the clip. Smaller frame sizes are faster to process,
                             but may miss more scene changes or introduce more false positives.
                             Width is automatically calculated. `None` means no resizing operation is performed.
                             Default: 360.
-        :param akarin:      Use the akarin plugin if it's available. `None` means it will check if its available,
+        :param akarin:      Use the akarin plugin for speed optimizations. `None` means it will check if its available,
                             and if it is, use it. Default: None.
 
         :return:            A prepared clip for performing scene change metric calculations on.

@@ -54,12 +54,20 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         :param func:            Function returned for custom error handling.
                                 This should only be set by VS package developers.
         :param planes:          Planes that get processed in the function. Default: All planes.
-        :param color_family:    Accepted color families. Default: All families.
+        :param color_family:    Accepted color families. If the input does not adhere to these,
+                                it will be converted automatically. Additionaly, if `planes=0`,
+                                it will extract the luma for processing, and merge back the chroma planes
+                                in `return_clip`. If the input clip is RGB and `planes=0`, it will be
+                                converted to YUV and back again to retrieve the luma plane.
+                                Default: All families.
         :param bitdepth:        The bitdepth or range of bitdepths to work from.
-                                Automatically converts the work clip to the highest bitdepth of the range,
-                                and returns the clip with the original bitdepth in `return_clip`.
+                                Automatically converts the work clip to the highest bitdepth of the range
+                                if `strict=False`, and returns the clip with the original bitdepth in `return_clip`.
                                 Default: input bitdepth.
-        :param strict:          Be strict about the frame properties. Default: False.
+        :param strict:          Be strict about the input clip's properties.
+                                If True, the input clip must adhere to the given number of planes,
+                                the color family, and the bitdepth. If False, all these properties
+                                will be applied as necessary. Default: False.
         :param matrix:          Color Matrix to work in. Used for YUV <-> RGB conversions.
                                 Default: Get matrix from the input clip.
         :param range_in:        Color Range to work in. Used for bitdepth conversions.
@@ -187,18 +195,24 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @property
     def chroma_only(self) -> bool:
-        """Whether all chroma planes get processed."""
+        """Whether only chroma planes get processed."""
 
         return self == [1, 2]
 
     @property
     def chroma_pplanes(self) -> list[int]:
-        """A list of which chroma planes get processed."""
+        """
+        A list of which chroma planes get processed based on the work clip.
+
+        This means that if you pass [0, 1, 2] but passed a GRAY clip, it will only return [0].
+        Similarly, if you pass GRAY and it gets converted to RGB, this will return [0, 1, 2].
+        """
 
         return list({*self} - {0})
 
     def normalize_planes(self, planes: PlanesT) -> list[int]:
         """Normalize the given sequence of planes."""
+
         return normalize_planes(self.work_clip, planes)
 
     def with_planes(self, planes: PlanesT) -> list[int]:
@@ -209,8 +223,8 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
         """
-        Convert the processed clip back to the original clip's format and merge back chroma if necessary.
-        If `bitdepth != None`, it will also dither back to the original bitdepth.
+        Merge back the chroma if necessary and convert the processed clip back to the original clip's format.
+        If `bitdepth != None`, the bitdepth will also be converted if necessary.
 
         :param processed:       The clip with all the processing applied to it.
 

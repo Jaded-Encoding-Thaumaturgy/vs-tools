@@ -94,7 +94,15 @@ def flatten(items: Any) -> Any:
 def flatten_vnodes(
     *clips: VideoNodeIterable | tuple[VideoNodeIterable, ...], split_planes: bool = False
 ) -> list[vs.VideoNode]:
-    """Flatten a single or multiple video nodes into their individual planes."""
+    """
+    Flatten an array of VideoNodes.
+
+    :param clips:           An array of clips to flatten into a list.
+    :param split_planes:    Optionally split the VideoNodes into their individual planes as well.
+                            Default: False.
+
+    :return:                Flattened list of VideoNodes.
+    """
 
     from .utils import split
 

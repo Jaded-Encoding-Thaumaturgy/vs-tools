@@ -60,7 +60,7 @@ class Timecodes(list[Timecode]):
     V2 = 2
 
     def to_fractions(self) -> list[Fraction]:
-        """Convert to a list of Fractions, representing the individual framerates."""
+        """Convert to a list of frame lengths, representing the individual framerates."""
         return list(
             Fraction(x.numerator, x.denominator)
             for x in self
@@ -147,7 +147,7 @@ class Timecodes(list[Timecode]):
         Get the timecodes from a given clip.
 
         :param clip:        Clip to gather metrics from.
-        :param kwargs:      kwargs to pass on to `clip_async_render`.
+        :param kwargs:      Keyword arguments to pass on to `clip_async_render`.
         """
         if hasattr(vs.core, 'akarin'):
             prop_clip = clip.std.BlankClip(2, 1, vs.GRAY16, keep=True).std.CopyFrameProps(clip)

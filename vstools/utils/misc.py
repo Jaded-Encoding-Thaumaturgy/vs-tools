@@ -65,9 +65,7 @@ def match_clip(
     :param clip:            Original clip.
     :param ref:             Reference clip.
     :param dimensions:      Whether to adjust the dimensions of the reference clip to match the original clip.
-                            If True, uses resize.Bicubic to resize the image.
-                            @@NOTE: should we automatically adjust this to lanczos/hermite?)@@
-                            Default: True.
+                            If True, uses resize.Bicubic to resize the image. Default: True.
     :param vformat:         Whether to change the reference clip's format to match the original clip's.
                             Default: True.
     :param matrices:        Whether to adjust the Matrix, Transfer, and Primaries of the reference clip
@@ -150,7 +148,7 @@ class _padder:
         :param top:         Padding added to the top side of the clip.
         :param bottom:      Padding added to the bottom side of the clip.
 
-        :return:            Clip with padded borders that reflect the original clip.
+        :return:            Padded clip with reflected borders.
         """
 
         from ..utils import core
@@ -181,7 +179,7 @@ class _padder:
         :param top:         Padding added to the top side of the clip.
         :param bottom:      Padding added to the bottom side of the clip.
 
-        :return:            Clip with padded borders that repeat the last row/column of the original clip.
+        :return:            Padded clip with repeated borders.
         """
 
         *_, fmt, w_sub, h_sub = self._base(clip, left, right, top, bottom)
@@ -236,7 +234,7 @@ class _padder:
         .. code-block:: python
 
             >>> |ABCDE
-            >>> padder.COLOR(left=3)
+            >>> padder.COLOR(left=3, color=Z)
             >>> ZZZ|ABCDE
 
         :param clip:        Input clip.
@@ -250,7 +248,7 @@ class _padder:
                                 * True: Highest value for this clip format and color range.
                                 * None: Neutral value for this clip format.
 
-        :return:            Clip with padded borders that are a constant user-defined color.
+        :return:            Padded clip with colored borders.
         """
 
         from ..utils import get_lowest_values, get_neutral_values, get_peak_values
