@@ -387,14 +387,12 @@ class InvalidTimecodeVersionError(CustomValueError):
         self, func: FuncExceptT, version: int,
         message: SupportsString = '{version} is not a valid timecodes version!', **kwargs: Any
     ) -> None:
-        super().__init__(
-            message, func, version=version, **kwargs  # type: ignore
-        )
+        super().__init__(message, func, version=version, **kwargs)
 
     @staticmethod
     def check(
         func: FuncExceptT, to_check: int, correct: int | Iterable[int] = [1, 2],
-        message: SupportsString = 'Timecodes version be in {correct}, not {wrong}!', **kwargs: Any
+        message: SupportsString = 'Timecodes version must be in {correct}, not {wrong}!', **kwargs: Any
     ) -> None:
         """
         Check whether the given values are correct, and if not, throw this exception.
