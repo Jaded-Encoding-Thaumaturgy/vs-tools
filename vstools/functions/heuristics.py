@@ -32,6 +32,9 @@ def video_heuristics(
                         For more information, please refer to the
                         `Resize docs <https://www.vapoursynth.com/doc/functions/video/resize.html>`_.
                         Default: True.
+
+    :return:            A dict containing all the video heuristics that could be determined,
+                        optionally using key names derived from the resize plugin.
     """
 
     props_dict: vs.FrameProps | None
@@ -69,6 +72,7 @@ def video_heuristics(
 
 
 def video_resample_heuristics(clip: vs.VideoNode, kwargs: KwargsT | None = None, **fmt_kwargs: Any) -> KwargsT:
+    """Get a kwargs object for a video's heuristics to pass to video plugins."""
     assert clip.format
 
     video_fmt = clip.format.replace(**fmt_kwargs)

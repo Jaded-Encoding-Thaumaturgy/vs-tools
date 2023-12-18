@@ -97,6 +97,7 @@ class DitherType(CustomStrEnum):
     def apply(
         self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange, range_out: ColorRange
     ) -> vs.VideoNode:
+        """Apply the given DitherType to a clip."""
         from ..utils import get_video_format
 
         assert self != DitherType.AUTO, CustomValueError("Cannot apply AUTO.", self.__class__)
@@ -124,6 +125,7 @@ class DitherType(CustomStrEnum):
 
     @property
     def is_fmtc(self) -> bool:
+        """Whether the DitherType is applied through fmtc."""
         return self in _dither_fmtc_types
 
     @overload
@@ -245,7 +247,10 @@ def depth(
     dither_type: str | DitherType = DitherType.AUTO,
 ) -> vs.VideoNode:
     """
-    A convenience bitdepth conversion function using only internal plugins.
+    A convenience bitdepth conversion function using only internal plugins if possible.
+
+    This uses exclusively internal plugins except for specific dither_types.
+    To check whether your DitherType uses fmtc, use `DitherType.is_fmtc`.
 
     .. code-block:: python
 
@@ -442,16 +447,20 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int, s
     """
     Replace frames of a longer clip with those of a shorter one.
 
-    The insert clip may not go beyond the final frame of the input clip.
+    The insert clip may NOT exceed the final frame of the input clip.
+    This limitation can be circumvented by setting `strict=False`.
 
     :param clip:                Input clip.
     :param insert:              Clip to insert into the input clip.
     :param start_frame:         Frame to start inserting from.
-    :param strict:              Don't throw an error on clip length being too big, rather, cut the clip.
+    :param strict:              Throw an error if the inserted clip exceeds the final frame of the input clip.
+                                If False, truncate the inserted clip instead.
+                                Default: True.
 
     :return:                    Clip with frames replaced by the insert clip.
 
-    :raises CustomValueError:   Insert clip is too long, ``strict=False`` and goes beyond the input clip's final frame.
+    :raises CustomValueError:   Insert clip is too long, ``strict=False``,
+                                and exceeds the final frame of the input clip.
     """
 
     if start_frame == 0:
@@ -468,7 +477,8 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int, s
 
     if strict:
         raise ClipLengthError(
-            'Inserted clip is too long.', insert_clip, {'clip': clip.num_frames, 'diff': insert_diff}
+            'Inserted clip is too long and exceeds the final frame of the input clip.',
+            insert_clip, {'clip': clip.num_frames, 'diff': insert_diff}
         )
 
     return pre + insert[:-insert_diff]
@@ -477,7 +487,7 @@ def insert_clip(clip: vs.VideoNode, /, insert: vs.VideoNode, start_frame: int, s
 @overload
 def join(luma: vs.VideoNode, chroma: vs.VideoNode, family: vs.ColorFamily | None = None) -> vs.VideoNode:
     """
-    Join a list of planes together to form a single RGB clip.
+    Join a list of planes together to form a single YUV clip.
 
     :param luma:        Luma clip, GRAY or YUV.
     :param chroma:      Chroma clip, must be YUV.
@@ -489,7 +499,7 @@ def join(luma: vs.VideoNode, chroma: vs.VideoNode, family: vs.ColorFamily | None
 @overload
 def join(y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, family: Literal[vs.ColorFamily.YUV]) -> vs.VideoNode:
     """
-    Join a list of planes together to form a single RGB clip.
+    Join a list of planes together to form a single YUV clip.
 
     :param y:           Y plane.
     :param u:           U plane.
@@ -504,7 +514,7 @@ def join(
     y: vs.VideoNode, u: vs.VideoNode, v: vs.VideoNode, alpha: vs.VideoNode, family: Literal[vs.ColorFamily.YUV]
 ) -> vs.VideoNode:
     """
-    Join a list of planes together to form a single RGB clip.
+    Join a list of planes together to form a single YUV clip.
 
     :param y:           Y plane.
     :param u:           U plane.

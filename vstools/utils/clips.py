@@ -43,7 +43,8 @@ def finalize_clip(
     :param bits:            Bitdepth to output to.
     :param clamp_tv_range:  Whether to clamp to tv range. If None, decide based on clip properties.
     :param dither_type:     Dithering used for the bitdepth conversion.
-    :param func:            Optional function this was called from.
+    :param func:            Function returned for custom error handling.
+                            This should only be set by VS package developers.
 
     :return:                Dithered down and optionally clamped clip.
     """
@@ -125,8 +126,10 @@ def initialize_clip(
     """
     Initialize a clip with default props.
 
+    It is HIGHLY recommended to always use this function at the beginning of your scripts!
+
     :param clip:            Clip to initialize.
-    :param bits:            Bits to dither to. If None, no dithering is applied.
+    :param bits:            Bitdepth to dither to. If None, no dithering is applied.
     :param matrix:          Matrix property to set. If None, tries to get the Matrix from existing props.
                             If no props are set or Matrix=2, guess from the video resolution.
     :param transfer:        Transfer property to set. If None, tries to get the Transfer from existing props.
@@ -138,12 +141,14 @@ def initialize_clip(
     :param color_range:     ColorRange prop to set. If None, tries to get the ColorRange from existing props.
                             If no props are set, assume Limited Range.
     :param field_based:     FieldBased prop to set. If None, tries to get the FieldBased from existing props.
+                            If no props are set, assume PROGRESSIVE.
     :param strict:          Whether to be strict about existing properties.
                             If True, throws an exception if certain frame properties are not found.
     :param dither_type:     Dithering used for the bitdepth conversion.
-    :param func:            Optional function this was called from.
+    :param func:            Function returned for custom error handling.
+                            This should only be set by VS package developers.
 
-    :return:                Clip with relevant frame properties set, and optionally dithered up to 16 bits.
+    :return:                Clip with relevant frame properties set, and optionally dithered up to 16 bits by default.
     """
 
     func = fallback(func, initialize_clip)  # type: ignore
@@ -244,7 +249,7 @@ def initialize_input(
                 return function(*args, **kwargs2 | {name: initialize_clip(param.default, **init_args)})
 
         raise CustomValueError(
-            'No VideoNode found in positional, keyword nor default arguments!', func or initialize_input
+            'No VideoNode found in positional, keyword, nor default arguments!', func or initialize_input
         )
 
     return cast(F_VD, _wrapper)

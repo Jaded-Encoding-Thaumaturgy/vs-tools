@@ -132,6 +132,19 @@ class InvalidColorFamilyError(CustomValueError):
         func: FuncExceptT | None = None, message: SupportsString | None = None,
         **kwargs: Any
     ) -> None:
+        """
+        Check whether the given values are correct, and if not, throw this exception.
+
+        :param func:                        Function returned for custom error handling.
+                                            This should only be set by VS package developers.
+        :param to_check:                    Value to check. Must be either a VideoFormat, a VideoNode
+                                            that holds the correct color family, or a ColorFamily object.
+        :param correct:                     A correct value or an array of correct values.
+        :param message:                     Message to print when throwing the exception.
+        :param kwargs:                      Kwargs to pass on to the exception.
+
+        :raises InvalidColorFamilyError:    Given color family is not in list of correct color families.
+        """
         from ..functions import to_arr
         from ..utils import get_color_family
 
@@ -366,6 +379,19 @@ class InvalidFramerateError(CustomValueError):
             vs.VideoNode | Fraction | tuple[int, int] | float
         ], message: SupportsString = 'Input clip must have {correct} framerate, not {wrong}!', **kwargs: Any
     ) -> None:
+        """
+        Check whether the given values are correct, and if not, throw this exception.
+
+        :param func:                    Function returned for custom error handling.
+                                        This should only be set by VS package developers.
+        :param to_check:                Value to check. Must be either a VideoNode holding the correct framerate,
+                                        a Fraction, a tuple representing a fraction, or a float.
+        :param correct:                 A correct value or an array of correct values.
+        :param message:                 Message to print when throwing the exception.
+        :param kwargs:                  Keyword arguments to pass on to the exception.
+
+        :raises InvalidFramerateError:  Given framerate is not in list of correct framerates.
+        """
         from ..functions import to_arr
         from ..utils import get_framerate
 

@@ -200,7 +200,8 @@ if TYPE_CHECKING:
             Determine the Matrix through a parameter.
 
             :param value:           Value or Matrix object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                Matrix object or None.
             """
@@ -244,7 +245,8 @@ if TYPE_CHECKING:
             Determine the Transfer through a parameter.
 
             :param value:           Value or Transfer object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                Transfer object or None.
             """
@@ -288,7 +290,8 @@ if TYPE_CHECKING:
             Determine the Primaries through a parameter.
 
             :param value:           Value or Primaries object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                Primaries object or None.
             """
@@ -332,7 +335,8 @@ if TYPE_CHECKING:
             Determine the ColorRange through a parameter.
 
             :param value:           Value or ColorRange object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                ColorRange object or None.
             """
@@ -378,7 +382,8 @@ if TYPE_CHECKING:
             Determine the ChromaLocation through a parameter.
 
             :param value:           Value or ChromaLocation object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                ChromaLocation object or None.
             """
@@ -422,8 +427,9 @@ if TYPE_CHECKING:
             Determine the type of field through a parameter.
 
             :param value_or_tff:    Value or FieldBased object.
-                                    If it's bool, it specifies for whether it's TFF of BFF.
-            :param func_except:     Exception function.
+                                    If it's bool, it specifies whether it's TFF or BFF.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                FieldBased object or None.
             """

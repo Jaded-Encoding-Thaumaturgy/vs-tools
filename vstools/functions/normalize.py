@@ -39,6 +39,8 @@ def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
 
 
 def normalize_seq(val: T | Sequence[T], length: int = 3) -> list[T]:
+    """Normalize a sequence to the given length."""
+
     return stg_normalize_seq(val, length)
 
 
@@ -92,7 +94,7 @@ def flatten(items: Any) -> Any:
 def flatten_vnodes(
     *clips: VideoNodeIterable | tuple[VideoNodeIterable, ...], split_planes: bool = False
 ) -> list[vs.VideoNode]:
-    """Flatten a single or multiple video nodes into their planes."""
+    """Flatten a single or multiple video nodes into their individual planes."""
 
     from .utils import split
 
@@ -108,7 +110,7 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
     """
     Normalize ranges to a list of positive ranges.
 
-    Frame ranges can include None and negative values.
+    Frame ranges can include `None` and negative values.
     None will be converted to either 0 if it's the first value in a FrameRange,
     or the clip's length if it's the second item.
     Negative values will be subtracted from the clip's length.
@@ -137,6 +139,25 @@ def normalize_ranges(clip: vs.VideoNode, ranges: FrameRangeN | FrameRangesN) -> 
 
 
 def invert_ranges(
-    clipa: vs.VideoNode, clipb: vs.VideoNode | None, ranges: FrameRangeN | FrameRangesN
+    clip_a: vs.VideoNode, clip_b: vs.VideoNode | None, ranges: FrameRangeN | FrameRangesN
 ) -> list[tuple[int, int]]:
-    return stg_invert_ranges(ranges, clipa.num_frames, None if clipb is None else clipb.num_frames)
+    """
+    Invert FrameRanges.
+
+    Example:
+
+    .. code-block:: python
+
+        >>> franges = [(100, 200), 600, (1200, 2400)]
+        >>> invert_ranges(core.std.BlankClip(length=10000), core.std.BlankClip(length=10000), franges)
+        [(0, 99), (201, 599), (601, 1199), (2401, 9999)]
+
+    :param clip_a:          Original clip.
+    :param clip_b:          Replacement clip.
+    :param ranges:          Ranges to replace clip_a (original clip) with clip_b (replacement clip).
+                            These ranges will be inverted. For more info, see `replace_ranges`.
+
+    :return:                A list of inverted frame ranges.
+    """
+
+    return stg_invert_ranges(ranges, clip_a.num_frames, None if clip_b is None else clip_b.num_frames)
