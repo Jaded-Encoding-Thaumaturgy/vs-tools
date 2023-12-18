@@ -80,7 +80,7 @@ class PropEnum(CustomIntEnum):
         cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False,
         func: FuncExceptT | None = None
     ) -> SelfPropEnum:
-        """Get an enum member from the frame properties or optionally fallback to resolution when strict=False."""
+        """Get an enum member from the frame properties or optionally fall back to resolution when strict=False."""
         raise NotImplementedError
 
     @classmethod
@@ -89,6 +89,7 @@ class PropEnum(CustomIntEnum):
         src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
         strict: bool = False, func_except: FuncExceptT | None = None
     ) -> SelfPropEnum:
+        """Get the enum member from its int representation or the frame properties."""
         value = cls.from_param(value, func_except)
 
         if value is not None:
@@ -106,7 +107,7 @@ class PropEnum(CustomIntEnum):
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
 
     def apply(self: SelfPropEnum, clip: vs.VideoNode) -> vs.VideoNode:
-        """Applies the property in the VideoNode."""
+        """Applies the property to the VideoNode."""
         return clip.std.SetFrameProp(self.prop_key, self.value)
 
     @staticmethod
@@ -124,7 +125,7 @@ class PropEnum(CustomIntEnum):
 
     @property
     def pretty_string(self) -> str:
-        """Get a pretty, displayable, string of the enum member."""
+        """Get a pretty, displayable string of the enum member."""
         return capwords(self.string.replace('_', ' '))
 
     @property
@@ -134,6 +135,7 @@ class PropEnum(CustomIntEnum):
 
     @classmethod
     def is_valid(cls, value: int) -> bool:
+        """Check if the given value is valid."""
         return value in map(int, cls.__members__.values())
 
 

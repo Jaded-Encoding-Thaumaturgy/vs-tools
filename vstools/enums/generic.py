@@ -84,7 +84,11 @@ class ChromaLocation(_ChromaLocationMeta):
     def get_offsets(
         cls, chroma_loc: ChromaLocation | vs.VideoNode
     ) -> tuple[float, float]:
-        """Get (left,top) shift for chroma relative to luma."""
+        """
+        Get (left,top) shift for chroma relative to luma.
+
+        This is only useful if you MUST use a pre-specified chroma location and shift the chroma yourself.
+        """
 
         if isinstance(chroma_loc, vs.VideoNode):
             assert chroma_loc.format  # type: ignore
@@ -115,7 +119,7 @@ class ChromaLocation(_ChromaLocationMeta):
 
 
 class FieldBased(_FieldBasedMeta):
-    """Whether the frame is composed of two independent fields (interlaced) and their order."""
+    """Whether the frame is composed of two independent fields (interlaced) and their order if so."""
 
     _value_: int
 
@@ -163,7 +167,7 @@ class FieldBased(_FieldBasedMeta):
 
         :param src:                             Input clip, frame, or props.
         :param strict:                          Be strict about the properties.
-                                                The result may NOT be an unknown value.
+                                                Will ALWAYS error if the FieldBased is UNKNOWN.
 
         :return:                                FieldBased object.
 

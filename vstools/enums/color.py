@@ -192,7 +192,7 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def is_unknown(cls, value: int | Matrix) -> bool:
-        """Check if Matrix is unknown."""
+        """Check if Matrix is Matrix.UNKNOWN."""
 
         return value == cls.UNKNOWN
 
@@ -232,8 +232,8 @@ class Matrix(_MatrixMeta):
         Obtain the matrix of a clip from the frame properties.
 
         :param src:                         Input clip, frame, or props.
-        :param strict:                      Be strict about the properties.
-                                            The result may NOT be Matrix.UNKNOWN.
+        :param strict:                      Be strict about the frame properties.
+                                            Will ALWAYS error with Matrix.UNKNOWN.
 
         :return:                            Matrix object.
 
@@ -249,8 +249,8 @@ class Matrix(_MatrixMeta):
         Obtain the matrix from a Transfer object.
 
         :param transfer:                        Transfer object.
-        :param strict:                          Be strict about the properties.
-                                                The result may NOT be Transfer.UNKNOWN.
+        :param strict:                          Be strict about the transfer-matrix mapping.
+                                                Will ALWAYS error with Transfer.UNKNOWN.
 
         :return:                                Matrix object.
 
@@ -271,8 +271,8 @@ class Matrix(_MatrixMeta):
         Obtain the matrix from a Primaries object.
 
         :param transfer:                        Primaries object.
-        :param strict:                          Be strict about the properties.
-                                                The result may NOT be Primaries.UNKNOWN.
+        :param strict:                          Be strict about the primaries-matrix mapping.
+                                                Will ALWAYS error with Primaries.UNKNOWN.
 
         :return:                                Matrix object.
 
@@ -514,8 +514,8 @@ class Transfer(_TransferMeta):
         Obtain the transfer from a Matrix object.
 
         :param matrix:                          Matrix object.
-        :param strict:                          Be strict about the properties.
-                                                The matrix may NOT be Matrix.UNKNOWN!
+        :param strict:                          Be strict about the matrix-transfer mapping.
+                                                Will ALWAYS error with Matrix.UNKNOWN.
 
         :return:                                Transfer object.
 
@@ -536,8 +536,8 @@ class Transfer(_TransferMeta):
         Obtain the transfer from a Primaries object.
 
         :param primaries:                       Primaries object.
-        :param strict:                          Be strict about the properties.
-                                                The matrix may NOT be Primaries.UNKNOWN!
+        :param strict:                          Be strict about the primaries-transfer mapping.
+                                                Will ALWAYS error with Primaries.UNKNOWN.
 
         :return:                                Transfer object.
 
@@ -825,8 +825,8 @@ class Primaries(_PrimariesMeta):
         Obtain the primaries of a clip from the frame properties.
 
         :param src:                         Input clip, frame, or props.
-        :param strict:                      Be strict about the properties.
-                                            The result may NOT be Primaries.UNKNOWN.
+        :param strict:                      Be strict about the frame properties.
+                                            Will ALWAYS error with Primaries.UNKNOWN.
 
         :return:                            Primaries object.
 
@@ -842,8 +842,8 @@ class Primaries(_PrimariesMeta):
         Obtain the primaries from a Matrix object.
 
         :param matrix:                          Matrix object.
-        :param strict:                          Be strict about the properties.
-                                                The matrix may NOT be Matrix.UNKNOWN!
+        :param strict:                          Be strict about the matrix-primaries mapping.
+                                                Will ALWAYS error with Matrix.UNKNOWN.
 
         :return:                                Primaries object.
 
@@ -864,8 +864,8 @@ class Primaries(_PrimariesMeta):
         Obtain the primaries from a Transfer object.
 
         :param transfer:                        Transfer object.
-        :param strict:                          Be strict about the properties.
-                                                The result may NOT be Transfer.UNKNOWN.
+        :param strict:                          Be strict about the transfer-primaries mapping.
+                                                Will ALWAYS error with Transfer.UNKNOWN.
 
         :return:                                Matrix object.
 
@@ -1012,7 +1012,7 @@ class ColorRange(_ColorRangeMeta):
         Obtain the color range of a clip from the frame properties.
 
         :param src:                         Input clip, frame, or props.
-        :param strict:                      Be strict about the properties.
+        :param strict:                      Be strict about the frame properties.
                                             Sets the ColorRange as MISSING if prop is not there.
 
         :return:                            ColorRange object.
