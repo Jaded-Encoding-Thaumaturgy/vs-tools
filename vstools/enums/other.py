@@ -98,8 +98,8 @@ DarSelf = TypeVar('DarSelf', bound=Dar)
 
 
 class Sar(Fraction):
-    @staticmethod
-    def from_clip(clip: HoldsPropValueT) -> Sar:
+    @classmethod
+    def from_clip(cls: type[SarSelf], clip: HoldsPropValueT) -> SarSelf:
         from ..utils import get_prop
 
         if isinstance(clip, vs.RawFrame):
@@ -109,7 +109,10 @@ class Sar(Fraction):
         else:
             props = clip
 
-        return Sar(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))  # type: ignore
+        return cls(Sar(
+            get_prop(props, '_SARNum', int, None, 1),  # type: ignore[arg-type]
+            get_prop(props, '_SARDen', int, None, 1)  # type: ignore[arg-type]
+        ))
 
     @classmethod
     def from_ar(cls: type[SarSelf], den: int, num: int, height: int, active_area: float) -> SarSelf:
