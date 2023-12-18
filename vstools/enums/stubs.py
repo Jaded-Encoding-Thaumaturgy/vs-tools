@@ -134,7 +134,7 @@ class PropEnum(CustomIntEnum):
 
     @classmethod
     def is_valid(cls, value: int) -> bool:
-        return value in map(int, cls.__members__.values())
+        return int(value) in map(int, cls.__members__.values())
 
 
 SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
