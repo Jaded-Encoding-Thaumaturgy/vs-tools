@@ -5,7 +5,7 @@ from math import gcd as max_common_div
 from typing import Callable, Iterable, Literal, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
-from stgpytools import Coordinate, CustomIntEnum, CustomStrEnum, Position, Sentinel, Size
+from stgpytools import FuncExceptT, Coordinate, CustomIntEnum, CustomStrEnum, Position, Sentinel, Size
 
 from ..types import HoldsPropValueT
 
@@ -51,12 +51,23 @@ class Direction(CustomIntEnum):
 class Dar(Fraction):
     @overload
     @classmethod
-    def from_size(cls: type[DarSelf], width: int, height: int, sar: Sar | bool = True, /) -> DarSelf:
+    def from_size(
+        cls: type[DarSelf],
+        width: int,
+        height: int,
+        sar: Sar | bool = True, /,
+        func: FuncExceptT | None = ...
+    ) -> DarSelf:
         ...
 
     @overload
     @classmethod
-    def from_size(cls: type[DarSelf], clip: vs.VideoNode, sar: Sar | bool = True, /) -> DarSelf:
+    def from_size(
+        cls: type[DarSelf],
+        clip: vs.VideoNode,
+        sar: Sar | bool = True, /,
+        func: FuncExceptT | None = ...
+    ) -> DarSelf:
         ...
 
     @classmethod
@@ -66,6 +77,7 @@ class Dar(Fraction):
         _height: int | Sar | bool = True,
         _sar: Sar | bool = True,
         /,
+        func: FuncExceptT | None = None
     ) -> DarSelf:
         width: int
         height: int
@@ -74,7 +86,7 @@ class Dar(Fraction):
         if isinstance(clip_width, vs.VideoNode):
             from ..functions import check_variable_resolution
 
-            check_variable_resolution(clip_width, cls.from_size)  # type:ignore
+            check_variable_resolution(clip_width, func or cls.from_size)  # type:ignore
 
             width, height, sar = clip_width.width, clip_width.height, _height  # type: ignore
 
