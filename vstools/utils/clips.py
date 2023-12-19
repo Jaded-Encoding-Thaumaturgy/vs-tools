@@ -333,7 +333,7 @@ class ProcessVariableResClip(ProcessVariableClip[tuple[int, int]]):
         return (frame.width, frame.height)
 
     def normalize(self, clip: vs.VideoNode, cast_to: tuple[int, int]) -> vs.VideoNode:
-        return clip.resize.Point(*cast_to)
+        return clip.std.RemoveFrameProps().resize.Point(*cast_to).std.CopyFrameProps(clip)
 
 
 class ProcessVariableFormatClip(ProcessVariableClip[vs.VideoFormat]):
@@ -341,7 +341,7 @@ class ProcessVariableFormatClip(ProcessVariableClip[vs.VideoFormat]):
         return frame.format
 
     def normalize(self, clip: vs.VideoNode, cast_to: vs.VideoFormat) -> vs.VideoNode:
-        return clip.resize.Point(format=cast_to)  # type: ignore
+        return clip.std.RemoveFrameProps().resize.Point(format=cast_to).std.CopyFrameProps(clip)  # type: ignore
 
 
 class ProcessVariableResFormatClip(ProcessVariableClip[tuple[int, int, vs.VideoFormat]]):
@@ -349,4 +349,4 @@ class ProcessVariableResFormatClip(ProcessVariableClip[tuple[int, int, vs.VideoF
         return (frame.width, frame.height, frame.format)
 
     def normalize(self, clip: vs.VideoNode, cast_to: tuple[int, int, vs.VideoFormat]) -> vs.VideoNode:
-        return clip.resize.Point(*cast_to)  # type: ignore
+        return clip.std.RemoveFrameProps().resize.Point(*cast_to).std.CopyFrameProps(clip)  # type: ignore
