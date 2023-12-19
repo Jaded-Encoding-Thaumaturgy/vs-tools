@@ -37,7 +37,8 @@ class ResampleUtil:
 
         :param clip:    Clip to be processed.
         :param f32:     Whether to process in original bitdepth (None) or in int16 (False) or float32 (True).
-        :param func:    Function from where this was called from.
+        :param func:    Function returned for custom error handling.
+                        This should only be set by VS package developers.
 
         :return:        Converted clip.
         """
@@ -60,7 +61,8 @@ class ResampleUtil:
         Convert an RGB clip to the implemented colorspace.
 
         :param clip:    RGB clip to be processed.
-        :param func:    Function from where this was called from.
+        :param func:    Function returned for custom error handling.
+                        This should only be set by VS package developers.
 
         :return:        Converted clip.
         """
@@ -74,7 +76,8 @@ class ResampleUtil:
         Convert a YUV clip to the implemented colorspace.
 
         :param clip:    YUV clip to be processed.
-        :param func:    Function from where this was called from.
+        :param func:    Function returned for custom error handling.
+                        This should only be set by VS package developers.
 
         :return:        Converted clip.
         """

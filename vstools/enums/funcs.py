@@ -14,7 +14,7 @@ class ConvMode(CustomStrEnum):
     """Square horizontal/vertical convolution."""
 
     VERTICAL = 'v'
-    """Vertical only convolution."""
+    """Vertical-only convolution."""
 
     HORIZONTAL = 'h'
-    """Horizontal only convolution."""
+    """Horizontal-only convolution."""

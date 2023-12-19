@@ -10,4 +10,6 @@ __all__ = [
 
 
 def erase_module(func: F, modules: Sequence[str] | None = None, *, vs_only: bool = False) -> F:
+    """Delete the __module__ of the function."""
+
     return stg_erase_module(func, ['__vapoursynth__', *(modules or [])] if vs_only else modules)

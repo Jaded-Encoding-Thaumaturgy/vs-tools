@@ -25,7 +25,7 @@ __all__ = [
 
 
 def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, int, int]:
-    """Get information of a variable resolution clip or frame."""
+    """Get information from a variable resolution clip or frame."""
 
     if isinstance(frame, vs.VideoNode) and not (
         frame.width and frame.height and frame.format
@@ -41,7 +41,7 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
 def get_video_format(
     value: int | VideoFormatT | HoldsVideoFormatT, /, *, sample_type: int | vs.SampleType | None = None
 ) -> vs.VideoFormat:
-    """Get format of a given value."""
+    """Get the video format of a given value."""
 
     from ..utils.vs_enums import VSPresetVideoFormat
 
@@ -72,13 +72,13 @@ def get_video_format(
 
 
 def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
-    """Get depth of a given clip or value."""
+    """Get the bitdepth of a given clip or value."""
 
     return get_video_format(clip).bits_per_sample
 
 
 def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -> vs.SampleType:
-    """Get sample type of a given clip."""
+    """Get the sample type of a given clip."""
 
     if isinstance(clip, vs.SampleType):
         return clip
@@ -87,7 +87,7 @@ def get_sample_type(clip: VideoFormatT | HoldsVideoFormatT | vs.SampleType, /) -
 
 
 def get_color_family(clip: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily, /) -> vs.ColorFamily:
-    """Get color family of a given clip."""
+    """Get the color family of a given clip."""
 
     if isinstance(clip, vs.ColorFamily):
         return clip
@@ -114,7 +114,7 @@ def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16, **kwargs: Any) 
     """
     Expected output bitdepth for a clip.
 
-    This function is meant to be used when a clip does not match the expected input bitdepth.
+    This function is meant to be used when a clip may not match the expected input bitdepth.
     Both the dithered clip and the original bitdepth are returned.
 
     :param clip:            Input clip.
@@ -133,7 +133,7 @@ def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16, **kwargs: Any) 
 
 
 def get_plane_sizes(frame: vs.VideoNode | vs.VideoFrame, /, index: int) -> tuple[int, int]:
-    """Get the size of a given clip's plane."""
+    """Get the size of a given clip's plane using the index."""
 
     assert frame.format and frame.width
 
@@ -207,10 +207,10 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
     """
     Calculate the width given a height and an aspect ratio.
 
-    Either an aspect ratio (as a float) can be given, or a reference clip.
+    Either an aspect ratio (as a float) or a reference clip can be given.
     A mod can also be set, which will ensure the output width is MOD#.
 
-    The output is by default rounded (as fractional resolutions are not supported).
+    The output is rounded by default (as fractional output resolutions are not supported anywhere).
 
     :param height:          Height to use for the calculation.
     :param ar_or_ref:       Aspect ratio or reference clip from which the AR will be calculated.
@@ -253,10 +253,10 @@ def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9
     """
     Calculate the height given a width and an aspect ratio.
 
-    Either an aspect ratio (as a float) can be given, or a reference clip.
+    Either an aspect ratio (as a float) or a reference clip can be given.
     A mod can also be set, which will ensure the output height is MOD#.
 
-    The output is by default rounded (as fractional resolutions are not supported).
+    The output is rounded by default (as fractional output resolutions are not supported anywhere).
 
     :param width:           Width to use for the calculation.
     :param ar_or_ref:       Aspect ratio or reference clip from which the AR will be calculated.

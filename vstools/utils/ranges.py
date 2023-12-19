@@ -103,7 +103,7 @@ def replace_ranges(
 
     Optional Dependencies:
         * Either of the following two plugins:
-            * `VS Julek Plugin <https://github.com/dnjulek/vapoursynth-julek-plugin>`_
+            * `VS Julek Plugin <https://github.com/dnjulek/vapoursynth-julek-plugin>`_ (recommended!)
             * `VSRemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
 
     :param clip_a:      Original clip.

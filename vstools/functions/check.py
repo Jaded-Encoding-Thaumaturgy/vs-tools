@@ -181,6 +181,17 @@ def check_variable(clip: vs.VideoNode, func: FuncExceptT) -> TypeGuard[ConstantF
 def check_correct_subsampling(
     clip: vs.VideoNode, width: int | None = None, height: int | None = None, func: FuncExceptT | None = None
 ) -> None:
+    """
+    Check if the subsampling is correct and return an error if it's not.
+
+    :param clip:                        Clip to check.
+    :param width:                       Output width.
+    :param height:                      Output height.
+    :param func:                        Function returned for custom error handling.
+                                        This should only be set by VS package developers.
+
+    :raises InvalidSubsamplingError:    The clip has invalid subsampling.
+    """
     from ..exceptions import InvalidSubsamplingError
 
     if clip.format:

@@ -25,10 +25,21 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     Main use is:
         - Automatically convert to OPP if input is RGB and function only supports GRAY, YUV.
-        - Automatically dither up and down as the function needs.
-        - Handle the variable clip check.
-        - Fully type safe and remove the need for asserts or typeguards in function code.
-        - Handy properties for common code paths, and improve code readability.
+        - Automatically dither up and down as required.
+        - Automatically check if the input clip has variable formats, resolutions, etc.
+        - Fully type safe and removes the need for asserts or typeguards in function code.
+        - Handy properties for common code paths, improving code readability and writability.
+
+    Examples:
+
+    .. code-block:: python
+
+        >>> func = FunctionUtil(clip, planes=0, color_family=(vs.YUV, vs.GRAY), bitdepth=16)
+        >>> wclip = func.work_clip
+        >>> txt = wclip.text.Text("This clip has been processed!")
+        >>> return func.return_clip(txt)
+
+    For further examples, see: <https://github.com/search?q=org%3AJaded-Encoding-Thaumaturgy+FunctionUtil>
     """
 
     def __init__(
@@ -38,6 +49,30 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         ] | None = None, bitdepth: int | range | tuple[int, int] | None = None, strict: bool = False,
         *, matrix: MatrixT | None = None, range_in: ColorRangeT | None = None
     ) -> None:
+        """
+        :param clip:            Clip to process.
+        :param func:            Function returned for custom error handling.
+                                This should only be set by VS package developers.
+        :param planes:          Planes that get processed in the function. Default: All planes.
+        :param color_family:    Accepted color families. If the input does not adhere to these,
+                                it will be converted automatically. Additionaly, if `planes=0`,
+                                it will extract the luma for processing, and merge back the chroma planes
+                                in `return_clip`. If the input clip is RGB and `planes=0`, it will be
+                                converted to YUV and back again to retrieve the luma plane.
+                                Default: All families.
+        :param bitdepth:        The bitdepth or range of bitdepths to work from.
+                                Automatically converts the work clip to the highest bitdepth of the range
+                                if `strict=False`, and returns the clip with the original bitdepth in `return_clip`.
+                                Default: input bitdepth.
+        :param strict:          Be strict about the input clip's properties.
+                                If True, the input clip must adhere to the given number of planes,
+                                the color family, and the bitdepth. If False, all these properties
+                                will be applied as necessary. Default: False.
+        :param matrix:          Color Matrix to work in. Used for YUV <-> RGB conversions.
+                                Default: Get matrix from the input clip.
+        :param range_in:        Color Range to work in. Used for bitdepth conversions.
+                                Default: Get the color range from the input clip.
+        """
         from ..utils import get_color_family
 
         assert check_variable(clip, func)
@@ -70,7 +105,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def norm_clip(self) -> ConstantFormatVideoNode:
-        """Get a "normalized" clip. This means color space, and bitdepth conversion if needed."""
+        """Get a "normalized" clip. This means color space and bitdepth are converted if necessary."""
 
         if isinstance(self.bitdepth, range) and self.clip.format.bits_per_sample not in self.bitdepth:
             clip = depth(self.clip, self.bitdepth.stop)
@@ -104,7 +139,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def chroma_planes(self) -> list[vs.VideoNode]:
-        """Get chroma planes if possible."""
+        """Get a list of all chroma planes in the normalised clip."""
 
         if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
@@ -112,67 +147,72 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     @cachedproperty
     def matrix(self) -> Matrix:
-        return (
-            Matrix.from_param(self._matrix, self.func)
-            or Matrix.from_video(self.work_clip, self.strict, self.func)
-        )
+        """Get the clip's matrix."""
+
+        return Matrix.from_param_or_video(self._matrix, self.work_clip, self.strict, self.func)
 
     @cachedproperty
     def color_range(self) -> ColorRange:
-        return (
-            ColorRange.from_param(self._range_in, self.func)
-            or ColorRange.from_video(self.work_clip, self.strict, self.func)
-        )
+        """Get the clip's color range."""
+
+        return ColorRange.from_param_or_video(self._range_in, self.work_clip, self.strict, self.func)
 
     @property
     def is_float(self) -> bool:
-        """Whether the clip is of float sample type."""
+        """Whether the clip is of a float sample type."""
 
         return self.norm_clip.format.sample_type is vs.FLOAT
 
     @property
     def is_integer(self) -> bool:
-        """Whether the clip is of integer sample type."""
+        """Whether the clip is of an integer sample type."""
 
         return self.norm_clip.format.sample_type is vs.INTEGER
 
     @property
     def is_hd(self) -> bool:
-        """Whether the clip has an HD resolution (>= 1280x720)."""
+        """Whether the clip is of an HD resolution (>= 1280x720)."""
 
         return self.work_clip.width >= 1280 or self.work_clip.height >= 720
 
     @property
     def luma(self) -> bool:
-        """Whether to process luma."""
+        """Whether the luma gets processed."""
 
         return 0 in self
 
     @property
     def luma_only(self) -> bool:
-        """Whether luma is the only channel that is getting processed."""
+        """Whether luma is the only channel that gets processed."""
 
         return self == [0]
 
     @property
     def chroma(self) -> bool:
-        """Whether any of the two chroma planes are getting processed."""
+        """Whether any chroma planes get processed."""
 
         return 1 in self or 2 in self
 
     @property
     def chroma_only(self) -> bool:
-        """Whether both of the two chroma planes are getting processed."""
+        """Whether only chroma planes get processed."""
 
         return self == [1, 2]
 
     @property
     def chroma_pplanes(self) -> list[int]:
-        """Which chroma planes are getting processed."""
+        """
+        A list of which chroma planes get processed based on the work clip.
+
+        This means that if you pass [0, 1, 2] but passed a GRAY clip, it will only return [0].
+        Similarly, if you pass GRAY and it gets converted to RGB, this will return [0, 1, 2].
+        """
 
         return list({*self} - {0})
 
     def normalize_planes(self, planes: PlanesT) -> list[int]:
+        """Normalize the given sequence of planes."""
+
         return normalize_planes(self.work_clip, planes)
 
     def with_planes(self, planes: PlanesT) -> list[int]:
@@ -183,8 +223,12 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
         """
-        Function used at the end of the function, to convert back to original format and
-        optionally bitdepth, merge back chroma.
+        Merge back the chroma if necessary and convert the processed clip back to the original clip's format.
+        If `bitdepth != None`, the bitdepth will also be converted if necessary.
+
+        :param processed:       The clip with all the processing applied to it.
+
+        :return:                Processed clip converted back to the original input clip's format.
         """
 
         assert check_variable(processed, self.func)
@@ -208,7 +252,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def norm_seq(self, seq: T | Sequence[T], null: T = 0) -> list[T]:  # type: ignore
         """
         Normalize a value or sequence to a list mapped to the clip's planes.
-        Unprocessed planes will get "null" value.
+        Unprocessed planes will be set to the given "null" value.
         """
 
         return [

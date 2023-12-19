@@ -368,7 +368,7 @@ class PresetDeprecateProxy(type):
 
 
 class PresetFormat(metaclass=PresetDeprecateProxy):
-    """Deprecated, use PresetVideoFormat"""
+    """Deprecated, use PresetVideoFormat."""
 
 
 GRAY8 = PresetVideoFormat.GRAY8

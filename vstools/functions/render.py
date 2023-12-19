@@ -57,6 +57,31 @@ def clip_async_render(
     callback: Callable[[int, vs.VideoFrame], T] | None = None, prefetch: int = 0,
     backlog: int = -1, y4m: bool | None = None, async_requests: int | bool | AsyncRenderConf = False
 ) -> list[T] | None:
+    """
+    Iterate over an entire clip and optionally write results in a file.
+
+    This is mostly useful for metric gathering that must be performed before you do anything else.
+    This could be for example gathering scenechanges, per-frame heuristics, etc.
+
+    It's highly recommended to perform as little filtering as possible on the input clip for speed purposes.
+
+    :param clip:            Clip to render.
+    :param outfile:         Optional binary output to write.
+    :param progress:        A message to display during rendering. This is shown alongside the progress.
+    :param callback:        Callback function. Must accept `n` and `f` (like a frameeval would) and return some value.
+                            This function is used to determine what information gets returned per frame.
+                            Default: None.
+    :param prefetch:        The amount of frames to prefetch. 0 means automatically determine.
+                            Default: 0.
+    :param backlog:         How many frames to hold. Useful for if your write of callback is slower
+                            than your frame rendering.
+    :param y4m:             Whether to add YUV4MPEG2 headers to the rendered output. If None, automatically determine.
+                            Default: None.
+    :param async_requests:  Whether to render frames non-consecutively.
+                            If int, determines the number of requests.
+                            Default: False.
+    """
+
     from .funcs import fallback
 
     result = dict[int, T]()
@@ -317,16 +342,29 @@ def find_prop(
     range_length: int, async_requests: int = 1
 ) -> list[int] | list[tuple[int, int]]:
     """
-    :param src:             Input clip.
-    :param prop:            Frame prop to be used.
-    :param op:              Conditional operator to apply between prop and ref ("<", "<=", "==", "!=", ">" or ">=").
-    :param ref:             Value to be compared with prop.
-    :param name:            Output file name.
-    :param range_length:    Amount of frames to finish a sequence, to avoid false negatives.
-                            This will create ranges with a sequence of start-end tuples.
+    Find specific frame props in the clip and return a list of frame ranges that meets the conditions.
 
-    :return:                Frame ranges at the specified conditions.
+    Example usage:
+
+    .. code-block:: python
+
+        # Return a list of all frames that were marked as combed.
+        >>> find_prop(clip, "_Combed", None, True, 0)
+
+    :param src:                 Input clip.
+    :param prop:                Frame prop to perform checks on.
+    :param op:                  Conditional operator to apply between prop and ref ("<", "<=", "==", "!=", ">" or ">=").
+                                If None, check whether a prop is truthy.
+    :param ref:                 Value to be compared with prop.
+    :param range_length:        Amount of frames to finish a sequence, to avoid false negatives.
+                                This will create ranges with a sequence of start-end tuples.
+    :param async_requests:      Whether to render frames non-consecutively.
+                                If int, determines the number of requests.
+                                Default: 1.
+
+    :return:                    Frame ranges at the specified conditions.
     """
+
     prop_src, callback = prop_compare_cb(src, prop, op, ref, True)
 
     aconf = AsyncRenderConf(async_requests, (prop_src.width, prop_src.height) == (1, 1), False)
@@ -344,6 +382,29 @@ def find_prop_rfs(
     prop: str, op: str | Callable[[float, float], bool] | None, prop_ref: float | bool,
     ref: vs.VideoNode | None = None, mismatch: bool = False
 ) -> vs.VideoNode:
+    """
+    Conditional replace frames from the original clip with a replacement clip by comparing frame properties.
+
+    Example usage:
+
+    .. code-block:: python
+
+        # Replace a rescaled clip with the original clip for frames where the error
+        # (defined on another clip) is equal to or greater than 0.025.
+        >>> find_prop_rfs(scaled, src, 'PlaneStatsAverage', '>=', 0.025, err_clip)
+
+    :param clip_a:          Original clip.
+    :param clip_b:          Replacement clip.
+    :param prop:            Frame prop to perform checks on.
+    :param op:              Conditional operator to apply between prop and ref ("<", "<=", "==", "!=", ">" or ">=").
+                            If None, check whether a prop is truthy. Default: None.
+    :param prop_ref:        Value to be compared with prop.
+    :param ref:             Optional reference clip to read frame properties from. Default: None.
+    :param mismatch:        Accept format or resolution mismatch between clips. Default: False.
+
+    :return:                Clip where frames that meet the specified criteria were replaced with a different clip.
+    """
+
     from ..utils import replace_ranges
 
     prop_src, callback = prop_compare_cb(ref or clip_a, prop, op, prop_ref, False)
