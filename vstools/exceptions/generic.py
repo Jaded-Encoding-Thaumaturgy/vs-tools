@@ -202,7 +202,7 @@ class FormatsMismatchError(MismatchError):
 
 
 class FormatsRefClipMismatchError(MismatchRefError, FormatsMismatchError):
-    """Raised when a ref clip and the main clip have different formats"""
+    """Raised when a ref clip and the main clip have different formats."""
 
     def __init__(
         self, func: FuncExceptT, clip: VideoFormatT | HoldsVideoFormatT, ref: VideoFormatT | HoldsVideoFormatT,
@@ -243,7 +243,7 @@ class ResolutionsMismatchError(MismatchError):
 
 
 class ResolutionsRefClipMismatchError(MismatchRefError, ResolutionsMismatchError):
-    """Raised when a ref clip and the main clip have different resolutions"""
+    """Raised when a ref clip and the main clip have different resolutions."""
 
     def __init__(
         self, func: FuncExceptT, clip: Resolution | vs.VideoNode, ref: Resolution | vs.VideoNode,
@@ -323,7 +323,7 @@ class FramerateMismatchError(MismatchError):
 
 
 class FramerateRefClipMismatchError(MismatchRefError, FramerateMismatchError):
-    """Raised when a ref clip and the main clip have a different framerate"""
+    """Raised when a ref clip and the main clip have a different framerate."""
 
     def __init__(
         self, func: FuncExceptT,

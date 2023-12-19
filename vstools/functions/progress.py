@@ -23,6 +23,7 @@ class FPSColumn(ProgressColumn):
 
     def render(self, task: Task) -> Text:
         """Render bar."""
+
         return Text(f"{task.speed or 0:.02f} fps")
 
 

@@ -292,6 +292,7 @@ def set_output(
     name: str | bool = True, **kwargs: Any
 ) -> None:
     """Set output node with optional name, and if available, use vspreview set_output."""
+
     from ..functions import flatten_vnodes
 
     last_index = len(vs.get_outputs())

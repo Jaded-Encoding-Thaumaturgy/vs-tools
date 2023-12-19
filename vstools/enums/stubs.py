@@ -73,6 +73,7 @@ class PropEnum(CustomIntEnum):
     @classmethod
     def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
         """Get an enum member from the video resolution with heuristics."""
+
         raise NotImplementedError
 
     @classmethod
@@ -81,6 +82,7 @@ class PropEnum(CustomIntEnum):
         func: FuncExceptT | None = None
     ) -> SelfPropEnum:
         """Get an enum member from the frame properties or optionally fall back to resolution when strict=False."""
+
         raise NotImplementedError
 
     @classmethod
@@ -112,12 +114,14 @@ class PropEnum(CustomIntEnum):
         cls: type[SelfPropEnum], clip: vs.VideoNode, value: int | SelfPropEnum | None, func: FuncExceptT | None = None
     ) -> vs.VideoNode:
         """Ensure the presence of the property in the VideoNode."""
+
         enum_value = cls.from_param_or_video(value, clip, True, func)
 
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
 
     def apply(self: SelfPropEnum, clip: vs.VideoNode) -> vs.VideoNode:
         """Applies the property to the VideoNode."""
+
         return clip.std.SetFrameProp(self.prop_key, self.value)
 
     @staticmethod
@@ -125,6 +129,7 @@ class PropEnum(CustomIntEnum):
         clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
     ) -> vs.VideoNode:
         """Ensure the presence of multiple PropEnums at once."""
+
         return clip.std.SetFrameProps(**{
             value.prop_key: value.value  # type: ignore
             for value in [
@@ -136,16 +141,19 @@ class PropEnum(CustomIntEnum):
     @property
     def pretty_string(self) -> str:
         """Get a pretty, displayable string of the enum member."""
+
         return capwords(self.string.replace('_', ' '))
 
     @property
     def string(self) -> str:
         """Get the string representation used in resize plugin/encoders."""
+
         return self._name_.lower()
 
     @classmethod
     def is_valid(cls, value: int) -> bool:
         """Check if the given value is a valid int value of this enum."""
+
         return value in map(int, cls.__members__.values())
 
 

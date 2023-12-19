@@ -35,16 +35,19 @@ class Direction(CustomIntEnum):
     @property
     def is_axis(self) -> bool:
         """Whether the Direction represents an axis (horizontal/vertical)."""
+
         return self <= self.VERTICAL
 
     @property
     def is_way(self) -> bool:
         """Whether the Direction is one of the 4 arrow directions."""
+
         return self > self.VERTICAL
 
     @property
     def string(self) -> str:
         """A string representation of the Direction."""
+
         return self._name_.lower()
 
 
@@ -175,6 +178,7 @@ class Sar(Fraction):
     @staticmethod
     def from_dar(dar: Dar, height: int, active_area: float) -> Sar:
         """Calculate the SAR using a DAR object. See ``Dar.to_sar`` for more information."""
+
         sar_n, sar_d = dar.numerator * height, dar.denominator * active_area
 
         if isinstance(active_area, float):
@@ -186,6 +190,7 @@ class Sar(Fraction):
 
     def apply(self, clip: vs.VideoNode) -> vs.VideoNode:
         """Apply the SAR values as _SARNum and _SARDen frame properties to a clip."""
+
         return clip.std.SetFrameProps(_SARNum=self.numerator, _SARDen=self.denominator)
 
 
@@ -225,11 +230,13 @@ class Region(CustomStrEnum):
     @property
     def framerate(self) -> Fraction:
         """Obtain the Region's framerate."""
+
         return _region_framerate_map[self]
 
     @classmethod
     def from_framerate(cls, framerate: float | Fraction, strict: bool = False) -> Region:
         """Determine the Region using a given framerate."""
+
         key = Fraction(framerate)
 
         if strict:
@@ -267,6 +274,7 @@ class Resolution(NamedTuple):
     @classmethod
     def from_video(cls, clip: vs.VideoNode) -> Resolution:
         """Create a Resolution object using a given clip's dimensions."""
+
         from ..functions import check_variable_resolution
 
         assert check_variable_resolution(clip, cls.from_video)
@@ -275,6 +283,7 @@ class Resolution(NamedTuple):
 
     def transpose(self) -> Resolution:
         """Flip the Resolution matrix over its diagonal."""
+
         return Resolution(self.height, self.width)
 
     def __str__(self) -> str:
@@ -316,6 +325,7 @@ class SceneChangeMode(CustomIntEnum):
 
     def ensure_presence(self, clip: vs.VideoNode, akarin: bool | None = None) -> vs.VideoNode:
         """Ensures all the frame properties necessary for scene change detection are created."""
+
         from ..exceptions import CustomRuntimeError
         from ..utils import merge_clip_props
 

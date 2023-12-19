@@ -1,4 +1,4 @@
-"""Functions and utils related to VapourSynth"""
+"""Functions and utils related to VapourSynth."""
 
 __version__ = '3.1.0'
 

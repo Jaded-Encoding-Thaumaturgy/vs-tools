@@ -35,6 +35,7 @@ class Timecode:
 
     def to_fraction(self) -> Fraction:
         """Convert the Timecode to a Fraction that represents the FPS."""
+
         return Fraction(self.numerator, self.denominator)
 
     def __eq__(self, other: object) -> bool:
@@ -61,6 +62,7 @@ class Timecodes(list[Timecode]):
 
     def to_fractions(self) -> list[Fraction]:
         """Convert to a list of frame lengths, representing the individual framerates."""
+
         return list(
             Fraction(x.numerator, x.denominator)
             for x in self
@@ -68,6 +70,7 @@ class Timecodes(list[Timecode]):
 
     def to_normalized_ranges(self) -> dict[tuple[int, int], Fraction]:
         """Convert to a list of normalized frame ranges and their assigned framerate."""
+
         timecodes_ranges = dict[tuple[int, int], Fraction]()
 
         last_i = len(self) - 1
@@ -89,6 +92,7 @@ class Timecodes(list[Timecode]):
         cls, timecodes: dict[tuple[int | None, int | None], Fraction], end: int, assume: Fraction | None = None
     ) -> list[Fraction]:
         """Convert from normalized ranges to a list of Fractions."""
+
         from .funcs import fallback
 
         norm_timecodes = [assume] * end if assume else list[Fraction]()

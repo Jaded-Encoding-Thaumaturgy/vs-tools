@@ -98,6 +98,7 @@ class DitherType(CustomStrEnum):
         self, clip: vs.VideoNode, fmt_out: vs.VideoFormat, range_in: ColorRange, range_out: ColorRange
     ) -> vs.VideoNode:
         """Apply the given DitherType to a clip."""
+
         from ..utils import get_video_format
 
         assert self != DitherType.AUTO, CustomValueError("Cannot apply AUTO.", self.__class__)
@@ -126,6 +127,7 @@ class DitherType(CustomStrEnum):
     @property
     def is_fmtc(self) -> bool:
         """Whether the DitherType is applied through fmtc."""
+
         return self in _dither_fmtc_types
 
     @overload
