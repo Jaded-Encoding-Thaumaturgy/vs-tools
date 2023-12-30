@@ -131,7 +131,7 @@ class Sar(Fraction):
 
     This is most useful for anamorphic content, and can allow you to ascertain the true aspect ratio.
     For more information, see:
-    <https://web.archive.org/web/20140218044518/http://lipas.uwasa.fi/~f76998/video/conversion/#conversion_table>
+    `<https://web.archive.org/web/20140218044518/http://lipas.uwasa.fi/~f76998/video/conversion/#conversion_table>`_
     """
 
     @staticmethod
@@ -160,11 +160,15 @@ class Sar(Fraction):
         Calculate the SAR from the given display aspect ratio and active image area.
 
         This method is used to obtain metadata to set in the video container for anamorphic video.
-        To get a ballpark estimation of the image's active area, subtract the number of
-        faded pixels from the base width of the image.
 
-        If there are no faded edges, assume an active image area of
-        711 for widescreen content and 704 for fullscreen.
+        To get a ballpark estimation of the image's active area, subtract the number of
+        faded pixels from the base width of the image and compare this to known anamorphic standards.
+
+        For a list of known standards, refer to the following tables:
+        `<https://web.archive.org/web/20140218044518/http://lipas.uwasa.fi/~f76998/video/conversion/#conversion_table>`_
+
+        If there are no faded edges, you may assume an active image area
+        of 711 for widescreen content and 704 for fullscreen.
 
         :param den:             The denumerator.
         :param num:             The numerator.
