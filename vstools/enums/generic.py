@@ -105,6 +105,10 @@ class ChromaLocation(_ChromaLocationMeta):
             "Could not determine the chroma offsets for the given clip!", cls.get_offsets
         )
 
+    def get_relative_offsets(self, chroma_loc: ChromaLocation) -> tuple[float, float]:
+        """Get the current chroma location's offsets relative to a given chroma location."""
+        return tuple(x - y for x, y in zip(self.offsets, chroma_loc.offsets))  # type:ignore[return-value]
+
     @property
     def offsets(self) -> tuple[float, float]:
         """Get the chroma location offsets from center position."""
