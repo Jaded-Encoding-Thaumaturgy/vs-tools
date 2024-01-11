@@ -86,29 +86,37 @@ class ChromaLocation(_ChromaLocationMeta):
     ) -> tuple[float, float]:
         """Get (left,top) shift for chroma relative to luma."""
 
-        if isinstance(chroma_loc, vs.VideoNode):
-            assert chroma_loc.format  # type: ignore
-            subsampling = (chroma_loc.format.subsampling_w, chroma_loc.format.subsampling_h)  # type: ignore
+        if not isinstance(chroma_loc, vs.VideoNode):
+            return chroma_loc.offsets
 
-            if subsampling in [(1, 0), (1, 1)]:
-                offsets = (0.5, 0)
-            elif subsampling == (0, 1):
-                offsets = (0, 0)
-            elif subsampling == (2, 0):
-                offsets = (2.5, 0)
-            elif subsampling == (2, 2):
-                offsets = (2.5, 1)
+        assert chroma_loc.format  # type: ignore
+        subsampling = (chroma_loc.format.subsampling_w, chroma_loc.format.subsampling_h)  # type: ignore
 
-            return offsets
+        if subsampling in [(1, 0), (1, 1)]:
+            return (0.5, 0)
+        elif subsampling == (0, 1):
+            return (0, 0)
+        elif subsampling == (2, 0):
+            return (2.5, 0)
+        elif subsampling == (2, 2):
+            return (2.5, 1)
+
+        raise UndefinedChromaLocationError(
+            "Could not determine the chroma offsets for the given clip!", cls.get_offsets
+        )
+
+    @property
+    def offsets(self) -> tuple[float, float]:
+        """Get the chroma location offsets from center position."""
 
         off_left = off_top = 0.0
 
-        if chroma_loc in {ChromaLocation.LEFT, ChromaLocation.TOP_LEFT, ChromaLocation.BOTTOM_LEFT}:
+        if self in {ChromaLocation.LEFT, ChromaLocation.TOP_LEFT, ChromaLocation.BOTTOM_LEFT}:
             off_left += -0.5
 
-        if chroma_loc in {ChromaLocation.TOP, ChromaLocation.TOP_LEFT}:
+        if self in {ChromaLocation.TOP, ChromaLocation.TOP_LEFT}:
             off_top += -0.5
-        elif chroma_loc in {ChromaLocation.BOTTOM, ChromaLocation.BOTTOM_LEFT}:
+        elif self in {ChromaLocation.BOTTOM, ChromaLocation.BOTTOM_LEFT}:
             off_top += +0.5
 
         return off_left, off_top
