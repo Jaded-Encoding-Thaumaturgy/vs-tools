@@ -15,6 +15,7 @@ from ..types import F_VD, HoldsVideoFormatT, VideoFormatT
 from . import vs_proxy as vs
 from .cache import DynamicClipsCache
 from .scale import scale_8bit
+from .info import get_depth
 
 __all__ = [
     'finalize_clip',
@@ -162,7 +163,7 @@ def initialize_clip(
         for cls, value in values
     ], func)
 
-    if bits is None:
+    if bits is None or get_depth(clip) > bits:
         return clip
 
     return depth(clip, bits, dither_type=dither_type)
