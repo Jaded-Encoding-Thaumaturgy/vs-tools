@@ -14,6 +14,7 @@ from ..functions import DitherType, check_variable, depth
 from ..types import F_VD, HoldsVideoFormatT, VideoFormatT
 from . import vs_proxy as vs
 from .cache import DynamicClipsCache
+from .info import get_depth
 from .scale import scale_8bit
 
 __all__ = [
@@ -112,7 +113,7 @@ def finalize_output(
 
 
 def initialize_clip(
-    clip: vs.VideoNode, bits: int | None = 16,
+    clip: vs.VideoNode, bits: int | None = None,
     matrix: MatrixT | None = None,
     transfer: TransferT | None = None,
     primaries: PrimariesT | None = None,
@@ -126,7 +127,10 @@ def initialize_clip(
     Initialize a clip with default props.
 
     :param clip:            Clip to initialize.
-    :param bits:            Bits to dither to. If None, no dithering is applied.
+    :param bits:            Bits to dither to.
+                            - If 0, no dithering is applied.
+                            - If None, 16 if bit depth is lower than it, else leave untouched.
+                            - If positive integer, dither to that bitdepth.
     :param matrix:          Matrix property to set. If None, tries to get the Matrix from existing props.
                             If no props are set or Matrix=2, guess from the video resolution.
     :param transfer:        Transfer property to set. If None, tries to get the Transfer from existing props.
@@ -163,6 +167,8 @@ def initialize_clip(
     ], func)
 
     if bits is None:
+        bits = max(get_depth(clip), 16)
+    elif bits <= 0:
         return clip
 
     return depth(clip, bits, dither_type=dither_type)
