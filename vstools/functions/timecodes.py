@@ -10,7 +10,7 @@ import vapoursynth as vs
 from stgpytools import CustomValueError, FilePathType, FuncExceptT, LinearRangeLut, Sentinel, SPath, inject_self
 
 from ..enums import Matrix, SceneChangeMode
-from ..exceptions import FramesLengthError
+from ..exceptions import FramesLengthError, InvalidTimecodeVersionError
 from .render import clip_async_render
 
 __all__ = [
@@ -243,6 +243,8 @@ class Timecodes(list[Timecode]):
 
         check_perms(out_path, 'w+', func=func)
 
+        InvalidTimecodeVersionError.check(self.to_file, format)
+
         out_text = [
             f'# timecode format v{format}'
         ]
@@ -270,8 +272,6 @@ class Timecodes(list[Timecode]):
                 out_text.append(s_acc)
                 acc += (time.denominator * 100) / (time.numerator * 100) * 1000
             out_text.append(str(acc))
-        else:
-            raise CustomValueError('timecodes format not supported!', func, format)
 
         out_path.unlink(True)
         out_path.touch()
