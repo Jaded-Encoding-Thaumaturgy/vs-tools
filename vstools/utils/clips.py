@@ -14,6 +14,7 @@ from ..functions import DitherType, check_variable, depth
 from ..types import F_VD, HoldsVideoFormatT, VideoFormatT
 from . import vs_proxy as vs
 from .cache import DynamicClipsCache
+from .info import get_depth
 from .scale import scale_8bit
 
 __all__ = [
@@ -113,7 +114,7 @@ def finalize_output(
 
 
 def initialize_clip(
-    clip: vs.VideoNode, bits: int | None = 16,
+    clip: vs.VideoNode, bits: int | None = None,
     matrix: MatrixT | None = None,
     transfer: TransferT | None = None,
     primaries: PrimariesT | None = None,
@@ -129,7 +130,10 @@ def initialize_clip(
     It is HIGHLY recommended to always use this function at the beginning of your scripts!
 
     :param clip:            Clip to initialize.
-    :param bits:            Bitdepth to dither to. If None, no dithering is applied.
+    :param bits:            Bits to dither to.
+                            - If 0, no dithering is applied.
+                            - If None, 16 if bit depth is lower than it, else leave untouched.
+                            - If positive integer, dither to that bitdepth.
     :param matrix:          Matrix property to set. If None, tries to get the Matrix from existing props.
                             If no props are set or Matrix=2, guess from the video resolution.
     :param transfer:        Transfer property to set. If None, tries to get the Transfer from existing props.
@@ -168,6 +172,8 @@ def initialize_clip(
     ], func)
 
     if bits is None:
+        bits = max(get_depth(clip), 16)
+    elif bits <= 0:
         return clip
 
     return depth(clip, bits, dither_type=dither_type)
@@ -338,7 +344,7 @@ class ProcessVariableResClip(ProcessVariableClip[tuple[int, int]]):
         return (frame.width, frame.height)
 
     def normalize(self, clip: vs.VideoNode, cast_to: tuple[int, int]) -> vs.VideoNode:
-        return clip.resize.Point(*cast_to)
+        return clip.std.RemoveFrameProps().resize.Point(*cast_to).std.CopyFrameProps(clip)
 
 
 class ProcessVariableFormatClip(ProcessVariableClip[vs.VideoFormat]):
@@ -346,7 +352,7 @@ class ProcessVariableFormatClip(ProcessVariableClip[vs.VideoFormat]):
         return frame.format
 
     def normalize(self, clip: vs.VideoNode, cast_to: vs.VideoFormat) -> vs.VideoNode:
-        return clip.resize.Point(format=cast_to)  # type: ignore
+        return clip.std.RemoveFrameProps().resize.Point(format=cast_to).std.CopyFrameProps(clip)  # type: ignore
 
 
 class ProcessVariableResFormatClip(ProcessVariableClip[tuple[int, int, vs.VideoFormat]]):
@@ -354,4 +360,4 @@ class ProcessVariableResFormatClip(ProcessVariableClip[tuple[int, int, vs.VideoF
         return (frame.width, frame.height, frame.format)
 
     def normalize(self, clip: vs.VideoNode, cast_to: tuple[int, int, vs.VideoFormat]) -> vs.VideoNode:
-        return clip.resize.Point(*cast_to)  # type: ignore
+        return clip.std.RemoveFrameProps().resize.Point(*cast_to).std.CopyFrameProps(clip)  # type: ignore

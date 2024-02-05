@@ -153,8 +153,7 @@ class PropEnum(CustomIntEnum):
     @classmethod
     def is_valid(cls, value: int) -> bool:
         """Check if the given value is a valid int value of this enum."""
-
-        return value in map(int, cls.__members__.values())
+        return int(value) in map(int, cls.__members__.values())
 
 
 SelfPropEnum = TypeVar('SelfPropEnum', bound=PropEnum)
