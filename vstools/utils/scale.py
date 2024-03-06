@@ -124,7 +124,9 @@ def scale_value(
         return out_value
 
     input_peak = get_peak_value(in_fmt, chroma, range_in)
+    input_lowest = get_lowest_value(in_fmt, chroma, range_in)
     output_peak = get_peak_value(out_fmt, chroma, range_out)
+    output_lowest = get_lowest_value(out_fmt, chroma, range_out)
 
     if scale_offsets:
         if out_fmt.sample_type is vs.FLOAT and chroma:
@@ -132,7 +134,7 @@ def scale_value(
         elif range_out.is_full and range_in.is_limited:
             out_value -= 16 << (in_fmt.bits_per_sample - 8)
 
-    out_value *= output_peak / input_peak
+    out_value *= (output_peak - output_lowest) / (input_peak - input_lowest)
 
     if scale_offsets:
         if in_fmt.sample_type is vs.FLOAT and chroma:
