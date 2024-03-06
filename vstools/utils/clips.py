@@ -67,11 +67,11 @@ def finalize_clip(
         if hasattr(vs.core, 'akarin'):
             clip = clip.akarin.Expr([
                 f'x {low_luma} {high_luma} clamp', f'x {low_chroma} {high_chroma} clamp'
-            ])
+            ][:clip.format.num_planes])
         else:
             clip = clip.std.Expr([
                 f'x {low_luma} max {high_luma} min', f'x {low_chroma} max {high_chroma} min'
-            ])
+            ][:clip.format.num_planes])
 
     return clip
 
