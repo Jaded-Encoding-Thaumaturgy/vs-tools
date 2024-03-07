@@ -12,7 +12,6 @@ from ..enums import (
 )
 from ..functions import DitherType, check_variable, depth
 from ..types import F_VD, HoldsVideoFormatT, VideoFormatT
-from ..utils import get_lowest_values, get_peak_values
 from . import vs_proxy as vs
 from .cache import DynamicClipsCache
 from .info import get_depth
@@ -48,6 +47,7 @@ def finalize_clip(
 
     :return:                Dithered down and optionally clamped clip.
     """
+    from ..utils import get_lowest_values, get_peak_values
 
     assert check_variable(clip, func or finalize_clip)
 
