@@ -113,7 +113,7 @@ def scale_value(
     else:
         range_in = ColorRange(range_in)
 
-    if in_fmt.sample_type is vs.FLOAT:
+    if out_fmt.sample_type is vs.FLOAT:
         range_out = ColorRange.FULL
     elif range_out is not None:
         range_out = ColorRange(range_out)
