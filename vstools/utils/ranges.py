@@ -210,7 +210,7 @@ def replace_ranges(
 
         a_ranges = invert_ranges(clip_b, clip_a, b_ranges)
 
-        a_trims = [clip_a[start:end + shift] for start, end in a_ranges]
+        a_trims = [clip_a[max(0, start - exclusive):end + shift + exclusive] for start, end in a_ranges]
         b_trims = [clip_b[start:end + shift] for start, end in b_ranges]
 
         if a_ranges:

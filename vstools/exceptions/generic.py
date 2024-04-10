@@ -417,9 +417,7 @@ class InvalidTimecodeVersionError(CustomValueError):
         self, func: FuncExceptT, version: int,
         message: SupportsString = '{version} is not a valid timecodes version!', **kwargs: Any
     ) -> None:
-        super().__init__(
-            message, func, version=version, **kwargs  # type: ignore
-        )
+        super().__init__(message, func, version=version, **kwargs)
 
     @staticmethod
     def check(
@@ -429,6 +427,8 @@ class InvalidTimecodeVersionError(CustomValueError):
         """
         Check whether the given values are correct, and if not, throw this exception.
 
+        :param func:                            Function returned for custom error handling.
+                                                This should only be set by VS package developers.
         :param to_check:                        Value to check. Must be an integer representing the timecodes version.
         :param correct:                         A correct value or an array of correct values.
                                                 Defaults to [1, 2] (V1, V2).

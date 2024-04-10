@@ -15,7 +15,6 @@ from ..types import F_VD, HoldsVideoFormatT, VideoFormatT
 from . import vs_proxy as vs
 from .cache import DynamicClipsCache
 from .info import get_depth
-from .scale import scale_8bit
 
 __all__ = [
     'finalize_clip',
@@ -49,6 +48,7 @@ def finalize_clip(
 
     :return:                Dithered down and optionally clamped clip.
     """
+    from ..utils import get_lowest_values, get_peak_values
 
     assert check_variable(clip, func or finalize_clip)
 
@@ -62,17 +62,10 @@ def finalize_clip(
             clamp_tv_range = True
 
     if clamp_tv_range:
-        low_luma, high_luma = scale_8bit(clip, 16), scale_8bit(clip, 235)
-        low_chroma, high_chroma = scale_8bit(clip, 16, True), scale_8bit(clip, 240, True)
-
-        if hasattr(vs.core, 'akarin'):
-            clip = clip.akarin.Expr([
-                f'x {low_luma} {high_luma} clamp', f'x {low_chroma} {high_chroma} clamp'
-            ])
-        else:
-            clip = clip.std.Expr([
-                f'x {low_luma} max {high_luma} min', f'x {low_chroma} max {high_chroma} min'
-            ])
+        clip = clip.std.Limiter(
+            get_lowest_values(clip, ColorRange.LIMITED),
+            get_peak_values(clip, ColorRange.LIMITED)
+        )
 
     return clip
 
