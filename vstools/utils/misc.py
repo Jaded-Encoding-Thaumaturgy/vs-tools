@@ -28,15 +28,16 @@ def change_fps(clip: vs.VideoNode, fps: Fraction) -> vs.VideoNode:
     Convert the framerate of a clip.
 
     This is different from AssumeFPS as this will actively adjust
-    the framerate of a clip, not simply set one.
+    the framerate of a clip, rather than simply set the framerate properties.
 
     :param clip:        Input clip.
-    :param fps:         Framerate to convert the clip to. Must be a Fration.
+    :param fps:         Framerate to convert the clip to. Must be a Fraction.
 
     :return:            Clip with the framerate converted and frames adjusted as necessary.
     """
 
     src_num, src_den = clip.fps_num, clip.fps_den
+
     dest_num, dest_den = fps.as_integer_ratio()
 
     if (dest_num, dest_den) == (src_num, src_den):
@@ -55,6 +56,19 @@ def match_clip(
     clip: vs.VideoNode, ref: vs.VideoNode, dimensions: bool = True,
     vformat: bool = True, matrices: bool = True, length: bool = False
 ) -> vs.VideoNode:
+    """
+    Try to match the formats, dimensions, etc. of a reference clip to match the original clip.
+
+    :param clip:            Original clip.
+    :param ref:             Reference clip.
+    :param dimensions:      Whether to adjust the dimensions of the reference clip to match the original clip.
+                            If True, uses resize.Bicubic to resize the image. Default: True.
+    :param vformat:         Whether to change the reference clip's format to match the original clip's.
+                            Default: True.
+    :param matrices:        Whether to adjust the Matrix, Transfer, and Primaries of the reference clip
+                            to match the original clip. Default: True.
+    :param length:          Whether to adjust the length of the reference clip to match the original clip.
+    """
     from ..enums import Matrix, Primaries, Transfer
     from ..functions import check_variable
 
@@ -115,13 +129,23 @@ class _padder:
 
     def MIRROR(self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0) -> vs.VideoNode:
         """
-        Pad a clip with reflect mode. This will reflect each side.
+        Pad a clip with reflect mode. This will reflect the clip on each side.
+
+        Visual example:
+
+        .. code-block:: python
+
+            >>> |ABCDE
+            >>> padder.MIRROR(left=3)
+            >>> CBA|ABCDE
 
         :param clip:        Input clip.
         :param left:        Padding added to the left side of the clip.
         :param right:       Padding added to the right side of the clip.
         :param top:         Padding added to the top side of the clip.
         :param bottom:      Padding added to the bottom side of the clip.
+
+        :return:            Padded clip with reflected borders.
         """
 
         from ..utils import core
@@ -138,11 +162,21 @@ class _padder:
         """
         Pad a clip with repeat mode. This will simply repeat the last row/column till the end.
 
+        Visual example:
+
+        .. code-block:: python
+
+            >>> |ABCDE
+            >>> padder.REPEAT(left=3)
+            >>> AAA|ABCDE
+
         :param clip:        Input clip.
         :param left:        Padding added to the left side of the clip.
         :param right:       Padding added to the right side of the clip.
         :param top:         Padding added to the top side of the clip.
         :param bottom:      Padding added to the bottom side of the clip.
+
+        :return:            Padded clip with repeated borders.
         """
 
         *_, fmt, w_sub, h_sub = self._base(clip, left, right, top, bottom)
@@ -192,6 +226,14 @@ class _padder:
         """
         Pad a clip with a constant color.
 
+        Visual example:
+
+        .. code-block:: python
+
+            >>> |ABCDE
+            >>> padder.COLOR(left=3, color=Z)
+            >>> ZZZ|ABCDE
+
         :param clip:        Input clip.
         :param left:        Padding added to the left side of the clip.
         :param right:       Padding added to the right side of the clip.
@@ -202,6 +244,8 @@ class _padder:
                                 * False: Lowest value for this clip format and color range.
                                 * True: Highest value for this clip format and color range.
                                 * None: Neutral value for this clip format.
+
+        :return:            Padded clip with colored borders.
         """
 
         from ..utils import get_lowest_values, get_neutral_values, get_peak_values
@@ -245,6 +289,7 @@ def set_output(
     name: str | bool = True, **kwargs: Any
 ) -> None:
     """Set output node with optional name, and if available, use vspreview set_output."""
+
     from ..functions import flatten_vnodes
 
     last_index = len(vs.get_outputs())

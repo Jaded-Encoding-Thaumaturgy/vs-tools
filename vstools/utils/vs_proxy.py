@@ -144,6 +144,7 @@ if not TYPE_CHECKING:
 
 def register_on_creation(callback: Callable[..., None], strict: bool = False) -> None:
     """Register a callback on every core creation."""
+
     core_on_creation_callbacks.update({id(callback): weakref.ref(callback)})
 
     if not strict and core.active:
@@ -155,6 +156,7 @@ def register_on_creation(callback: Callable[..., None], strict: bool = False) ->
 
 def unregister_on_creation(callback: Callable[..., None]) -> None:
     """Unregister this callback from every core creation."""
+
     core_on_creation_callbacks.pop(id(callback), None)
 
 
@@ -487,6 +489,7 @@ class VSCoreProxy(CoreProxyBase):
     @property
     def core(self) -> Core:
         """The underlying VapourSynth Core instance."""
+
         return _get_core_with_cb(self)
 
     @property

@@ -15,7 +15,7 @@ __all__ = [
 
 def shift_clip(clip: vs.VideoNode, offset: int) -> vs.VideoNode:
     """
-    Shift a clip forwards or backwards by *n* frames.
+    Shift a clip forwards or backwards by *N* frames.
 
     This is useful for cases where you must compare every frame of a clip
     with the frame that comes before or after the current frame,
@@ -29,7 +29,7 @@ def shift_clip(clip: vs.VideoNode, offset: int) -> vs.VideoNode:
                             Positive values will shift a clip forward,
                             negative will shift a clip backward.
 
-    :returns:               Clip that has been shifted forwards or backwards by *n* frames.
+    :return:                Clip that has been shifted forwards or backwards by *N* frames.
     """
 
     if offset > clip.num_frames - 1:
@@ -49,14 +49,15 @@ def shift_clip_multi(clip: vs.VideoNode, offsets: FrameRange = (-1, 1)) -> list[
     Shift a clip forwards or backwards multiple times by a varying amount of frames.
 
     This will return a clip for every shifting operation performed.
-    This is a convenience function that should make handling multiple shifts a lot easier.
-
+    This is a convenience function that makes handling multiple shifts easier.
 
     Example:
 
-    >>> shift_clip_multi(clip, (-3, 3))
-        [VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode]
-            -3         -2         -1          0         +1         +2         +3
+    .. code-block:: python
+
+        >>> shift_clip_multi(clip, (-3, 3))
+            [VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode, VideoNode]
+                -3         -2         -1          0         +1         +2         +3
 
     :param clip:            Input clip.
     :param offsets:         List of frame ranges for offsetting.

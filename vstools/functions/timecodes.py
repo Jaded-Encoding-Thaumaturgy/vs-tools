@@ -22,11 +22,20 @@ __all__ = [
 
 @dataclass
 class Timecode:
+    """A Timecode object representing the timecodes of a specific frame."""
+
     frame: int
+    """The frame number."""
+
     numerator: int
+    """The framerate numerator."""
+
     denominator: int
+    """The framerate denominator."""
 
     def to_fraction(self) -> Fraction:
+        """Convert the Timecode to a Fraction that represents the FPS."""
+
         return Fraction(self.numerator, self.denominator)
 
     def __eq__(self, other: object) -> bool:
@@ -46,16 +55,22 @@ TimecodeBoundT = TypeVar('TimecodeBoundT', bound=Timecode)
 
 
 class Timecodes(list[Timecode]):
+    """A list of individual Timecode objects."""
+
     V1 = 1
     V2 = 2
 
     def to_fractions(self) -> list[Fraction]:
+        """Convert to a list of frame lengths, representing the individual framerates."""
+
         return list(
             Fraction(x.numerator, x.denominator)
             for x in self
         )
 
     def to_normalized_ranges(self) -> dict[tuple[int, int], Fraction]:
+        """Convert to a list of normalized frame ranges and their assigned framerate."""
+
         timecodes_ranges = dict[tuple[int, int], Fraction]()
 
         last_i = len(self) - 1
@@ -76,6 +91,8 @@ class Timecodes(list[Timecode]):
     def normalize_range_timecodes(
         cls, timecodes: dict[tuple[int | None, int | None], Fraction], end: int, assume: Fraction | None = None
     ) -> list[Fraction]:
+        """Convert from normalized ranges to a list of Fractions."""
+
         from .funcs import fallback
 
         norm_timecodes = [assume] * end if assume else list[Fraction]()
@@ -130,6 +147,12 @@ class Timecodes(list[Timecode]):
 
     @classmethod
     def from_clip(cls: type[TimecodesBoundT], clip: vs.VideoNode, **kwargs: Any) -> TimecodesBoundT:
+        """
+        Get the timecodes from a given clip.
+
+        :param clip:        Clip to gather metrics from.
+        :param kwargs:      Keyword arguments to pass on to `clip_async_render`.
+        """
         if hasattr(vs.core, 'akarin'):
             prop_clip = clip.std.BlankClip(2, 1, vs.GRAY16, keep=True).std.CopyFrameProps(clip)
             prop_clip = prop_clip.akarin.Expr('X 1 = x._DurationNum x._DurationDen ?')
@@ -164,6 +187,17 @@ class Timecodes(list[Timecode]):
         cls: type[TimecodesBoundT], file: FilePathType, ref_or_length: int | vs.VideoNode, den: int | None = None,
         *, func: FuncExceptT | None = None
     ) -> TimecodesBoundT:
+        """
+        Read the timecodes from a given file.
+
+        :param file:            File to read.
+        :param ref_or_length:   Reference clip to get the total number of frames from.
+                                If int, take that as the total number of frames.
+        :param den:             The denominator. If None, try to obtain it from the ref if possible,
+                                else fall back to 1001.
+        :param func:            Function returned for custom error handling.
+                                This should only be set by VS package developers.
+        """
         func = func or cls.from_file
 
         file = Path(str(file)).resolve()
@@ -218,6 +252,15 @@ class Timecodes(list[Timecode]):
         )
 
     def assume_vfr(self, clip: vs.VideoNode, func: FuncExceptT | None = None) -> vs.VideoNode:
+        """
+        Force the given clip to be assumed to be vfr by other applications.
+
+        :param clip:        Clip to process.
+        :param func:        Function returned for custom error handling.
+                            This should only be set by VS package developers.
+
+        :return:            Clip that should always be assumed to be vfr by other applications.
+        """
         from ..utils import replace_ranges
 
         func = func or self.assume_vfr
@@ -235,6 +278,14 @@ class Timecodes(list[Timecode]):
         return assumed_clip
 
     def to_file(self, out: FilePathType, format: int = V2, func: FuncExceptT | None = None) -> None:
+        """
+        Write timecodes to a file.
+
+        This file shoudl always be muxed into the video container when working with Variable Frame Rate video.
+
+        :param out:         Path to write the file to.
+        :param format:      Format to write the file to.
+        """
         from ..utils import check_perms
 
         func = func or self.to_file

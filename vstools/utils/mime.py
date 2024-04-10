@@ -257,7 +257,8 @@ class FileType(FileTypeBase):
         is a different FileType than what this method was called on.
 
         :param path:        Path of the file to be parsed.
-        :param func:        Function that this was called from, only useful to *func writers.
+        :param func:        Function returned for custom error handling.
+                            This should only be set by VS package developers.
         :force_ffprobe:     Only rely on ffprobe to parse the file info.
 
         :return:            ParsedFile object, holding the file's info.

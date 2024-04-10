@@ -168,7 +168,6 @@ class Matrix(_MatrixMeta):
     ```\n
     Chromaticity-derived non-constant luminance system\n
     See ITU-T H.265 Equations E-28 to E-30
-
     """
 
     CHROMA_DERIVED_C = 13
@@ -192,7 +191,7 @@ class Matrix(_MatrixMeta):
 
     @classmethod
     def is_unknown(cls, value: int | Matrix) -> bool:
-        """Check if Matrix is unknown."""
+        """Check if Matrix is Matrix.UNKNOWN."""
 
         return value == cls.UNKNOWN
 
@@ -232,8 +231,8 @@ class Matrix(_MatrixMeta):
         Obtain the matrix of a clip from the frame properties.
 
         :param src:                         Input clip, frame, or props.
-        :param strict:                      Be strict about the properties.
-                                            The result may NOT be Matrix.UNKNOWN.
+        :param strict:                      Be strict about the frame properties.
+                                            Will ALWAYS error with Matrix.UNKNOWN.
 
         :return:                            Matrix object.
 
@@ -249,8 +248,8 @@ class Matrix(_MatrixMeta):
         Obtain the matrix from a Transfer object.
 
         :param transfer:                        Transfer object.
-        :param strict:                          Be strict about the properties.
-                                                The result may NOT be Transfer.UNKNOWN.
+        :param strict:                          Be strict about the transfer-matrix mapping.
+                                                Will ALWAYS error with Transfer.UNKNOWN.
 
         :return:                                Matrix object.
 
@@ -271,8 +270,8 @@ class Matrix(_MatrixMeta):
         Obtain the matrix from a Primaries object.
 
         :param transfer:                        Primaries object.
-        :param strict:                          Be strict about the properties.
-                                                The result may NOT be Primaries.UNKNOWN.
+        :param strict:                          Be strict about the primaries-matrix mapping.
+                                                Will ALWAYS error with Primaries.UNKNOWN.
 
         :return:                                Matrix object.
 
@@ -359,19 +358,19 @@ class Transfer(_TransferMeta):
     """
 
     ST240M = 7
-    """SMPTE ST 240 (1999, historical)"""
+    """SMPTE ST 240 (1999, historical)."""
 
     LINEAR = 8
-    """Linear transfer characteristics"""
+    """Linear transfer characteristics."""
 
     LOG_100 = 9
-    """Logarithmic transfer characteristic (100:1 range)"""
+    """Logarithmic transfer characteristic (100:1 range)."""
 
     LOG_316 = 10
-    """Logarithmic transfer characteristic (100 * sqrt(10):1 range)"""
+    """Logarithmic transfer characteristic (100 * sqrt(10):1 range)."""
 
     XVYCC = 11
-    """IEC 61966-2-4"""
+    """IEC 61966-2-4."""
 
     SRGB = 13
     """
@@ -384,7 +383,6 @@ class Transfer(_TransferMeta):
     (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
     and :py:attr:`Transfer.BT2020_12bits`)\n
     Rec. ITU-R BT.2020-2
-
     """
 
     BT2020_12bits = 15
@@ -413,41 +411,41 @@ class Transfer(_TransferMeta):
 
     # Standard gamut:
     BT601_525 = 100
-    """ITU-R Rec. BT.601 (525-line = NTSC, SMPTE-C)"""
+    """ITU-R Rec. BT.601 (525-line = NTSC, SMPTE-C)."""
 
     BT601_625 = 101
-    """ITU-R Rec. BT.601 (625-line = PAL, SECAM)"""
+    """ITU-R Rec. BT.601 (625-line = PAL, SECAM)."""
 
     EBU_3213 = 102
-    """EBU Tech. 3213-E / JEDEC P22 phosphors"""
+    """EBU Tech. 3213-E / JEDEC P22 phosphors."""
 
     # Wide gamut:
     APPLE = 103
-    """Apple RGB"""
+    """Apple RGB."""
 
     ADOBE = 104
-    """Adobe RGB (1998)"""
+    """Adobe RGB (1998)."""
 
     PRO_PHOTO = 105
-    """ProPhoto RGB (ROMM)"""
+    """ProPhoto RGB (ROMM)."""
 
     CIE_1931 = 106
-    """CIE 1931 RGB primaries"""
+    """CIE 1931 RGB primaries."""
 
     DCI_P3 = 107
-    """DCI-P3 (Digital Cinema)"""
+    """DCI-P3 (Digital Cinema)."""
 
     DISPLAY_P3 = 108
-    """DCI-P3 (Digital Cinema) with D65 white point"""
+    """DCI-P3 (Digital Cinema) with D65 white point."""
 
     V_GAMUT = 109
-    """Panasonic V-Gamut (VARICAM)"""
+    """Panasonic V-Gamut (VARICAM)."""
 
     S_GAMUT = 110
-    """Sony S-Gamut"""
+    """Sony S-Gamut."""
 
     FILM_C = 111
-    """Traditional film primaries with Illuminant C"""
+    """Traditional film primaries with Illuminant C."""
 
     @classmethod
     def is_unknown(cls, value: int | Transfer) -> bool:
@@ -514,8 +512,8 @@ class Transfer(_TransferMeta):
         Obtain the transfer from a Matrix object.
 
         :param matrix:                          Matrix object.
-        :param strict:                          Be strict about the properties.
-                                                The matrix may NOT be Matrix.UNKNOWN!
+        :param strict:                          Be strict about the matrix-transfer mapping.
+                                                Will ALWAYS error with Matrix.UNKNOWN.
 
         :return:                                Transfer object.
 
@@ -536,8 +534,8 @@ class Transfer(_TransferMeta):
         Obtain the transfer from a Primaries object.
 
         :param primaries:                       Primaries object.
-        :param strict:                          Be strict about the properties.
-                                                The matrix may NOT be Primaries.UNKNOWN!
+        :param strict:                          Be strict about the primaries-transfer mapping.
+                                                Will ALWAYS error with Primaries.UNKNOWN.
 
         :return:                                Transfer object.
 
@@ -825,8 +823,8 @@ class Primaries(_PrimariesMeta):
         Obtain the primaries of a clip from the frame properties.
 
         :param src:                         Input clip, frame, or props.
-        :param strict:                      Be strict about the properties.
-                                            The result may NOT be Primaries.UNKNOWN.
+        :param strict:                      Be strict about the frame properties.
+                                            Will ALWAYS error with Primaries.UNKNOWN.
 
         :return:                            Primaries object.
 
@@ -842,8 +840,8 @@ class Primaries(_PrimariesMeta):
         Obtain the primaries from a Matrix object.
 
         :param matrix:                          Matrix object.
-        :param strict:                          Be strict about the properties.
-                                                The matrix may NOT be Matrix.UNKNOWN!
+        :param strict:                          Be strict about the matrix-primaries mapping.
+                                                Will ALWAYS error with Matrix.UNKNOWN.
 
         :return:                                Primaries object.
 
@@ -864,8 +862,8 @@ class Primaries(_PrimariesMeta):
         Obtain the primaries from a Transfer object.
 
         :param transfer:                        Transfer object.
-        :param strict:                          Be strict about the properties.
-                                                The result may NOT be Transfer.UNKNOWN.
+        :param strict:                          Be strict about the transfer-primaries mapping.
+                                                Will ALWAYS error with Transfer.UNKNOWN.
 
         :return:                                Matrix object.
 
@@ -986,9 +984,8 @@ class ColorRange(_ColorRangeMeta):
     """
     Full (PC) dynamic range, 0-255 in 8 bits.
 
-
-    | Note that float clips should always be FULL range!\n
-    | RGB clips will always be FULL range!
+    | Note that float clips should ALWAYS be FULL range!\n
+    | RGB clips will ALWAYS be FULL range!
     """
 
     @classmethod
@@ -997,7 +994,7 @@ class ColorRange(_ColorRangeMeta):
 
         from ..utils import get_var_infos
 
-        fmt, w, h = get_var_infos(frame)
+        fmt, _, _ = get_var_infos(frame)
 
         if fmt.color_family == vs.RGB:
             return cls.FULL
@@ -1012,7 +1009,7 @@ class ColorRange(_ColorRangeMeta):
         Obtain the color range of a clip from the frame properties.
 
         :param src:                         Input clip, frame, or props.
-        :param strict:                      Be strict about the properties.
+        :param strict:                      Be strict about the frame properties.
                                             Sets the ColorRange as MISSING if prop is not there.
 
         :return:                            ColorRange object.

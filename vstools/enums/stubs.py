@@ -73,6 +73,7 @@ class PropEnum(CustomIntEnum):
     @classmethod
     def from_res(cls: type[SelfPropEnum], frame: vs.VideoNode | vs.VideoFrame) -> SelfPropEnum:
         """Get an enum member from the video resolution with heuristics."""
+
         raise NotImplementedError
 
     @classmethod
@@ -80,7 +81,8 @@ class PropEnum(CustomIntEnum):
         cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, strict: bool = False,
         func: FuncExceptT | None = None
     ) -> SelfPropEnum:
-        """Get an enum member from the frame properties or optionally fallback to resolution when strict=False."""
+        """Get an enum member from the frame properties or optionally fall back to resolution when strict=False."""
+
         raise NotImplementedError
 
     @classmethod
@@ -89,6 +91,17 @@ class PropEnum(CustomIntEnum):
         src: vs.VideoNode | vs.VideoFrame | vs.FrameProps,
         strict: bool = False, func_except: FuncExceptT | None = None
     ) -> SelfPropEnum:
+        """
+        Get the enum member from a value that can be casted to this prop value
+        or grab it from frame properties.
+
+        If `strict=False`, gather the heuristics using the clip's size or format.
+
+        :param value:           Value to cast.
+        :param src:             Clip to get prop from.
+        :param strict:          Be strict about the frame properties. Default: False.
+        :param func_except:     Function returned for custom error handling.
+        """
         value = cls.from_param(value, func_except)
 
         if value is not None:
@@ -101,12 +114,14 @@ class PropEnum(CustomIntEnum):
         cls: type[SelfPropEnum], clip: vs.VideoNode, value: int | SelfPropEnum | None, func: FuncExceptT | None = None
     ) -> vs.VideoNode:
         """Ensure the presence of the property in the VideoNode."""
+
         enum_value = cls.from_param_or_video(value, clip, True, func)
 
         return clip.std.SetFrameProp(enum_value.prop_key, enum_value.value)
 
     def apply(self: SelfPropEnum, clip: vs.VideoNode) -> vs.VideoNode:
-        """Applies the property in the VideoNode."""
+        """Applies the property to the VideoNode."""
+
         return clip.std.SetFrameProp(self.prop_key, self.value)
 
     @staticmethod
@@ -114,6 +129,7 @@ class PropEnum(CustomIntEnum):
         clip: vs.VideoNode, prop_enums: Iterable[type[SelfPropEnum] | SelfPropEnum], func: FuncExceptT | None = None
     ) -> vs.VideoNode:
         """Ensure the presence of multiple PropEnums at once."""
+
         return clip.std.SetFrameProps(**{
             value.prop_key: value.value  # type: ignore
             for value in [
@@ -124,16 +140,19 @@ class PropEnum(CustomIntEnum):
 
     @property
     def pretty_string(self) -> str:
-        """Get a pretty, displayable, string of the enum member."""
+        """Get a pretty, displayable string of the enum member."""
+
         return capwords(self.string.replace('_', ' '))
 
     @property
     def string(self) -> str:
         """Get the string representation used in resize plugin/encoders."""
+
         return self._name_.lower()
 
     @classmethod
     def is_valid(cls, value: int) -> bool:
+        """Check if the given value is a valid int value of this enum."""
         return int(value) in map(int, cls.__members__.values())
 
 
@@ -198,7 +217,7 @@ if TYPE_CHECKING:
             Determine the Matrix through a parameter.
 
             :param value:           Value or Matrix object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
 
             :return:                Matrix object or None.
             """
@@ -242,7 +261,8 @@ if TYPE_CHECKING:
             Determine the Transfer through a parameter.
 
             :param value:           Value or Transfer object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                Transfer object or None.
             """
@@ -286,7 +306,8 @@ if TYPE_CHECKING:
             Determine the Primaries through a parameter.
 
             :param value:           Value or Primaries object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                Primaries object or None.
             """
@@ -330,7 +351,8 @@ if TYPE_CHECKING:
             Determine the ColorRange through a parameter.
 
             :param value:           Value or ColorRange object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                ColorRange object or None.
             """
@@ -376,7 +398,8 @@ if TYPE_CHECKING:
             Determine the ChromaLocation through a parameter.
 
             :param value:           Value or ChromaLocation object.
-            :param func_except:     Exception function.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                ChromaLocation object or None.
             """
@@ -420,8 +443,9 @@ if TYPE_CHECKING:
             Determine the type of field through a parameter.
 
             :param value_or_tff:    Value or FieldBased object.
-                                    If it's bool, it specifies for whether it's TFF of BFF.
-            :param func_except:     Exception function.
+                                    If it's bool, it specifies whether it's TFF or BFF.
+            :param func_except:     Function returned for custom error handling.
+                                    This should only be set by VS package developers.
 
             :return:                FieldBased object or None.
             """

@@ -132,6 +132,21 @@ class InvalidColorFamilyError(CustomValueError):
         func: FuncExceptT | None = None, message: SupportsString | None = None,
         **kwargs: Any
     ) -> None:
+        """
+        Check whether the given values are correct, and if not, throw this exception.
+
+        :param to_check:                    Value to check. Must be either a ColorFamily value,
+                                            or a value a ColorFamily can be derived from such as VideoFormat.
+        :param correct:                     A correct value or an array of correct color families.
+        :param func:                        Function returned for custom error handling.
+                                            This should only be set by VS package developers.
+        :param message:                     Message to print when throwing the exception.
+                                            The message will be formatted to display the correct and wrong values
+                                            (`{correct}` and `{wrong}` respectively).
+        :param kwargs:                      Keyword arguments to pass on to the exception.
+
+        :raises InvalidColorFamilyError:    Given color family is not in list of correct color families.
+        """
         from ..functions import to_arr
         from ..utils import get_color_family
 
@@ -187,7 +202,7 @@ class FormatsMismatchError(MismatchError):
 
 
 class FormatsRefClipMismatchError(MismatchRefError, FormatsMismatchError):
-    """Raised when a ref clip and the main clip have different formats"""
+    """Raised when a ref clip and the main clip have different formats."""
 
     def __init__(
         self, func: FuncExceptT, clip: VideoFormatT | HoldsVideoFormatT, ref: VideoFormatT | HoldsVideoFormatT,
@@ -228,7 +243,7 @@ class ResolutionsMismatchError(MismatchError):
 
 
 class ResolutionsRefClipMismatchError(MismatchRefError, ResolutionsMismatchError):
-    """Raised when a ref clip and the main clip have different resolutions"""
+    """Raised when a ref clip and the main clip have different resolutions."""
 
     def __init__(
         self, func: FuncExceptT, clip: Resolution | vs.VideoNode, ref: Resolution | vs.VideoNode,
@@ -308,7 +323,7 @@ class FramerateMismatchError(MismatchError):
 
 
 class FramerateRefClipMismatchError(MismatchRefError, FramerateMismatchError):
-    """Raised when a ref clip and the main clip have a different framerate"""
+    """Raised when a ref clip and the main clip have a different framerate."""
 
     def __init__(
         self, func: FuncExceptT,
@@ -366,6 +381,21 @@ class InvalidFramerateError(CustomValueError):
             vs.VideoNode | Fraction | tuple[int, int] | float
         ], message: SupportsString = 'Input clip must have {correct} framerate, not {wrong}!', **kwargs: Any
     ) -> None:
+        """
+        Check whether the given values are correct, and if not, throw this exception.
+
+        :param to_check:                Value to check. Must be either a VideoNode holding the correct framerate,
+                                        a Fraction, a tuple representing a fraction, or a float.
+        :param correct:                 A correct value or an array of correct values.
+        :param func:                    Function returned for custom error handling.
+                                        This should only be set by VS package developers.
+        :param message:                 Message to print when throwing the exception.
+                                        The message will be formatted to display the correct and wrong values
+                                        (`{correct}` and `{wrong}` respectively).
+        :param kwargs:                  Keyword arguments to pass on to the exception.
+
+        :raises InvalidFramerateError:  Given framerate is not in list of correct framerates.
+        """
         from ..functions import to_arr
         from ..utils import get_framerate
 
@@ -392,7 +422,7 @@ class InvalidTimecodeVersionError(CustomValueError):
     @staticmethod
     def check(
         func: FuncExceptT, to_check: int, correct: int | Iterable[int] = [1, 2],
-        message: SupportsString = 'Timecodes version must be in {correct}, not {wrong}!', **kwargs: Any
+        message: SupportsString = 'Timecodes version be in {correct}, not {wrong}!', **kwargs: Any
     ) -> None:
         """
         Check whether the given values are correct, and if not, throw this exception.
@@ -402,7 +432,11 @@ class InvalidTimecodeVersionError(CustomValueError):
         :param to_check:                        Value to check. Must be an integer representing the timecodes version.
         :param correct:                         A correct value or an array of correct values.
                                                 Defaults to [1, 2] (V1, V2).
+        :param func:                            Function returned for custom error handling.
+                                                This should only be set by VS package developers.
         :param message:                         Message to print when throwing the exception.
+                                                The message will be formatted to display the correct and wrong values
+                                                (`{correct}` and `{wrong}` respectively).
         :param kwargs:                          Keyword arguments to pass on to the exception.
 
         :raises InvalidTimecodeVersionError:    Given timecodes version is not in list of correct versions.
