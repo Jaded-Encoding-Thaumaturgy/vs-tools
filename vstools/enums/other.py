@@ -91,7 +91,7 @@ class Dar(Fraction):
         """
         Get the Display Aspect Ratio from the clip's Sample Aspect Ratio (SAR).
 
-        :param clip=:               The clip to get the dimensions from.
+        :param clip:                The clip to get the dimensions from.
         :param sar:                 The SAR of the pixels. Only used if `clip_width` is an integer.
                                     Can be either a SAR object or a boolean. If False, assume 1/1 (square pixel).
 
@@ -131,16 +131,16 @@ class Dar(Fraction):
 
         return cls(width // gcd * sar.numerator, height // gcd * sar.denominator)
 
-    def to_sar(self, height: int, active_area: float) -> Sar:
+    def to_sar(self, active_area: float, height: int) -> Sar:
         """
         Convert the DAR to a SAR object.
 
-        :param height:          The height of the image.
         :param active_area:     The active image area. For more information, see ``Sar.from_ar``.
+        :param height:          The height of the image.
 
         :return:                A SAR object created using the DAR.
         """
-        return Sar.from_dar(self, height, active_area)
+        return Sar.from_dar(self, active_area, height)
 
 
 DarSelf = TypeVar('DarSelf', bound=Dar)
@@ -181,33 +181,26 @@ class Sar(Fraction):
         return cls(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))  # type: ignore
 
     @classmethod
-    def from_ar(cls: type[SarSelf], den: int, num: int, height: int, active_area: float) -> SarSelf:
+    def from_ar(cls: type[SarSelf], num: int, den: int, active_area: float, height: int) -> SarSelf:
         """
         Calculate the SAR from the given display aspect ratio and active image area.
-
         This method is used to obtain metadata to set in the video container for anamorphic video.
-
-        To get a ballpark estimation of the image's active area, subtract the number of
-        faded pixels from the base width of the image and compare this to known anamorphic standards.
 
         For a list of known standards, refer to the following tables:
         `<https://web.archive.org/web/20140218044518/http://lipas.uwasa.fi/~f76998/video/conversion/#conversion_table>`_
 
-        If there are no faded edges, you may assume an active image area
-        of 711 for widescreen content and 704 for fullscreen.
-
-        :param den:             The denumerator.
         :param num:             The numerator.
-        :param height:          The height of the image.
+        :param den:             The denominator.
         :param active_area:     The active image area.
+        :param height:          The height of the image.
 
         :return:                A SAR object created using DAR and active image area information.
         """
 
-        return cls(Dar(den, num).to_sar(height, active_area))
+        return cls(Dar(num, den).to_sar(active_area, height))
 
     @classmethod
-    def from_dar(cls: type[SarSelf], dar: Dar, height: int, active_area: float) -> SarSelf:
+    def from_dar(cls: type[SarSelf], dar: Dar, active_area: float, height: int) -> SarSelf:
         """Calculate the SAR using a DAR object. See ``Dar.to_sar`` for more information."""
 
         sar_n, sar_d = dar.numerator * height, dar.denominator * active_area
