@@ -73,7 +73,7 @@ class Dar(Fraction):
 
         :param width:               The width of the display.
         :param height:              The height of the display.
-        :param sar:                 The SAR of the pixels. Only used if `clip_width` is an integer.
+        :param sar:                 The AR of the pixels. Only used if `clip_width` is an integer.
                                     Can be either a SAR object or a boolean. If False, assume 1/1 (square pixel).
 
         :return:                    DAR object representing the aspect ratio of the display based on heuristics.
@@ -92,7 +92,7 @@ class Dar(Fraction):
         Get the Display Aspect Ratio from the clip's Sample Aspect Ratio (SAR).
 
         :param clip:                The clip to get the dimensions from.
-        :param sar:                 The SAR of the pixels. Only used if `clip_width` is an integer.
+        :param sar:                 The AR of the pixels. Only used if `clip_width` is an integer.
                                     Can be either a SAR object or a boolean. If False, assume 1/1 (square pixel).
 
         :return:                    DAR object representing the aspect ratio of the display based on heuristics.
