@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from enum import IntEnum
-from typing import Any
+from typing import Any, overload, Literal
 
 import vapoursynth as vs
 from stgpytools import KwargsT
+from vstools import PropEnum
 
 from ..enums import ChromaLocation, ColorRange, Matrix, Primaries, Transfer
 from ..enums.stubs import SelfPropEnum
@@ -16,9 +16,23 @@ __all__ = [
 ]
 
 
+@overload
 def video_heuristics(
-    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True
+    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True, assumed_return: Literal[False] = ...
 ) -> dict[str, int]:
+    ...
+
+
+@overload
+def video_heuristics(
+    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True, assumed_return: Literal[True] = ...
+) -> tuple[dict[str, int], list[str]]:
+    ...
+
+
+def video_heuristics(
+    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True, assumed_return: bool = False
+) -> dict[str, int] | tuple[dict[str, int], list[str]]:
     """
     Determine the video heuristics from the frame properties.
 
@@ -37,8 +51,9 @@ def video_heuristics(
                         optionally using key names derived from the resize plugin.
     """
 
+    assumed_props = list[str]()
     props_dict: vs.FrameProps | None
-    heuristics = dict[str, IntEnum]()
+    heuristics = dict[str, PropEnum]()
 
     if props is True:
         props_dict = clip.get_frame(0).props
@@ -51,7 +66,7 @@ def video_heuristics(
             if prop_type.prop_key in props_dict:
                 return prop_type.from_video(props_dict, True)
         except Exception:
-            ...
+            assumed_props.append(prop_type.prop_key)
 
         return prop_type.from_video(clip)
 
@@ -68,7 +83,14 @@ def video_heuristics(
             'chromaloc': ChromaLocation.from_res(clip)
         }
 
-    return {f'{k}_in' if prop_in else k: v for k, v in heuristics.items()}
+        assumed_props.extend(v.prop_key for v in heuristics.values())
+
+    out_props = {f'{k}_in' if prop_in else k: v for k, v in heuristics.items()}
+
+    if assumed_return:
+        return out_props, assumed_props
+
+    return out_props
 
 
 def video_resample_heuristics(clip: vs.VideoNode, kwargs: KwargsT | None = None, **fmt_kwargs: Any) -> KwargsT:
