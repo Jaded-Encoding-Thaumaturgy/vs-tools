@@ -33,9 +33,8 @@ from vapoursynth import (
     EnvironmentPolicy, EnvironmentPolicyAPI, Error, FieldBased, FilterMode, FrameProps, FramePtr, Func, FuncData,
     Function, LogHandle, MatrixCoefficients, MediaType, MessageType, Plugin, RawFrame, RawNode, SampleType,
     TransferCharacteristics, VideoFormat, VideoFrame, VideoNode, VideoOutputTuple, __api_version__, __version__,
-    _CoreProxy, ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, clear_output,
-    clear_outputs, fmFrameState, fmParallel, fmParallelRequests, fmUnordered, get_current_environment, get_output,
-    get_outputs, has_policy, register_on_destroy, register_policy, unregister_on_destroy
+    _CoreProxy, clear_output, clear_outputs, get_current_environment, get_output, get_outputs, has_policy,
+    register_on_destroy, register_policy, unregister_on_destroy
 )
 
 from ..exceptions import CustomRuntimeError
@@ -108,12 +107,13 @@ __all__ = [
     'YUV444P13', 'YUV444P14', 'YUV444P15', 'YUV444P16', 'YUV444P17', 'YUV444P18', 'YUV444P19', 'YUV444P20', 'YUV444P21',
     'YUV444P22', 'YUV444P23', 'YUV444P24', 'YUV444P25', 'YUV444P26', 'YUV444P27', 'YUV444P28', 'YUV444P29', 'YUV444P30',
     'YUV444P31', 'YUV444P32', 'YUV444P8', 'YUV444P9', 'YUV444PH', 'YUV444PS', '_CoreProxy', '__all__',
-    '__api_version__', '__version__', 'ccfDisableAutoLoading', 'ccfDisableLibraryUnloading',
-    'ccfEnableGraphInspection', 'clear_output', 'clear_outputs', 'construct_parameter', 'construct_signature',
-    'construct_type', 'core', 'fmFrameState', 'fmParallel', 'fmParallelRequests', 'fmUnordered',
-    'get_current_environment', 'get_output', 'get_outputs', 'has_policy', 'pyx_capi', 'register_on_creation',
-    'register_on_destroy', 'register_policy', 'try_enable_introspection', 'unregister_on_creation',
-    'unregister_on_destroy', 'vs_file', 'clear_cache'
+    '__api_version__', '__version__', 'CoreCreationFlags', 'ENABLE_GRAPH_INSPECTION', 'DISABLE_AUTO_LOADING',
+    'DISABLE_LIBRARY_UNLOADING', 'ccfDisableAutoLoading', 'ccfDisableLibraryUnloading', 'ccfEnableGraphInspection',
+    'clear_output', 'clear_outputs', 'construct_parameter', 'construct_signature', 'construct_type', 'core',
+    'FilterMode', 'PARALLEL', 'PARALLEL_REQUESTS', 'UNORDERED', 'FRAME_STATE', 'fmFrameState', 'fmParallel',
+    'fmParallelRequests', 'fmUnordered', 'get_current_environment', 'get_output', 'get_outputs', 'has_policy',
+    'pyx_capi', 'register_on_creation', 'register_on_destroy', 'register_policy', 'try_enable_introspection',
+    'unregister_on_creation', 'unregister_on_destroy', 'vs_file', 'clear_cache'
 ]
 
 
@@ -705,3 +705,32 @@ else:
     from vapoursynth import _FastManager
     from vapoursynth import _try_enable_introspection as try_enable_introspection
     from vapoursynth import construct_signature
+
+
+if not TYPE_CHECKING:
+    try:
+        from vapoursynth import (
+            ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection,
+            fmFrameState, fmParallel, fmParallelRequests, fmUnordered
+        )
+
+        PARALLEL = fmParallel
+        PARALLEL_REQUESTS = fmParallelRequests
+        UNORDERED = fmUnordered
+        FRAME_STATE = fmFrameState 
+        ENABLE_GRAPH_INSPECTION = ccfEnableGraphInspection
+        DISABLE_AUTO_LOADING = ccfDisableAutoLoading
+        DISABLE_LIBRARY_UNLOADING = ccfDisableLibraryUnloading
+    except ImportError:
+        from vapoursynth import (
+            ENABLE_GRAPH_INSPECTION, DISABLE_AUTO_LOADING, DISABLE_LIBRARY_UNLOADING,
+            PARALLEL, PARALLEL_REQUESTS, UNORDERED, FRAME_STATE
+        )
+
+        fmParallel = PARALLEL
+        fmParallelRequests = PARALLEL_REQUESTS
+        fmUnordered = UNORDERED
+        fmFrameState = FRAME_STATE 
+        ccfEnableGraphInspection = ENABLE_GRAPH_INSPECTION
+        ccfDisableAutoLoading = DISABLE_AUTO_LOADING
+        ccfDisableLibraryUnloading = DISABLE_LIBRARY_UNLOADING
