@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import TracebackType
 from typing import overload
 
-from rich.progress import BarColumn, Progress, ProgressColumn, Task, TaskID, TextColumn, TimeElapsedColumn, TimeRemainingColumn
+from rich.progress import BarColumn, Progress, ProgressColumn, Task, TaskID, TextColumn, TimeRemainingColumn
 from rich.text import Text
 
 __all__ = [

@@ -562,7 +562,7 @@ class VSCoreProxy(CoreProxyBase):
         """
 
         try:
-            from psutil import Process
+            from psutil import Process  # type: ignore
         except ModuleNotFoundError as e:
             from ..exceptions import DependencyNotFoundError
 
@@ -710,27 +710,27 @@ else:
 if not TYPE_CHECKING:
     try:
         from vapoursynth import (
-            ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection,
-            fmFrameState, fmParallel, fmParallelRequests, fmUnordered
+            ccfDisableAutoLoading, ccfDisableLibraryUnloading, ccfEnableGraphInspection, fmFrameState, fmParallel,
+            fmParallelRequests, fmUnordered
         )
 
         PARALLEL = fmParallel
         PARALLEL_REQUESTS = fmParallelRequests
         UNORDERED = fmUnordered
-        FRAME_STATE = fmFrameState 
+        FRAME_STATE = fmFrameState
         ENABLE_GRAPH_INSPECTION = ccfEnableGraphInspection
         DISABLE_AUTO_LOADING = ccfDisableAutoLoading
         DISABLE_LIBRARY_UNLOADING = ccfDisableLibraryUnloading
     except ImportError:
         from vapoursynth import (
-            ENABLE_GRAPH_INSPECTION, DISABLE_AUTO_LOADING, DISABLE_LIBRARY_UNLOADING,
-            PARALLEL, PARALLEL_REQUESTS, UNORDERED, FRAME_STATE
+            DISABLE_AUTO_LOADING, DISABLE_LIBRARY_UNLOADING, ENABLE_GRAPH_INSPECTION, FRAME_STATE, PARALLEL,
+            PARALLEL_REQUESTS, UNORDERED
         )
 
         fmParallel = PARALLEL
         fmParallelRequests = PARALLEL_REQUESTS
         fmUnordered = UNORDERED
-        fmFrameState = FRAME_STATE 
+        fmFrameState = FRAME_STATE
         ccfEnableGraphInspection = ENABLE_GRAPH_INSPECTION
         ccfDisableAutoLoading = DISABLE_AUTO_LOADING
         ccfDisableLibraryUnloading = DISABLE_LIBRARY_UNLOADING

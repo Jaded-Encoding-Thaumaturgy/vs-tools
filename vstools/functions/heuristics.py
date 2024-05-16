@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, overload, Literal
+from typing import Any, Literal, overload
 
 import vapoursynth as vs
 from stgpytools import KwargsT
@@ -18,20 +18,23 @@ __all__ = [
 
 @overload
 def video_heuristics(
-    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True, assumed_return: Literal[False] = ...
+    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None,
+    prop_in: bool = True, assumed_return: Literal[False] = ...
 ) -> dict[str, int]:
     ...
 
 
 @overload
 def video_heuristics(
-    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True, assumed_return: Literal[True] = ...
+    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None,
+    prop_in: bool = True, assumed_return: Literal[True] = ...
 ) -> tuple[dict[str, int], list[str]]:
     ...
 
 
 def video_heuristics(
-    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None, prop_in: bool = True, assumed_return: bool = False
+    clip: vs.VideoNode, props: vs.FrameProps | bool | None = None,
+    prop_in: bool = True, assumed_return: bool = False
 ) -> dict[str, int] | tuple[dict[str, int], list[str]]:
     """
     Determine the video heuristics from the frame properties.
@@ -88,9 +91,9 @@ def video_heuristics(
     out_props = {f'{k}_in' if prop_in else k: v for k, v in heuristics.items()}
 
     if assumed_return:
-        return out_props, assumed_props
+        return (out_props, assumed_props)  # type: ignore
 
-    return out_props
+    return out_props  # type: ignore
 
 
 def video_resample_heuristics(clip: vs.VideoNode, kwargs: KwargsT | None = None, **fmt_kwargs: Any) -> KwargsT:

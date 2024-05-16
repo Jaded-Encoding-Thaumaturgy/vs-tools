@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from vapoursynth import FLOAT, GRAY, INTEGER, RGB, YUV
 
 try:
-    from vapoursynth import PresetFormat as VSPresetVideoFormat
+    from vapoursynth import PresetFormat as VSPresetVideoFormat  # type: ignore
 except ImportError:
     from vapoursynth import PresetVideoFormat as VSPresetVideoFormat
 
@@ -55,7 +55,7 @@ else:
 
 ################################################
 
-class PresetVideoFormat(PresetVideoFormatBase):
+class PresetVideoFormat(PresetVideoFormatBase):  # type: ignore
     GRAY8 = MAKE_VIDEO_ID(GRAY, INTEGER, 8, 0, 0)  # type: ignore[misc,assignment]
     GRAY9 = MAKE_VIDEO_ID(GRAY, INTEGER, 9, 0, 0)  # type: ignore[misc,assignment]
     GRAY10 = MAKE_VIDEO_ID(GRAY, INTEGER, 10, 0, 0)  # type: ignore[misc,assignment]
