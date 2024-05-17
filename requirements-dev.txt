@@ -1,6 +1,6 @@
-flake8==6.0.0
-mypy==0.991
-mypy-extensions==0.4.3
-packaging==23.0
-pycodestyle==2.10.0
-typing-extensions>=3.10.0.2
+flake8>=7.0.0
+mypy>=1.10.0
+mypy-extensions>=1.0.0
+packaging>=24.0
+pycodestyle>=2.11.1
+typing-extensions>=4.11.0
