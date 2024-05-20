@@ -453,16 +453,19 @@ class Keyframes(list[int]):
             raise ValueError('No keyframe could be found!')
 
         kf_type: int | None = None
-        if lines[0].startswith('fps'):
+
+        line = lines[0].lower()
+
+        if line.startswith('fps'):
             kf_type = Keyframes.XVID
-        elif lines[0].lower() in ('i', 'b', 'p', 'n'):
+        elif line.startswith(('i', 'b', 'p', 'n')):
             kf_type = Keyframes.V1
 
         if kf_type is None:
             raise ValueError('Could not determine keyframe file type!')
 
         if kf_type == Keyframes.V1:
-            return cls(i for i, line in enumerate(lines) if line == 'i')
+            return cls(i for i, line in enumerate(lines) if line.startswith('i'))
 
         if kf_type == Keyframes.XVID:
             split_lines = [line.split(' ') for line in lines]
