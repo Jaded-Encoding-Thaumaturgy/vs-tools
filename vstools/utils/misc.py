@@ -221,7 +221,7 @@ class _padder:
 
     def COLOR(
         self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0,
-        color: int | float | Sequence[int | float] | bool | None = False
+        color: int | float | Sequence[int | float] | None = None
     ) -> vs.VideoNode:
         """
         Pad a clip with a constant color.
@@ -240,26 +240,22 @@ class _padder:
         :param top:         Padding added to the top side of the clip.
         :param bottom:      Padding added to the bottom side of the clip.
         :param color:       Constant color that should be added on the sides.
-                                * number: This will be treated as such and not converted or clamped.
-                                * False: Lowest value for this clip format and color range.
-                                * True: Highest value for this clip format and color range.
-                                * None: Neutral value for this clip format.
 
         :return:            Padded clip with colored borders.
         """
 
-        from ..utils import get_lowest_values, get_neutral_values, get_peak_values
+        from ..utils import get_lowest_value, get_neutral_value
+        from ..functions import normalize_seq
 
         self._base(clip, left, right, top, bottom)
 
-        if color is False:
-            color = get_lowest_values(clip, clip)
-        elif color is True:
-            color = get_peak_values(clip, clip)
-        elif color is None:
-            color = get_neutral_values(clip)
+        if color is None:
+            if clip.format.color_family is vs.YUV:
+                color = [get_lowest_value(clip), get_neutral_value(clip, chroma=True)]
+            else:
+                color = get_lowest_value(clip)
 
-        return clip.std.AddBorders(left, right, top, bottom, color)
+        return clip.std.AddBorders(left, right, top, bottom, normalize_seq(color, clip.format.num_planes))
 
 
 padder = _padder()
