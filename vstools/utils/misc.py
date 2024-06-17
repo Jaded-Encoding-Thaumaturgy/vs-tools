@@ -261,6 +261,19 @@ class _padder:
 
         return clip.std.AddBorders(left, right, top, bottom, color)
 
+    @classmethod
+    def mod_padding(cls, sizes: tuple[int, int], mod: int = 16, min: int = 4) -> tuple[int, int, int, int]:
+        ph, pv = (mod - (((x + min * 2) - 1) % mod + 1) for x in sizes)
+        left, top = floor(ph / 2), floor(pv / 2)
+        return tuple(x + min for x in (left, ph - left, top, pv - top))  # type: ignore
+
+    @classmethod
+    def mod_padding_crop(cls, sizes: tuple[int, int], mod: int = 16, min: int = 4, crop_scale: int = 2) -> tuple[
+        tuple[int, int, int, int], tuple[int, int, int, int]
+    ]:
+        padding = cls.mod_padding(sizes, mod, min)
+        return padding, tuple(x * crop_scale for x in padding)  # type: ignore
+
 
 padder = _padder()
 
