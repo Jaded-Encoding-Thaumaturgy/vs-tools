@@ -221,7 +221,7 @@ class _padder:
 
     def COLOR(
         self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0,
-        color: int | float | Sequence[int | float] | bool | None = False
+        color: int | float | bool | None | Sequence[int | float | bool | None] = (False, None)
     ) -> vs.VideoNode:
         """
         Pad a clip with a constant color.
@@ -248,18 +248,29 @@ class _padder:
         :return:            Padded clip with colored borders.
         """
 
+        from ..functions import normalize_seq
         from ..utils import get_lowest_values, get_neutral_values, get_peak_values
 
         self._base(clip, left, right, top, bottom)
 
-        if color is False:
-            color = get_lowest_values(clip, clip)
-        elif color is True:
-            color = get_peak_values(clip, clip)
-        elif color is None:
-            color = get_neutral_values(clip)
+        def _norm(colr: int | float | bool | None) -> Sequence[int | float]:
+            if colr is False:
+                return get_lowest_values(clip, clip)
 
-        return clip.std.AddBorders(left, right, top, bottom, color)
+            if colr is True:
+                return get_peak_values(clip, clip)
+
+            if colr is None:
+                return get_neutral_values(clip)
+
+            return normalize_seq(colr)
+
+        if not isinstance(color, Sequence):
+            norm_colors = _norm(color)
+        else:
+            norm_colors = [_norm(c)[i] for i, c in enumerate(normalize_seq(color))]
+
+        return clip.std.AddBorders(left, right, top, bottom, norm_colors)
 
     @classmethod
     def mod_padding(cls, sizes: tuple[int, int], mod: int = 16, min: int = 4) -> tuple[int, int, int, int]:
