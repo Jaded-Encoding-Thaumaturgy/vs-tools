@@ -440,9 +440,15 @@ class Colorspace(CustomIntEnum):
     ) -> KwargsT:
         assert check_variable_format(props, func)
 
-        kwargs |= video_heuristics(
+        h_kwargs = video_heuristics(
             props, True, clip.format.color_family != props.format.color_family, False
         )
+
+        for k, v in list(kwargs.items()):
+            if k in h_kwargs and v is None:
+                kwargs.pop(k)
+
+        kwargs |= h_kwargs
 
         if 'format' not in kwargs:
             kwargs |= KwargsT(format=props.format.id)
