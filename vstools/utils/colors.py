@@ -3,11 +3,12 @@ from math import sqrt
 from typing import TYPE_CHECKING, Any, ClassVar
 
 import vapoursynth as vs
-from stgpytools import CustomIntEnum, FuncExceptT, inject_self, interleave_arr
+from stgpytools import CustomIntEnum, FuncExceptT, KwargsT, inject_self, interleave_arr
 
 from ..enums import Matrix, Primaries, Transfer
-from ..functions import check_variable_format, depth, plane, video_resample_heuristics
 from ..enums.color import _norm_props_enums
+from ..functions import check_variable_format, depth, plane, video_heuristics, video_resample_heuristics
+from ..types import ConstantFormatVideoNode
 
 __all__ = [
     'ResampleUtil',
@@ -434,6 +435,20 @@ class Colorspace(CustomIntEnum):
 
         raise NotImplementedError
 
+    def _kw_from_props(
+        self, clip: ConstantFormatVideoNode, props: vs.VideoNode, func: FuncExceptT, **kwargs: Any
+    ) -> KwargsT:
+        assert check_variable_format(props, func)
+
+        kwargs |= video_heuristics(
+            props, True, clip.format.color_family != props.format.color_family, False
+        )
+
+        if 'format' not in kwargs:
+            kwargs |= KwargsT(format=props.format.id)
+
+        return kwargs
+
     def __call__(self, clip: vs.VideoNode, **kwargs: Any) -> vs.VideoNode:
         assert check_variable_format(clip, self.from_clip)
 
@@ -449,19 +464,27 @@ class Colorspace(CustomIntEnum):
         return self.resampler.clip2csp(clip, fp32, func, **kwargs)
 
     def to_rgb(
-        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None,
+        props: vs.VideoNode | None = None, **kwargs: Any
     ) -> vs.VideoNode:
         func = func or self.to_rgb
 
         assert check_variable_format(clip, func)
 
+        if props:
+            kwargs = self._kw_from_props(clip, props, func, **kwargs)
+
         return self.resampler.csp2rgb(clip, fp32, func, **kwargs)
 
     def to_yuv(
-        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
+        self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None,
+        props: vs.VideoNode | None = None, **kwargs: Any
     ) -> vs.VideoNode:
         func = func or self.to_yuv
 
         assert check_variable_format(clip, func)
+
+        if props:
+            kwargs = self._kw_from_props(clip, props, func, **kwargs)
 
         return self.resampler.csp2yuv(clip, fp32, func, **kwargs)
