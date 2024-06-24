@@ -82,7 +82,7 @@ def video_heuristics(
     else:
         heuristics |= {
             'matrix': Matrix.from_res(clip), 'primaries': Primaries.from_res(clip),
-            'transfer': Transfer.from_res(clip), 'range': ColorRange.LIMITED,
+            'transfer': Transfer.from_res(clip), 'range': ColorRange.from_res(clip),
             'chromaloc': ChromaLocation.from_res(clip)
         }
 
