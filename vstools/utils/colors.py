@@ -7,6 +7,7 @@ from stgpytools import CustomIntEnum, FuncExceptT, inject_self, interleave_arr
 
 from ..enums import Matrix, Primaries, Transfer
 from ..functions import check_variable_format, depth, plane, video_resample_heuristics
+from ..enums.color import _norm_props_enums
 
 __all__ = [
     'ResampleUtil',
@@ -106,7 +107,7 @@ class ResampleRGBUtil(ResampleUtil):
 
         conv_args = video_resample_heuristics(clip, kwargs, color_family=vs.RGB, subsampling_w=0, subsampling_h=0)
 
-        return self.rgb2csp(clip.resize.Bicubic(**conv_args), fp32, func)
+        return self.rgb2csp(clip.resize.Bicubic(**_norm_props_enums(conv_args)), fp32, func)
 
     @inject_self
     def csp2yuv(  # type: ignore[override]
@@ -118,7 +119,7 @@ class ResampleRGBUtil(ResampleUtil):
 
         conv_args = video_resample_heuristics(rgb, kwargs, color_family=vs.YUV)
 
-        return rgb.resize.Bicubic(**conv_args)
+        return rgb.resize.Bicubic(**_norm_props_enums(conv_args))
 
 
 class ResampleYUVUtil(ResampleUtil):
@@ -130,7 +131,7 @@ class ResampleYUVUtil(ResampleUtil):
 
         conv_args = video_resample_heuristics(clip, kwargs, color_family=vs.YUV)
 
-        return self.yuv2csp(clip.resize.Bicubic(**conv_args), fp32, func)
+        return self.yuv2csp(clip.resize.Bicubic(**_norm_props_enums(conv_args)), fp32, func)
 
     @inject_self
     def csp2rgb(  # type: ignore[override]
@@ -142,7 +143,7 @@ class ResampleYUVUtil(ResampleUtil):
 
         conv_args = video_resample_heuristics(yuv, kwargs, color_family=vs.RGB, subsampling_w=0, subsampling_h=0)
 
-        return yuv.resize.Bicubic(**conv_args)
+        return yuv.resize.Bicubic(**_norm_props_enums(conv_args))
 
 
 class ResampleRGBMatrixUtil(ResampleRGBUtil):
