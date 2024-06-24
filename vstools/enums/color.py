@@ -10,7 +10,7 @@ from ..exceptions import (
     UndefinedTransferError, UnsupportedColorRangeError, UnsupportedMatrixError, UnsupportedPrimariesError,
     UnsupportedTransferError
 )
-from ..types import HoldsPropValueT
+from ..types import HoldsPropValueT, KwargsT
 from .stubs import PropEnum, _base_from_video, _ColorRangeMeta, _MatrixMeta, _PrimariesMeta, _TransferMeta
 
 __all__ = [
@@ -1227,3 +1227,12 @@ PrimariesT: TypeAlias = Union[int, vs.ColorPrimaries, Primaries, HoldsPropValueT
 
 ColorRangeT: TypeAlias = Union[int, vs.ColorRange, ColorRange, HoldsPropValueT]
 """Type alias for values that can be used to initialize a :py:attr:`ColorRange`."""
+
+
+def _norm_props_enums(kwargs: KwargsT) -> KwargsT:
+    return {
+        key: (
+            (value.value_zimg if hasattr(value, 'value_zimg') else int(value))
+            if isinstance(value, PropEnum) else value
+        ) for key, value in kwargs.items()
+    }
