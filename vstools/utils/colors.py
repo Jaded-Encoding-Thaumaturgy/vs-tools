@@ -442,20 +442,26 @@ class Colorspace(CustomIntEnum):
     def from_clip(
         self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
     ) -> vs.VideoNode:
-        assert check_variable_format(clip, self.from_clip)
+        func = func or self.from_clip
+
+        assert check_variable_format(clip, func)
 
         return self.resampler.clip2csp(clip, fp32, func, **kwargs)
 
     def to_rgb(
         self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
     ) -> vs.VideoNode:
-        assert check_variable_format(clip, self.from_clip)
+        func = func or self.to_rgb
+
+        assert check_variable_format(clip, func)
 
         return self.resampler.csp2rgb(clip, fp32, func, **kwargs)
 
     def to_yuv(
         self, clip: vs.VideoNode, fp32: bool | None = None, func: FuncExceptT | None = None, **kwargs: Any
     ) -> vs.VideoNode:
-        assert check_variable_format(clip, self.from_clip)
+        func = func or self.to_yuv
+
+        assert check_variable_format(clip, func)
 
         return self.resampler.csp2yuv(clip, fp32, func, **kwargs)
