@@ -1,3 +1,3 @@
 VapourSynth>=68
-stgpytools>=1.1.0
+stgpytools>=1.1.1
 rich>=12.6.0
