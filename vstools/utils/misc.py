@@ -310,7 +310,7 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
 
 def set_output(
     node: vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode]]],
-    name: str | bool = True, **kwargs: Any
+    name: str | bool = True, alpha: vs.VideoNode | None = None, **kwargs: Any
 ) -> None:
     """Set output node with optional name, and if available, use vspreview set_output."""
 
@@ -352,9 +352,9 @@ def set_output(
         from vspreview import set_output as vsp_set_output
         if isinstance(node, list):
             for idx, n in enumerate(node, 0 if index else last_index):
-                vsp_set_output(n, name and f'{name} {idx}', **kwargs)
+                vsp_set_output(n, name and f'{name} {idx}', alpha, **kwargs)
         else:
-            vsp_set_output(node, name, **kwargs)
+            vsp_set_output(node, name, alpha, **kwargs)
     except ModuleNotFoundError:
         for idx, n in enumerate(node if isinstance(node, list) else [node], last_index):
             n.set_output(idx)
