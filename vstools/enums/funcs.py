@@ -10,7 +10,7 @@ __all__ = [
 class ConvMode(CustomStrEnum):
     """Convolution mode for .std.Convolution."""
 
-    SQUARE = 'hv'
+    SQUARE = 's'
     """Square horizontal/vertical convolution."""
 
     VERTICAL = 'v'
@@ -18,3 +18,6 @@ class ConvMode(CustomStrEnum):
 
     HORIZONTAL = 'h'
     """Horizontal-only convolution."""
+
+    HV = 'hv'
+    """Horizontal and Vertical convolution"""
