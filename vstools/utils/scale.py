@@ -48,7 +48,7 @@ def scale_value(  # type: ignore
     output_depth: Literal[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool = False,
+    scale_offsets: bool | None = None,
     chroma: bool = False
 ) -> int:
     ...
@@ -61,7 +61,7 @@ def scale_value(
     output_depth: Literal[32],
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool = False,
+    scale_offsets: bool | None = None,
     chroma: bool = False
 ) -> float:
     ...
@@ -74,7 +74,7 @@ def scale_value(
     output_depth: int | VideoFormatT | HoldsVideoFormatT,
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool = False,
+    scale_offsets: bool | None = None,
     chroma: bool = False
 ) -> float:
     ...
@@ -86,7 +86,7 @@ def scale_value(
     output_depth: int | VideoFormatT | HoldsVideoFormatT,
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool = False,
+    scale_offsets: bool | None = None,
     chroma: bool = False
 ) -> float:
     """
@@ -122,6 +122,9 @@ def scale_value(
 
     if input_depth == output_depth and range_in == range_out:
         return out_value
+
+    if scale_offsets is None:
+        scale_offsets = range_in != range_out
 
     input_peak = get_peak_value(in_fmt, chroma, range_in)
     input_lowest = get_lowest_value(in_fmt, chroma, range_in)
