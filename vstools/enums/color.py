@@ -1100,6 +1100,7 @@ _transfer_placebo_map = {
     Transfer.BT601_525: 1,
     Transfer.BT601_625: 2,
     Transfer.BT709: 3,
+    Transfer.SRGB: 3,
     Transfer.BT470M: 4,
     Transfer.EBU_3213: 5,
     Transfer.BT2020_10bits: 6,
