@@ -115,18 +115,6 @@ class _padder:
 
         return width, height, fmt, w_sub, h_sub
 
-    def __call__(
-        self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0,
-        reflect: bool = True
-    ) -> vs.VideoNode:
-        import warnings
-        warnings.warn('The use of padder(reflect=...) is deprecated! Use padder.MIRROR/REPEAT().', UserWarning)
-
-        if reflect:
-            return self.MIRROR(clip, left, right, top, bottom)
-
-        return self.REPEAT(clip, left, right, top, bottom)
-
     def MIRROR(self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0) -> vs.VideoNode:
         """
         Pad a clip with reflect mode. This will reflect the clip on each side.
