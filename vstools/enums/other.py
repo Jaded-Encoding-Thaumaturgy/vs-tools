@@ -5,7 +5,7 @@ from math import gcd as max_common_div
 from typing import Callable, Iterable, Literal, NamedTuple, TypeVar, overload
 
 import vapoursynth as vs
-from stgpytools import FuncExceptT, Coordinate, CustomIntEnum, CustomStrEnum, Position, Sentinel, Size
+from stgpytools import Coordinate, CustomIntEnum, CustomStrEnum, FuncExceptT, Position, Sentinel, Size
 
 from ..types import HoldsPropValueT
 
@@ -354,7 +354,6 @@ class SceneChangeMode(CustomIntEnum):
         """Ensures all the frame properties necessary for scene change detection are created."""
 
         from ..exceptions import CustomRuntimeError
-        from ..utils import merge_clip_props
 
         stats_clip = []
 
@@ -374,25 +373,7 @@ class SceneChangeMode(CustomIntEnum):
                 )
             stats_clip.append(clip.wwxd.WWXD())
 
-        if akarin is None:
-            akarin = hasattr(vs.core, 'akarin')
-
-        if akarin:
-            keys = list(self.prop_keys)
-
-            expr = ' '.join([f'x.{k}' for k in keys]) + (' and' * (len(keys) - 1))
-
-            blank = clip.std.BlankClip(1, 1, vs.GRAY8, keep=True)
-
-            if len(stats_clip) > 1:
-                return merge_clip_props(blank, *stats_clip).akarin.Expr(expr)
-
-            return blank.std.CopyFrameProps(stats_clip[0]).akarin.Expr(expr)
-
-        if len(stats_clip) > 1:
-            return merge_clip_props(clip, *stats_clip)
-
-        return stats_clip[0]
+        return self._prepare_akarin(clip, stats_clip, akarin)
 
     @property
     def prop_keys(self) -> Iterable[str]:
@@ -449,3 +430,29 @@ class SceneChangeMode(CustomIntEnum):
             clip = clip.resize.Bilinear(format=vs.YUV420P8)
 
         return self.ensure_presence(clip, akarin)
+
+    def _prepare_akarin(
+        self, clip: vs.VideoNode, stats_clip: list[vs.VideoNode], akarin: bool | None = None
+    ) -> vs.VideoNode:
+        from ..utils import merge_clip_props
+
+        if akarin is None:
+            akarin = hasattr(vs.core, 'akarin')
+
+        if akarin:
+
+            keys = list(self.prop_keys)
+
+            expr = ' '.join([f'x.{k}' for k in keys]) + (' and' * (len(keys) - 1))
+
+            blank = clip.std.BlankClip(1, 1, vs.GRAY8, keep=True)
+
+            if len(stats_clip) > 1:
+                return merge_clip_props(blank, *stats_clip).akarin.Expr(expr)
+
+            return blank.std.CopyFrameProps(stats_clip[0]).akarin.Expr(expr)
+
+        if len(stats_clip) > 1:
+            return merge_clip_props(clip, *stats_clip)
+
+        return stats_clip[0]
