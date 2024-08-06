@@ -199,11 +199,18 @@ def get_w(height: float, ar: float = 16 / 9, /, mod: int = 2) -> int:
 
 
 @overload
+def get_w(height: float, ar: Fraction, /, mod: int | None = None) -> int:
+    ...
+
+
+@overload
 def get_w(height: float, ref: vs.VideoNode | vs.VideoFrame, /, mod: int | None = None) -> int:
     ...
 
 
-def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9, /, mod: int | None = None) -> int:
+def get_w(
+    height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | Fraction | float = 16 / 9, /, mod: int | None = None
+) -> int:
     """
     Calculate the width given a height and an aspect ratio.
 
@@ -226,7 +233,7 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
         aspect_ratio = ref.width / ref.height  # type: ignore
         mod = fallback(mod, ref.format.subsampling_w and 2 << ref.format.subsampling_w)  # type: ignore
     else:
-        aspect_ratio = ar_or_ref
+        aspect_ratio = float(ar_or_ref)  # type:ignore
 
         if mod is None:
             mod = 0 if height % 2 else 2
@@ -245,11 +252,18 @@ def get_h(width: float, ar: float = 16 / 9, /, mod: int = 2) -> int:
 
 
 @overload
+def get_h(width: float, ref: Fraction, /, mod: int | None = None) -> int:
+    ...
+
+
+@overload
 def get_h(width: float, ref: vs.VideoNode | vs.VideoFrame, /, mod: int | None = None) -> int:
     ...
 
 
-def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9, /, mod: int | None = None) -> int:
+def get_h(
+    width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | Fraction | float = 16 / 9, /, mod: int | None = None
+) -> int:
     """
     Calculate the height given a width and an aspect ratio.
 
@@ -272,7 +286,7 @@ def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9
         aspect_ratio = ref.height / ref.width  # type: ignore
         mod = fallback(mod, ref.format.subsampling_h and 2 << ref.format.subsampling_h)  # type: ignore
     else:
-        aspect_ratio = 1.0 / ar_or_ref  # type: ignore
+        aspect_ratio = 1.0 / float(ar_or_ref)  # type: ignore
 
         if mod is None:
             mod = 0 if width % 2 else 2
