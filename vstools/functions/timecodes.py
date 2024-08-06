@@ -12,12 +12,15 @@ from stgpytools import CustomValueError, FilePathType, FuncExceptT, LinearRangeL
 from ..enums import Matrix, SceneChangeMode
 from ..exceptions import FramesLengthError, InvalidTimecodeVersionError
 from .render import clip_async_render
+from .file import PackageStorage
 
 __all__ = [
     'Timecodes',
     'Keyframes',
     'LWIndex'
 ]
+
+keyframes_storage = PackageStorage(package_name='keyframes')
 
 
 @dataclass
@@ -371,7 +374,7 @@ class Keyframes(list[int]):
     def _get_unique_path(clip: vs.VideoNode, key: str) -> SPath:
         key = SPath(str(key)).stem + f'_{clip.num_frames}_{clip.fps_num}_{clip.fps_den}'
 
-        return (SPath.cwd() / '.vsstg' / 'keyframes' / key).with_suffix('.txt').resolve()
+        return keyframes_storage.get_file(key, ext='.txt')
 
     @classmethod
     def unique(
