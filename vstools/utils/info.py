@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fractions import Fraction
-from typing import Any, overload
+from typing import Any, SupportsFloat, overload
 
 import vapoursynth as vs
 from stgpytools import fallback, mod_x
@@ -194,7 +194,7 @@ def get_subsampling(clip: VideoFormatT | HoldsVideoFormatT, /) -> str | None:
 
 
 @overload
-def get_w(height: float, ar: float = 16 / 9, /, mod: int = 2) -> int:
+def get_w(height: float, ar: SupportsFloat = 16 / 9, /, mod: int = 2) -> int:
     ...
 
 
@@ -203,7 +203,9 @@ def get_w(height: float, ref: vs.VideoNode | vs.VideoFrame, /, mod: int | None =
     ...
 
 
-def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9, /, mod: int | None = None) -> int:
+def get_w(
+    height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | SupportsFloat = 16 / 9, /, mod: int | None = None
+) -> int:
     """
     Calculate the width given a height and an aspect ratio.
 
@@ -226,7 +228,7 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
         aspect_ratio = ref.width / ref.height  # type: ignore
         mod = fallback(mod, ref.format.subsampling_w and 2 << ref.format.subsampling_w)  # type: ignore
     else:
-        aspect_ratio = ar_or_ref
+        aspect_ratio = ar_or_ref  # type:ignore
 
         if mod is None:
             mod = 0 if height % 2 else 2
@@ -240,7 +242,7 @@ def get_w(height: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 
 
 
 @overload
-def get_h(width: float, ar: float = 16 / 9, /, mod: int = 2) -> int:
+def get_h(width: float, ar: SupportsFloat = 16 / 9, /, mod: int = 2) -> int:
     ...
 
 
@@ -249,7 +251,9 @@ def get_h(width: float, ref: vs.VideoNode | vs.VideoFrame, /, mod: int | None = 
     ...
 
 
-def get_h(width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | float = 16 / 9, /, mod: int | None = None) -> int:
+def get_h(
+    width: float, ar_or_ref: vs.VideoNode | vs.VideoFrame | SupportsFloat = 16 / 9, /, mod: int | None = None
+) -> int:
     """
     Calculate the height given a width and an aspect ratio.
 
