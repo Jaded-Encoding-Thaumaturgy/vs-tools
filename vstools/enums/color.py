@@ -61,12 +61,12 @@ class Matrix(_MatrixMeta):
     """
     ```
     # Identity
-    ```\n
-    The identity matrix.\n
-    Typically used for GBR (often referred to as RGB); however, may also be\n
-    used for YZX (often referred to as XYZ)\n
-    IEC 61966-2-1 sRGB\n
-    SMPTE ST 428-1 (2006)\n
+    ```
+    The identity matrix.
+    Typically used for GBR (often referred to as RGB); however, may also be
+    used for YZX (often referred to as XYZ)
+    IEC 61966-2-1 sRGB
+    SMPTE ST 428-1 (2006)
     See ITU-T H.265 Equations E-31 to E-33
     """
 
@@ -75,11 +75,11 @@ class Matrix(_MatrixMeta):
     """
     ```
     Kr = 0.2126; Kb = 0.0722
-    ```\n
-    Rec. ITU-R BT.709-6\n
-    Rec. ITU-R BT.1361-0 conventional colour gamut system and extended\n
-    colour gamut system (historical)\n
-    IEC 61966-2-4 xvYCC709\n
+    ```
+    Rec. ITU-R BT.709-6
+    Rec. ITU-R BT.1361-0 conventional colour gamut system and extended
+    colour gamut system (historical)
+    IEC 61966-2-4 xvYCC709
     SMPTE RP 177 (1993) Annex B
     """
 
@@ -90,8 +90,8 @@ class Matrix(_MatrixMeta):
     """
     ```
     KR = 0.30; KB = 0.11
-    ```\n
-    FCC Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)\n
+    ```
+    FCC Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)
     See ITU-T H.265 Equations E-28 to E-30
     """
 
@@ -99,14 +99,14 @@ class Matrix(_MatrixMeta):
     """
     ```
     KR = 0.299; KB = 0.114
-    ```\n
-    (Functionally the same as :py:attr:`Matrix.SMPTE170M`)\n
-    Rec. ITU-R BT.470-6 System B, G (historical)\n
-    Rec. ITU-R BT.601-7 625\n
-    Rec. ITU-R BT.1358-0 625 (historical)\n
-    Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM\n
-    IEC 61966-2-1 sYCC\n
-    IEC 61966-2-4 xvYCC601\n
+    ```
+    (Functionally the same as :py:attr:`Matrix.SMPTE170M`)
+    Rec. ITU-R BT.470-6 System B, G (historical)
+    Rec. ITU-R BT.601-7 625
+    Rec. ITU-R BT.1358-0 625 (historical)
+    Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM
+    IEC 61966-2-1 sYCC
+    IEC 61966-2-4 xvYCC601
     See ITU-T H.265 Equations E-28 to E-30
     """
     BT601 = BT470BG
@@ -116,11 +116,11 @@ class Matrix(_MatrixMeta):
     ```
     Kr = 0.299; Kb = 0.114
     ```
-    (Functionally the same as :py:attr:`Matrix.BT470BG`)\n
-    Rec. ITU-R BT.601-7 525\n
-    Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
-    Rec. ITU-R BT.1700-0 NTSC\n
-    SMPTE ST 170 (2004)\n
+    (Functionally the same as :py:attr:`Matrix.BT470BG`)
+    Rec. ITU-R BT.601-7 525
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)
+    Rec. ITU-R BT.1700-0 NTSC
+    SMPTE ST 170 (2004)
     See ITU-T H.265 Equations E-28 to E-30
     """
 
@@ -128,8 +128,8 @@ class Matrix(_MatrixMeta):
     """
     ```
     KR = 0.212; KB = 0.087
-    ```\n
-    SMPTE ST 240 (1999, historical)\n
+    ```
+    SMPTE ST 240 (1999, historical)
     See ITU-T H.265 Equations E-28 to E-30
     """
 
@@ -137,9 +137,9 @@ class Matrix(_MatrixMeta):
     """
     ```
     KR = 0.2627; KB = 0.0593
-    ```\n
-    Rec. ITU-R BT.2020-2 non-constant luminance system\n
-    Rec. ITU-R BT.2100-2 Y′CbCr\n
+    ```
+    Rec. ITU-R BT.2020-2 non-constant luminance system
+    Rec. ITU-R BT.2100-2 Y′CbCr
     See ITU-T H.265 Equations E-28 to E-30
     """
 
@@ -147,8 +147,8 @@ class Matrix(_MatrixMeta):
     """
     ```
     KR = 0.2627; KB = 0.0593
-    ```\n
-    Rec. ITU-R BT.2020-2 constant luminance system\n
+    ```
+    Rec. ITU-R BT.2020-2 constant luminance system
     See ITU-T H.265 Equations E-49 to E-58
     """
 
@@ -156,8 +156,8 @@ class Matrix(_MatrixMeta):
     """
     ```
     # Y′D′ZD′X
-    ```\n
-    SMPTE ST 2085 (2015)\n
+    ```
+    SMPTE ST 2085 (2015)
     See ITU-T H.265 Equations E-59 to E-61
     """
 
@@ -165,8 +165,8 @@ class Matrix(_MatrixMeta):
     """
     ```
     # See ITU-T H.265 Equations E-22 to E-27
-    ```\n
-    Chromaticity-derived non-constant luminance system\n
+    ```
+    Chromaticity-derived non-constant luminance system
     See ITU-T H.265 Equations E-28 to E-30
     """
 
@@ -174,8 +174,8 @@ class Matrix(_MatrixMeta):
     """
     ```
     # See ITU-T H.265 Equations E-22 to E-27
-    ```\n
-    Chromaticity-derived constant luminance system\n
+    ```
+    Chromaticity-derived constant luminance system
     See ITU-T H.265 Equations E-49 to E-58
     """
 
@@ -183,9 +183,9 @@ class Matrix(_MatrixMeta):
     """
     ```
     ICtCp
-    ```\n
-    Rec. ITU-R BT.2100-2 ICTCP\n
-    See ITU-T H.265 Equations E-62 to E-64 for `transfer_characteristics` value 16 (PQ)\n
+    ```
+    Rec. ITU-R BT.2100-2 ICTCP
+    See ITU-T H.265 Equations E-62 to E-64 for `transfer_characteristics` value 16 (PQ)
     See ITU-T H.265 Equations E-65 to E-67 for `transfer_characteristics` value 18 (HLG)
     """
 
@@ -324,9 +324,9 @@ class Transfer(_TransferMeta):
     BT709 = 1
     """
     (Functionally the same as :py:attr:`Transfer.BT601`, :py:attr:`Transfer.BT2020_10bits`,
-    and :py:attr:`Transfer.BT2020_12bits`)\n
-    Rec. ITU-R BT.709-6\n
-    Rec. ITU-R BT.1361-0 conventional\n
+    and :py:attr:`Transfer.BT2020_12bits`)
+    Rec. ITU-R BT.709-6
+    Rec. ITU-R BT.1361-0 conventional
     Colour gamut system (historical)
     """
 
@@ -335,25 +335,25 @@ class Transfer(_TransferMeta):
 
     BT470M = 4
     """
-    Rec. ITU-R BT.470-6 System M (historical)\n
-    NTSC Recommendation for transmission standards for colour television (1953)\n
+    Rec. ITU-R BT.470-6 System M (historical)
+    NTSC Recommendation for transmission standards for colour television (1953)
     FCC, Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)
     """
 
     BT470BG = 5
     """
-    Rec. ITU-R BT.470-6 System B, G (historical)\n
-    Rec. ITU-R BT.1700-0 625 PAL and\n
+    Rec. ITU-R BT.470-6 System B, G (historical)
+    Rec. ITU-R BT.1700-0 625 PAL and
     625 SECAM
     """
 
     BT601 = 6
     """
-    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT2020_10bits`,
-    and :py:attr:`Transfer.BT2020_12bits`)\n
-    Rec. ITU-R BT.601-7 525 or 625\n
-    Rec. ITU-R BT.1358-1 525 or 625 (historical)\n
-    Rec. ITU-R BT.1700-0 NTSC\n
+    (Functionally the same as :py:attr:`Transfer.BT709`, :py:attr:`Transfer.BT2020_10bits`,
+    and :py:attr:`Transfer.BT2020_12bits`)
+    Rec. ITU-R BT.601-7 525 or 625
+    Rec. ITU-R BT.1358-1 525 or 625 (historical)
+    Rec. ITU-R BT.1700-0 NTSC
     SMPTE ST 170 (2004)
     """
 
@@ -374,33 +374,33 @@ class Transfer(_TransferMeta):
 
     SRGB = 13
     """
-    IEC 61966-2-1 sRGB when matrix is equal to :py:attr:`Matrix.RGB`\n
+    IEC 61966-2-1 sRGB when matrix is equal to :py:attr:`Matrix.RGB`
     IEC 61966-2-1 sYCC when matrix is equal to :py:attr:`Matrix.BT470BG`
     """
 
     BT2020_10bits = 14
     """
-    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
-    and :py:attr:`Transfer.BT2020_12bits`)\n
+    (Functionally the same as :py:attr:`Transfer.BT709`, :py:attr:`Transfer.BT601`,
+    and :py:attr:`Transfer.BT2020_12bits`)
     Rec. ITU-R BT.2020-2
     """
 
     BT2020_12bits = 15
     """
-    (Functionally the same as :py:attr:`Transfer.BT701`, :py:attr:`Transfer.BT601`,
-    and :py:attr:`Transfer.BT2020_10bits`)\n
+    (Functionally the same as :py:attr:`Transfer.BT709`, :py:attr:`Transfer.BT601`,
+    and :py:attr:`Transfer.BT2020_10bits`)
     Rec. ITU-R BT.2020-2
     """
 
     ST2084 = 16
     """
-    SMPTE ST 2084 (2014) for 10, 12, 14, and 16-bit systems\n
+    SMPTE ST 2084 (2014) for 10, 12, 14, and 16-bit systems
     Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system
     """
 
     ARIB_B67 = 18
     """
-    Association of Radio Industries and Businesses (ARIB) STD-B67\n
+    Association of Radio Industries and Businesses (ARIB) STD-B67
     Rec. ITU-R BT.2100-2 hybrid loggamma (HLG) system
     """
 
@@ -409,7 +409,6 @@ class Transfer(_TransferMeta):
     https://github.com/haasn/libplacebo/blob/master/src/include/libplacebo/colorspace.h#L193
     """
 
-    # Standard gamut:
     BT601_525 = 100
     """ITU-R Rec. BT.601 (525-line = NTSC, SMPTE-C)."""
 
@@ -419,7 +418,6 @@ class Transfer(_TransferMeta):
     EBU_3213 = 102
     """EBU Tech. 3213-E / JEDEC P22 phosphors."""
 
-    # Wide gamut:
     APPLE = 103
     """Apple RGB."""
 
@@ -721,7 +719,7 @@ class Primaries(_PrimariesMeta):
     White D65 0.3127 0.3290
     ```
 
-    Rec. ITU-R BT.2020-2\n
+    Rec. ITU-R BT.2020-2
     Rec. ITU-R BT.2100-2
     """
 
@@ -735,7 +733,7 @@ class Primaries(_PrimariesMeta):
     Centre White  1/3 1/3
     ```
 
-    SMPTE ST 428-1 (2006)\n
+    SMPTE ST 428-1 (2006)
     (CIE 1931 XYZ)
     """
     XYZ = ST428
@@ -750,7 +748,7 @@ class Primaries(_PrimariesMeta):
     White   0.3140 0.3510
     ```
 
-    SMPTE RP 431-2 (2011)\n
+    SMPTE RP 431-2 (2011)
     SMPTE ST 2113 (2019) "P3DCI"
     """
 
@@ -764,7 +762,7 @@ class Primaries(_PrimariesMeta):
     White D65 0.3127 0.3290
     ```
 
-    SMPTE EG 432-1 (2010)\n
+    SMPTE EG 432-1 (2010)
     SMPTE ST 2113 (2019) "P3D65"
     """
 
@@ -984,7 +982,7 @@ class ColorRange(_ColorRangeMeta):
     """
     Full (PC) dynamic range, 0-255 in 8 bits.
 
-    | Note that float clips should ALWAYS be FULL range!\n
+    | Note that float clips should ALWAYS be FULL range!
     | RGB clips will ALWAYS be FULL range!
     """
 
