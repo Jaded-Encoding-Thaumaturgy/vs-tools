@@ -405,33 +405,26 @@ class Transfer(_TransferMeta):
     """
 
     """
-    Extra transfer characterists from libplacebo
-    https://github.com/haasn/libplacebo/blob/master/src/include/libplacebo/colorspace.h#L193
+    Transfer characteristics from libplacebo
     """
 
-    EBU_3213 = 102
-    """EBU Tech. 3213-E / JEDEC P22 phosphors."""
+    GAMMA2_2 = 100
 
-    APPLE = 103
-    """Apple RGB."""
+    GAMMA2_6 = 101
 
-    ADOBE = 104
-    """Adobe RGB (1998)."""
+    GAMMA2_8 = 102
 
-    PRO_PHOTO = 105
-    """ProPhoto RGB (ROMM)."""
+    PROPHOTO_RGB = 103
 
-    CIE_1931 = 106
-    """CIE 1931 RGB primaries."""
+    XYZ = 104
 
-    V_GAMUT = 109
-    """Panasonic V-Gamut (VARICAM)."""
+    HLG = 105
 
-    S_GAMUT = 110
-    """Sony S-Gamut."""
+    V_LOG = 106
 
-    FILM_C = 111
-    """Traditional film primaries with Illuminant C."""
+    S_LOG1 = 107
+
+    S_LOG2 = 108
 
     @classmethod
     def is_unknown(cls, value: int | Transfer) -> bool:
@@ -755,7 +748,7 @@ class Primaries(_PrimariesMeta):
     """
     DISPLAY_P3 = ST432_1
 
-    EBU3213E = 22
+    JEDEC_P22 = 22
     """
     ```
     Primary      x      y
@@ -767,6 +760,36 @@ class Primaries(_PrimariesMeta):
 
     EBU Tech. 3213-E (1975)
     """
+    EBU_3213_E = JEDEC_P22
+
+    """
+    Primary characteristics from libplacebo
+    """
+
+    APPLE = 100
+    """Apple RGB."""
+
+    ADOBE = 101
+    """Adobe RGB (1998)."""
+
+    PROPHOTO_RGB = 102
+    """ProPhoto RGB (ROMM)."""
+
+    CIE_1931 = 103
+    """CIE 1931 RGB primaries."""
+
+    V_GAMUT = 104
+    """Panasonic V-Gamut (VARICAM)."""
+
+    S_GAMUT = 105
+    """Sony S-Gamut."""
+
+    FILM_C = 106
+    """Traditional film primaries with Illuminant C."""
+
+    ACES_0 = 107
+
+    ACES_1 = 108
 
     @classmethod
     def is_unknown(cls, value: int | Primaries) -> bool:
