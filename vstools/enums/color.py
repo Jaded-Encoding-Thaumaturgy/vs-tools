@@ -40,11 +40,6 @@ class Matrix(_MatrixMeta):
         elif isinstance(value, cls):
             return value
 
-        if value == 8:
-            raise UnsupportedMatrixError(
-                'Matrix YCGCO is no longer supported by VapourSynth starting from R55 (APIv4).', 'Matrix'
-            )
-
         if Matrix.RGB < value < Matrix.ICTCP:
             raise ReservedMatrixError(f'Matrix({value}) is reserved.', cls)
 
@@ -69,8 +64,8 @@ class Matrix(_MatrixMeta):
     SMPTE ST 428-1 (2006)
     See ITU-T H.265 Equations E-31 to E-33
     """
-
     GBR = RGB
+
     BT709 = 1
     """
     ```
@@ -109,7 +104,7 @@ class Matrix(_MatrixMeta):
     IEC 61966-2-4 xvYCC601
     See ITU-T H.265 Equations E-28 to E-30
     """
-    BT601 = BT470BG
+    BT601_625 = BT470BG
 
     SMPTE170M = 6
     """
@@ -123,6 +118,7 @@ class Matrix(_MatrixMeta):
     SMPTE ST 170 (2004)
     See ITU-T H.265 Equations E-28 to E-30
     """
+    BT601_525 = SMPTE170M
 
     SMPTE240M = 7
     """
@@ -132,6 +128,8 @@ class Matrix(_MatrixMeta):
     SMPTE ST 240 (1999, historical)
     See ITU-T H.265 Equations E-28 to E-30
     """
+
+    YCGCO = 8
 
     BT2020NC = 9
     """
@@ -213,12 +211,12 @@ class Matrix(_MatrixMeta):
             return Matrix.RGB
 
         if width <= 1024 and height <= 576:
-            if height == 576:
+            if height > 486:
                 return Matrix.BT470BG
 
             return Matrix.SMPTE170M
 
-        if width <= 2048 and height <= 1536:
+        if width <= 2048 and height <= 1556:
             return Matrix.BT709
 
         return Matrix.BT2020NC
@@ -356,6 +354,8 @@ class Transfer(_TransferMeta):
     Rec. ITU-R BT.1700-0 NTSC
     SMPTE ST 170 (2004)
     """
+    BT601_525 = BT601
+    BT601_625 = BT601
 
     ST240M = 7
     """SMPTE ST 240 (1999, historical)."""
@@ -409,12 +409,6 @@ class Transfer(_TransferMeta):
     https://github.com/haasn/libplacebo/blob/master/src/include/libplacebo/colorspace.h#L193
     """
 
-    BT601_525 = 100
-    """ITU-R Rec. BT.601 (525-line = NTSC, SMPTE-C)."""
-
-    BT601_625 = 101
-    """ITU-R Rec. BT.601 (625-line = PAL, SECAM)."""
-
     EBU_3213 = 102
     """EBU Tech. 3213-E / JEDEC P22 phosphors."""
 
@@ -429,12 +423,6 @@ class Transfer(_TransferMeta):
 
     CIE_1931 = 106
     """CIE 1931 RGB primaries."""
-
-    DCI_P3 = 107
-    """DCI-P3 (Digital Cinema)."""
-
-    DISPLAY_P3 = 108
-    """DCI-P3 (Digital Cinema) with D65 white point."""
 
     V_GAMUT = 109
     """Panasonic V-Gamut (VARICAM)."""
@@ -469,12 +457,9 @@ class Transfer(_TransferMeta):
             return Transfer.SRGB
 
         if width <= 1024 and height <= 576:
-            if height == 576:
-                return Transfer.BT470BG
-
             return Transfer.BT601
 
-        if width <= 2048 and height <= 1536:
+        if width <= 2048 and height <= 1556:
             return Transfer.BT709
 
         if fmt.bits_per_sample == 10:
@@ -562,7 +547,7 @@ class Transfer(_TransferMeta):
         :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
         """
 
-        if self >= self.BT601_525:
+        if self >= self.100:
             raise ReservedTransferError(
                 'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!',
                 f'{self.__class__.__name__}.value_vs'
@@ -664,6 +649,7 @@ class Primaries(_PrimariesMeta):
     Rec. ITU-R BT.1700-0 625 PAL and 625
     SECAM
     """
+    BT601_625 = BT470BG
 
     ST170M = 6
     """
@@ -681,6 +667,7 @@ class Primaries(_PrimariesMeta):
     Rec. ITU-R BT.1700-0 NTSC
     SMPTE ST 170 (2004)
     """
+    BT601_525 = ST170M
 
     ST240M = 7
     """
@@ -751,6 +738,7 @@ class Primaries(_PrimariesMeta):
     SMPTE RP 431-2 (2011)
     SMPTE ST 2113 (2019) "P3DCI"
     """
+    DCI_P3 = ST431_2
 
     ST432_1 = 12
     """
@@ -765,6 +753,7 @@ class Primaries(_PrimariesMeta):
     SMPTE EG 432-1 (2010)
     SMPTE ST 2113 (2019) "P3D65"
     """
+    DISPLAY_P3 = ST432_1
 
     EBU3213E = 22
     """
@@ -797,18 +786,18 @@ class Primaries(_PrimariesMeta):
 
         from ..utils import get_var_infos
 
-        fmt, w, h = get_var_infos(frame)
+        fmt, width, height = get_var_infos(frame)
 
         if fmt.color_family == vs.RGB:
             return Primaries.BT709
 
-        if w <= 1024 and h <= 576:
-            if h == 576:
+        if width <= 1024 and height <= 576:
+            if height > 486:
                 return Primaries.BT470BG
 
             return Primaries.ST170M
 
-        if w <= 2048 and h <= 1536:
+        if width <= 2048 and height <= 1556:
             return Primaries.BT709
 
         return Primaries.BT2020
@@ -1043,8 +1032,6 @@ class ColorRange(_ColorRangeMeta):
 _transfer_matrix_map: dict[Transfer, Matrix] = {
     Transfer.SRGB: Matrix.RGB,
     Transfer.BT709: Matrix.BT709,
-    Transfer.BT601: Matrix.SMPTE170M,
-    Transfer.BT470BG: Matrix.BT470BG,
     Transfer.ST2084: Matrix.BT2020NC,
     Transfer.BT2020_10bits: Matrix.BT2020NC,
     Transfer.BT2020_12bits: Matrix.BT2020NC,
@@ -1126,6 +1113,7 @@ _matrix_name_map = {
     Matrix.BT470BG: 'bt470bg',
     Matrix.SMPTE170M: 'smpte170m',
     Matrix.SMPTE240M: 'smpte240m',
+    Matrix.YCGCO: 'ycgco',
     Matrix.BT2020NC: 'bt2020nc',
     Matrix.BT2020C: 'bt2020c',
     Matrix.SMPTE2085: 'smpte2085',
@@ -1139,7 +1127,7 @@ _transfer_name_map = {
     Transfer.UNKNOWN: 'unknown',
     Transfer.BT470M: 'bt470m',
     Transfer.BT470BG: 'bt470bg',
-    Transfer.BT601: 'smpte170m',
+    Transfer.BT601: 'bt601',
     Transfer.ST240M: 'smpte240m',
     Transfer.LINEAR: 'linear',
     Transfer.LOG_100: 'log100',
@@ -1175,6 +1163,7 @@ _matrix_pretty_name_map = {
     Matrix.BT470BG: 'BT.470bg',
     Matrix.SMPTE170M: 'ST 170M',
     Matrix.SMPTE240M: 'ST 240M',
+    Matrix.YCGCO: 'YCgCo',
     Matrix.BT2020NC: 'BT.2020 non-constant luminance',
     Matrix.BT2020C: 'BT.2020 constant luminance',
     Matrix.SMPTE2085: 'ST 2085',
