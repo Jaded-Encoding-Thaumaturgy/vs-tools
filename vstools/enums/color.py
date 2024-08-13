@@ -408,23 +408,25 @@ class Transfer(_TransferMeta):
     Transfer characteristics from libplacebo
     """
 
-    GAMMA2_2 = 100
+    GAMMA1_8 = 100
 
-    GAMMA2_6 = 101
+    GAMMA2_0 = 101
 
-    GAMMA2_8 = 102
+    GAMMA2_2 = 102
 
-    PROPHOTO_RGB = 103
+    GAMMA2_6 = 103
 
-    XYZ = 104
+    PROPHOTO_RGB = 104
 
-    HLG = 105
+    XYZ = 105
 
-    V_LOG = 106
+    HLG = 106
 
-    S_LOG1 = 107
+    V_LOG = 107
 
-    S_LOG2 = 108
+    S_LOG1 = 108
+
+    S_LOG2 = 109
 
     @classmethod
     def is_unknown(cls, value: int | Transfer) -> bool:
@@ -540,7 +542,7 @@ class Transfer(_TransferMeta):
         :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
         """
 
-        if self >= self.100:
+        if self >= self.GAMMA1_8:
             raise ReservedTransferError(
                 'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!',
                 f'{self.__class__.__name__}.value_vs'
