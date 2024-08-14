@@ -403,13 +403,14 @@ class Transfer(_TransferMeta):
     SMPTE ST 2084 (2014) for 10, 12, 14, and 16-bit systems
     Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system
     """
+    PQ = ST2084
 
-    HLG = 18
+    STD_B67 = 18
     """
     Association of Radio Industries and Businesses (ARIB) STD-B67
     Rec. ITU-R BT.2100-2 hybrid loggamma (HLG) system
     """
-    STD_B67 = HLG
+    HLG = STD_B67
 
     """
     Transfer characteristics from libplacebo
@@ -593,10 +594,10 @@ class Primaries(_PrimariesMeta):
         elif isinstance(value, cls):
             return value
 
-        if cls.BT709 < value < cls.EBU3213E:
+        if cls.BT709 < value < cls.EBU_3213_E:
             raise ReservedPrimariesError(f'Primaries({value}) is reserved.', cls)
 
-        if value > cls.EBU3213E:
+        if value > cls.EBU_3213_E:
             raise UnsupportedPrimariesError(
                 f'Primaries({value}) is current unsupported. '
                 'If you believe this to be in error, please leave an issue '
@@ -733,6 +734,7 @@ class Primaries(_PrimariesMeta):
     (CIE 1931 XYZ)
     """
     XYZ = ST428
+    CIE_1931 = ST428
 
     ST431_2 = 11
     """
@@ -764,7 +766,7 @@ class Primaries(_PrimariesMeta):
     """
     DISPLAY_P3 = ST432_1
 
-    JEDEC_P22 = 22
+    EBU_3213_E = 22
     """
     ```
     Primary      x      y
@@ -776,7 +778,7 @@ class Primaries(_PrimariesMeta):
 
     EBU Tech. 3213-E (1975)
     """
-    EBU_3213_E = JEDEC_P22
+    JEDEC_P22 = EBU_3213_E
 
     """
     Primary characteristics from libplacebo
@@ -791,22 +793,19 @@ class Primaries(_PrimariesMeta):
     PROPHOTO_RGB = 102
     """ProPhoto RGB (ROMM)."""
 
-    CIE_1931 = 103
-    """CIE 1931 RGB primaries."""
-
-    V_GAMUT = 104
+    V_GAMUT = 103
     """Panasonic V-Gamut (VARICAM)."""
 
-    S_GAMUT = 105
+    S_GAMUT = 104
     """Sony S-Gamut."""
 
-    FILM_C = 106
+    FILM_C = 105
     """Traditional film primaries with Illuminant C."""
 
-    ACES_0 = 107
+    ACES_0 = 106
     """ACES Primaries #0 (ultra wide)"""
 
-    ACES_1 = 108
+    ACES_1 = 107
     """ACES Primaries #1"""
 
     @classmethod
@@ -1077,6 +1076,7 @@ _transfer_matrix_map: dict[Transfer, Matrix] = {
     Transfer.ST2084: Matrix.BT2020NC,
     Transfer.BT2020_10bits: Matrix.BT2020NC,
     Transfer.BT2020_12bits: Matrix.BT2020NC,
+    Transfer.STD_B67: Matrix.BT2020NC,
 }
 
 _primaries_matrix_map: dict[Primaries, Matrix] = {}
@@ -1124,23 +1124,22 @@ _primaries_matrixcoeff_map = {
 
 _transfer_placebo_map = {
     Transfer.UNKNOWN: 0,
-    Transfer.BT601_525: 1,
-    Transfer.BT601_625: 2,
-    Transfer.BT709: 3,
-    Transfer.SRGB: 3,
-    Transfer.BT470M: 4,
-    Transfer.EBU_3213: 5,
-    Transfer.BT2020_10bits: 6,
-    Transfer.BT2020_12bits: 6,
-    Transfer.APPLE: 7,
-    Transfer.ADOBE: 8,
-    Transfer.PRO_PHOTO: 9,
-    Transfer.CIE_1931: 10,
-    Transfer.DCI_P3: 11,
-    Transfer.DISPLAY_P3: 12,
-    Transfer.V_GAMUT: 13,
-    Transfer.S_GAMUT: 14,
-    Transfer.FILM_C: 15
+    Transfer.BT601: 1,
+    Transfer.BT709: 1,
+    Transfer.SRGB: 2,
+    Transfer.LINEAR: 3,
+    Transfer.GAMMA1_8: 4,
+    Transfer.GAMMA2_0: 5,
+    Transfer.GAMMA2_2: 6,
+    Transfer.GAMMA2_6: 8,
+    Transfer.BT470BG: 9,
+    Transfer.PROPHOTO_RGB: 10,
+    Transfer.XYZ: 11,
+    Transfer.ST2084: 12,
+    Transfer.STD_B67: 13,
+    Transfer.V_LOG: 14,
+    Transfer.S_LOG1: 15,
+    Transfer.S_LOG2: 16,
 }
 
 _placebo_transfer_map = {
@@ -1179,7 +1178,7 @@ _transfer_name_map = {
     Transfer.BT2020_10bits: 'bt2020-10',
     Transfer.BT2020_12bits: 'bt2020-12',
     Transfer.ST2084: 'smpte2084',
-    Transfer.ARIB_B67: 'arib-std-b67'
+    Transfer.STD_B67: 'arib-std-b67'
 }
 
 
@@ -1195,7 +1194,7 @@ _primaries_name_map = {
     Primaries.ST428: 'smpte428',
     Primaries.ST431_2: 'smpte431',
     Primaries.ST432_1: 'smpte432',
-    Primaries.EBU3213E: 'jedec-p22'
+    Primaries.EBU_3213_E: 'jedec-p22'
 }
 
 _matrix_pretty_name_map = {
@@ -1228,7 +1227,7 @@ _transfer_pretty_name_map = {
     Transfer.BT2020_10bits: 'BT.2020_10',
     Transfer.BT2020_12bits: 'BT.2020_12',
     Transfer.ST2084: 'ST 2084 (PQ)',
-    Transfer.ARIB_B67: 'ARIB std-b67 (HLG)'
+    Transfer.STD_B67: 'ARIB std-b67 (HLG)'
 }
 
 _primaries_pretty_name_map = {
@@ -1242,7 +1241,7 @@ _primaries_pretty_name_map = {
     Primaries.ST428: 'ST 428 (XYZ)',
     Primaries.ST431_2: 'DCI-P3, DCI white point',
     Primaries.ST432_1: 'DCI-P3 D65 white point',
-    Primaries.EBU3213E: '0JEDEC P22 (EBU3213)'
+    Primaries.EBU_3213_E: '0JEDEC P22 (EBU 3213-E)'
 }
 
 
