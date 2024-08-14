@@ -130,6 +130,12 @@ class Matrix(_MatrixMeta):
     """
 
     YCGCO = 8
+    """
+    ```
+    KR = 0.2126; KB = 0.0722
+    ```
+    See Implementation And Evaluation Of Residual Color Transform For 4:4:4 RGB Lossless Coding
+    """
 
     BT2020NC = 9
     """
@@ -398,35 +404,43 @@ class Transfer(_TransferMeta):
     Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system
     """
 
-    ARIB_B67 = 18
+    HLG = 18
     """
     Association of Radio Industries and Businesses (ARIB) STD-B67
     Rec. ITU-R BT.2100-2 hybrid loggamma (HLG) system
     """
+    STD-B67 = HLG
 
     """
     Transfer characteristics from libplacebo
     """
 
     GAMMA1_8 = 100
+    """Pure power gamma 1.8"""
 
     GAMMA2_0 = 101
+    """Pure power gamma 2.0"""
 
     GAMMA2_2 = 102
+    """Pure power gamma 2.2"""
 
     GAMMA2_6 = 103
+    """Pure power gamma 2.6"""
 
     PROPHOTO_RGB = 104
+    """ProPhoto RGB (ROMM)"""
 
     XYZ = 105
+    """Digital Cinema Distribution Master (XYZ)"""
 
-    HLG = 106
+    V_LOG = 106
+    """Panasonic V-Log (VARICAM)""""
 
-    V_LOG = 107
+    S_LOG1 = 107
+    """Sony S-Log1"""
 
-    S_LOG1 = 108
-
-    S_LOG2 = 109
+    S_LOG2 = 108
+    """Sony S-Log2"""
 
     @classmethod
     def is_unknown(cls, value: int | Transfer) -> bool:
@@ -790,8 +804,10 @@ class Primaries(_PrimariesMeta):
     """Traditional film primaries with Illuminant C."""
 
     ACES_0 = 107
+    """ACES Primaries #0 (ultra wide)"""
 
     ACES_1 = 108
+    """ACES Primaries #1"""
 
     @classmethod
     def is_unknown(cls, value: int | Primaries) -> bool:
