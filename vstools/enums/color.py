@@ -556,7 +556,7 @@ class Transfer(_TransferMeta):
         :raises ReservedTransferError:      Transfer is not an internal transfer, but a libplacebo one.
         """
 
-        if self >= self.GAMMA1_8:
+        if self >= self.GAMMA18:
             raise ReservedTransferError(
                 'This transfer isn\'t a VapourSynth internal transfer, but a libplacebo one!',
                 f'{self.__class__.__name__}.value_vs'
@@ -1127,10 +1127,10 @@ _transfer_placebo_map = {
     Transfer.BT709: 1,
     Transfer.SRGB: 2,
     Transfer.LINEAR: 3,
-    Transfer.GAMMA1_8: 4,
-    Transfer.GAMMA2_0: 5,
+    Transfer.GAMMA18: 4,
+    Transfer.GAMMA20: 5,
     Transfer.BT470M: 6,
-    Transfer.GAMMA2_6: 8,
+    Transfer.GAMMA26: 8,
     Transfer.BT470BG: 9,
     Transfer.PROPHOTO: 10,
     Transfer.XYZ: 11,
