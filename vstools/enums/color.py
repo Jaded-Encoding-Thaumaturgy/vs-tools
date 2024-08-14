@@ -434,7 +434,7 @@ class Transfer(_TransferMeta):
     """Digital Cinema Distribution Master (XYZ)"""
 
     V_LOG = 106
-    """Panasonic V-Log (VARICAM)""""
+    """Panasonic V-Log (VARICAM)"""
 
     S_LOG1 = 107
     """Sony S-Log1"""
