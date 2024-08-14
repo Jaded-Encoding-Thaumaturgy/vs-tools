@@ -343,6 +343,7 @@ class Transfer(_TransferMeta):
     NTSC Recommendation for transmission standards for colour television (1953)
     FCC, Title 47 Code of Federal Regulations (2003) 73.682 (a) (20)
     """
+    GAMMA22 = BT470M
 
     BT470BG = 5
     """
@@ -350,6 +351,7 @@ class Transfer(_TransferMeta):
     Rec. ITU-R BT.1700-0 625 PAL and
     625 SECAM
     """
+    GAMMA28 = BT470BG
 
     BT601 = 6
     """
@@ -416,31 +418,28 @@ class Transfer(_TransferMeta):
     Transfer characteristics from libplacebo
     """
 
-    GAMMA1_8 = 100
+    GAMMA18 = 100
     """Pure power gamma 1.8"""
 
-    GAMMA2_0 = 101
+    GAMMA20 = 101
     """Pure power gamma 2.0"""
 
-    GAMMA2_2 = 102
-    """Pure power gamma 2.2"""
-
-    GAMMA2_6 = 103
+    GAMMA26 = 102
     """Pure power gamma 2.6"""
 
-    PROPHOTO_RGB = 104
+    PROPHOTO = 103
     """ProPhoto RGB (ROMM)"""
 
-    XYZ = 105
+    XYZ = 104
     """Digital Cinema Distribution Master (XYZ)"""
 
-    V_LOG = 106
+    V_LOG = 105
     """Panasonic V-Log (VARICAM)"""
 
-    S_LOG1 = 107
+    S_LOG1 = 106
     """Sony S-Log1"""
 
-    S_LOG2 = 108
+    S_LOG2 = 107
     """Sony S-Log2"""
 
     @classmethod
@@ -790,7 +789,7 @@ class Primaries(_PrimariesMeta):
     ADOBE = 101
     """Adobe RGB (1998)."""
 
-    PROPHOTO_RGB = 102
+    PROPHOTO = 102
     """ProPhoto RGB (ROMM)."""
 
     V_GAMUT = 103
@@ -799,7 +798,7 @@ class Primaries(_PrimariesMeta):
     S_GAMUT = 104
     """Sony S-Gamut."""
 
-    FILM_C = 105
+    FILM = 105
     """Traditional film primaries with Illuminant C."""
 
     ACES_0 = 106
@@ -1130,16 +1129,38 @@ _transfer_placebo_map = {
     Transfer.LINEAR: 3,
     Transfer.GAMMA1_8: 4,
     Transfer.GAMMA2_0: 5,
-    Transfer.GAMMA2_2: 6,
+    Transfer.BT470M: 6,
     Transfer.GAMMA2_6: 8,
     Transfer.BT470BG: 9,
-    Transfer.PROPHOTO_RGB: 10,
+    Transfer.PROPHOTO: 10,
     Transfer.XYZ: 11,
     Transfer.ST2084: 12,
     Transfer.STD_B67: 13,
     Transfer.V_LOG: 14,
     Transfer.S_LOG1: 15,
     Transfer.S_LOG2: 16,
+}
+
+_primaries_placebo_map = {
+    Primaries.UNKNOWN: 0,
+    Primaries.ST170M: 1,
+    Primaries.BT470BG: 2,
+    Primaries.BT709: 3,
+    Primaries.SRGB: 3,
+    Primaries.BT470M: 4,
+    Primaries.EBU_3213_E: 5,
+    Primaries.BT2020: 6,
+    Primaries.APPLE: 7,
+    Primaries.ADOBE: 8,
+    Primaries.PROPHOTO: 9,
+    Primaries.ST428: 10,
+    Primaries.ST431_2: 11,
+    Primaries.ST432_1: 12,
+    Primaries.V_GAMUT: 13,
+    Primaries.S_GAMUT: 14,
+    Primaries.FILM: 15,
+    Primaries.ACES_0: 16,
+    Primaries.ACES_1: 17,
 }
 
 _placebo_transfer_map = {
