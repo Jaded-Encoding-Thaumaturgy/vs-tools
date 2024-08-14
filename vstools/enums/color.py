@@ -409,7 +409,7 @@ class Transfer(_TransferMeta):
     Association of Radio Industries and Businesses (ARIB) STD-B67
     Rec. ITU-R BT.2100-2 hybrid loggamma (HLG) system
     """
-    STD-B67 = HLG
+    STD_B67 = HLG
 
     """
     Transfer characteristics from libplacebo
