@@ -95,7 +95,7 @@ class Matrix(_MatrixMeta):
     ```
     KR = 0.299; KB = 0.114
     ```
-    (Functionally the same as :py:attr:`Matrix.SMPTE170M`)
+    (Functionally the same as :py:attr:`Matrix.ST170M`)
     Rec. ITU-R BT.470-6 System B, G (historical)
     Rec. ITU-R BT.601-7 625
     Rec. ITU-R BT.1358-0 625 (historical)
@@ -106,7 +106,7 @@ class Matrix(_MatrixMeta):
     """
     BT601_625 = BT470BG
 
-    SMPTE170M = 6
+    ST170M = 6
     """
     ```
     Kr = 0.299; Kb = 0.114
@@ -118,9 +118,9 @@ class Matrix(_MatrixMeta):
     SMPTE ST 170 (2004)
     See ITU-T H.265 Equations E-28 to E-30
     """
-    BT601_525 = SMPTE170M
+    BT601_525 = ST170M
 
-    SMPTE240M = 7
+    ST240M = 7
     """
     ```
     KR = 0.212; KB = 0.087
@@ -156,7 +156,7 @@ class Matrix(_MatrixMeta):
     See ITU-T H.265 Equations E-49 to E-58
     """
 
-    CHROMA_DERIVED_NCL = 12
+    CHROMANCL = 12
     """
     ```
     # See ITU-T H.265 Equations E-22 to E-27
@@ -165,7 +165,7 @@ class Matrix(_MatrixMeta):
     See ITU-T H.265 Equations E-28 to E-30
     """
 
-    CHROMA_DERIVED_C = 13
+    CHROMACL = 13
     """
     ```
     # See ITU-T H.265 Equations E-22 to E-27
@@ -211,7 +211,7 @@ class Matrix(_MatrixMeta):
             if height > 486:
                 return Matrix.BT470BG
 
-            return Matrix.SMPTE170M
+            return Matrix.ST170M
 
         if width <= 2048 and height <= 1556:
             return Matrix.BT709
@@ -726,7 +726,7 @@ class Primaries(_PrimariesMeta):
     (CIE 1931 XYZ)
     """
     XYZ = ST428
-    CIE_1931 = ST428
+    CIE1931 = ST428
 
     ST431_2 = 11
     """
@@ -959,8 +959,8 @@ class MatrixCoefficients(NamedTuple):
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classproperty
-    def SMPTE240M(cls) -> MatrixCoefficients:
-        """Matrix Coefficients for SMPTE240M."""
+    def ST240M(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for ST240M."""
 
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
@@ -1103,9 +1103,8 @@ _primaries_matrix_map: dict[Primaries, Matrix] = {}
 _matrix_transfer_map = {
     Matrix.RGB: Transfer.SRGB,
     Matrix.BT709: Transfer.BT709,
-    Matrix.BT470BG: Transfer.BT601,
-    Matrix.SMPTE170M: Transfer.BT601,
-    Matrix.SMPTE240M: Transfer.ST240M,
+    Matrix.ST170M: Transfer.BT601,
+    Matrix.ST240M: Transfer.ST240M,
     Matrix.ICTCP: Transfer.BT2020_10,
 }
 
@@ -1119,7 +1118,7 @@ _matrix_matrixcoeff_map = {
     Matrix.RGB: MatrixCoefficients.SRGB,
     Matrix.BT709: MatrixCoefficients.BT709,
     Matrix.BT470BG: MatrixCoefficients.BT709,
-    Matrix.SMPTE240M: MatrixCoefficients.SMPTE240M,
+    Matrix.ST240M: MatrixCoefficients.ST240M,
     Matrix.BT2020CL: MatrixCoefficients.BT2020,
     Matrix.BT2020NCL: MatrixCoefficients.BT2020
 }
@@ -1128,15 +1127,17 @@ _transfer_matrixcoeff_map = {
     Transfer.SRGB: MatrixCoefficients.SRGB,
     Transfer.BT709: MatrixCoefficients.BT709,
     Transfer.BT601: MatrixCoefficients.BT709,
-    Transfer.ST240M: MatrixCoefficients.SMPTE240M,
+    Transfer.BT470BG: MatrixCoefficients.BT709,
+    Transfer.ST240M: MatrixCoefficients.ST240M,
     Transfer.BT2020_10: MatrixCoefficients.BT2020,
     Transfer.BT2020_12: MatrixCoefficients.BT2020
 }
 
 _primaries_matrixcoeff_map = {
     Primaries.BT709: MatrixCoefficients.BT709,
+    Primaries.ST170M: MatrixCoefficients.BT709,
     Primaries.BT470BG: MatrixCoefficients.BT709,
-    Primaries.ST240M: MatrixCoefficients.SMPTE240M,
+    Primaries.ST240M: MatrixCoefficients.ST240M,
     Primaries.BT2020: MatrixCoefficients.BT2020
 }
 
@@ -1195,13 +1196,13 @@ _matrix_name_map = {
     Matrix.UNKNOWN: 'unknown',
     Matrix.FCC: 'fcc',
     Matrix.BT470BG: 'bt470bg',
-    Matrix.SMPTE170M: 'smpte170m',
-    Matrix.SMPTE240M: 'smpte240m',
+    Matrix.ST170M: 'smpte170m',
+    Matrix.ST240M: 'smpte240m',
     Matrix.YCGCO: 'ycgco',
     Matrix.BT2020NCL: 'bt2020ncl',
     Matrix.BT2020CL: 'bt2020cl',
-    Matrix.CHROMA_DERIVED_NCL: 'chroma-derived-nc',
-    Matrix.CHROMA_DERIVED_C: 'chroma-derived-c',
+    Matrix.CHROMANCL: 'chroma-derived-nc',
+    Matrix.CHROMACL: 'chroma-derived-c',
     Matrix.ICTCP: 'ictcp'
 }
 
@@ -1244,13 +1245,13 @@ _matrix_pretty_name_map = {
     Matrix.BT709: 'BT.709',
     Matrix.FCC: 'FCC',
     Matrix.BT470BG: 'BT.470bg',
-    Matrix.SMPTE170M: 'ST 170M',
-    Matrix.SMPTE240M: 'ST 240M',
+    Matrix.ST170M: 'SMPTE ST 170m',
+    Matrix.ST240M: 'SMPTE ST 240m',
     Matrix.YCGCO: 'YCgCo',
     Matrix.BT2020NCL: 'BT.2020 non-constant luminance',
     Matrix.BT2020CL: 'BT.2020 constant luminance',
-    Matrix.CHROMA_DERIVED_NCL: 'Chromaticity derived non-constant luminance',
-    Matrix.CHROMA_DERIVED_C: 'Chromaticity derived constant luminance',
+    Matrix.CHROMANCL: 'Chromaticity derived non-constant luminance',
+    Matrix.CHROMACL: 'Chromaticity derived constant luminance',
     Matrix.ICTCP: 'ICtCp'
 }
 
@@ -1259,7 +1260,7 @@ _transfer_pretty_name_map = {
     Transfer.BT470M: 'BT.470m',
     Transfer.BT470BG: 'BT.470bg',
     Transfer.BT601: 'BT.601',
-    Transfer.ST240M: 'ST 240M',
+    Transfer.ST240M: 'SMPTE ST 240m',
     Transfer.LINEAR: 'Linear',
     Transfer.LOG100: 'Log 1:100 contrast',
     Transfer.LOG316: 'Log 1:316 contrast',
@@ -1267,7 +1268,7 @@ _transfer_pretty_name_map = {
     Transfer.SRGB: 'sRGB',
     Transfer.BT2020_10: 'BT.2020 10 bits',
     Transfer.BT2020_12: 'BT.2020 12 bits',
-    Transfer.ST2084: 'ST 2084 (PQ)',
+    Transfer.ST2084: 'SMPTE ST 2084 (PQ)',
     Transfer.STD_B67: 'ARIB std-b67 (HLG)'
 }
 
@@ -1275,11 +1276,11 @@ _primaries_pretty_name_map = {
     Primaries.BT709: 'BT.709',
     Primaries.BT470M: 'BT.470m',
     Primaries.BT470BG: 'BT.470bg',
-    Primaries.ST170M: 'ST 170M',
-    Primaries.ST240M: 'ST 240M',
+    Primaries.ST170M: 'SMPTE ST 170m',
+    Primaries.ST240M: 'SMPTE ST 240m',
     Primaries.FILM: 'Film',
     Primaries.BT2020: 'BT.2020',
-    Primaries.ST428: 'ST 428 (XYZ)',
+    Primaries.ST428: 'SMPTE ST 428 (XYZ)',
     Primaries.ST431_2: 'DCI-P3, DCI white point',
     Primaries.ST432_1: 'DCI-P3 D65 white point',
     Primaries.JEDEC_P22: 'JEDEC P22 (EBU 3213-E)'
