@@ -137,7 +137,7 @@ class Matrix(_MatrixMeta):
     See Implementation And Evaluation Of Residual Color Transform For 4:4:4 RGB Lossless Coding
     """
 
-    BT2020NC = 9
+    BT2020NCL = 9
     """
     ```
     KR = 0.2627; KB = 0.0593
@@ -147,7 +147,7 @@ class Matrix(_MatrixMeta):
     See ITU-T H.265 Equations E-28 to E-30
     """
 
-    BT2020C = 10
+    BT2020CL = 10
     """
     ```
     KR = 0.2627; KB = 0.0593
@@ -156,16 +156,7 @@ class Matrix(_MatrixMeta):
     See ITU-T H.265 Equations E-49 to E-58
     """
 
-    SMPTE2085 = 11
-    """
-    ```
-    # Y′D′ZD′X
-    ```
-    SMPTE ST 2085 (2015)
-    See ITU-T H.265 Equations E-59 to E-61
-    """
-
-    CHROMA_DERIVED_NC = 12
+    CHROMA_DERIVED_NCL = 12
     """
     ```
     # See ITU-T H.265 Equations E-22 to E-27
@@ -225,7 +216,7 @@ class Matrix(_MatrixMeta):
         if width <= 2048 and height <= 1556:
             return Matrix.BT709
 
-        return Matrix.BT2020NC
+        return Matrix.BT2020NCL
 
     @classmethod
     def from_video(
@@ -327,8 +318,8 @@ class Transfer(_TransferMeta):
 
     BT709 = 1
     """
-    (Functionally the same as :py:attr:`Transfer.BT601`, :py:attr:`Transfer.BT2020_10bits`,
-    and :py:attr:`Transfer.BT2020_12bits`)
+    (Functionally the same as :py:attr:`Transfer.BT601`, :py:attr:`Transfer.BT2020_10`,
+    and :py:attr:`Transfer.BT2020_12`)
     Rec. ITU-R BT.709-6
     Rec. ITU-R BT.1361-0 conventional
     Colour gamut system (historical)
@@ -355,8 +346,8 @@ class Transfer(_TransferMeta):
 
     BT601 = 6
     """
-    (Functionally the same as :py:attr:`Transfer.BT709`, :py:attr:`Transfer.BT2020_10bits`,
-    and :py:attr:`Transfer.BT2020_12bits`)
+    (Functionally the same as :py:attr:`Transfer.BT709`, :py:attr:`Transfer.BT2020_10`,
+    and :py:attr:`Transfer.BT2020_12`)
     Rec. ITU-R BT.601-7 525 or 625
     Rec. ITU-R BT.1358-1 525 or 625 (historical)
     Rec. ITU-R BT.1700-0 NTSC
@@ -371,10 +362,10 @@ class Transfer(_TransferMeta):
     LINEAR = 8
     """Linear transfer characteristics."""
 
-    LOG_100 = 9
+    LOG100 = 9
     """Logarithmic transfer characteristic (100:1 range)."""
 
-    LOG_316 = 10
+    LOG316 = 10
     """Logarithmic transfer characteristic (100 * sqrt(10):1 range)."""
 
     XVYCC = 11
@@ -386,17 +377,17 @@ class Transfer(_TransferMeta):
     IEC 61966-2-1 sYCC when matrix is equal to :py:attr:`Matrix.BT470BG`
     """
 
-    BT2020_10bits = 14
+    BT2020_10 = 14
     """
     (Functionally the same as :py:attr:`Transfer.BT709`, :py:attr:`Transfer.BT601`,
-    and :py:attr:`Transfer.BT2020_12bits`)
+    and :py:attr:`Transfer.BT2020_12`)
     Rec. ITU-R BT.2020-2
     """
 
-    BT2020_12bits = 15
+    BT2020_12 = 15
     """
     (Functionally the same as :py:attr:`Transfer.BT709`, :py:attr:`Transfer.BT601`,
-    and :py:attr:`Transfer.BT2020_10bits`)
+    and :py:attr:`Transfer.BT2020_10`)
     Rec. ITU-R BT.2020-2
     """
 
@@ -472,10 +463,10 @@ class Transfer(_TransferMeta):
             return Transfer.BT709
 
         if fmt.bits_per_sample == 10:
-            return Transfer.BT2020_10bits
+            return Transfer.BT2020_10
 
         if fmt.bits_per_sample == 12:
-            return Transfer.BT2020_12bits
+            return Transfer.BT2020_12
 
         return Transfer.BT709
 
@@ -593,10 +584,10 @@ class Primaries(_PrimariesMeta):
         elif isinstance(value, cls):
             return value
 
-        if cls.BT709 < value < cls.EBU_3213_E:
+        if cls.BT709 < value < cls.JEDEC_P22:
             raise ReservedPrimariesError(f'Primaries({value}) is reserved.', cls)
 
-        if value > cls.EBU_3213_E:
+        if value > cls.JEDEC_P22:
             raise UnsupportedPrimariesError(
                 f'Primaries({value}) is current unsupported. '
                 'If you believe this to be in error, please leave an issue '
@@ -765,7 +756,7 @@ class Primaries(_PrimariesMeta):
     """
     DISPLAY_P3 = ST432_1
 
-    EBU_3213_E = 22
+    JEDEC_P22 = 22
     """
     ```
     Primary      x      y
@@ -777,7 +768,7 @@ class Primaries(_PrimariesMeta):
 
     EBU Tech. 3213-E (1975)
     """
-    JEDEC_P22 = EBU_3213_E
+    EBU3213 = JEDEC_P22
 
     """
     Primary characteristics from libplacebo
@@ -798,13 +789,10 @@ class Primaries(_PrimariesMeta):
     S_GAMUT = 104
     """Sony S-Gamut."""
 
-    FILM = 105
-    """Traditional film primaries with Illuminant C."""
-
-    ACES_0 = 106
+    ACES_0 = 105
     """ACES Primaries #0 (ultra wide)"""
 
-    ACES_1 = 107
+    ACES_1 = 106
     """ACES Primaries #1"""
 
     @classmethod
@@ -903,6 +891,34 @@ class Primaries(_PrimariesMeta):
             return cls(transfer.value)
 
         return _transfer_primaries_map[transfer]
+
+    @classmethod
+    def from_libplacebo(self, val: int) -> int:
+        """Obtain the primaries from libplacebo."""
+
+        return _placebo_primaries_map[val]
+
+    @property
+    def value_vs(self) -> int:
+        """
+        VapourSynth value.
+
+        :raises ReservedPrimariesError:      Primaries are not an internal primaries, but a libplacebo one.
+        """
+
+        if self >= self.APPLE:
+            raise ReservedPrimariesError(
+                'This primaries isn\'t a VapourSynth internal primaries, but a libplacebo one!',
+                f'{self.__class__.__name__}.value_vs'
+            )
+
+        return self.value
+
+    @property
+    def value_libplacebo(self) -> int:
+        """libplacebo value."""
+
+        return _primaries_placebo_map[self]
 
     @property
     def pretty_string(self) -> str:
@@ -1005,6 +1021,7 @@ class ColorRange(_ColorRangeMeta):
 
     | This is primarily used with YUV integer formats.
     """
+    TV = LIMITED
 
     FULL = 0
     """
@@ -1013,6 +1030,7 @@ class ColorRange(_ColorRangeMeta):
     | Note that float clips should ALWAYS be FULL range!
     | RGB clips will ALWAYS be FULL range!
     """
+    PC = FULL
 
     @classmethod
     def from_res(cls, frame: vs.VideoNode | vs.VideoFrame) -> ColorRange:
@@ -1072,10 +1090,10 @@ _transfer_matrix_map: dict[Transfer, Matrix] = {
     Transfer.SRGB: Matrix.RGB,
     Transfer.BT709: Matrix.BT709,
     Transfer.BT470BG: Matrix.BT470BG,
-    Transfer.ST2084: Matrix.BT2020NC,
-    Transfer.BT2020_10bits: Matrix.BT2020NC,
-    Transfer.BT2020_12bits: Matrix.BT2020NC,
-    Transfer.STD_B67: Matrix.BT2020NC,
+    Transfer.ST2084: Matrix.BT2020NCL,
+    Transfer.BT2020_10: Matrix.BT2020NCL,
+    Transfer.BT2020_12: Matrix.BT2020NCL,
+    Transfer.STD_B67: Matrix.BT2020NCL,
 }
 
 _primaries_matrix_map: dict[Primaries, Matrix] = {}
@@ -1086,8 +1104,7 @@ _matrix_transfer_map = {
     Matrix.BT470BG: Transfer.BT601,
     Matrix.SMPTE170M: Transfer.BT601,
     Matrix.SMPTE240M: Transfer.ST240M,
-    Matrix.CHROMA_DERIVED_C: Transfer.SRGB,
-    Matrix.ICTCP: Transfer.BT2020_10bits,
+    Matrix.ICTCP: Transfer.BT2020_10,
 }
 
 _primaries_transfer_map: dict[Primaries, Transfer] = {}
@@ -1101,8 +1118,8 @@ _matrix_matrixcoeff_map = {
     Matrix.BT709: MatrixCoefficients.BT709,
     Matrix.BT470BG: MatrixCoefficients.BT709,
     Matrix.SMPTE240M: MatrixCoefficients.SMPTE240M,
-    Matrix.BT2020C: MatrixCoefficients.BT2020,
-    Matrix.BT2020NC: MatrixCoefficients.BT2020
+    Matrix.BT2020CL: MatrixCoefficients.BT2020,
+    Matrix.BT2020NCL: MatrixCoefficients.BT2020
 }
 
 _transfer_matrixcoeff_map = {
@@ -1110,8 +1127,8 @@ _transfer_matrixcoeff_map = {
     Transfer.BT709: MatrixCoefficients.BT709,
     Transfer.BT601: MatrixCoefficients.BT709,
     Transfer.ST240M: MatrixCoefficients.SMPTE240M,
-    Transfer.BT2020_10bits: MatrixCoefficients.BT2020,
-    Transfer.BT2020_12bits: MatrixCoefficients.BT2020
+    Transfer.BT2020_10: MatrixCoefficients.BT2020,
+    Transfer.BT2020_12: MatrixCoefficients.BT2020
 }
 
 _primaries_matrixcoeff_map = {
@@ -1146,9 +1163,8 @@ _primaries_placebo_map = {
     Primaries.ST170M: 1,
     Primaries.BT470BG: 2,
     Primaries.BT709: 3,
-    Primaries.SRGB: 3,
     Primaries.BT470M: 4,
-    Primaries.EBU_3213_E: 5,
+    Primaries.JEDEC_P22: 5,
     Primaries.BT2020: 6,
     Primaries.APPLE: 7,
     Primaries.ADOBE: 8,
@@ -1167,6 +1183,10 @@ _placebo_transfer_map = {
     value: key for key, value in _transfer_placebo_map.items()
 }
 
+_placebo_primaries_map = {
+    value: key for key, value in _primaries_placebo_map.items()
+}
+
 _matrix_name_map = {
     Matrix.RGB: 'gbr',
     Matrix.BT709: 'bt709',
@@ -1176,10 +1196,9 @@ _matrix_name_map = {
     Matrix.SMPTE170M: 'smpte170m',
     Matrix.SMPTE240M: 'smpte240m',
     Matrix.YCGCO: 'ycgco',
-    Matrix.BT2020NC: 'bt2020nc',
-    Matrix.BT2020C: 'bt2020c',
-    Matrix.SMPTE2085: 'smpte2085',
-    Matrix.CHROMA_DERIVED_NC: 'chroma-derived-nc',
+    Matrix.BT2020NCL: 'bt2020ncl',
+    Matrix.BT2020CL: 'bt2020cl',
+    Matrix.CHROMA_DERIVED_NCL: 'chroma-derived-nc',
     Matrix.CHROMA_DERIVED_C: 'chroma-derived-c',
     Matrix.ICTCP: 'ictcp'
 }
@@ -1192,12 +1211,12 @@ _transfer_name_map = {
     Transfer.BT601: 'bt601',
     Transfer.ST240M: 'smpte240m',
     Transfer.LINEAR: 'linear',
-    Transfer.LOG_100: 'log100',
-    Transfer.LOG_316: 'log316',
+    Transfer.LOG100: 'log100',
+    Transfer.LOG316: 'log316',
     Transfer.XVYCC: 'iec61966-2-4',
     Transfer.SRGB: 'iec61966-2-1',
-    Transfer.BT2020_10bits: 'bt2020-10',
-    Transfer.BT2020_12bits: 'bt2020-12',
+    Transfer.BT2020_10: 'bt2020-10',
+    Transfer.BT2020_12: 'bt2020-12',
     Transfer.ST2084: 'smpte2084',
     Transfer.STD_B67: 'arib-std-b67'
 }
@@ -1215,7 +1234,7 @@ _primaries_name_map = {
     Primaries.ST428: 'smpte428',
     Primaries.ST431_2: 'smpte431',
     Primaries.ST432_1: 'smpte432',
-    Primaries.EBU_3213_E: 'jedec-p22'
+    Primaries.JEDEC_P22: 'jedec-p22'
 }
 
 _matrix_pretty_name_map = {
@@ -1226,10 +1245,9 @@ _matrix_pretty_name_map = {
     Matrix.SMPTE170M: 'ST 170M',
     Matrix.SMPTE240M: 'ST 240M',
     Matrix.YCGCO: 'YCgCo',
-    Matrix.BT2020NC: 'BT.2020 non-constant luminance',
-    Matrix.BT2020C: 'BT.2020 constant luminance',
-    Matrix.SMPTE2085: 'ST 2085',
-    Matrix.CHROMA_DERIVED_NC: 'Chromaticity derived non-constant luminance',
+    Matrix.BT2020NCL: 'BT.2020 non-constant luminance',
+    Matrix.BT2020CL: 'BT.2020 constant luminance',
+    Matrix.CHROMA_DERIVED_NCL: 'Chromaticity derived non-constant luminance',
     Matrix.CHROMA_DERIVED_C: 'Chromaticity derived constant luminance',
     Matrix.ICTCP: 'ICtCp'
 }
@@ -1241,12 +1259,12 @@ _transfer_pretty_name_map = {
     Transfer.BT601: 'BT.601',
     Transfer.ST240M: 'ST 240M',
     Transfer.LINEAR: 'Linear',
-    Transfer.LOG_100: 'Log 1:100 contrast',
-    Transfer.LOG_316: 'Log 1:316 contrast',
+    Transfer.LOG100: 'Log 1:100 contrast',
+    Transfer.LOG316: 'Log 1:316 contrast',
     Transfer.XVYCC: 'xvYCC',
     Transfer.SRGB: 'sRGB',
-    Transfer.BT2020_10bits: 'BT.2020_10',
-    Transfer.BT2020_12bits: 'BT.2020_12',
+    Transfer.BT2020_10: 'BT.2020 10 bits',
+    Transfer.BT2020_12: 'BT.2020 12 bits',
     Transfer.ST2084: 'ST 2084 (PQ)',
     Transfer.STD_B67: 'ARIB std-b67 (HLG)'
 }
@@ -1262,7 +1280,7 @@ _primaries_pretty_name_map = {
     Primaries.ST428: 'ST 428 (XYZ)',
     Primaries.ST431_2: 'DCI-P3, DCI white point',
     Primaries.ST432_1: 'DCI-P3 D65 white point',
-    Primaries.EBU_3213_E: '0JEDEC P22 (EBU 3213-E)'
+    Primaries.JEDEC_P22: '0JEDEC P22 (EBU 3213-E)'
 }
 
 
