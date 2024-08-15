@@ -77,6 +77,8 @@ class Matrix(_MatrixMeta):
     IEC 61966-2-4 xvYCC709
     SMPTE RP 177 (1993) Annex B
     """
+    BT1886 = BT709
+    GAMMA24 = BT709 # Not exactly, but since zimg assumes infinite contrast BT1886 is effectively GAMMA24 here.
 
     UNKNOWN = 2
     """Image characteristics are unknown or are determined by the application."""
