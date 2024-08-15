@@ -1282,7 +1282,7 @@ _primaries_pretty_name_map = {
     Primaries.ST428: 'ST 428 (XYZ)',
     Primaries.ST431_2: 'DCI-P3, DCI white point',
     Primaries.ST432_1: 'DCI-P3 D65 white point',
-    Primaries.JEDEC_P22: '0JEDEC P22 (EBU 3213-E)'
+    Primaries.JEDEC_P22: 'JEDEC P22 (EBU 3213-E)'
 }
 
 
