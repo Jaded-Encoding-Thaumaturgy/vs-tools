@@ -422,17 +422,19 @@ class Transfer(_TransferMeta):
 
     PROPHOTO = 103
     """ProPhoto RGB (ROMM)"""
+    ROMM = PROPHOTO
 
     XYZ = 104
     """Digital Cinema Distribution Master (XYZ)"""
 
-    V_LOG = 105
+    VLOG = 105
     """Panasonic V-Log (VARICAM)"""
+    VARICAM = VLOG
 
-    S_LOG1 = 106
+    SLOG_1 = 106
     """Sony S-Log1"""
 
-    S_LOG2 = 107
+    SLOG_2 = 107
     """Sony S-Log2"""
 
     @classmethod
@@ -784,11 +786,13 @@ class Primaries(_PrimariesMeta):
 
     PROPHOTO = 102
     """ProPhoto RGB (ROMM)."""
+    ROMM = PROPHOTO
 
-    V_GAMUT = 103
+    VGAMUT = 103
     """Panasonic V-Gamut (VARICAM)."""
+    VARICAM = VGAMUT
 
-    S_GAMUT = 104
+    SGAMUT = 104
     """Sony S-Gamut."""
 
     ACES_0 = 105
@@ -1156,9 +1160,9 @@ _transfer_placebo_map = {
     Transfer.XYZ: 11,
     Transfer.ST2084: 12,
     Transfer.STD_B67: 13,
-    Transfer.V_LOG: 14,
-    Transfer.S_LOG1: 15,
-    Transfer.S_LOG2: 16,
+    Transfer.VLOG: 14,
+    Transfer.SLOG_1: 15,
+    Transfer.SLOG_2: 16,
 }
 
 _primaries_placebo_map = {
@@ -1175,8 +1179,8 @@ _primaries_placebo_map = {
     Primaries.ST428: 10,
     Primaries.ST431_2: 11,
     Primaries.ST432_1: 12,
-    Primaries.V_GAMUT: 13,
-    Primaries.S_GAMUT: 14,
+    Primaries.VGAMUT: 13,
+    Primaries.SGAMUT: 14,
     Primaries.FILM: 15,
     Primaries.ACES_0: 16,
     Primaries.ACES_1: 17,
