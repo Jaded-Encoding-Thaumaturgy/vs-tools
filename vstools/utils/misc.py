@@ -256,7 +256,8 @@ class _padder:
         if not isinstance(color, Sequence):
             norm_colors = _norm(color)
         else:
-            norm_colors = [_norm(c)[i] for i, c in enumerate(normalize_seq(color))]
+            assert clip.format
+            norm_colors = [_norm(c)[i] for i, c in enumerate(normalize_seq(color, clip.format.num_planes))]
 
         return clip.std.AddBorders(left, right, top, bottom, norm_colors)
 
