@@ -7,6 +7,7 @@ from typing import Any, Callable, Iterable, Sequence, TypeVar
 
 import vapoursynth as vs
 
+from ..enums import Align, BaseAlign
 from ..exceptions import InvalidSubsamplingError
 from .info import get_video_format
 
@@ -262,17 +263,50 @@ class _padder:
         return clip.std.AddBorders(left, right, top, bottom, norm_colors)
 
     @classmethod
-    def mod_padding(cls, sizes: tuple[int, int], mod: int = 16, min: int = 4) -> tuple[int, int, int, int]:
-        ph, pv = (mod - (((x + min * 2) - 1) % mod + 1) for x in sizes)
-        left, top = floor(ph / 2), floor(pv / 2)
-        return tuple(x + min for x in (left, ph - left, top, pv - top))  # type: ignore
+    def _get_sizes_crop_scale(
+        cls, sizes: tuple[int, int] | vs.VideoNode, crop_scale: float | tuple[float, float]
+    ) -> tuple[tuple[int, int], tuple[int, int]]:
+        if isinstance(sizes, vs.VideoNode):
+            sizes = (sizes.width, sizes.height)  # type: ignore[union-attr]
+
+        if not isinstance(crop_scale, tuple):
+            crop_scale = (crop_scale, crop_scale)
+
+        return sizes, crop_scale  # type: ignore[return-value]
 
     @classmethod
-    def mod_padding_crop(cls, sizes: tuple[int, int], mod: int = 16, min: int = 4, crop_scale: int = 2) -> tuple[
-        tuple[int, int, int, int], tuple[int, int, int, int]
-    ]:
-        padding = cls.mod_padding(sizes, mod, min)
-        return padding, tuple(x * crop_scale for x in padding)  # type: ignore
+    def mod_padding(
+        cls, sizes: tuple[int, int] | vs.VideoNode, mod: int = 16, min: int = 4, align: Align = Align.MIDDLE_CENTER
+    ) -> tuple[int, int, int, int]:
+        sizes, _ = cls._get_sizes_crop_scale(sizes, 1)
+        ph, pv = (mod - (((x + min * 2) - 1) % mod + 1) for x in sizes)
+        left, top = floor(ph / 2), floor(pv / 2)
+        left, right, top, bottom = tuple(x + min for x in (left, ph - left, top, pv - top))
+
+        if align & BaseAlign.TOP:
+            bottom += top
+            top = 0
+        elif align & BaseAlign.BOTTOM:
+            top += bottom
+            bottom = 0
+
+        if align & BaseAlign.LEFT:
+            right += left
+            left = 0
+        elif align & BaseAlign.RIGHT:
+            left += right
+            right = 0
+
+        return left, right, top, bottom
+
+    @classmethod
+    def mod_padding_crop(
+        cls, sizes: tuple[int, int] | vs.VideoNode, mod: int = 16, min: int = 4,
+        crop_scale: float | tuple[float, float] = 2, align: Align = Align.MIDDLE_CENTER
+    ) -> tuple[tuple[int, int, int, int], tuple[int, int, int, int]]:
+        sizes, crop_scale = cls._get_sizes_crop_scale(sizes, crop_scale)
+        padding = cls.mod_padding(sizes, mod, min, align)
+        return padding, tuple(x * crop_scale[0 if i < 2 else 1] for x, i in enumerate(padding))  # type: ignore
 
 
 padder = _padder()
