@@ -99,7 +99,7 @@ class _padder:
     ]:
         from ..functions import check_variable
 
-        assert check_variable(clip, padder)
+        assert check_variable(clip, 'padder')
 
         width = clip.width + left + right
         height = clip.height + top + bottom
@@ -110,7 +110,7 @@ class _padder:
 
         if width % w_sub and height % h_sub:
             raise InvalidSubsamplingError(
-                padder, fmt, 'Values must result in a mod congruent to the clip\'s subsampling ({subsampling})!'
+                'padder', fmt, 'Values must result in a mod congruent to the clip\'s subsampling ({subsampling})!'
             )
 
         return width, height, fmt, w_sub, h_sub
