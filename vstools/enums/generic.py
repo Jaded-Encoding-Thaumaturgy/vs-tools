@@ -55,7 +55,7 @@ class ChromaLocation(_ChromaLocationMeta):
         if (
             primaries == Primaries.BT2020
             or matrix in (Matrix.BT2020CL, Matrix.BT2020NCL)
-            or transfer in (Transfer.BT2020, Transfer.BT2020)
+            or transfer in (Transfer.BT2020_10, Transfer.BT2020_12)
         ):
             return ChromaLocation.TOP_LEFT
 
