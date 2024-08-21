@@ -95,7 +95,7 @@ class Matrix(_MatrixMeta):
     ```
     KR = 0.299; KB = 0.114
     ```
-    (Functionally the same as :py:attr:`Matrix.ST170M`)
+    (Functionally the same as :py:attr:`Matrix.SMPTE170M`)
     Rec. ITU-R BT.470-6 System B, G (historical)
     Rec. ITU-R BT.601-7 625
     Rec. ITU-R BT.1358-0 625 (historical)
@@ -106,7 +106,7 @@ class Matrix(_MatrixMeta):
     """
     BT601_625 = BT470BG
 
-    ST170M = 6
+    SMPTE170M = 6
     """
     ```
     Kr = 0.299; Kb = 0.114
@@ -118,7 +118,7 @@ class Matrix(_MatrixMeta):
     SMPTE ST 170 (2004)
     See ITU-T H.265 Equations E-28 to E-30
     """
-    BT601_525 = ST170M
+    BT601_525 = SMPTE170M
 
     ST240M = 7
     """
@@ -211,7 +211,7 @@ class Matrix(_MatrixMeta):
             if height > 486:
                 return Matrix.BT470BG
 
-            return Matrix.ST170M
+            return Matrix.SMPTE170M
 
         if width <= 2048 and height <= 1556:
             return Matrix.BT709
@@ -355,8 +355,6 @@ class Transfer(_TransferMeta):
     Rec. ITU-R BT.1700-0 NTSC
     SMPTE ST 170 (2004)
     """
-    BT601_525 = BT601
-    BT601_625 = BT601
 
     ST240M = 7
     """SMPTE ST 240 (1999, historical)."""
@@ -411,30 +409,31 @@ class Transfer(_TransferMeta):
     Transfer characteristics from libplacebo
     """
 
-    GAMMA18 = 100
+    GAMMA18 = 104
     """Pure power gamma 1.8"""
 
-    GAMMA20 = 101
+    GAMMA20 = 105
     """Pure power gamma 2.0"""
 
-    GAMMA26 = 102
+    GAMMA26 = 108
     """Pure power gamma 2.6"""
 
-    PROPHOTO = 103
+    PROPHOTO = 110
     """ProPhoto RGB (ROMM)"""
     ROMM = PROPHOTO
 
-    XYZ = 104
+    ST428 = 111
     """Digital Cinema Distribution Master (XYZ)"""
+    XYZ = ST428
 
-    VLOG = 105
+    VLOG = 114
     """Panasonic V-Log (VARICAM)"""
     VARICAM = VLOG
 
-    SLOG_1 = 106
+    SLOG_1 = 115
     """Sony S-Log1"""
 
-    SLOG_2 = 107
+    SLOG_2 = 116
     """Sony S-Log2"""
 
     @classmethod
@@ -655,7 +654,7 @@ class Primaries(_PrimariesMeta):
     """
     BT601_625 = BT470BG
 
-    ST170M = 6
+    SMPTE170M = 6
     """
     (Functionally the same as :py:attr:`Primaries.ST240M`)
     ```
@@ -671,11 +670,11 @@ class Primaries(_PrimariesMeta):
     Rec. ITU-R BT.1700-0 NTSC
     SMPTE ST 170 (2004)
     """
-    BT601_525 = ST170M
+    BT601_525 = SMPTE170M
 
     ST240M = 7
     """
-    (Functionally the same as :py:attr:`Primaries.ST170M`)
+    (Functionally the same as :py:attr:`Primaries.SMPTE170M`)
     ```
     Primary      x      y
     Green     0.3100 0.5950
@@ -778,27 +777,27 @@ class Primaries(_PrimariesMeta):
     Primary characteristics from libplacebo
     """
 
-    APPLE = 100
+    APPLE = 107
     """Apple RGB."""
 
-    ADOBE = 101
+    ADOBE = 108
     """Adobe RGB (1998)."""
 
-    PROPHOTO = 102
+    PROPHOTO = 109
     """ProPhoto RGB (ROMM)."""
     ROMM = PROPHOTO
 
-    VGAMUT = 103
+    VGAMUT = 113
     """Panasonic V-Gamut (VARICAM)."""
     VARICAM = VGAMUT
 
-    SGAMUT = 104
+    SGAMUT = 114
     """Sony S-Gamut."""
 
-    ACES_0 = 105
+    ACES_0 = 116
     """ACES Primaries #0 (ultra wide)"""
 
-    ACES_1 = 106
+    ACES_1 = 117
     """ACES Primaries #1"""
 
     @classmethod
@@ -828,7 +827,7 @@ class Primaries(_PrimariesMeta):
             if height > 486:
                 return Primaries.BT470BG
 
-            return Primaries.ST170M
+            return Primaries.SMPTE170M
 
         if width <= 2048 and height <= 1556:
             return Primaries.BT709
@@ -1107,7 +1106,7 @@ _primaries_matrix_map: dict[Primaries, Matrix] = {}
 _matrix_transfer_map = {
     Matrix.RGB: Transfer.SRGB,
     Matrix.BT709: Transfer.BT709,
-    Matrix.ST170M: Transfer.BT601,
+    Matrix.SMPTE170M: Transfer.BT601,
     Matrix.ST240M: Transfer.ST240M,
     Matrix.ICTCP: Transfer.BT2020_10,
 }
@@ -1139,7 +1138,7 @@ _transfer_matrixcoeff_map = {
 
 _primaries_matrixcoeff_map = {
     Primaries.BT709: MatrixCoefficients.BT709,
-    Primaries.ST170M: MatrixCoefficients.BT709,
+    Primaries.SMPTE170M: MatrixCoefficients.BT709,
     Primaries.BT470BG: MatrixCoefficients.BT709,
     Primaries.ST240M: MatrixCoefficients.ST240M,
     Primaries.BT2020: MatrixCoefficients.BT2020
@@ -1167,7 +1166,7 @@ _transfer_placebo_map = {
 
 _primaries_placebo_map = {
     Primaries.UNKNOWN: 0,
-    Primaries.ST170M: 1,
+    Primaries.SMPTE170M: 1,
     Primaries.BT470BG: 2,
     Primaries.BT709: 3,
     Primaries.BT470M: 4,
@@ -1200,7 +1199,7 @@ _matrix_name_map = {
     Matrix.UNKNOWN: 'unknown',
     Matrix.FCC: 'fcc',
     Matrix.BT470BG: 'bt470bg',
-    Matrix.ST170M: 'smpte170m',
+    Matrix.SMPTE170M: 'smpte170m',
     Matrix.ST240M: 'smpte240m',
     Matrix.YCGCO: 'ycgco',
     Matrix.BT2020NCL: 'bt2020ncl',
@@ -1234,7 +1233,7 @@ _primaries_name_map = {
     Primaries.UNKNOWN: 'unknown',
     Primaries.BT470M: 'bt470m',
     Primaries.BT470BG: 'bt470bg',
-    Primaries.ST170M: 'smpte170m',
+    Primaries.SMPTE170M: 'smpte170m',
     Primaries.ST240M: 'smpte240m',
     Primaries.FILM: 'film',
     Primaries.BT2020: 'bt2020',
@@ -1249,7 +1248,7 @@ _matrix_pretty_name_map = {
     Matrix.BT709: 'BT.709',
     Matrix.FCC: 'FCC',
     Matrix.BT470BG: 'BT.470bg',
-    Matrix.ST170M: 'SMPTE ST 170m',
+    Matrix.SMPTE170M: 'SMPTE ST 170m',
     Matrix.ST240M: 'SMPTE ST 240m',
     Matrix.YCGCO: 'YCgCo',
     Matrix.BT2020NCL: 'BT.2020 non-constant luminance',
@@ -1280,7 +1279,7 @@ _primaries_pretty_name_map = {
     Primaries.BT709: 'BT.709',
     Primaries.BT470M: 'BT.470m',
     Primaries.BT470BG: 'BT.470bg',
-    Primaries.ST170M: 'SMPTE ST 170m',
+    Primaries.SMPTE170M: 'SMPTE ST 170m',
     Primaries.ST240M: 'SMPTE ST 240m',
     Primaries.FILM: 'Film',
     Primaries.BT2020: 'BT.2020',
