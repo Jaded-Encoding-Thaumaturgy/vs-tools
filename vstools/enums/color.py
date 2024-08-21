@@ -304,10 +304,10 @@ class Transfer(_TransferMeta):
         elif isinstance(value, cls):
             return value
 
-        if Transfer.BT709 < value < Transfer.ARIB_B67 or value == 0:
+        if Transfer.BT709 < value < Transfer.STD_B67 or value == 0:
             raise ReservedTransferError(f'Transfer({value}) is reserved.', cls)
 
-        if value > Transfer.ARIB_B67:
+        if value > Transfer.STD_B67:
             raise UnsupportedTransferError(
                 f'Transfer({value}) is current unsupported. '
                 'If you believe this to be in error, please leave an issue '
