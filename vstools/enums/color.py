@@ -120,7 +120,7 @@ class Matrix(_MatrixMeta):
     """
     BT601_525 = SMPTE170M
 
-    ST240M = 7
+    SMPTE240M = 7
     """
     ```
     KR = 0.212; KB = 0.087
@@ -356,7 +356,7 @@ class Transfer(_TransferMeta):
     SMPTE ST 170 (2004)
     """
 
-    ST240M = 7
+    SMPTE240M = 7
     """SMPTE ST 240 (1999, historical)."""
 
     LINEAR = 8
@@ -656,7 +656,7 @@ class Primaries(_PrimariesMeta):
 
     SMPTE170M = 6
     """
-    (Functionally the same as :py:attr:`Primaries.ST240M`)
+    (Functionally the same as :py:attr:`Primaries.SMPTE240M`)
     ```
     Primary      x      y
     Green     0.3100 0.5950
@@ -672,7 +672,7 @@ class Primaries(_PrimariesMeta):
     """
     BT601_525 = SMPTE170M
 
-    ST240M = 7
+    SMPTE240M = 7
     """
     (Functionally the same as :py:attr:`Primaries.SMPTE170M`)
     ```
@@ -962,8 +962,8 @@ class MatrixCoefficients(NamedTuple):
         return MatrixCoefficients(0.08145, 4.5, 0.0993, 2.22222)
 
     @classproperty
-    def ST240M(cls) -> MatrixCoefficients:
-        """Matrix Coefficients for ST240M."""
+    def SMPTE240M(cls) -> MatrixCoefficients:
+        """Matrix Coefficients for SMPTE240M."""
 
         return MatrixCoefficients(0.0912, 4.0, 0.1115, 2.22222)
 
@@ -1107,7 +1107,7 @@ _matrix_transfer_map = {
     Matrix.RGB: Transfer.SRGB,
     Matrix.BT709: Transfer.BT709,
     Matrix.SMPTE170M: Transfer.BT601,
-    Matrix.ST240M: Transfer.ST240M,
+    Matrix.SMPTE240M: Transfer.SMPTE240M,
     Matrix.ICTCP: Transfer.BT2020_10,
 }
 
@@ -1121,7 +1121,7 @@ _matrix_matrixcoeff_map = {
     Matrix.RGB: MatrixCoefficients.SRGB,
     Matrix.BT709: MatrixCoefficients.BT709,
     Matrix.BT470BG: MatrixCoefficients.BT709,
-    Matrix.ST240M: MatrixCoefficients.ST240M,
+    Matrix.SMPTE240M: MatrixCoefficients.SMPTE240M,
     Matrix.BT2020CL: MatrixCoefficients.BT2020,
     Matrix.BT2020NCL: MatrixCoefficients.BT2020
 }
@@ -1131,7 +1131,7 @@ _transfer_matrixcoeff_map = {
     Transfer.BT709: MatrixCoefficients.BT709,
     Transfer.BT601: MatrixCoefficients.BT709,
     Transfer.BT470BG: MatrixCoefficients.BT709,
-    Transfer.ST240M: MatrixCoefficients.ST240M,
+    Transfer.SMPTE240M: MatrixCoefficients.SMPTE240M,
     Transfer.BT2020_10: MatrixCoefficients.BT2020,
     Transfer.BT2020_12: MatrixCoefficients.BT2020
 }
@@ -1140,7 +1140,7 @@ _primaries_matrixcoeff_map = {
     Primaries.BT709: MatrixCoefficients.BT709,
     Primaries.SMPTE170M: MatrixCoefficients.BT709,
     Primaries.BT470BG: MatrixCoefficients.BT709,
-    Primaries.ST240M: MatrixCoefficients.ST240M,
+    Primaries.SMPTE240M: MatrixCoefficients.SMPTE240M,
     Primaries.BT2020: MatrixCoefficients.BT2020
 }
 
@@ -1200,7 +1200,7 @@ _matrix_name_map = {
     Matrix.FCC: 'fcc',
     Matrix.BT470BG: 'bt470bg',
     Matrix.SMPTE170M: 'smpte170m',
-    Matrix.ST240M: 'smpte240m',
+    Matrix.SMPTE240M: 'smpte240m',
     Matrix.YCGCO: 'ycgco',
     Matrix.BT2020NCL: 'bt2020ncl',
     Matrix.BT2020CL: 'bt2020cl',
@@ -1215,7 +1215,7 @@ _transfer_name_map = {
     Transfer.BT470M: 'bt470m',
     Transfer.BT470BG: 'bt470bg',
     Transfer.BT601: 'bt601',
-    Transfer.ST240M: 'smpte240m',
+    Transfer.SMPTE240M: 'smpte240m',
     Transfer.LINEAR: 'linear',
     Transfer.LOG100: 'log100',
     Transfer.LOG316: 'log316',
@@ -1234,7 +1234,7 @@ _primaries_name_map = {
     Primaries.BT470M: 'bt470m',
     Primaries.BT470BG: 'bt470bg',
     Primaries.SMPTE170M: 'smpte170m',
-    Primaries.ST240M: 'smpte240m',
+    Primaries.SMPTE240M: 'smpte240m',
     Primaries.FILM: 'film',
     Primaries.BT2020: 'bt2020',
     Primaries.ST428: 'smpte428',
@@ -1249,7 +1249,7 @@ _matrix_pretty_name_map = {
     Matrix.FCC: 'FCC',
     Matrix.BT470BG: 'BT.470bg',
     Matrix.SMPTE170M: 'SMPTE ST 170m',
-    Matrix.ST240M: 'SMPTE ST 240m',
+    Matrix.SMPTE240M: 'SMPTE ST 240m',
     Matrix.YCGCO: 'YCgCo',
     Matrix.BT2020NCL: 'BT.2020 non-constant luminance',
     Matrix.BT2020CL: 'BT.2020 constant luminance',
@@ -1263,7 +1263,7 @@ _transfer_pretty_name_map = {
     Transfer.BT470M: 'BT.470m',
     Transfer.BT470BG: 'BT.470bg',
     Transfer.BT601: 'BT.601',
-    Transfer.ST240M: 'SMPTE ST 240m',
+    Transfer.SMPTE240M: 'SMPTE ST 240m',
     Transfer.LINEAR: 'Linear',
     Transfer.LOG100: 'Log 1:100 contrast',
     Transfer.LOG316: 'Log 1:316 contrast',
@@ -1280,7 +1280,7 @@ _primaries_pretty_name_map = {
     Primaries.BT470M: 'BT.470m',
     Primaries.BT470BG: 'BT.470bg',
     Primaries.SMPTE170M: 'SMPTE ST 170m',
-    Primaries.ST240M: 'SMPTE ST 240m',
+    Primaries.SMPTE240M: 'SMPTE ST 240m',
     Primaries.FILM: 'Film',
     Primaries.BT2020: 'BT.2020',
     Primaries.ST428: 'SMPTE ST 428 (XYZ)',
