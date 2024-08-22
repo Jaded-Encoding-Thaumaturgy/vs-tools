@@ -23,6 +23,8 @@ class PackageStorage:
             if module:
                 package_name = module.__name__
 
+            frame = module = None
+
         if not package_name:
             raise CustomRuntimeError('Can\'t determine package name!')
 

@@ -426,6 +426,8 @@ def set_output(
                 name = vname
                 break
 
+        current_frame = None
+
     try:
         from vspreview import set_output as vsp_set_output
         if isinstance(node, list):

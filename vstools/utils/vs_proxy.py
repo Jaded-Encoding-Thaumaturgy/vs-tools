@@ -134,6 +134,8 @@ if not TYPE_CHECKING:
 
         cope = (Path.cwd() / first_stack.filename).resolve()
 
+        first_stack = None
+
         sys.modules['__vapoursynth__'].__file__ = __main__.__file__ = str(cope)
 
         sys.path.append(str(cope.parent))
