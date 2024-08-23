@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Callable, Sequence, Union, overload
+from typing import Callable, Sequence, Union, overload
 
 import vapoursynth as vs
-from stgpytools import CustomValueError, copy_signature, flatten, interleave_arr, ranges_product
+from stgpytools import CustomValueError, flatten, interleave_arr, ranges_product
 
 from ..exceptions import FormatsMismatchError, FramerateMismatchError, LengthMismatchError, ResolutionsMismatchError
 from ..functions import check_ref_clip
 from ..types import FrameRangeN, FrameRangesN
 
 __all__ = [
-    'replace_ranges', 'rfs',
+    'replace_ranges',
 
     'remap_frames',
 
@@ -232,12 +232,3 @@ def remap_frames(clip: vs.VideoNode, ranges: Sequence[int | tuple[int, int]]) ->
     base = clip.std.BlankClip(length=len(frame_map))
 
     return base.std.FrameEval(lambda n: clip[frame_map[n]], None, clip)
-
-# Aliases
-
-
-@copy_signature(replace_ranges)
-def rfs(*args: Any, **kwargs: Any) -> Any:
-    import warnings
-    warnings.warn('rfs: This alias is D-E-P-R-E-C-A-T-E-D and BIG EVIL. Use replace_ranges!')
-    return replace_ranges(*args, **kwargs)
