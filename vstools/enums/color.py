@@ -1156,7 +1156,7 @@ _transfer_placebo_map = {
     Transfer.GAMMA26: 8,
     Transfer.BT470BG: 9,
     Transfer.PROPHOTO: 10,
-    Transfer.XYZ: 11,
+    Transfer.ST428: 11,
     Transfer.ST2084: 12,
     Transfer.STD_B67: 13,
     Transfer.VLOG: 14,
