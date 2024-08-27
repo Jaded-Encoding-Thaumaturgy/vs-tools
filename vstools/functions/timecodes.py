@@ -92,22 +92,22 @@ class Timecodes(list[Timecode]):
 
     @classmethod
     def normalize_range_timecodes(
-        cls, timecodes: dict[tuple[int | None, int | None], Fraction], end: int, assume: Fraction | None = None
+        cls, timecodes: dict[tuple[int | None, int | None], Fraction], length: int, assume: Fraction | None = None
     ) -> list[Fraction]:
         """Convert from normalized ranges to a list of Fractions."""
 
         from .funcs import fallback
 
-        norm_timecodes = [assume] * end if assume else list[Fraction]()
+        norm_timecodes = [assume] * length if assume else list[Fraction]()
 
         for (startn, endn), fps in timecodes.items():
             start = max(fallback(startn, 0), 0)
-            end = fallback(endn, end)
+            end = fallback(endn, length)
 
             if end > len(norm_timecodes):
                 norm_timecodes += [fps] * (end - len(norm_timecodes))
 
-            norm_timecodes[start:end + 1] = [fps] * (end - start)
+            norm_timecodes[start:end] = [fps] * (end - start)
 
         return norm_timecodes
 
