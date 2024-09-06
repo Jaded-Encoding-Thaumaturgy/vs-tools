@@ -164,11 +164,11 @@ def get_lowest_value(
 
     fmt = get_video_format(clip_or_depth)
 
+    if fmt.sample_type == vs.FLOAT:
+        return -0.5 if chroma else 0.
+
     if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 16, chroma)
-
-    if chroma and fmt.sample_type == vs.FLOAT:
-        return -0.5
 
     return 0.
 
@@ -227,11 +227,11 @@ def get_peak_value(
 
     fmt = get_video_format(clip_or_depth)
 
-    if ColorRange(range_in).is_limited:
-        return scale_8bit(fmt, 240 if chroma else 235, chroma)
-
     if fmt.sample_type == vs.FLOAT:
         return 0.5 if chroma else 1.
+
+    if ColorRange(range_in).is_limited:
+        return scale_8bit(fmt, 240 if chroma else 235, chroma)
 
     return (1 << get_depth(fmt)) - 1.
 
