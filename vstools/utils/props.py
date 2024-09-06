@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Callable, TypeVar, overload
+from typing import Any, Callable, Literal, TypeVar, overload
 
 import vapoursynth as vs
-from stgpytools import MISSING, FuncExceptT, MissingT, SupportsString
+from stgpytools import MISSING, FileWasNotFoundError, FuncExceptT, MissingT, SPath, SPathLike, SupportsString
 
 from ..enums import PropEnum
 from ..exceptions import FramePropError
@@ -11,7 +11,8 @@ from ..types import BoundVSMapValue, HoldsPropValueT
 
 __all__ = [
     'get_prop',
-    'merge_clip_props'
+    'merge_clip_props',
+    'get_file_from_clip'
 ]
 
 DT = TypeVar('DT')
@@ -150,3 +151,66 @@ def merge_clip_props(*clips: vs.VideoNode, main_idx: int = 0) -> vs.VideoNode:
         return fdst
 
     return clips[0].std.ModifyFrame(clips, _merge_props)
+
+
+@overload
+def get_file_from_clip(
+    clip: vs.VideoNode, fallback: SPathLike | None = ...,
+    prop: str = ..., strict: bool = True,
+    func_except: FuncExceptT | None = ...
+) -> SPath:
+    ...
+
+
+@overload
+def get_file_from_clip(  # type:ignore[misc]
+    clip: vs.VideoNode, fallback: SPathLike | None = ...,
+    prop: str = ..., strict: bool = False,
+    func_except: FuncExceptT | None = ...
+) -> SPath | Literal[False]:
+    ...
+
+
+def get_file_from_clip(
+    clip: vs.VideoNode, fallback: SPathLike | None = None,
+    prop: str = "idx_filepath", strict: bool = False,
+    func_except: FuncExceptT | None = None
+) -> SPath | Literal[False]:
+    """
+    Helper function to get the file path from a clip.
+
+    This function also checks to ensure the file exists,
+    and throws an error if it doesn't.
+
+    :param clip:                    The clip to get the file path from.
+    :param fallback:                Fallback file path to use if the `prop` is not found.
+    :param prop:                    The property to get the file path from.
+                                    Default: "idx_filepath" (used by vs-source classes).
+    :param strict:                  If True, will raise an error if the `prop` is not found.
+                                    This makes it so the function will NEVER return False.
+                                    Default: False.
+    :param func_except:             Function returned for custom error handling.
+                                    This should only be set by VS package developers.
+
+    :raises FileWasNotFoundError:   The file path was not found.
+    :raises FramePropError:         The property was not found in the clip.
+    """
+
+    func = func_except or get_file_from_clip
+
+    if fallback is not None and not (fallback_path := SPath(fallback)).exists() and strict:
+        raise FileWasNotFoundError('Fallback file not found!', func, fallback_path.absolute())
+
+    if not (path := get_prop(clip, prop, str, default=MISSING if strict else False, func=func)):
+        return fallback_path or False
+
+    if not (spath := SPath(str(path))).exists() and not fallback:
+        raise FileWasNotFoundError('File not found!', func, spath.absolute())
+
+    if spath.exists():
+        return spath
+
+    if fallback is not None and fallback_path.exists():
+        return fallback_path
+
+    raise FileWasNotFoundError('File not found!', func, spath.absolute())
