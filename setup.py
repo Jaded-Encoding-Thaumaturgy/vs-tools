@@ -33,7 +33,8 @@ setuptools.setup(
         f'{package_name}.exceptions',
         f'{package_name}.functions',
         f'{package_name}.types',
-        f'{package_name}.utils'
+        f'{package_name}.utils',
+        f'{package_name}.utils.dependency',
     ],
     package_data={
         package_name: ['py.typed', 'utils/*.json']

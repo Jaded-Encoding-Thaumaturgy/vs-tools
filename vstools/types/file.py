@@ -21,5 +21,10 @@ __all__ = [
     'OpenTextMode',
     'OpenBinaryMode',
 
-    'SPath', 'SPathLike'
+    'SPath', 'SPathLike',
+
+    'DEP_URL'
 ]
+
+DEP_URL = str
+"""A string representing a URL to download a dependency from."""
