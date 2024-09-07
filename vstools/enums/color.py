@@ -1045,7 +1045,7 @@ class ColorRange(_ColorRangeMeta):
 
         fmt, _, _ = get_var_infos(frame)
 
-        if fmt.color_family == vs.RGB:
+        if fmt.color_family == vs.RGB or fmt.sample_type == vs.FLOAT:
             return cls.FULL
 
         return cls.LIMITED
