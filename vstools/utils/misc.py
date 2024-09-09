@@ -253,7 +253,7 @@ class _padder:
             if colr is None:
                 return get_neutral_values(clip)
 
-            return normalize_seq(colr)
+            return normalize_seq(colr, clip.format.num_planes)  # type: ignore
 
         if not isinstance(color, Sequence):
             norm_colors = _norm(color)
