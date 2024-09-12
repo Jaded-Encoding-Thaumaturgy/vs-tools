@@ -300,7 +300,7 @@ def prop_compare_cb(
         src = vs.core.std.BlankClip(
             None, 1, 1, vs.GRAY8 if bool_check else vs.GRAYS, length=src.num_frames
         ).std.CopyFrameProps(src).akarin.Expr(
-            f'x.{prop}' if bool_check else f'x.{prop} {ref} {op}'
+            f'x.{prop}' if bool_check else f'x.{prop} {ref} {op[0] if op == '==' else op}'
         )
         if return_frame_n:
             # no-fmt
