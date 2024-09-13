@@ -24,18 +24,56 @@ packets_storage = PackageStorage(package_name='packets')
 
 
 class ScenePacketStats(TypedDict):
+    """A class representing the packet size statistics for a scene in a video."""
+
     pkt_scene_avg_size: float
+    """The average packet size for the scene."""
+
     pkt_scene_max_size: float
+    """The maximum packet size for the scene."""
+
     pkt_scene_min_size: float
+    """The minimum packet size for the scene."""
 
 
 class VideoPackets(list[int]):
+    """
+    A class representing video packet sizes for each frame in a video.
+
+    Packet sizes are useful for analyzing video encoding characteristics such as bitrate,
+    allowing you to process frames and/or scenes based on packet sizes.
+    """
 
     @classmethod
     def from_video(
         cls, src_file: SPathLike, out_file: SPathLike | None = None,
         offset: int = 0, *, func: FuncExceptT | None = None
     ) -> Self:
+        """
+        Obtain packet sizes from a video file.
+
+        If the packet sizes are already calculated, they will be read from the output file.
+        Otherwise, this method will use `ffprobe` to calculate the packet sizes and save them to the output file.
+
+        `offset` can be used to remove or add frames from the start of the list. This is useful for applying
+        the packet sizes to a trimmed clip. Positive values will trim the start of the list, and negative values
+        will duplicate packets at the start of the list.
+
+        :param src_file:        The path to the source video file.
+        :param out_file:        The path to the output file where packet sizes will be saved.
+                                If None, output file will be placed alongside the source file.
+                                Default: None.
+        :param offset:          An optional integer offset to trim the packet sizes.
+                                This is useful for applying the packet sizes to a trimmed clip.
+                                Positive values will trim the start of the list, and negative values
+                                will duplicate packets at the start of the list.
+                                Default: 0.
+        :param func:            An optional function to use for error handling.
+                                This should only be set by package developers.
+
+        :return:                A VideoPackets object containing the packet sizes.
+        """
+
         func = func or cls.from_video
 
         if out_file is None:
@@ -83,6 +121,16 @@ class VideoPackets(list[int]):
 
     @classmethod
     def from_file(cls, file: SPathLike, *, func: FuncExceptT | None = None) -> Self | None:
+        """
+        Obtain packet sizes from a given file.
+
+        :param file:    The path to the file containing the packet sizes.
+        :param func:    An optional function to use for error handling.
+                        This should only be set by package developers.
+
+        :return:        A VideoPackets object containing the packet sizes.
+        """
+
         if file is not None:
             file = packets_storage.get_file(file, ext='.txt')
 
@@ -101,6 +149,17 @@ class VideoPackets(list[int]):
         out_file: SPathLike, src_file: SPathLike | None = None,
         offset: int = 0, *, func: FuncExceptT | None = None
     ) -> Self:
+        """
+        Obtain packet sizes from a given clip.
+
+        :param clip:        The clip to obtain packet sizes from.
+                            Must have the `idx_filepath` frame property.
+        :param out_file:    The path to the output file where packet sizes will be saved.
+        :param src_file:    The path to the source video file.
+                            If None, the source file will be obtained from the clip.
+                            Default: None.
+        """
+
         func = func or cls.from_video
 
         out_file = SPath(str(out_file)).stem + f'_{clip.num_frames}_{clip.fps_num}_{clip.fps_den}'
@@ -113,6 +172,14 @@ class VideoPackets(list[int]):
         return cls.from_video(src_file, out_file, offset, func=func)
 
     def get_scenestats(self, keyframes: Keyframes) -> list[ScenePacketStats]:
+        """
+        Calculate scene-based packet size statistics by referencing Keyframes.
+
+        :param keyframes:   The keyframe list to get scene packet statistics for.
+
+        :return:            A list of ScenePacketStats objects.
+        """
+
         stats = list[ScenePacketStats]()
 
         try:
@@ -132,8 +199,25 @@ class VideoPackets(list[int]):
         return stats
 
     def apply_props(
-        self, clip: vs.VideoNode, keyframes: Keyframes | None = None, *, func: FuncExceptT | None = None
+        self, clip: vs.VideoNode,
+        keyframes: Keyframes | None = None,
+        *, func: FuncExceptT | None = None
     ) -> vs.VideoNode:
+        """
+        Apply packet size properties to a clip.
+
+        :param clip:        The clip to apply the packet size properties to.
+        :param keyframes:   The keyframe list to get scene packet statistics for.
+                            If None, the packet size properties will be applied to each frame.
+                            Default: None.
+        :param func:        An optional function to use for error handling.
+                            This should only be set by package developers.
+
+        :return:            A clip with the packet size properties applied.
+        """
+
+        func = func or self.apply_props
+
         def _set_sizes_props(n: int) -> vs.VideoNode:
             if (pkt_size := self[n]) < 0:
                 warnings.warn(f'{func}: \'Frame {n} bitrate could not be determined!\'')
