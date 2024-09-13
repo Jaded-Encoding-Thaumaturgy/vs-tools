@@ -33,9 +33,14 @@ class VideoPackets(list[int]):
 
     @classmethod
     def from_video(
-        cls, src_file: SPathLike, out_file: SPathLike, offset: int = 0, *, func: FuncExceptT | None = None
+        cls, src_file: SPathLike, out_file: SPathLike | None = None,
+        offset: int = 0, *, func: FuncExceptT | None = None
     ) -> Self:
         func = func or cls.from_video
+
+        if out_file is None:
+            src_file = SPath(src_file)
+            out_file = src_file.with_stem(src_file.stem + '_packets').with_suffix('.txt')
 
         if video_packets := cls.from_file(out_file, func=func):
             return video_packets
