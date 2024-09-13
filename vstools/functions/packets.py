@@ -8,9 +8,9 @@ from subprocess import PIPE, Popen
 from tempfile import NamedTemporaryFile
 from typing import Self, TypedDict
 
+import vapoursynth as vs
 from stgpytools import CustomValueError, DependencyNotFoundError, FuncExceptT, SPath, SPathLike
 
-from .. import core, vs
 from ..functions import Keyframes, PackageStorage
 from ..utils import get_clip_filepath
 
@@ -46,7 +46,7 @@ class VideoPackets(list[int]):
             raise DependencyNotFoundError(func, 'ffprobe', 'Could not find {package}! Make sure it\'s in your PATH!')
 
         proc = Popen([
-            'ffprobe', '-hide_banner', '-show_frames', '-show_streams', '-threads', str(core.num_threads),
+            'ffprobe', '-hide_banner', '-show_frames', '-show_streams', '-threads', str(vs.core.num_threads),
             '-loglevel', 'quiet', '-print_format', 'json', '-select_streams', 'v:0', src_file
         ], stdout=PIPE)
 
