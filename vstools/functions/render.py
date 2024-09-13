@@ -259,12 +259,12 @@ def clip_data_gather(
 
 
 _operators = {
-    "<": operator.lt,
-    "<=": operator.le,
-    "==": operator.eq,
-    "!=": operator.ne,
-    ">": operator.gt,
-    ">=": operator.ge,
+    "<": (operator.lt, '<'),
+    "<=": (operator.le, '<='),
+    "==": (operator.eq, '='),
+    "!=": (operator.ne, '= not'),
+    ">": (operator.gt, '>'),
+    ">=": (operator.ge, '>='),
 }
 
 
@@ -295,12 +295,15 @@ def prop_compare_cb(
     one_pix = hasattr(vs.core, 'akarin') and not (callable(op) or ' ' in prop)
     assert (op is None) if bool_check else (op is not None)
 
+    if isinstance(op, str):
+        assert op in _operators
+
     callback: Callable[[int, vs.VideoFrame], Sentinel.Type | int]
     if one_pix:
         src = vs.core.std.BlankClip(
             None, 1, 1, vs.GRAY8 if bool_check else vs.GRAYS, length=src.num_frames
         ).std.CopyFrameProps(src).akarin.Expr(
-            f'x.{prop}' if bool_check else f'x.{prop} {ref} {op}'
+            f'x.{prop}' if bool_check else f'x.{prop} {ref} {_operators[op][1]}'
         )
         if return_frame_n:
             # no-fmt
@@ -309,7 +312,7 @@ def prop_compare_cb(
             # no-fmt
             callback = lambda n, f: not not f[0][0, 0]  # noqa
     else:
-        _op = _operators[op] if isinstance(op, str) else op
+        _op = _operators[op][0] if isinstance(op, str) else op
 
         if return_frame_n:
             # no-fmt
