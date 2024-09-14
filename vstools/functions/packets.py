@@ -26,13 +26,13 @@ packets_storage = PackageStorage(package_name='packets')
 class ScenePacketStats(TypedDict):
     """A class representing the packet size statistics for a scene in a video."""
 
-    pkt_scene_avg_size: float
+    PktSceneAvgSize: float
     """The average packet size for the scene."""
 
-    pkt_scene_max_size: float
+    PktSceneMaxSize: float
     """The maximum packet size for the scene."""
 
-    pkt_scene_min_size: float
+    PktSceneMinSize: float
     """The minimum packet size for the scene."""
 
 
@@ -188,9 +188,9 @@ class VideoPackets(list[int]):
 
                 stats.append(
                     ScenePacketStats(
-                        pkt_scene_avg_size=sum(pkt_scenes) / len(pkt_scenes),
-                        pkt_scene_max_size=max(pkt_scenes),
-                        pkt_scene_min_size=min(pkt_scenes)
+                        PktSceneAvgSize=sum(pkt_scenes) / len(pkt_scenes),
+                        PktSceneMaxSize=max(pkt_scenes),
+                        PktSceneMinSize=min(pkt_scenes)
                     )
                 )
         except ValueError as e:
@@ -222,7 +222,7 @@ class VideoPackets(list[int]):
             if (pkt_size := self[n]) < 0:
                 warnings.warn(f'{func}: \'Frame {n} bitrate could not be determined!\'')
 
-            return clip.std.SetFrameProps(pkt_size=pkt_size)
+            return clip.std.SetFrameProps(PktSize=pkt_size)
 
         if not keyframes:
             return clip.std.FrameEval(_set_sizes_props)
@@ -232,15 +232,15 @@ class VideoPackets(list[int]):
                 warnings.warn(f'{func}: \'Frame {n} bitrate could not be determined!\'')
 
             try:
-                return clip.std.SetFrameProps(pkt_size=pkt_size, **scenestats[keyframes.scenes.indices[n]])
+                return clip.std.SetFrameProps(PktSize=pkt_size, **scenestats[keyframes.scenes.indices[n]])
             except Exception:
                 warnings.warn(f'{func}: \'Could not find stats for a section... (Frame: {n})\'')
 
                 return clip.std.SetFrameProps(
-                    pkt_size=-1,
-                    pkt_scene_avg_size=-1,
-                    pkt_scene_max_size=-1,
-                    pkt_scene_min_size=-1
+                    PktSize=-1,
+                    PktSceneAvgSize=-1,
+                    PktSceneMaxSize=-1,
+                    PktSceneMinSize=-1
                 )
 
         scenestats = self.get_scenestats(keyframes)
