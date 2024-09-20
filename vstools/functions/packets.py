@@ -11,8 +11,8 @@ from typing import Self, TypedDict
 import vapoursynth as vs
 from stgpytools import CustomValueError, DependencyNotFoundError, FuncExceptT, SPath, SPathLike
 
-from ..functions import Keyframes, PackageStorage
-from ..utils import get_clip_filepath
+from .file import PackageStorage
+from .timecodes import Keyframes
 
 __all__ = [
     'VideoPackets',
@@ -159,6 +159,8 @@ class VideoPackets(list[int]):
                             If None, the source file will be obtained from the clip.
                             Default: None.
         """
+
+        from ..utils import get_clip_filepath
 
         func = func or cls.from_video
 
