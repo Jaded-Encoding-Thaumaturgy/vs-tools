@@ -173,8 +173,8 @@ def get_clip_filepath(
     """
     Helper function to get the file path from a clip.
 
-    This function also checks to ensure the file exists,
-    and throws an error if it doesn't.
+    This functions checks for the `IdxFilePath` frame property.
+    It also checks to ensure the file exists, and throws an error if it doesn't.
 
     :param clip:                    The clip to get the file path from.
     :param fallback:                Fallback file path to use if the `prop` is not found.
@@ -193,8 +193,8 @@ def get_clip_filepath(
     if fallback is not None and not (fallback_path := SPath(fallback)).exists() and strict:
         raise FileWasNotFoundError('Fallback file not found!', func, fallback_path.absolute())
 
-    if not (path := get_prop(clip, 'idx_filepath', str, default=MISSING if strict else False, func=func)):
-        return fallback_path or None
+    if not (path := get_prop(clip, 'IdxFilePath', str, default=MISSING if strict else False, func=func)):
+        return fallback_path if fallback is not None else None
 
     if not (spath := SPath(str(path))).exists() and not fallback:
         raise FileWasNotFoundError('File not found!', func, spath.absolute())
