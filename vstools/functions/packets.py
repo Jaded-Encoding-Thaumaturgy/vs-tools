@@ -76,8 +76,12 @@ class VideoPackets(list[int]):
 
         func = func or cls.from_video
 
+        src_file = SPath(src_file)
+
+        if not src_file.exists():
+            raise CustomValueError('Source file not found!', func, src_file.absolute())
+
         if out_file is None:
-            src_file = SPath(src_file)
             out_file = src_file.with_stem(src_file.stem + '_packets').with_suffix('.txt')
 
         if video_packets := cls.from_file(out_file, func=func):
@@ -90,20 +94,24 @@ class VideoPackets(list[int]):
 
         proc = Popen([
             'ffprobe', '-hide_banner', '-show_frames', '-show_streams', '-threads', str(vs.core.num_threads),
-            '-loglevel', 'quiet', '-print_format', 'json', '-select_streams', 'v:0', src_file
+            '-loglevel', 'quiet', '-print_format', 'json', '-select_streams', 'v:0', src_file.to_str()
         ], stdout=PIPE)
 
-        with NamedTemporaryFile('a+') as tempfile:
+        with NamedTemporaryFile('a+', delete=False) as tempfile:
             assert proc.stdout
 
             for line in io.TextIOWrapper(proc.stdout, 'utf-8'):
                 tempfile.write(line)
 
-            data = dict(json.load(tempfile))
+            tempfile.flush()
 
-            frames = data.get('frames', {})
+        try:
+            with open(tempfile.name, 'r') as f:
+                data = dict(json.load(f))
+        finally:
+            SPath(tempfile.name).unlink()
 
-        if not frames:
+        if not (frames := data.get('frames', {})):
             raise CustomValueError(f'No frames found in file, \'{src_file}\'! Your file may be corrupted!', func)
 
         pkt_sizes = [int(dict(frame).get('pkt_size', -1)) for frame in frames]
@@ -153,7 +161,7 @@ class VideoPackets(list[int]):
         Obtain packet sizes from a given clip.
 
         :param clip:        The clip to obtain packet sizes from.
-                            Must have the `idx_filepath` frame property.
+                            Must have the `IdxFilePath` frame property.
         :param out_file:    The path to the output file where packet sizes will be saved.
         :param src_file:    The path to the source video file.
                             If None, the source file will be obtained from the clip.
@@ -169,7 +177,8 @@ class VideoPackets(list[int]):
         if video_packets := cls.from_file(out_file, func=func):
             return video_packets
 
-        src_file = get_clip_filepath(clip, src_file, func=func)
+        if (src_file := get_clip_filepath(clip, src_file, func=func)) is None:
+            raise CustomValueError('You must provide a source file!', func)
 
         return cls.from_video(src_file, out_file, offset, func=func)
 
