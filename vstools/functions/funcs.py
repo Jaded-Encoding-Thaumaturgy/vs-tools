@@ -46,7 +46,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
-        ] | None = None, bitdepth: int | range | tuple[int, int] | None = None, strict: bool = False,
+        ] | None = None, bitdepth: int | range | tuple[int, int] | set[int] | None = None, strict: bool = False,
         *, matrix: MatrixT | None = None, range_in: ColorRangeT | None = None
     ) -> None:
         """
@@ -60,10 +60,14 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                                 in `return_clip`. If the input clip is RGB and `planes=0`, it will be
                                 converted to YUV and back again to retrieve the luma plane.
                                 Default: All families.
-        :param bitdepth:        The bitdepth or range of bitdepths to work from.
-                                Automatically converts the work clip to the highest bitdepth of the range
-                                if `strict=False`, and returns the clip with the original bitdepth in `return_clip`.
-                                Default: input bitdepth.
+        :param bitdepth:        The bitdepth or range of bitdepths to work with. Can be an int, range, tuple, or set.
+                                If a range or set is provided and `strict=False`,
+                                automatically convert the work clip to the highest bitdepth allowed.
+                                Range or tuple indicates a range of allowed bitdepths,
+                                set indicates specific allowed bitdepths.
+                                If an int is provided, set the clip's bitdepth to that value.
+                                `return_clip` automatically restores the clip to the original bitdepth.
+                                If None, use the input clip's bitdepth. Default: None.
         :param strict:          Be strict about the input clip's properties.
                                 If True, the input clip must adhere to the given number of planes,
                                 the color family, and the bitdepth. If False, all these properties
@@ -78,7 +82,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         assert check_variable(clip, func)
 
         if color_family is not None:
-            color_family = [get_color_family(c) for c in to_arr(color_family)]  # type: ignore
+            color_family = [get_color_family(c) for c in to_arr(color_family)]
 
             if strict:
                 InvalidColorFamilyError.check(clip, color_family, func)
@@ -109,6 +113,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if isinstance(self.bitdepth, range) and self.clip.format.bits_per_sample not in self.bitdepth:
             clip = depth(self.clip, self.bitdepth.stop)
+        elif isinstance(self.bitdepth, set) and self.clip.format.bits_per_sample not in self.bitdepth:
+            from .. import get_depth
+
+            clip = depth(self.clip, min(bits for bits in self.bitdepth if bits >= get_depth(self.clip)))
         elif isinstance(self.bitdepth, int):
             clip = depth(self.clip, self.bitdepth)
         else:
@@ -143,6 +151,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
+
         return [plane(self.norm_clip, i) for i in (1, 2)]
 
     @cachedproperty
