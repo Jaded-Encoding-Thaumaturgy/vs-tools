@@ -82,7 +82,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         assert check_variable(clip, func)
 
         if color_family is not None:
-            color_family = [get_color_family(c) for c in to_arr(color_family)]  # type: ignore
+            color_family = [get_color_family(c) for c in to_arr(color_family)]
 
             if strict:
                 InvalidColorFamilyError.check(clip, color_family, func)
@@ -114,7 +114,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if isinstance(self.bitdepth, range) and self.clip.format.bits_per_sample not in self.bitdepth:
             clip = depth(self.clip, self.bitdepth.stop)
         elif isinstance(self.bitdepth, set) and self.clip.format.bits_per_sample not in self.bitdepth:
-            clip = depth(self.clip, max(self.bitdepth))
+            from .. import get_depth
+
+            clip = depth(self.clip, min(bits for bits in self.bitdepth if bits >= get_depth(self.clip)))
         elif isinstance(self.bitdepth, int):
             clip = depth(self.clip, self.bitdepth)
         else:
@@ -149,6 +151,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
+
         return [plane(self.norm_clip, i) for i in (1, 2)]
 
     @cachedproperty
