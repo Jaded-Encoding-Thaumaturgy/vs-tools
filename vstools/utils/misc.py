@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import inspect
 from fractions import Fraction
 from math import floor
 from types import TracebackType
-from typing import Any, Callable, Iterable, Sequence, TypeVar
+from typing import Any, Callable, Iterable, Sequence, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -386,55 +385,177 @@ def pick_func_stype(clip: vs.VideoNode, func_int: FINT, func_float: FFLOAT) -> F
     return func_float if clip.format.sample_type == vs.FLOAT else func_int
 
 
+@overload
+def set_output(
+    node: vs.VideoNode,
+    index: int = ...,
+    /,
+    *,
+    alpha: vs.VideoNode | None = ...,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: vs.VideoNode,
+    name: str | bool | None = ...,
+    /,
+    *,
+    alpha: vs.VideoNode | None = ...,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: vs.VideoNode,
+    index: int = ..., name: str | bool | None = ...,
+    /,
+    alpha: vs.VideoNode | None = ...,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: vs.AudioNode,
+    index: int = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: vs.AudioNode,
+    name: str | bool | None = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: vs.AudioNode,
+    index: int = ..., name: str | bool | None = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: Iterable[vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]]],
+    index: int | Sequence[int] = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: Iterable[vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]]],
+    name: str | bool | None = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: Iterable[vs.VideoNode | Iterable[vs.VideoNode | Iterable[vs.VideoNode]]],
+    index: int | Sequence[int] = ..., name: str | bool | None = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: Iterable[vs.AudioNode | Iterable[vs.AudioNode | Iterable[vs.AudioNode]]],
+    index: int | Sequence[int] = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: Iterable[vs.AudioNode | Iterable[vs.AudioNode | Iterable[vs.AudioNode]]],
+    name: str | bool | None = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
+def set_output(
+    node: Iterable[vs.AudioNode | Iterable[vs.AudioNode | Iterable[vs.AudioNode]]],
+    index: int | Sequence[int] = ..., name: str | bool | None = ...,
+    /,
+    **kwargs: Any
+) -> None:
+    ...
+
+
+@overload
 def set_output(
     node: vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode]]],
-    name: str | bool = True, alpha: vs.VideoNode | None = None, **kwargs: Any
+    index: int | Sequence[int] = ..., name: str | bool | None = ...,
+    /,
+    **kwargs: Any
 ) -> None:
-    """Set output node with optional name, and if available, use vspreview set_output."""
+    ...
 
-    from ..functions import flatten_vnodes
 
-    last_index = len(vs.get_outputs())
+def set_output(
+    node: vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode | Iterable[vs.RawNode]]],
+    index_or_name: int | Sequence[int] | str | bool | None = None, name: str | bool | None = None,
+    /,
+    alpha: vs.VideoNode | None = None,
+    **kwargs: Any
+) -> None:
+    """Set output node with optional name, and if available, use vspreview set_output.
 
-    ref_id = str(id(node))
+    :param node:            Output node
+    :param index:           Index number, defaults to current maximum index number + 1 or 0 if no ouput exists yet
+    :param name:            Node's name, defaults to variable name
+    :param alpha:           Alpha planes node, defaults to None
+    """
+    from ..functions import flatten, to_arr
 
-    title = 'Node'
-
-    if isinstance(node, Iterable):
-        node = list[vs.RawNode](flatten_vnodes(node))  # type: ignore
-        index = ''
+    if isinstance(index_or_name, (str, bool)):
+        index = None
+        # Backward compatible with older api
+        if isinstance(name, vs.VideoNode):
+            alpha = name  # type: ignore[unreachable]
+        name = index_or_name
     else:
-        index = ' ' + str(last_index)
+        index = index_or_name
 
-    checktype = node[0] if isinstance(node, list) else node
+    ouputs = vs.get_outputs()
+    nodes = list(flatten(node))
 
-    if isinstance(checktype, vs.VideoNode):
-        title = 'Clip'
-    elif isinstance(checktype, vs.AudioNode):
-        title = 'Audio'
+    index = to_arr(index) if index is not None else [max(ouputs, default=-1) + 1]
 
-    if (not name and name is not False) or name is True:
-        name = f"{title}{index}"
-
-        current_frame = inspect.currentframe()
-
-        assert current_frame
-        assert current_frame.f_back
-
-        for vname, val in reversed(current_frame.f_back.f_locals.items()):
-            if (str(id(val)) == ref_id):
-                name = vname
-                break
-
-        current_frame = None
+    while len(index) < len(nodes):
+        index.append(index[-1] + 1)
 
     try:
         from vspreview import set_output as vsp_set_output
-        if isinstance(node, list):
-            for idx, n in enumerate(node, 0 if index else last_index):
-                vsp_set_output(n, name and f'{name} {idx}', alpha, **kwargs)
-        else:
-            vsp_set_output(node, name, alpha, **kwargs)
+        vsp_set_output(nodes, index, name, alpha=alpha, f_back=2, **kwargs)
     except ModuleNotFoundError:
-        for idx, n in enumerate(node if isinstance(node, list) else [node], last_index):
+        for idx, n in zip(index, nodes):
             n.set_output(idx)
