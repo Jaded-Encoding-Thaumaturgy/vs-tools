@@ -241,7 +241,8 @@ def replace_every(
 ) -> vs.VideoNode:
     offsets_a = [x * 2 for x in range(cycle) if x not in offsets]
     offsets_b = [x * 2 + 1 for x in offsets]
+    offsets = sorted(offsets_a + offsets_b)
 
     interleaved = vs.core.std.Interleave([clipa, clipb])
 
-    return interleaved.std.SelectEvery(cycle * 2, offsets_a + offsets_b, modify_duration)
+    return interleaved.std.SelectEvery(cycle * 2, offsets, modify_duration)
