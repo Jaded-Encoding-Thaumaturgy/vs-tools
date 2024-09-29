@@ -160,7 +160,7 @@ class PluginNotFoundError(DependencyRegistryError):
             if plugin_data and plugin_data.optional:
                 if not hasattr(core, plugin):
                     warnings.warn(
-                        f'Optional plugin \'{plugin}\' for \'{parent_package}\' is not installed.', ImportWarning
+                        f'Optional plugin \'{plugin}\' for \'{parent_package}\' is not installed.', UserWarning
                     )
 
                 continue
@@ -253,7 +253,7 @@ class PackageNotFoundError(DependencyRegistryError):
             if package_data.optional:
                 if importlib.util.find_spec(pkg) is None:
                     warnings.warn(
-                        f'Optional package \'{pkg}\' for \'{parent_package}\' is not installed.', ImportWarning
+                        f'Optional package \'{pkg}\' for \'{parent_package}\' is not installed.', UserWarning
                     )
 
                 continue
