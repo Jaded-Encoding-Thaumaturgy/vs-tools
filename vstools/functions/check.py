@@ -194,6 +194,7 @@ def check_correct_subsampling(
 
     :raises InvalidSubsamplingError:    The clip has invalid subsampling.
     """
+
     from ..exceptions import InvalidSubsamplingError
 
     if clip.format:
@@ -209,18 +210,18 @@ def check_correct_subsampling(
 
 
 def check_dependencies(
-    func: FuncExceptT, message: str | None = None, parent_package: str | None = None, **kwargs: Any
-) -> None:
+    parent_package: str | None = None, func: FuncExceptT | None = None, **kwargs: Any
+) -> bool:
     """
     Check for both plugin and package dependencies.
 
-    :param func:                    The function to check.
-    :param message:                 Custom error message (optional).
-    :param parent_package:          The package name (optional, will be auto-detected if not provided).
-    :param kwargs:                  Additional keyword arguments.
+    :param parent_package:              The name of the parent package. If None, automatically determine.
+    :param func:                        Function returned for custom error handling.
+                                        This should only be set by VS package developers.
+    :param kwargs:                      Additional keyword arguments to pass on to the `check` methods.
 
-    :raises PluginNotFoundError:    If a required plugin is not found.
-    :raises PackageNotFoundError:   If a required package is not found.
+    :raises PluginNotFoundError:        If a required plugin is not found.
+    :raises PackageNotFoundError:       If a required package is not found.
     """
 
     func = func or check_dependencies
@@ -230,15 +231,15 @@ def check_dependencies(
 
         parent_package = get_calling_package(2)
 
-    errors = []
+    errors = list[DependencyRegistryError]()
 
     try:
-        PluginNotFoundError.check(func, None, message, parent_package, **kwargs)
+        PluginNotFoundError.check(func, None, None, parent_package, **kwargs)
     except PluginNotFoundError as e:
         errors.append(e)
 
     try:
-        PackageNotFoundError.check(func, None, message, parent_package, **kwargs)
+        PackageNotFoundError.check(func, None, None, parent_package, **kwargs)
     except PackageNotFoundError as e:
         errors.append(e)
 
@@ -247,3 +248,5 @@ def check_dependencies(
             raise errors[0]
 
         raise DependencyRegistryError(func, '\n'.join(str(e) for e in errors))
+
+    return True

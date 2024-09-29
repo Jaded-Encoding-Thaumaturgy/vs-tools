@@ -83,23 +83,25 @@ class PackageDependencyRegistry:
         self,
         dependency: str,
         functions: Iterable[str] | None = None,
-        url: str | None = None,
         parent_package: str | None = None,
+        *,
+        url: str | None = None,
         optional: bool = False,
     ) -> None:
         """
         Register a plugin for a package.
 
-        :param dependency:      The name of the plugin to depend on.
-        :param functions:       A list of functions used by the plugin.
-                                A check is performed to ensure the installed plugin has these functions.
-        :param url:             The url to the plugin's download page. Defaults to None.
-        :param parent_package:  The name of the package that depends on this plugin.
-        :param optional:        Whether the plugin is optional. Defaults to False.
+        :param dependency:              The name of the plugin to depend on.
+        :param functions:               A list of functions used by the plugin.
+                                        A check is performed to ensure the installed plugin has these functions.
+        :param parent_package:          The name of the package that depends on this plugin.
+        :param url:                     The url to the plugin's download page. Defaults to None.
+        :param optional:                Whether the plugin is optional. Defaults to False.
         """
 
         if not parent_package:
             from ..utils.package import get_calling_package
+
             parent_package = get_calling_package()
 
         if not dependency:
@@ -123,21 +125,23 @@ class PackageDependencyRegistry:
     def add_package(
         self,
         dependency: str,
-        parent_package: str | None = None,
-        version: str | None = None,
         functions: str | list[str] | None = None,
+        parent_package: str | None = None,
+        *,
+        version: str | None = None,
         optional: bool = False,
         url: str | None = None,
     ) -> None:
         """
         Register a package dependency.
 
-        :param dependency:      The name of the dependency to register.
-        :param parent_package:  The name of the package that depends on this dependency.
-        :param version:         The required version of the dependency. Defaults to None.
-        :param functions:       A function or list of functions to check for in the dependency. Defaults to None.
-        :param optional:        Whether the dependency is optional. Defaults to False.
-        :param url:             The url to the dependency's download page. Defaults to None.
+        :param dependency:              The name of the dependency to register.
+        :param functions:               A function or list of functions to check for in the dependency.
+                                        Defaults to None.
+        :param parent_package:          The name of the package that depends on this dependency.
+        :param version:                 The required version of the dependency. Defaults to None.
+        :param optional:                Whether the dependency is optional. Defaults to False.
+        :param url:                     The url to the dependency's download page. Defaults to None.
         """
 
         if not parent_package:

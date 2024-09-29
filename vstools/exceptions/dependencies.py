@@ -1,11 +1,14 @@
+import importlib.util
+import warnings
 from typing import Any
 
 from stgpytools import CustomValueError, FuncExceptT
 
-from ..dependencies.registry import dependency_registry, PackageInfo, PluginInfo
+from ..dependencies.registry import PackageInfo, PluginInfo, dependency_registry
 
 __all__: list[str] = [
     'DependencyRegistryError',
+
     'PluginNotFoundError',
     'PackageNotFoundError',
 ]
@@ -19,8 +22,9 @@ class DependencyRegistryError(CustomValueError):
         """
         Get the package name, either from the provided value or by auto-detection.
 
-        :param parent_package: The package name (optional).
-        :return: The package name.
+        :param parent_package:      The name of the parent package. If None, auto-detect.
+
+        :return:                    The package name.
         """
 
         if parent_package is not None:
@@ -47,36 +51,36 @@ class DependencyRegistryError(CustomValueError):
 
         def run_vsrepo(args: Any) -> Any:
             try:
-                return subprocess.run(["vsrepo"] + args, capture_output=True, text=True, check=True)
+                return subprocess.run(['vsrepo'] + args, capture_output=True, text=True, check=True)
             except subprocess.CalledProcessError as e:
                 return e
             except FileNotFoundError:
-                print("Failed to run vsrepo: command not found")
+                print('Failed to run vsrepo: command not found')
 
-        if run_vsrepo(["installed", plugin]).returncode == 0:
+        if run_vsrepo(['installed', plugin]).returncode == 0:
             return True
 
-        result = run_vsrepo(["available", plugin])
+        result = run_vsrepo(['available', plugin])
 
-        if result.returncode != 0 or "not found" in result.stdout.lower():
+        if result.returncode != 0 or 'not found' in result.stdout.lower():
             return False
 
-        print(f"Plugin '{plugin}' is available in VSRepo but not installed.")
+        print(f'Plugin \'{plugin}\' is available in VSRepo but not installed.')
 
-        user_input = input(f"Do you want to install \'{plugin}\'? (y/n): ").lower().strip()
+        user_input = input(f'Do you want to install \'{plugin}\'? (y/n): ').lower().strip()
 
         if not user_input or user_input != 'y':
-            print(f"Installation of \'{plugin}\' cancelled by user.")
+            print(f'Installation of \'{plugin}\' cancelled by user.')
 
             return False
 
-        result = run_vsrepo(["install", plugin])
+        result = run_vsrepo(['install', plugin])
 
         if result and result.returncode == 0:
-            print(f"Successfully installed \'{plugin}\'")
+            print(f'Successfully installed \'{plugin}\'')
             return True
 
-        print(f"Failed to install \'{plugin}\'")
+        print(f'Failed to install \'{plugin}\'')
         return False
 
     @classmethod
@@ -96,16 +100,16 @@ class DependencyRegistryError(CustomValueError):
         version: str | None = None, url: str | None = None,
         prompt_update: bool = False
     ) -> str:
-        msg = f"{base_msg}: [{', '.join(missing)}]. "
+        msg = f'{base_msg}: [{', '.join(missing)}]. '
 
         if version:
-            msg += f"Required version: {version}. "
+            msg += f'Required version: {version}. '
 
         if url:
-            msg += f"Download URL: {url}"
+            msg += f'Download URL: {url}'
 
         if prompt_update:
-            msg += "You may need to update!"
+            msg += 'You may need to update!'
 
         return msg
 
@@ -151,6 +155,16 @@ class PluginNotFoundError(DependencyRegistryError):
         missing_functions = {}
 
         for plugin in plugins_to_check:
+            plugin_data = dependency_registry.plugin_registry[parent_package].get(plugin)
+
+            if plugin_data and plugin_data.optional:
+                if not hasattr(core, plugin):
+                    warnings.warn(
+                        f'Optional plugin \'{plugin}\' for \'{parent_package}\' is not installed.', ImportWarning
+                    )
+
+                continue
+
             if not hasattr(core, plugin):
                 if cls._check_vsrepo(plugin):
                     continue
@@ -158,9 +172,7 @@ class PluginNotFoundError(DependencyRegistryError):
                 missing_plugins.append(plugin)
                 continue
 
-            plugin_data: PluginInfo = dependency_registry.plugin_registry[parent_package][plugin]
-
-            if not plugin_data.required_functions:
+            if not plugin_data or not plugin_data.required_functions:
                 continue
 
             if missing_funcs := cls._get_missing_functions(plugin_data.required_functions, plugin):
@@ -171,14 +183,14 @@ class PluginNotFoundError(DependencyRegistryError):
 
             if missing_plugins:
                 error_messages.append(
-                    f"Plugin(s) not found for package '{parent_package}': {', '.join(missing_plugins)}"
+                    f'Plugin(s) not found for package \'{parent_package}\': {', '.join(missing_plugins)}'
                 )
 
             for plugin, funcs in missing_functions.items():
                 plugin_info: PluginInfo = dependency_registry.plugin_registry[parent_package][plugin]
 
                 error_messages.append(cls._format_message(
-                    f"Plugin '{plugin}' for package '{parent_package}' is missing the following function(s)",
+                    f'Plugin \'{plugin}\' for package \'{parent_package}\' is missing the following function(s)',
                     missing=funcs, url=plugin_info.url, prompt_update=True
                 ))
 
@@ -199,7 +211,7 @@ class PackageNotFoundError(DependencyRegistryError):
         **kwargs: Any
     ) -> None:
         super().__init__(
-            message or f"Package '{package or parent_package}' not found in the registry",
+            message or f'Package \'{package or parent_package}\' not found in the registry',
             func, parent_package=parent_package, **kwargs
         )
 
@@ -222,6 +234,7 @@ class PackageNotFoundError(DependencyRegistryError):
         """
 
         parent_package = cls._get_package(parent_package)
+
         if packages is not None:
             packages_to_check = [packages] if isinstance(packages, str) else packages
         else:
@@ -235,12 +248,20 @@ class PackageNotFoundError(DependencyRegistryError):
                 missing_packages.append(pkg)
                 continue
 
-            package_info: PackageInfo = dependency_registry.package_registry[parent_package][pkg]
+            package_data: PackageInfo = dependency_registry.package_registry[parent_package][pkg]
 
-            if not package_info.required_functions:
+            if package_data.optional:
+                if importlib.util.find_spec(pkg) is None:
+                    warnings.warn(
+                        f'Optional package \'{pkg}\' for \'{parent_package}\' is not installed.', ImportWarning
+                    )
+
                 continue
 
-            if missing_funcs := cls._get_missing_functions(package_info.required_functions, pkg):
+            if not package_data.required_functions:
+                continue
+
+            if missing_funcs := cls._get_missing_functions(package_data.required_functions, pkg):
                 missing_functions[pkg] = missing_funcs
 
         if missing_packages or missing_functions:
@@ -248,14 +269,14 @@ class PackageNotFoundError(DependencyRegistryError):
 
             if missing_packages:
                 error_messages.append(
-                    f"Package(s) not found for package '{parent_package}': {', '.join(missing_packages)}"
+                    f'Package(s) not found for package \'{parent_package}\': {', '.join(missing_packages)}'
                 )
 
             for pkg, funcs in missing_functions.items():
                 pkg_info = dependency_registry.package_registry[parent_package][pkg]
 
                 error_messages.append(cls._format_message(
-                    f"Package '{pkg}' for package '{parent_package}' is missing the following function(s)",
+                    f'Package \'{pkg}\' for package \'{parent_package}\' is missing the following function(s)',
                     missing=funcs, url=pkg_info.url, version=pkg_info.version
                 ))
 
