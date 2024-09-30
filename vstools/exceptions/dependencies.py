@@ -5,6 +5,7 @@ from typing import Any
 from stgpytools import CustomValueError, FuncExceptT
 
 from ..dependencies.registry import PackageInfo, PluginInfo, dependency_registry
+from ..dependencies.enums import InstallModeEnum
 
 __all__: list[str] = [
     'DependencyRegistryError',
@@ -35,14 +36,67 @@ class DependencyRegistryError(CustomValueError):
         return get_calling_package(3)
 
     @staticmethod
+    def _check_pypi(package: str) -> bool:
+        """
+        Check if the package is available on PyPI and install if necessary based on the install mode.
+
+        :param package:     The package to check.
+
+        :return:            True if the package was installed or already exists, False otherwise.
+        """
+
+        if dependency_registry.install_mode is InstallModeEnum.MANUAL:
+            return False
+
+        try:
+            importlib.import_module(package)
+            return True
+        except ImportError:
+            pass
+
+        import subprocess
+        import sys
+
+        def run_pip(args: list[str]) -> subprocess.CompletedProcess[str]:
+            return subprocess.run([sys.executable, '-m', 'pip'] + args, capture_output=True, text=True, check=False)
+
+        result = run_pip(['show', package])
+
+        if result.returncode == 0:
+            return True
+
+        print(f"Package '{package}' is not installed.")
+
+        if dependency_registry.install_mode is InstallModeEnum.PROMPT:
+            should_install = input(f"Do you want to install '{package}'? (y/n): ").lower().strip() in ('y', '')
+        else:
+            should_install = True
+
+        if not should_install:
+            print(f"Installation of '{package}' cancelled.")
+            return False
+
+        result = run_pip(['install', package])
+
+        if result.returncode == 0:
+            print(f"Successfully installed '{package}'")
+            return True
+
+        print(f"Failed to install '{package}'. Error: {result.stderr}")
+        return False
+
+    @staticmethod
     def _check_vsrepo(plugin: str) -> bool:
         """
-        Check if the plugin is available in VSRepo and prompt for installation if not installed.
+        Check if the plugin is available in VSRepo and install if necessary based on the install mode.
 
         :param plugin:      The plugin to check.
 
-        :return:            True if the plugin was installed, False otherwise.
+        :return:            True if the plugin was installed or already exists, False otherwise.
         """
+
+        if dependency_registry.install_mode is InstallModeEnum.MANUAL:
+            return False
 
         if not dependency_registry.vsrepo_available:
             return False
@@ -67,11 +121,13 @@ class DependencyRegistryError(CustomValueError):
 
         print(f'Plugin \'{plugin}\' is available in VSRepo but not installed.')
 
-        user_input = input(f'Do you want to install \'{plugin}\'? (y/n): ').lower().strip()
+        if dependency_registry.install_mode is InstallModeEnum.PROMPT:
+            should_install = input(f'Do you want to install \'{plugin}\'? (y/n): ').lower().strip() in ('y', '')
+        else:
+            should_install = True
 
-        if not user_input or user_input != 'y':
-            print(f'Installation of \'{plugin}\' cancelled by user.')
-
+        if not should_install:
+            print(f'Installation of \'{plugin}\' cancelled.')
             return False
 
         result = run_vsrepo(['install', plugin])
@@ -259,6 +315,9 @@ class PackageNotFoundError(DependencyRegistryError):
                 continue
 
             if not package_data.required_functions:
+                continue
+
+            if cls._check_pypi(pkg) or cls._check_vsrepo(pkg):
                 continue
 
             if missing_funcs := cls._get_missing_functions(package_data.required_functions, pkg):

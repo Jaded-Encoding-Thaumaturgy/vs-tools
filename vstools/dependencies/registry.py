@@ -1,11 +1,13 @@
+import importlib.util
 from dataclasses import dataclass, field
 from typing import Iterable
 
-import importlib.util
+from stgpytools import CustomPermissionError, CustomTypeError
+
+from .enums import InstallModeEnum
 
 __all__: list[str] = [
     'PackageDependencyRegistry',
-
     'dependency_registry',
 
     'PluginInfo',
@@ -76,8 +78,37 @@ class PackageDependencyRegistry:
     vsrepo_available: bool = field(init=False)
     """A flag indicating whether the 'vsrepo' module is available."""
 
+    install_mode: InstallModeEnum = field(default=InstallModeEnum.PROMPT)
+    """The installation mode for handling missing dependencies."""
+
     def __post_init__(self) -> None:
         self.vsrepo_available = importlib.util.find_spec('vsrepo') is not None
+
+    def set_install_mode(self, install_mode: InstallModeEnum) -> None:
+        """
+        Set the installation mode for handling missing dependencies.
+
+        This method can only be called from the vspreview package.
+        This is to prevent abuse from package maintainers.
+
+        :param install_mode:                The installation mode to set.
+        :type install_mode:                 The installation mode.
+
+        :raises CustomPermissionError:      If called from a package other than vspreview.
+        """
+
+        from ..utils.package import get_calling_package
+
+        if get_calling_package() != 'vspreview':
+            raise CustomPermissionError("This method can only be called from the vspreview package.")
+
+        if not isinstance(install_mode, InstallModeEnum):
+            raise CustomTypeError(
+                "install_mode must be an instance of InstallModeEnum, "
+                f"not {type(install_mode).__name__}", self.set_install_mode
+            )
+
+        self.install_mode = install_mode
 
     def add_plugin(
         self,
