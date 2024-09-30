@@ -83,6 +83,7 @@ class PackageDependencyRegistry:
 
     def __post_init__(self) -> None:
         self.vsrepo_available = importlib.util.find_spec('vsrepo') is not None
+        # TODO: Ensure vspreview's setting is set here if possible
 
     def set_install_mode(self, install_mode: InstallModeEnum) -> None:
         """
@@ -144,7 +145,8 @@ class PackageDependencyRegistry:
         plugin_info = self.plugin_registry[parent_package].get(dependency, PluginInfo())
 
         if functions:
-            plugin_info.required_functions.extend(list(set(functions) - set(plugin_info.required_functions)))
+            new_functions = [functions] if isinstance(functions, str) else functions
+            plugin_info.required_functions.extend(list(set(new_functions) - set(plugin_info.required_functions)))
 
         if url:
             plugin_info.url = url

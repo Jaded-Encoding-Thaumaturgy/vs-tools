@@ -15,6 +15,10 @@ __all__: list[str] = [
 ]
 
 
+prompt_y = ('yes', 'y', '')
+prompt_opts = "(yes/no) [yes]"
+
+
 class DependencyRegistryError(CustomValueError):
     """Base class for dependency registry errors."""
 
@@ -60,29 +64,24 @@ class DependencyRegistryError(CustomValueError):
         def run_pip(args: list[str]) -> subprocess.CompletedProcess[str]:
             return subprocess.run([sys.executable, '-m', 'pip'] + args, capture_output=True, text=True, check=False)
 
-        result = run_pip(['show', package])
-
-        if result.returncode == 0:
+        if importlib.util.find_spec(package) is not None:
             return True
 
-        print(f"Package '{package}' is not installed.")
+        print(f'Package \'{package}\' is not installed.')
 
-        if dependency_registry.install_mode is InstallModeEnum.PROMPT:
-            should_install = input(f"Do you want to install '{package}'? (y/n): ").lower().strip() in ('y', '')
-        else:
-            should_install = True
+        should_install = DependencyRegistryError._prompt_user_for_install(package)
 
         if not should_install:
-            print(f"Installation of '{package}' cancelled.")
+            print(f'Installation of \'{package}\' cancelled.')
             return False
 
         result = run_pip(['install', package])
 
         if result.returncode == 0:
-            print(f"Successfully installed '{package}'")
+            print(f'Successfully installed \'{package}\'')
             return True
 
-        print(f"Failed to install '{package}'. Error: {result.stderr}")
+        print(f'Failed to install \'{package}\'. Error: {result.stderr}')
         return False
 
     @staticmethod
@@ -111,9 +110,6 @@ class DependencyRegistryError(CustomValueError):
             except FileNotFoundError:
                 print('Failed to run vsrepo: command not found')
 
-        if run_vsrepo(['installed', plugin]).returncode == 0:
-            return True
-
         result = run_vsrepo(['available', plugin])
 
         if result.returncode != 0 or 'not found' in result.stdout.lower():
@@ -121,10 +117,7 @@ class DependencyRegistryError(CustomValueError):
 
         print(f'Plugin \'{plugin}\' is available in VSRepo but not installed.')
 
-        if dependency_registry.install_mode is InstallModeEnum.PROMPT:
-            should_install = input(f'Do you want to install \'{plugin}\'? (y/n): ').lower().strip() in ('y', '')
-        else:
-            should_install = True
+        should_install = DependencyRegistryError._prompt_user_for_install(plugin)
 
         if not should_install:
             print(f'Installation of \'{plugin}\' cancelled.')
@@ -138,6 +131,40 @@ class DependencyRegistryError(CustomValueError):
 
         print(f'Failed to install \'{plugin}\'')
         return False
+
+    @staticmethod
+    def _prompt_user_for_install(package_or_plugin: str) -> bool:
+        """
+        Prompt the user for installation based on the install mode.
+
+        :param package_or_plugin:    The package or plugin name to install.
+
+        :return:                     True if the user wants to install, False otherwise.
+        """
+
+        if dependency_registry.install_mode is InstallModeEnum.AUTO:
+            return True
+
+        try:
+            prompt = input(f'Do you want to install \'{package_or_plugin}\'? {prompt_opts}: ')
+            return prompt.lower().strip() in prompt_y
+        except EOFError as e:
+            msg = f'Could not prompt the user to install \'{package_or_plugin}\'! '
+            msg += 'Please install this plugin/package manually'
+
+            try:
+                from vspreview import is_preview
+
+                if is_preview():
+                    msg += ' or set the dependency install mode in VSPreview to \'auto\''
+            except ModuleNotFoundError:
+                pass
+
+            msg += f'! Error: {e}'
+
+            warnings.warn(msg, UserWarning)
+
+            return False
 
     @classmethod
     def _get_missing_functions(cls, plugin_functions: list[str], plugin: str) -> list[str]:
@@ -300,10 +327,6 @@ class PackageNotFoundError(DependencyRegistryError):
         missing_functions = {}
 
         for pkg in packages_to_check:
-            if pkg not in dependency_registry.package_registry.get(parent_package, {}):
-                missing_packages.append(pkg)
-                continue
-
             package_data: PackageInfo = dependency_registry.package_registry[parent_package][pkg]
 
             if package_data.optional:
