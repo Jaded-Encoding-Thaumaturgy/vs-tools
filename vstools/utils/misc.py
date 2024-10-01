@@ -6,6 +6,7 @@ from types import TracebackType
 from typing import Any, Callable, Iterable, Sequence, TypeVar, overload
 
 import vapoursynth as vs
+from stgpytools import MISSING
 
 from ..enums import Align, BaseAlign
 from ..exceptions import InvalidSubsamplingError
@@ -210,7 +211,7 @@ class _padder:
 
     def COLOR(
         self, clip: vs.VideoNode, left: int = 0, right: int = 0, top: int = 0, bottom: int = 0,
-        color: int | float | bool | None | Sequence[int | float | bool | None] = (False, None)
+        color: int | float | bool | None | Sequence[int | float | bool | None] = (False, MISSING)
     ) -> vs.VideoNode:
         """
         Pad a clip with a constant color.
@@ -228,11 +229,12 @@ class _padder:
         :param right:       Padding added to the right side of the clip.
         :param top:         Padding added to the top side of the clip.
         :param bottom:      Padding added to the bottom side of the clip.
-        :param color:       Constant color that should be added on the sides.
+        :param color:       Constant color that should be added on the sides:
                                 * number: This will be treated as such and not converted or clamped.
                                 * False: Lowest value for this clip format and color range.
                                 * True: Highest value for this clip format and color range.
                                 * None: Neutral value for this clip format.
+                                * MISSING: Automatically set to False if RGB, else None.
 
         :return:            Padded clip with colored borders.
         """
@@ -242,7 +244,10 @@ class _padder:
 
         self._base(clip, left, right, top, bottom)
 
-        def _norm(colr: int | float | bool | None) -> Sequence[int | float]:
+        def _norm(colr: int | float | bool | None | MISSING) -> Sequence[int | float]:
+            if MISSING:
+                colr = False if clip.format.color_family is vs.RGB else None
+
             if colr is False:
                 return get_lowest_values(clip, clip)
 
