@@ -17,7 +17,13 @@ __all__ = [
 ]
 
 
-def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool = False) -> float:
+def scale_8bit(
+    clip: VideoFormatT | HoldsVideoFormatT,
+    value: int,
+    chroma: bool = False,
+    range_in: ColorRangeT | None = None,
+    range_out: ColorRangeT | None = None
+) -> float:
     """
     Scale from an 8-bit value.
 
@@ -31,13 +37,37 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool 
     fmt = get_video_format(clip)
     bits = get_depth(clip)
 
-    if bits == 8:
-        return value
+    range_in = ColorRange.from_param_or_video(range_in, clip)
+    range_out = ColorRange.from_param_or_video(range_out, clip)
 
     if fmt.sample_type is vs.FLOAT:
-        return value / 255 - (0.5 if chroma else 0)
+        range_out = ColorRange.FULL
 
-    return (value * ((1 << bits) - 1) + 127) // 255
+    if bits == 8 and range_in == range_out:
+        return float(value)
+
+    peak = (1 << bits) - 1
+    divisor = (240 - 16) if chroma else (235 - 16)
+
+    if fmt.sample_type is vs.FLOAT:
+        scaled = (value - 16) / divisor if range_in.is_limited else value / 255
+
+        return scaled - 0.5 if chroma else scaled
+
+    if range_in.is_limited and range_out.is_limited:
+        return value << (bits - 8)
+
+    if range_in.is_limited:
+        scaled = ((value - 16) * peak) // divisor
+    elif range_out.is_limited:
+        scaled = value * ((240 if chroma else 235) << (bits - 8)) // 255
+    else:
+        scaled = (value * peak) // 255
+
+    lower_bound = 16 << (bits - 8) if range_out.is_limited else 0
+    upper_bound = ((240 if chroma else 235) << (bits - 8)) if range_out.is_limited else peak
+
+    return float(max(lower_bound, min(scaled, upper_bound)))
 
 
 @overload
