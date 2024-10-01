@@ -120,7 +120,7 @@ class InvalidColorFamilyError(CustomValueError):
 
         super().__init__(
             message, func, wrong=wrong_str,
-            correct=iter(set(get_color_family(c).name for c in to_arr(correct))), **kwargs  # type: ignore[arg-type]
+            correct=iter(set(get_color_family(c).name for c in to_arr(correct))), **kwargs
         )
 
     @staticmethod
@@ -151,7 +151,7 @@ class InvalidColorFamilyError(CustomValueError):
         from ..utils import get_color_family
 
         to_check = get_color_family(to_check)
-        correct_list = [get_color_family(c) for c in to_arr(correct)]  # type: ignore
+        correct_list = [get_color_family(c) for c in to_arr(correct)]
 
         if to_check not in correct_list:
             if message is not None:
@@ -195,7 +195,7 @@ class FormatsMismatchError(MismatchError):
 
     if TYPE_CHECKING:
         @classmethod
-        def check(  # type: ignore[override]
+        def check(
             cls, func: FuncExceptT, *formats: VideoFormatT | HoldsVideoFormatT, **kwargs: Any
         ) -> None:
             ...
@@ -236,7 +236,7 @@ class ResolutionsMismatchError(MismatchError):
 
     if TYPE_CHECKING:
         @classmethod
-        def check(  # type: ignore[override]
+        def check(
             cls, func: FuncExceptT, *resolutions: Resolution | vs.VideoNode, **kwargs: Any
         ) -> None:
             ...
@@ -371,7 +371,7 @@ class InvalidFramerateError(CustomValueError):
         message: SupportsString = '{fps} clips are not allowed!', **kwargs: Any
     ) -> None:
         super().__init__(
-            message, func, fps=clip.fps if isinstance(clip, vs.VideoNode) else clip, **kwargs  # type: ignore
+            message, func, fps=clip.fps if isinstance(clip, vs.VideoNode) else clip, **kwargs
         )
 
     @staticmethod

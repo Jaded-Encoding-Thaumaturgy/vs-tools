@@ -75,13 +75,13 @@ class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
 
     def __getitem__(self, __key: int) -> FrameT:
         if __key not in self:
-            self.add_frame(__key, self.clip.get_frame(__key))  # type: ignore
+            self.add_frame(__key, self.clip.get_frame(__key))
 
         return super().__getitem__(__key)
 
     def __vs_del__(self, core_id: int) -> None:
         self.clear()
-        self.clip = None  # type: ignore
+        self.clip = None
 
 
 class ClipFramesCache(vs_object, dict[vs.VideoNode, FramesCache[vs.VideoFrame]]):
@@ -123,7 +123,7 @@ class SceneBasedDynamicCache(DynamicClipsCache[int]):
 
 def cache_clip(_clip: NodeT, cache_size: int = 10) -> NodeT:
     if isinstance(_clip, vs.VideoNode):
-        clip: vs.VideoNode = _clip  # type: ignore
+        clip: vs.VideoNode = _clip
 
         cache = FramesCache[vs.VideoFrame](clip, cache_size)
 

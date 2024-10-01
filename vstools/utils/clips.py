@@ -148,7 +148,7 @@ def initialize_clip(
     :return:                Clip with relevant frame properties set, and optionally dithered up to 16 bits by default.
     """
 
-    func = fallback(func, initialize_clip)  # type: ignore
+    func = fallback(func, initialize_clip)
 
     values: list[tuple[type[PropEnum], Any]] = [
         (Matrix, matrix),
@@ -280,7 +280,7 @@ class ProcessVariableClip(DynamicClipsCache[T]):
         if out_fmt is False:
             bk_args.update(format=vs.GRAY8, varformat=True)
         else:
-            bk_args.update(format=out_fmt)  # type: ignore
+            bk_args.update(format=out_fmt)
 
         super().__init__(cache_size)
 
@@ -289,7 +289,7 @@ class ProcessVariableClip(DynamicClipsCache[T]):
     def eval_clip(self) -> vs.VideoNode:
         if self.out.format and (0 not in (self.out.width, self.out.height)):
             try:
-                return self.get_clip(self.get_key(self.clip))  # type: ignore
+                return self.get_clip(self.get_key(self.clip))
             except Exception:
                 ...
 
@@ -317,7 +317,7 @@ class ProcessVariableClip(DynamicClipsCache[T]):
         class _inner(cls):  # type: ignore
             process = staticmethod(func)
 
-        return _inner(clip, out_dim, out_fmt, cache_size).eval_clip()  # type: ignore
+        return _inner(clip, out_dim, out_fmt, cache_size).eval_clip()
 
     def get_key(self, frame: vs.VideoFrame) -> T:
         raise NotImplementedError

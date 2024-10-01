@@ -115,7 +115,7 @@ class Dar(Fraction):
         if isinstance(clip_width, vs.VideoNode):
             from ..functions import check_variable_resolution
 
-            check_variable_resolution(clip_width, func or cls.from_size)  # type:ignore
+            check_variable_resolution(clip_width, func or cls.from_size)
 
             width, height, sar = clip_width.width, clip_width.height, _height  # type: ignore
 
@@ -172,13 +172,13 @@ class Sar(Fraction):
         from ..utils import get_prop
 
         if isinstance(clip, vs.RawFrame):
-            props = clip.props  # type: ignore
+            props = clip.props
         elif isinstance(clip, vs.RawNode):
-            props = clip.get_frame(0).props  # type: ignore
+            props = clip.get_frame(0).props
         else:
             props = clip
 
-        return cls(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))  # type: ignore
+        return cls(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))
 
     @classmethod
     def from_ar(cls: type[SarSelf], num: int, den: int, active_area: float, height: int) -> SarSelf:

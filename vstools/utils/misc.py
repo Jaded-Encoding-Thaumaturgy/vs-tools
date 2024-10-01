@@ -252,7 +252,7 @@ class _padder:
             if colr is None:
                 return get_neutral_values(clip)
 
-            return normalize_seq(colr, clip.format.num_planes)  # type: ignore
+            return normalize_seq(colr, clip.format.num_planes)
 
         if not isinstance(color, Sequence):
             norm_colors = _norm(color)
@@ -267,7 +267,7 @@ class _padder:
         cls, sizes: tuple[int, int] | vs.VideoNode, crop_scale: float | tuple[float, float]
     ) -> tuple[tuple[int, int], tuple[int, int]]:
         if isinstance(sizes, vs.VideoNode):
-            sizes = (sizes.width, sizes.height)  # type: ignore[union-attr]
+            sizes = (sizes.width, sizes.height)
 
         if not isinstance(crop_scale, tuple):
             crop_scale = (crop_scale, crop_scale)
@@ -540,7 +540,7 @@ def set_output(
         index = None
         # Backward compatible with older api
         if isinstance(name, vs.VideoNode):
-            alpha = name  # type: ignore[unreachable]
+            alpha = name
         name = index_or_name
     else:
         index = index_or_name

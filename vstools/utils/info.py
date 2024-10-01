@@ -30,7 +30,7 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
     if isinstance(frame, vs.VideoNode) and not (
         frame.width and frame.height and frame.format
     ):
-        frame = frame.get_frame(0)  # type: ignore
+        frame = frame.get_frame(0)
 
     assert frame.format
 
@@ -49,7 +49,7 @@ def get_video_format(
         sample_type = vs.SampleType(sample_type)
 
     if isinstance(value, vs.VideoFormat):
-        return value  # type: ignore
+        return value
 
     if isinstance(value, VSPresetVideoFormat):
         return vs.core.get_video_format(value)
@@ -63,12 +63,12 @@ def get_video_format(
 
         return vs.core.query_video_format(vs.YUV, sample_type, value)
 
-    assert value.format  # type: ignore
+    assert value.format
 
     if sample_type is not None:
-        return value.format.replace(sample_type=sample_type)  # type: ignore
+        return value.format.replace(sample_type=sample_type)
 
-    return value.format  # type: ignore
+    return value.format
 
 
 def get_depth(clip: VideoFormatT | HoldsVideoFormatT, /) -> int:
@@ -107,7 +107,7 @@ def get_framerate(clip: vs.VideoNode | Fraction | tuple[int, int] | float) -> Fr
     if isinstance(clip, tuple):
         return Fraction(*clip)
 
-    return Fraction(clip)  # type: ignore
+    return Fraction(clip)
 
 
 def expect_bits(clip: vs.VideoNode, /, expected_depth: int = 16, **kwargs: Any) -> tuple[vs.VideoNode, int]:
@@ -224,11 +224,11 @@ def get_w(
     """
 
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
-        assert (ref := ar_or_ref).format  # type: ignore
-        aspect_ratio = ref.width / ref.height  # type: ignore
-        mod = fallback(mod, ref.format.subsampling_w and 2 << ref.format.subsampling_w)  # type: ignore
+        assert (ref := ar_or_ref).format
+        aspect_ratio = ref.width / ref.height
+        mod = fallback(mod, ref.format.subsampling_w and 2 << ref.format.subsampling_w)
     else:
-        aspect_ratio = ar_or_ref  # type:ignore
+        aspect_ratio = ar_or_ref
 
         if mod is None:
             mod = 0 if height % 2 else 2
@@ -272,9 +272,9 @@ def get_h(
     """
 
     if isinstance(ar_or_ref, (vs.VideoNode, vs.VideoFrame)):
-        assert (ref := ar_or_ref).format  # type: ignore
-        aspect_ratio = ref.height / ref.width  # type: ignore
-        mod = fallback(mod, ref.format.subsampling_h and 2 << ref.format.subsampling_h)  # type: ignore
+        assert (ref := ar_or_ref).format  #
+        aspect_ratio = ref.height / ref.width
+        mod = fallback(mod, ref.format.subsampling_h and 2 << ref.format.subsampling_h)
     else:
         aspect_ratio = 1.0 / ar_or_ref  # type: ignore
 

@@ -203,8 +203,8 @@ class DitherType(CustomStrEnum):
     ) -> bool:
         from ..utils import get_video_format
 
-        in_fmt = get_video_format(in_bits_or_fmt, sample_type=in_sample_type_or_range)  # type: ignore
-        out_fmt = get_video_format(out_bits_or_fmt, sample_type=out_sample_type_or_range)  # type: ignore
+        in_fmt = get_video_format(in_bits_or_fmt, sample_type=in_sample_type_or_range)
+        out_fmt = get_video_format(out_bits_or_fmt, sample_type=out_sample_type_or_range)
 
         in_range = ColorRange.from_param(in_range, (DitherType.should_dither, 'in_range'))
         out_range = ColorRange.from_param(out_range, (DitherType.should_dither, 'out_range'))
@@ -726,10 +726,10 @@ def stack_clips(
     """
 
     return vs.core.std.StackHorizontal([
-        inner_clips if isinstance(inner_clips, vs.VideoNode) else (  # type: ignore
+        inner_clips if isinstance(inner_clips, vs.VideoNode) else (
             vs.core.std.StackVertical([
-                clipa if isinstance(clipa, vs.VideoNode) else stack_clips(clipa)  # type: ignore
-                for clipa in inner_clips  # type: ignore
+                clipa if isinstance(clipa, vs.VideoNode) else stack_clips(clipa)
+                for clipa in inner_clips
             ])
         )
         for inner_clips in clips

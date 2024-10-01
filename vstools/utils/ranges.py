@@ -176,12 +176,12 @@ def replace_ranges(
     if not do_splice_trim:
         try:
             if hasattr(vs.core, 'julek'):
-                return vs.core.julek.RFS(  # type: ignore
+                return vs.core.julek.RFS(
                     clip_a, clip_b, [y for (s, e) in b_ranges for y in range(s, e + (not exclusive if s != e else 1))],
                     mismatch=mismatch
                 )
             elif hasattr(vs.core, 'remap'):
-                return vs.core.remap.ReplaceFramesSimple(  # type: ignore
+                return vs.core.remap.ReplaceFramesSimple(
                     clip_a, clip_b, mismatch=mismatch,
                     mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in b_ranges)
                 )

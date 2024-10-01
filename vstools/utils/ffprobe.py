@@ -143,7 +143,7 @@ class FFProbe:
         )
 
     @overload
-    def _get_stream(  # type: ignore
+    def _get_stream(
         self, filename: str | Path, file_type: FileType | None = FileType.VIDEO,
         *, index: int = 0, func: FuncExceptT | None = None
     ) -> FFProbeStream | None:

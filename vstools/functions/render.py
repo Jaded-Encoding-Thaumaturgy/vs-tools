@@ -35,7 +35,7 @@ class AsyncRenderConf:
 
 
 @overload
-def clip_async_render(  # type: ignore
+def clip_async_render(
     clip: vs.VideoNode, outfile: BinaryIO | None = None, progress: str | Callable[[int, int], None] | None = None,
     callback: None = None, prefetch: int = 0, backlog: int = -1, y4m: bool = False,
     async_requests: int | bool | AsyncRenderConf = False
@@ -112,35 +112,35 @@ def clip_async_render(
                     if isinstance(progress, str):
                         def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
                             n += shift
-                            result[n] = callback(n, f)  # type: ignore[misc]
+                            result[n] = callback(n, f)
                             pr_update()
                             return f
                     else:
                         def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
                             n += shift
-                            result[n] = callback(n, f)  # type: ignore[misc]
+                            result[n] = callback(n, f)
                             pr_update_custom(n, num_frames)
                             return f
                 else:
                     def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
                         n += shift
-                        result[n] = callback(n, f)  # type: ignore[misc]
+                        result[n] = callback(n, f)
                         return f
             else:
                 if outfile is None and progress is not None:
                     if isinstance(progress, str):
                         def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                            result[n] = callback(n, f)  # type: ignore[misc]
+                            result[n] = callback(n, f)
                             pr_update()
                             return f
                     else:
                         def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                            result[n] = callback(n, f)  # type: ignore[misc]
+                            result[n] = callback(n, f)
                             pr_update_custom(n, num_frames)
                             return f
                 else:
                     def _cb(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
-                        result[n] = callback(n, f)  # type: ignore[misc]
+                        result[n] = callback(n, f)
                         return f
 
             return _cb
@@ -321,11 +321,11 @@ def prop_compare_cb(
             # no-fmt
             callback = lambda n, f: _op(f.props[prop], ref)  # type: ignore  # noqa
 
-    return src, callback  # type: ignore
+    return src, callback
 
 
 @overload
-def find_prop(  # type: ignore
+def find_prop(
     src: vs.VideoNode, prop: str, op: str | Callable[[float, float], bool] | None, ref: float | bool,
     range_length: Literal[0], async_requests: int = 1
 ) -> list[int]:

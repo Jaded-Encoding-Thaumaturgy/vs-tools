@@ -202,11 +202,11 @@ class FunctionProxy(FunctionProxyBase):
 
     def __getattr__(self, name: str) -> Function:
         if name == '__isabstractmethod__':
-            return False  # type: ignore
+            return False
 
         function = proxy_utils.get_vs_function(self)
 
-        return getattr(function, name)  # type: ignore
+        return getattr(function, name)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return proxy_utils.get_vs_function(self)(*args, **kwargs)
@@ -229,7 +229,7 @@ class PluginProxy(PluginProxyBase):
         if name in dir(plugin):
             return FunctionProxy(self, name)
 
-        return getattr(plugin, name)  # type: ignore
+        return getattr(plugin, name)
 
 
 class CoreProxy(CoreProxyBase):
@@ -246,7 +246,7 @@ class CoreProxy(CoreProxyBase):
         if name in dir(core):
             return PluginProxy(self, name)
 
-        return getattr(core, name)  # type: ignore
+        return getattr(core, name)
 
 
 class proxy_utils:
@@ -271,7 +271,7 @@ class proxy_utils:
         core, namespace = proxy_utils.get_core(plugin)
         vs_core = proxy_utils.get_vs_core(core)
 
-        return getattr(getattr(vs_core, namespace), func_name)  # type: ignore
+        return getattr(getattr(vs_core, namespace), func_name)
 
     @staticmethod
     def get_plugin(func: FunctionProxy) -> tuple[PluginProxy, str]:
@@ -417,14 +417,14 @@ def _find_ref(start_data: Any, to_return: type | tuple[type, ...], it: int = 3) 
 
 class EnvironmentProxy(EnvironmentProxyBase):
     def __getattr__(self, name: str) -> Plugin:
-        return getattr(get_current_environment(), name)  # type: ignore
+        return getattr(get_current_environment(), name)
 
     def __setattr__(self, name: str, value: Any) -> None:
         return setattr(get_current_environment(), name, value)
 
     @property
     def data(self) -> None:
-        data = self.env()  # type: ignore
+        data = self.env()
         assert data
         return data  # type: ignore
 
@@ -432,13 +432,13 @@ class EnvironmentProxy(EnvironmentProxyBase):
     def policy(self) -> EnvironmentPolicy:
         policy = _find_ref(self.data, (EnvironmentPolicy, VSScriptEnvironmentPolicy, StandaloneEnvironmentPolicy))
         assert policy is not None
-        return policy  # type: ignore
+        return policy
 
     @property
     def api(self) -> EnvironmentPolicyAPI:
         api = _find_ref(self.policy, EnvironmentPolicyAPI)
         assert api is not None
-        return api  # type: ignore
+        return api
 
     @property
     def has_core(self) -> bool:
@@ -465,7 +465,7 @@ class VSCoreProxy(CoreProxyBase):
         object.__setattr__(self, '_core', core and weakref.ref(core))
 
     def __getattr__(self, name: str) -> Plugin:
-        return getattr(_get_core_with_cb(self), name)  # type: ignore
+        return getattr(_get_core_with_cb(self), name)
 
     def __setattr__(self, name: str, value: Any) -> None:
         return setattr(_get_core_with_cb(self), name, value)

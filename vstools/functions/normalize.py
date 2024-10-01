@@ -106,7 +106,7 @@ def flatten_vnodes(
 
     from .utils import split
 
-    nodes = list[vs.VideoNode](flatten(clips))  # type: ignore
+    nodes = list[vs.VideoNode](flatten(clips))
 
     if not split_planes:
         return nodes

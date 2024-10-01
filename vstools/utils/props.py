@@ -76,9 +76,9 @@ def get_prop(
     from ..functions import fallback
 
     if isinstance(obj, vs.RawFrame):
-        props = obj.props  # type: ignore
+        props = obj.props
     elif isinstance(obj, vs.RawNode):
-        props = obj.get_frame(0).props  # type: ignore
+        props = obj.get_frame(0).props
     else:
         props = obj
 
@@ -86,14 +86,14 @@ def get_prop(
 
     try:
         try:
-            prop = props[key]  # type: ignore
+            prop = props[key]
         except Exception:
             if isinstance(key, type) and issubclass(key, PropEnum):
                 key = key.prop_key
             else:
                 key = str(key)
 
-            prop = props[key]  # type: ignore
+            prop = props[key]
 
         if not isinstance(prop, t):
             if issubclass(t, str) and isinstance(prop, bytes):

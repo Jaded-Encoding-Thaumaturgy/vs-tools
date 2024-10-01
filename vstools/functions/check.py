@@ -127,7 +127,7 @@ def check_ref_clip(src: vs.VideoNode, ref: vs.VideoNode | None, func: FuncExcept
     if ref is None:
         return src
 
-    func = fallback(func, check_ref_clip)  # type: ignore
+    func = fallback(func, check_ref_clip)
 
     assert check_variable(src, func)  # type: ignore
     assert check_variable(ref, func)  # type: ignore

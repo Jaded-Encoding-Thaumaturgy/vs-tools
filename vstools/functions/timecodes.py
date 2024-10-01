@@ -161,12 +161,12 @@ class Timecodes(list[Timecode]):
             prop_clip = prop_clip.akarin.Expr('X 1 = x._DurationNum x._DurationDen ?')
 
             def _get_timecode(n: int, f: vs.VideoFrame) -> Timecode:
-                return Timecode(n, (m := f[0])[0, 0], m[0, 1])  # type: ignore
+                return Timecode(n, (m := f[0])[0, 0], m[0, 1])
         else:
             prop_clip = clip
 
             def _get_timecode(n: int, f: vs.VideoFrame) -> Timecode:
-                return Timecode(n, f.props._DurationNum, f.props._DurationDen)  # type: ignore
+                return Timecode(n, f.props._DurationNum, f.props._DurationDen)
 
         return cls(clip_async_render(prop_clip, None, 'Fetching timecodes...', _get_timecode, **kwargs))
 
@@ -208,7 +208,7 @@ class Timecodes(list[Timecode]):
         length = ref_or_length if isinstance(ref_or_length, int) else ref_or_length.num_frames
 
         fb_den = (
-            None if ref_or_length.fps_den in {0, 1} else ref_or_length.fps_den  # type: ignore
+            None if ref_or_length.fps_den in {0, 1} else ref_or_length.fps_den
         ) if isinstance(ref_or_length, vs.VideoNode) else None
 
         denominator = den or fb_den or 1001
@@ -580,7 +580,7 @@ class LWIndex:
 
         file = Path(str(file)).resolve()
 
-        length = ref_or_length.num_frames if isinstance(ref_or_length, vs.VideoNode) else ref_or_length  # type: ignore
+        length = ref_or_length.num_frames if isinstance(ref_or_length, vs.VideoNode) else ref_or_length
 
         data = file.read_text('latin1').splitlines()
 
