@@ -29,16 +29,15 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool 
     """
 
     fmt = get_video_format(clip)
+    bits = get_depth(clip)
+
+    if bits == 8:
+        return value
 
     if fmt.sample_type is vs.FLOAT:
-        out = value / 255
+        return value / 255 - (0.5 if chroma else 0)
 
-        if chroma:
-            out -= .5
-
-        return out
-
-    return value << get_depth(fmt) - 8
+    return (value * ((1 << bits) - 1) + 127) // 255
 
 
 @overload
