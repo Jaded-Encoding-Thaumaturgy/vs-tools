@@ -25,13 +25,15 @@ def scale_8bit(
     range_out: ColorRangeT | None = None
 ) -> float:
     """
-    Scale from an 8-bit value.
+    Scale an 8-bit value to the bit depth of the input clip.
 
-    :param clip:        Input clip, frame, or value representing a bitdepth.
-    :param value:       Value to scale.
-    :param chroma:      Values are chroma ranges, and must be converted as such. Default: False.
+    :param clip:        Input clip, frame, or format representing a bit depth.
+    :param value:       8-bit value to scale.
+    :param chroma:      Whether the value is for chroma (True) or luma (False). Default: False.
+    :param range_in:    Color range of the input value. If None, inferred from clip. Default: None.
+    :param range_out:   Color range of the output value. If None, inferred from clip. Default: None.
 
-    :return:            Value scaled to the clip's bit-depth.
+    :return:            Value scaled to the clip's bit depth as a float.
     """
 
     fmt = get_video_format(clip)
