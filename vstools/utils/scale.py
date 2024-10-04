@@ -28,17 +28,15 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool 
     :return:            Value scaled to the clip's bit-depth.
     """
 
-    fmt = get_video_format(clip)
+    import warnings
 
-    if fmt.sample_type is vs.FLOAT:
-        out = value / 255
+    warnings.warn(
+        "scale_8bit: 'This function is deprecated and will be removed in future versions. "
+        "Please use `scale_value` instead.'",
+        DeprecationWarning,
+    )
 
-        if chroma:
-            out -= .5
-
-        return out
-
-    return value << get_depth(fmt) - 8
+    return scale_value(value, 8, clip, ColorRange.FULL, chroma=chroma)
 
 
 @overload
@@ -165,12 +163,12 @@ def get_lowest_value(
     fmt = get_video_format(clip_or_depth)
 
     if fmt.sample_type == vs.FLOAT:
-        return -0.5 if chroma else 0.
+        return -0.5 if chroma else 0.0
 
     if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 16, chroma)
 
-    return 0.
+    return 0.0
 
 
 def get_lowest_values(
@@ -186,12 +184,12 @@ def get_lowest_values(
     ], fmt.num_planes)
 
 
-def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False) -> float:
+def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> float:
     """
-    Returns the mid point value for the specified bit depth, or bit depth of the clip/format specified.
+    Returns the neutral point value (e.g. as used by std.MakeDiff) for the specified bit depth,
+    or bit depth of the clip/format specified.
 
     :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
-    :param chroma:          Whether to get luma (default) or chroma plane value.
 
     :return:                Neutral value.
     """
@@ -199,7 +197,7 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chr
     fmt = get_video_format(clip_or_depth)
 
     if fmt.sample_type == vs.FLOAT:
-        return 0. if chroma else 0.5
+        return 0.0
 
     return float(1 << (get_depth(fmt) - 1))
 
@@ -208,7 +206,7 @@ def get_neutral_values(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) ->
     """Get the neutral values of all planes of a specified format."""
 
     fmt = get_video_format(clip_or_depth)
-    return normalize_seq([get_neutral_value(fmt, False), get_neutral_value(fmt, True)], fmt.num_planes)
+    return normalize_seq(get_neutral_value(fmt), fmt.num_planes)
 
 
 def get_peak_value(
@@ -228,12 +226,12 @@ def get_peak_value(
     fmt = get_video_format(clip_or_depth)
 
     if fmt.sample_type == vs.FLOAT:
-        return 0.5 if chroma else 1.
+        return 0.5 if chroma else 1.0
 
     if ColorRange(range_in).is_limited:
         return scale_8bit(fmt, 240 if chroma else 235, chroma)
 
-    return (1 << get_depth(fmt)) - 1.
+    return (1 << get_depth(fmt)) - 1.0
 
 
 def get_peak_values(
