@@ -28,6 +28,14 @@ def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool 
     :return:            Value scaled to the clip's bit-depth.
     """
 
+    import warnings
+
+    warnings.warn(
+        "scale_8bit: 'This function is deprecated and will be removed in future versions. "
+        "Please use `scale_value` instead.'",
+        DeprecationWarning,
+    )
+
     return scale_value(value, 8, clip, ColorRange.FULL, chroma=chroma)
 
 
