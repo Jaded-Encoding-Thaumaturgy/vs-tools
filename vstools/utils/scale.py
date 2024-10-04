@@ -178,7 +178,8 @@ def get_lowest_values(
 
 def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> float:
     """
-    Returns the neutral point value (e.g. as used by std.MakeDiff) for the specified bit depth, or bit depth of the clip/format specified.
+    Returns the neutral point value (e.g. as used by std.MakeDiff) for the specified bit depth,
+    or bit depth of the clip/format specified.
 
     :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
 
