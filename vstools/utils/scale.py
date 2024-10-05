@@ -121,7 +121,7 @@ def scale_value(
     else:
         range_out = range_in
 
-    if input_depth == output_depth and range_in == range_out:
+    if input_depth == output_depth and range_in == range_out and in_fmt.sample_type == out_fmt.sample_type:
         return out_value
 
     if scale_offsets is None:
