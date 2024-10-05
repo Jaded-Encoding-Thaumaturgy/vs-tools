@@ -88,14 +88,17 @@ def scale_value(
     chroma: bool = False
 ) -> float:
     """
-    Returns the peak value for the specified bit depth, or bit depth of the clip/format specified.
+    Converts the value to the specified bit depth, or bit depth of the clip/format specified.
 
     :param value:           Value to scale.
     :param input_depth:     Input bit depth, or clip, frame, format from where to get it.
     :param output_depth:    Output bit depth, or clip, frame, format from where to get it.
     :param range_in:        Color range of the input value
     :param range_out:       Color range of the desired output.
-    :param scale_offsets:   Whether or not to apply YUV offsets to float chroma and/or TV range integer values.
+    :param scale_offsets:   Whether or not to apply & map YUV zero-point offsets.
+                            Set to True when converting absolute color values.
+                            Set to False when converting color deltas.
+                            Only relevant if integer formats are involved.
     :param chroma:          Whether or not to treat values as chroma values instead of luma.
 
     :return:                Scaled value.
