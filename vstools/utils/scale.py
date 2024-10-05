@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Literal, Sequence, overload
 
 import vapoursynth as vs
-from stgpytools import normalize_seq
+from stgpytools import MISSING, MissingT, normalize_seq
 
 from ..enums import ColorRange, ColorRangeT
 from ..types import HoldsVideoFormatT, VideoFormatT
@@ -184,7 +184,7 @@ def get_lowest_values(
     ], fmt.num_planes)
 
 
-def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> float:
+def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: MissingT = MISSING) -> float:
     """
     Returns the neutral point value (e.g. as used by std.MakeDiff) for the specified bit depth,
     or bit depth of the clip/format specified.
@@ -193,6 +193,14 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> 
 
     :return:                Neutral value.
     """
+
+    if chroma is not MISSING:
+        import warnings
+
+        warnings.warn(
+            "get_neutral_value: 'The \'chroma\' parameter is deprecated and will be removed in future versions.'",
+            DeprecationWarning,
+        )
 
     fmt = get_video_format(clip_or_depth)
 
