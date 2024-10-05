@@ -166,7 +166,7 @@ def get_lowest_value(
         return -0.5 if chroma else 0.0
 
     if ColorRange(range_in).is_limited:
-        return scale_8bit(fmt, 16, chroma)
+        return float(16 << get_depth(fmt) - 8)
 
     return 0.0
 
@@ -229,7 +229,7 @@ def get_peak_value(
         return 0.5 if chroma else 1.0
 
     if ColorRange(range_in).is_limited:
-        return scale_8bit(fmt, 240 if chroma else 235, chroma)
+        return float((240 if chroma else 235) << get_depth(fmt) - 8)
 
     return (1 << get_depth(fmt)) - 1.0
 
