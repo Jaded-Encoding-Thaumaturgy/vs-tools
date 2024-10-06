@@ -459,15 +459,6 @@ class Transfer(_TransferMeta):
         if width <= 1024 and height <= 576:
             return Transfer.BT601
 
-        if width <= 2048 and height <= 1556:
-            return Transfer.BT709
-
-        if fmt.bits_per_sample == 10:
-            return Transfer.BT2020_10
-
-        if fmt.bits_per_sample == 12:
-            return Transfer.BT2020_12
-
         return Transfer.BT709
 
     @classmethod
