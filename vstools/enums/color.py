@@ -213,10 +213,7 @@ class Matrix(_MatrixMeta):
 
             return Matrix.SMPTE170M
 
-        if width <= 2048 and height <= 1556:
-            return Matrix.BT709
-
-        return Matrix.BT2020NCL
+        return Matrix.BT709
 
     @classmethod
     def from_video(
@@ -461,15 +458,6 @@ class Transfer(_TransferMeta):
 
         if width <= 1024 and height <= 576:
             return Transfer.BT601
-
-        if width <= 2048 and height <= 1556:
-            return Transfer.BT709
-
-        if fmt.bits_per_sample == 10:
-            return Transfer.BT2020_10
-
-        if fmt.bits_per_sample == 12:
-            return Transfer.BT2020_12
 
         return Transfer.BT709
 
@@ -829,10 +817,7 @@ class Primaries(_PrimariesMeta):
 
             return Primaries.SMPTE170M
 
-        if width <= 2048 and height <= 1556:
-            return Primaries.BT709
-
-        return Primaries.BT2020
+        return Primaries.BT709
 
     @classmethod
     def from_video(
