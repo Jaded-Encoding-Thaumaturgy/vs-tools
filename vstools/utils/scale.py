@@ -46,7 +46,7 @@ def scale_value(  # type: ignore
     output_depth: Literal[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool | None = None,
+    scale_offsets: bool = True,
     chroma: bool = False
 ) -> int:
     ...
@@ -59,7 +59,7 @@ def scale_value(
     output_depth: Literal[32],
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool | None = None,
+    scale_offsets: bool = True,
     chroma: bool = False
 ) -> float:
     ...
@@ -72,7 +72,7 @@ def scale_value(
     output_depth: int | VideoFormatT | HoldsVideoFormatT,
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool | None = None,
+    scale_offsets: bool = True,
     chroma: bool = False
 ) -> float:
     ...
@@ -84,7 +84,7 @@ def scale_value(
     output_depth: int | VideoFormatT | HoldsVideoFormatT,
     range_in: ColorRangeT = ColorRange.LIMITED,
     range_out: ColorRangeT | None = None,
-    scale_offsets: bool | None = None,
+    scale_offsets: bool = True,
     chroma: bool = False
 ) -> float:
     """
@@ -124,9 +124,6 @@ def scale_value(
     if input_depth == output_depth and range_in == range_out and in_fmt.sample_type == out_fmt.sample_type:
         return out_value
 
-    if scale_offsets is None:
-        scale_offsets = True
-
     input_peak = get_peak_value(in_fmt, chroma, range_in)
     input_lowest = get_lowest_value(in_fmt, chroma, range_in)
     output_peak = get_peak_value(out_fmt, chroma, range_out)
@@ -145,6 +142,9 @@ def scale_value(
             out_value += 128 << (out_fmt.bits_per_sample - 8)
         elif range_out.is_limited:
             out_value += 16 << (out_fmt.bits_per_sample - 8)
+
+    if out_fmt.sample_type is vs.INTEGER:
+        out_value = max(min(out_value, get_peak_value(out_fmt, range_in=ColorRange.FULL)), 0.0)
 
     return out_value
 
