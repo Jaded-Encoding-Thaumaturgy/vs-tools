@@ -213,10 +213,7 @@ class Matrix(_MatrixMeta):
 
             return Matrix.SMPTE170M
 
-        if width <= 2048 and height <= 1556:
-            return Matrix.BT709
-
-        return Matrix.BT2020NCL
+        return Matrix.BT709
 
     @classmethod
     def from_video(
@@ -829,10 +826,7 @@ class Primaries(_PrimariesMeta):
 
             return Primaries.SMPTE170M
 
-        if width <= 2048 and height <= 1556:
-            return Primaries.BT709
-
-        return Primaries.BT2020
+        return Primaries.BT709
 
     @classmethod
     def from_video(
