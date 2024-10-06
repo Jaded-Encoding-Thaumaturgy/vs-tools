@@ -88,14 +88,17 @@ def scale_value(
     chroma: bool = False
 ) -> float:
     """
-    Returns the peak value for the specified bit depth, or bit depth of the clip/format specified.
+    Converts the value to the specified bit depth, or bit depth of the clip/format specified.
 
     :param value:           Value to scale.
     :param input_depth:     Input bit depth, or clip, frame, format from where to get it.
     :param output_depth:    Output bit depth, or clip, frame, format from where to get it.
     :param range_in:        Color range of the input value
     :param range_out:       Color range of the desired output.
-    :param scale_offsets:   Whether or not to apply YUV offsets to float chroma and/or TV range integer values.
+    :param scale_offsets:   Whether or not to apply & map YUV zero-point offsets.
+                            Set to True when converting absolute color values.
+                            Set to False when converting color deltas.
+                            Only relevant if integer formats are involved.
     :param chroma:          Whether or not to treat values as chroma values instead of luma.
 
     :return:                Scaled value.
@@ -118,29 +121,29 @@ def scale_value(
     else:
         range_out = range_in
 
-    if input_depth == output_depth and range_in == range_out:
+    if input_depth == output_depth and range_in == range_out and in_fmt.sample_type == out_fmt.sample_type:
         return out_value
 
     if scale_offsets is None:
-        scale_offsets = range_in != range_out
+        scale_offsets = True
 
     input_peak = get_peak_value(in_fmt, chroma, range_in)
     input_lowest = get_lowest_value(in_fmt, chroma, range_in)
     output_peak = get_peak_value(out_fmt, chroma, range_out)
     output_lowest = get_lowest_value(out_fmt, chroma, range_out)
 
-    if scale_offsets:
-        if out_fmt.sample_type is vs.FLOAT and chroma:
+    if scale_offsets and in_fmt.sample_type is vs.INTEGER:
+        if chroma:
             out_value -= 128 << (in_fmt.bits_per_sample - 8)
-        elif range_out.is_full and range_in.is_limited:
+        elif range_in.is_limited:
             out_value -= 16 << (in_fmt.bits_per_sample - 8)
 
     out_value *= (output_peak - output_lowest) / (input_peak - input_lowest)
 
-    if scale_offsets:
-        if in_fmt.sample_type is vs.FLOAT and chroma:
+    if scale_offsets and out_fmt.sample_type is vs.INTEGER:
+        if chroma:
             out_value += 128 << (out_fmt.bits_per_sample - 8)
-        elif range_in.is_full and range_out.is_limited:
+        elif range_out.is_limited:
             out_value += 16 << (out_fmt.bits_per_sample - 8)
 
     return out_value
