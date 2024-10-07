@@ -132,8 +132,9 @@ def scale_value(
     if out_fmt.sample_type is vs.FLOAT:
         range_out = ColorRange.FULL
 
-    if in_fmt != out_fmt.color_family:
+    if in_fmt.color_family != out_fmt.color_family:
         raise Exception("In and Out color families must be the same!")
+
     if in_fmt.color_family is vs.RGB or out_fmt.color_family is vs.RGB or family is vs.RGB:
         chroma = False
 
