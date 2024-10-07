@@ -125,10 +125,8 @@ def scale_value(
     if range_out is None:
         if isinstance(output_depth, vs.VideoNode):
             range_out = ColorRange(output_depth)
-        elif out_fmt.color_family is vs.RGB or family is vs.RGB:
-            range_out = ColorRange.FULL
         else:
-            range_out = ColorRange.LIMITED
+            range_out = range_in
 
     if in_fmt.sample_type is vs.FLOAT:
         range_in = ColorRange.FULL
