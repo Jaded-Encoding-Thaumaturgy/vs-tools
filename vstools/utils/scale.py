@@ -123,8 +123,8 @@ def scale_value(
             range_in = ColorRange.LIMITED
 
     if range_out is None:
-        if isinstance(input_depth, vs.VideoNode):
-            range_out = ColorRange(input_depth)
+        if isinstance(output_depth, vs.VideoNode):
+            range_out = ColorRange(output_depth)
         elif out_fmt.color_family is vs.RGB or family is vs.RGB:
             range_out = ColorRange.FULL
         else:
