@@ -185,8 +185,8 @@ def get_lowest_values(
     fmt = get_video_format(clip_or_depth)
 
     return normalize_seq([
-        get_peak_value(fmt, False, range, colorfamily),
-        get_peak_value(fmt, True, range, colorfamily)
+        get_lowest_value(fmt, False, range, colorfamily),
+        get_lowest_value(fmt, True, range, colorfamily)
     ], fmt.num_planes)
 
 
