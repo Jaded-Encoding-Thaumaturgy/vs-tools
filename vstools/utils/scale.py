@@ -128,12 +128,6 @@ def scale_value(
         else:
             range_out = range_in
 
-    if in_fmt.sample_type is vs.FLOAT:
-        range_in = ColorRange.FULL
-
-    if out_fmt.sample_type is vs.FLOAT:
-        range_out = ColorRange.FULL
-
     if in_fmt.color_family != out_fmt.color_family:
         raise Exception("In and Out color families must be the same!")
 
