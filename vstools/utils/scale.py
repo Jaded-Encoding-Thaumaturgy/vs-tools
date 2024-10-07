@@ -110,12 +110,6 @@ def scale_value(
     in_fmt = get_video_format(input_depth)
     out_fmt = get_video_format(output_depth)
 
-    if in_fmt.sample_type is vs.FLOAT:
-        range_in = ColorRange.FULL
-
-    if out_fmt.sample_type is vs.FLOAT:
-        range_out = ColorRange.FULL
-
     if input_depth == output_depth and range_in == range_out and in_fmt.sample_type == out_fmt.sample_type:
         return out_value
 
