@@ -47,7 +47,8 @@ def scale_value(  # type: ignore
     range_in: ColorRangeT | None = None,
     range_out: ColorRangeT | None = None,
     scale_offsets: bool = True,
-    chroma: bool = False
+    chroma: bool = False,
+    family: vs.ColorFamily | None = None
 ) -> int:
     ...
 
@@ -60,7 +61,8 @@ def scale_value(
     range_in: ColorRangeT | None = None,
     range_out: ColorRangeT | None = None,
     scale_offsets: bool = True,
-    chroma: bool = False
+    chroma: bool = False,
+    family: vs.ColorFamily | None = None
 ) -> float:
     ...
 
@@ -73,7 +75,8 @@ def scale_value(
     range_in: ColorRangeT | None = None,
     range_out: ColorRangeT | None = None,
     scale_offsets: bool = True,
-    chroma: bool = False
+    chroma: bool = False,
+    family: vs.ColorFamily | None = None
 ) -> float:
     ...
 
@@ -101,6 +104,7 @@ def scale_value(
                             Set to False when converting color deltas.
                             Only relevant if integer formats are involved.
     :param chroma:          Whether or not to treat values as chroma values instead of luma.
+    :param family:          Which color family to assume for calculations.
 
     :return:                Scaled value.
     """
@@ -175,7 +179,8 @@ def get_lowest_value(
 
     :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
     :param chroma:          Whether to get luma (default) or chroma plane value.
-    :param range:        Whether to get limited or full range lowest value.
+    :param range:           Whether to get limited or full range lowest value.
+    :param family:          Which color family to assume for calculations.
 
     :return:                Lowest possible value.
     """
@@ -258,7 +263,8 @@ def get_peak_value(
 
     :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
     :param chroma:          Whether to get luma (default) or chroma plane value.
-    :param range:        Whether to get limited or full range peak value.
+    :param range:           Whether to get limited or full range peak value.
+    :param family:          Which color family to assume for calculations.
 
     :return:                Highest possible value.
     """
