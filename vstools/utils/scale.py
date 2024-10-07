@@ -164,9 +164,11 @@ def get_lowest_value(
             range_in = ColorRange(clip_or_depth)
         elif fmt.color_family is vs.RGB or colorfamily is vs.RGB:
             range_in = ColorRange.FULL
-            chroma = False
         else:
             range_in = ColorRange.LIMITED
+
+    if fmt.color_family is vs.RGB or colorfamily is vs.RGB:
+        chroma = False
 
     if fmt.sample_type == vs.FLOAT:
         return -0.5 if chroma else 0.0
@@ -244,9 +246,11 @@ def get_peak_value(
             range_in = ColorRange(clip_or_depth)
         elif fmt.color_family is vs.RGB or colorfamily is vs.RGB:
             range_in = ColorRange.FULL
-            chroma = False
         else:
             range_in = ColorRange.LIMITED
+
+    if fmt.color_family is vs.RGB or colorfamily is vs.RGB:
+        chroma = False
 
     if fmt.sample_type == vs.FLOAT:
         return 0.5 if chroma else 1.0
