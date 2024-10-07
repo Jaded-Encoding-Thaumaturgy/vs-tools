@@ -6,7 +6,8 @@ import vapoursynth as vs
 from stgpytools import FuncExceptT
 
 from ..exceptions import (
-    UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
+    UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError,
+    UnsupportedFieldBasedError, UnsupportedSubsamplingError
 )
 from .stubs import _base_from_video, _ChromaLocationMeta, _FieldBasedMeta
 
@@ -102,6 +103,10 @@ class ChromaLocation(_ChromaLocationMeta):
                 offsets = (2.5, 0)
             elif subsampling == (2, 2):
                 offsets = (2.5, 1)
+            elif subsampling == (0, 0):
+                offsets = (0, 0)
+            else:
+                raise UnsupportedSubsamplingError('Unknown subsampling.', cls)
 
             return offsets
 
