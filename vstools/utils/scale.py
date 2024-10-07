@@ -178,7 +178,7 @@ def get_lowest_value(
 
 
 def get_lowest_values(
-    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range: ColorRangeT | None = None, colorfamily = None
+    clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, range: ColorRangeT | None = None, colorfamily: None = None
 ) -> Sequence[float]:
     """Get the lowest values of all planes of a specified format."""
 
