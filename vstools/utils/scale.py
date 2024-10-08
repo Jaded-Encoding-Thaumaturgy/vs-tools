@@ -147,7 +147,7 @@ def get_lowest_value(
     if any(_ is vs.RGB for _ in [fmt.color_family, family]):
         chroma = False
 
-    if fmt.sample_type == vs.FLOAT:
+    if fmt.sample_type is vs.FLOAT:
         return -0.5 if chroma else 0.0
 
     if ColorRange(range).is_limited:
@@ -190,7 +190,7 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chr
 
     fmt = get_video_format(clip_or_depth)
 
-    if fmt.sample_type == vs.FLOAT:
+    if fmt.sample_type is vs.FLOAT:
         return 0.0
 
     return float(1 << (get_depth(fmt) - 1))
@@ -231,7 +231,7 @@ def get_peak_value(
     if any(_ is vs.RGB for _ in [fmt.color_family, family]):
         chroma = False
 
-    if fmt.sample_type == vs.FLOAT:
+    if fmt.sample_type is vs.FLOAT:
         return 0.5 if chroma else 1.0
 
     if ColorRange(range).is_limited:
