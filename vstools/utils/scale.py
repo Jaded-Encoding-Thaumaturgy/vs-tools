@@ -114,21 +114,21 @@ def scale_value(
             out_value += 16 << (out_fmt.bits_per_sample - 8)
 
     if out_fmt.sample_type is vs.INTEGER:
-        out_value = max(min(out_value, get_peak_value(out_fmt, range=ColorRange.FULL)), 0.0)
+        out_value = max(min(out_value, get_peak_value(out_fmt, range_in=ColorRange.FULL)), 0.0)
 
     return out_value
 
 
 def get_lowest_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
-    range: ColorRangeT | None = None, family: vs.ColorFamily | None = None
+    range_in: ColorRangeT | None = None, family: vs.ColorFamily | None = None
 ) -> float:
     """
     Returns the lowest value for the specified bit depth, or bit depth of the clip/format specified.
 
     :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
     :param chroma:          Whether to get luma (default) or chroma plane value.
-    :param range:           Whether to get limited or full range lowest value.
+    :param range_in:        Whether to get limited or full range lowest value.
     :param family:          Which color family to assume for calculations.
 
     :return:                Lowest possible value.
@@ -136,13 +136,13 @@ def get_lowest_value(
 
     fmt = get_video_format(clip_or_depth)
 
-    if range is None:
+    if range_in is None:
         if isinstance(clip_or_depth, vs.VideoNode):
-            range = ColorRange(clip_or_depth)
+            range_in = ColorRange(clip_or_depth)
         elif any(_ is vs.RGB for _ in [fmt.color_family, family]):
-            range = ColorRange.FULL
+            range_in = ColorRange.FULL
         else:
-            range = ColorRange.LIMITED
+            range_in = ColorRange.LIMITED
 
     if any(_ is vs.RGB for _ in [fmt.color_family, family]):
         chroma = False
@@ -150,7 +150,7 @@ def get_lowest_value(
     if fmt.sample_type is vs.FLOAT:
         return -0.5 if chroma else 0.0
 
-    if ColorRange(range).is_limited:
+    if ColorRange(range_in).is_limited:
         return float(16 << get_depth(fmt) - 8)
 
     return 0.0
@@ -158,15 +158,15 @@ def get_lowest_value(
 
 def get_lowest_values(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT,
-    range: ColorRangeT | None = None, family: vs.ColorFamily | None = None
+    range_in: ColorRangeT | None = None, family: vs.ColorFamily | None = None
 ) -> Sequence[float]:
     """Get the lowest values of all planes of a specified format."""
 
     fmt = get_video_format(clip_or_depth)
 
     return normalize_seq([
-        get_lowest_value(fmt, False, range, family),
-        get_lowest_value(fmt, True, range, family)
+        get_lowest_value(fmt, False, range_in, family),
+        get_lowest_value(fmt, True, range_in, family)
     ], fmt.num_planes)
 
 
@@ -205,14 +205,14 @@ def get_neutral_values(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) ->
 
 def get_peak_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
-    range: ColorRangeT | None = None, family: vs.ColorFamily | None = None
+    range_in: ColorRangeT | None = None, family: vs.ColorFamily | None = None
 ) -> float:
     """
     Returns the peak value for the specified bit depth, or bit depth of the clip/format specified.
 
     :param clip_or_depth:   Input bit depth, or clip, frame, format from where to get it.
     :param chroma:          Whether to get luma (default) or chroma plane value.
-    :param range:           Whether to get limited or full range peak value.
+    :param range_in:        Whether to get limited or full range peak value.
     :param family:          Which color family to assume for calculations.
 
     :return:                Highest possible value.
@@ -220,13 +220,13 @@ def get_peak_value(
 
     fmt = get_video_format(clip_or_depth)
 
-    if range is None:
+    if range_in is None:
         if isinstance(clip_or_depth, vs.VideoNode):
-            range = ColorRange(clip_or_depth)
+            range_in = ColorRange(clip_or_depth)
         elif any(_ is vs.RGB for _ in [fmt.color_family, family]):
-            range = ColorRange.FULL
+            range_in = ColorRange.FULL
         else:
-            range = ColorRange.LIMITED
+            range_in = ColorRange.LIMITED
 
     if any(_ is vs.RGB for _ in [fmt.color_family, family]):
         chroma = False
@@ -234,7 +234,7 @@ def get_peak_value(
     if fmt.sample_type is vs.FLOAT:
         return 0.5 if chroma else 1.0
 
-    if ColorRange(range).is_limited:
+    if ColorRange(range_in).is_limited:
         return float((240 if chroma else 235) << get_depth(fmt) - 8)
 
     return (1 << get_depth(fmt)) - 1.0
@@ -242,13 +242,13 @@ def get_peak_value(
 
 def get_peak_values(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT,
-    range: ColorRangeT | None = None, family: vs.ColorFamily | None = None
+    range_in: ColorRangeT | None = None, family: vs.ColorFamily | None = None
 ) -> Sequence[float]:
     """Get the peak values of all planes of a specified format."""
 
     fmt = get_video_format(clip_or_depth)
 
     return normalize_seq([
-        get_peak_value(fmt, False, range, family),
-        get_peak_value(fmt, True, range, family)
+        get_peak_value(fmt, False, range_in, family),
+        get_peak_value(fmt, True, range_in, family)
     ], fmt.num_planes)
