@@ -117,7 +117,7 @@ def scale_value(
     if range_in is None:
         if isinstance(input_depth, vs.VideoNode):
             range_in = ColorRange(input_depth)
-        elif in_fmt.color_family is vs.RGB or family is vs.RGB:
+        elif any(_ is vs.RGB for _ in [in_fmt.color_family, family]):
             range_in = ColorRange.FULL
         else:
             range_in = ColorRange.LIMITED
@@ -125,10 +125,12 @@ def scale_value(
     if range_out is None:
         if isinstance(output_depth, vs.VideoNode):
             range_out = ColorRange(output_depth)
+        elif any(_ is vs.RGB for _ in [out_fmt.color_family, family]):
+            range_out = ColorRange.FULL
         else:
             range_out = range_in
 
-    if in_fmt.color_family is vs.RGB or out_fmt.color_family is vs.RGB or family is vs.RGB:
+    if any(_ is vs.RGB for _ in [in_fmt.color_family, out_fmt.color_family, family]):
         chroma = False
 
     if input_depth == output_depth and range_in == range_out and in_fmt.sample_type == out_fmt.sample_type:
@@ -179,12 +181,12 @@ def get_lowest_value(
     if range is None:
         if isinstance(clip_or_depth, vs.VideoNode):
             range = ColorRange(clip_or_depth)
-        elif fmt.color_family is vs.RGB or family is vs.RGB:
+        elif any(_ is vs.RGB for _ in [fmt.color_family, family]):
             range = ColorRange.FULL
         else:
             range = ColorRange.LIMITED
 
-    if fmt.color_family is vs.RGB or family is vs.RGB:
+    if any(_ is vs.RGB for _ in [fmt.color_family, family]):
         chroma = False
 
     if fmt.sample_type == vs.FLOAT:
@@ -263,12 +265,12 @@ def get_peak_value(
     if range is None:
         if isinstance(clip_or_depth, vs.VideoNode):
             range = ColorRange(clip_or_depth)
-        elif fmt.color_family is vs.RGB or family is vs.RGB:
+        elif any(_ is vs.RGB for _ in [fmt.color_family, family]):
             range = ColorRange.FULL
         else:
             range = ColorRange.LIMITED
 
-    if fmt.color_family is vs.RGB or family is vs.RGB:
+    if any(_ is vs.RGB for _ in [fmt.color_family, family]):
         chroma = False
 
     if fmt.sample_type == vs.FLOAT:
