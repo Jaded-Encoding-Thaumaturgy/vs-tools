@@ -545,7 +545,7 @@ def set_output(
         index = None
         # Backward compatible with older api
         if isinstance(name, vs.VideoNode):
-            alpha = name
+            alpha = name  # type: ignore[unreachable]
         name = index_or_name
     else:
         index = index_or_name
@@ -560,7 +560,7 @@ def set_output(
 
     try:
         from vspreview import set_output as vsp_set_output
-        vsp_set_output(nodes, index, name, alpha=alpha, f_back=2, **kwargs)
+        vsp_set_output(nodes, index, name, alpha=alpha, f_back=2, force_preview=True, **kwargs)
     except ModuleNotFoundError:
         for idx, n in zip(index, nodes):
             n.set_output(idx)
