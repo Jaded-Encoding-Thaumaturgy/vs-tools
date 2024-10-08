@@ -154,7 +154,7 @@ def scale_value(
             out_value += 16 << (out_fmt.bits_per_sample - 8)
 
     if out_fmt.sample_type is vs.INTEGER:
-        out_value = max(min(out_value, get_peak_value(out_fmt, range_in=ColorRange.FULL)), 0.0)
+        out_value = max(min(out_value, get_peak_value(out_fmt, range=ColorRange.FULL)), 0.0)
 
     return out_value
 
