@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Literal, Sequence, overload
-
 import vapoursynth as vs
 from stgpytools import MISSING, MissingT, normalize_seq
 
