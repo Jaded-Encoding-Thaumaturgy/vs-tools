@@ -177,7 +177,8 @@ def _base_from_video(
         if isinstance(src, vs.FrameProps):
             raise exception('Can\'t determine {class_name} from FrameProps.', func, class_name=cls)
 
-        return cls.from_res(src)
+        if not all(hasattr(src, x) for x in ('width', 'height')):
+            return cls.from_res(src)
 
     return cls(value)
 
