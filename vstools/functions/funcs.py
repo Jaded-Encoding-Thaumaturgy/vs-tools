@@ -111,11 +111,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def norm_clip(self) -> ConstantFormatVideoNode:
         """Get a "normalized" clip. This means color space and bitdepth are converted if necessary."""
 
-        if isinstance(self.bitdepth, range) and self.clip.format.bits_per_sample not in self.bitdepth:
-            clip = depth(self.clip, self.bitdepth.stop)
-        elif isinstance(self.bitdepth, set) and self.clip.format.bits_per_sample not in self.bitdepth:
-            from .. import get_depth
+        from .. import get_depth
 
+        if isinstance(self.bitdepth, (range, set)) and self.clip.format.bits_per_sample not in self.bitdepth:
             clip = depth(self.clip, min(bits for bits in self.bitdepth if bits >= get_depth(self.clip)))
         elif isinstance(self.bitdepth, int):
             clip = depth(self.clip, self.bitdepth)
