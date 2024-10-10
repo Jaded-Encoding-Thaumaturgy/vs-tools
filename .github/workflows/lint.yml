@@ -26,11 +26,14 @@ jobs:
           pip install -r requirements-dev.txt
           pip install --force git+https://github.com/Setsugennoao/stgpytools.git
       - name: Running flake8
-        run: flake8 vstools
+        run: |
+          flake8 vstools
+          flake8 tests
       - name: Running mypy
         run: |
           echo "::add-matcher::.github/workflows/matchers/mypy.json"
           mypy --no-pretty vstools
+          mypy --no-pretty tests
           echo "::remove-matcher owner=mypy::"
         continue-on-error: true
       - name: Smoke test
