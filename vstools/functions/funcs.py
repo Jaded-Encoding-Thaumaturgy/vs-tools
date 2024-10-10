@@ -75,10 +75,12 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                                 Default: Get transfer from the input clip.
         :param primaries:       Color primaries to work in.
                                 Default: Get primaries from the input clip.
-        :param range_in:        Color Range to work in. Used for bitdepth conversions.
+        :param range_in:        Color Range to work in.
                                 Default: Get the color range from the input clip.
-        :param chromaloc:       Chroma location to work in. Used for bitdepth conversions.
+        :param chromaloc:       Chroma location to work in.
                                 Default: Get the chroma location from the input clip.
+        :param order:           Field order to work in.
+                                Default: Get the field order from the input clip.
         """
         from ..utils import get_color_family
 
