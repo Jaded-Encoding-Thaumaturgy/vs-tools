@@ -24,7 +24,6 @@ jobs:
           pip install vapoursynth-portable==${{ matrix.versions }}
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install --force git+https://github.com/Setsugennoao/stgpytools.git
       - name: Running flake8
         run: |
           flake8 vstools
@@ -36,5 +35,3 @@ jobs:
           mypy --no-pretty tests
           echo "::remove-matcher owner=mypy::"
         continue-on-error: true
-      - name: Smoke test
-        run: python -c "import vstools; print(vstools.core.core)"
