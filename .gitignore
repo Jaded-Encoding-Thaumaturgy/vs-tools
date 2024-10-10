@@ -133,6 +133,7 @@ dmypy.json
 
 # code editors
 .vscode/
+.idea/
 
 # Pyre type checker
 .pyre/
