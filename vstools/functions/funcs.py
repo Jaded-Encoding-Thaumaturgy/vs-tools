@@ -62,11 +62,14 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                                 an exception will be raised.
                                 Default: All families.
         :param bitdepth:        The bitdepth or range of bitdepths to work with. Can be an int, range, tuple, or set.
-                                If a range or set is provided,
-                                automatically convert the work clip to the lowest bitdepth allowed.
                                 Range or tuple indicates a range of allowed bitdepths,
                                 set indicates specific allowed bitdepths.
                                 If an int is provided, set the clip's bitdepth to that value.
+
+                                If a range or set is provided and the work clip's bitdepth is not allowed,
+                                the work clip's bitdepth will be converted to the lowest bitdepth that is greater than
+                                or equal to the work clip's current bitdepth.
+
                                 `return_clip` automatically restores the clip to the original bitdepth.
                                 If None, use the input clip's bitdepth. Default: None.
         :param matrix:          Color Matrix to work in. Used for YUV <-> RGB conversions.
