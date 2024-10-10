@@ -6,8 +6,8 @@ import vapoursynth as vs
 from stgpytools import FuncExceptT, T, cachedproperty, fallback, iterate, kwargs_fallback, normalize_seq, to_arr
 
 from ..enums import (
-    ColorRange, ColorRangeT, Matrix, MatrixT, Transfer, TransferT,
-    Primaries, PrimariesT, ChromaLocation, ChromaLocationT
+    ColorRange, ColorRangeT, Matrix, MatrixT, Transfer, TransferT, Primaries, PrimariesT,
+    ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
 )
 from ..exceptions import InvalidColorFamilyError
 from ..types import ConstantFormatVideoNode, HoldsVideoFormatT, PlanesT, VideoFormatT
@@ -51,7 +51,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         ] | None = None, bitdepth: int | range | tuple[int, int] | set[int] | None = None,
         *, matrix: MatrixT | None = None, transfer: TransferT | None = None,
         primaries: PrimariesT | None = None, range_in: ColorRangeT | None = None,
-        chromaloc: ChromaLocationT | None = None
+        chromaloc: ChromaLocationT | None = None, order: FieldBasedT | None = None
     ) -> None:
         """
         :param clip:            Clip to process.
@@ -63,7 +63,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                                 Default: All families.
         :param bitdepth:        The bitdepth or range of bitdepths to work with. Can be an int, range, tuple, or set.
                                 If a range or set is provided,
-                                automatically convert the work clip to the highest bitdepth allowed.
+                                automatically convert the work clip to the lowest bitdepth allowed.
                                 Range or tuple indicates a range of allowed bitdepths,
                                 set indicates specific allowed bitdepths.
                                 If an int is provided, set the clip's bitdepth to that value.
@@ -103,6 +103,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self._primaries = primaries
         self._range_in = range_in
         self._chromaloc = chromaloc
+        self._order = order
 
         self.norm_planes = normalize_planes(self.norm_clip, planes)
 
@@ -150,13 +151,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def transfer(self) -> Transfer:
         """Get the clip's transfer."""
 
-        return Transfer.from_param_or_video(self._matrix, self.work_clip, True, self.func)
+        return Transfer.from_param_or_video(self._transfer, self.work_clip, True, self.func)
 
     @cachedproperty
     def primaries(self) -> Primaries:
-        """Get the clip's Primaries."""
+        """Get the clip's primaries."""
 
-        return Primaries.from_param_or_video(self._matrix, self.work_clip, True, self.func)
+        return Primaries.from_param_or_video(self._primaries, self.work_clip, True, self.func)
 
     @cachedproperty
     def color_range(self) -> ColorRange:
@@ -168,7 +169,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def chromaloc(self) -> ChromaLocation:
         """Get the clip's chroma location."""
 
-        return ChromaLocation.from_param_or_video(self._range_in, self.work_clip, True, self.func)
+        return ChromaLocation.from_param_or_video(self._chromaloc, self.work_clip, True, self.func)
+
+    @cachedproperty
+    def order(self) -> FieldBased:
+        """Get the clip's field order."""
+
+        return FieldBased.from_param_or_video(self._order, self.work_clip, True, self.func)
 
     @property
     def is_float(self) -> bool:
