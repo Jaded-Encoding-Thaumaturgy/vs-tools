@@ -3,40 +3,18 @@ from __future__ import annotations
 from typing import Literal, Sequence, overload
 
 import vapoursynth as vs
-from stgpytools import MISSING, MissingT, normalize_seq
+from stgpytools import normalize_seq
 
 from ..enums import ColorRange, ColorRangeT
 from ..types import HoldsVideoFormatT, VideoFormatT
 from .info import get_depth, get_video_format
 
 __all__ = [
-    'scale_8bit', 'scale_value',
+    'scale_value',
 
     'get_lowest_value', 'get_neutral_value', 'get_peak_value',
     'get_lowest_values', 'get_neutral_values', 'get_peak_values',
 ]
-
-
-def scale_8bit(clip: VideoFormatT | HoldsVideoFormatT, value: int, chroma: bool = False) -> float:
-    """
-    Scale from an 8-bit value.
-
-    :param clip:        Input clip, frame, or value representing a bitdepth.
-    :param value:       Value to scale.
-    :param chroma:      Values are chroma ranges, and must be converted as such. Default: False.
-
-    :return:            Value scaled to the clip's bit-depth.
-    """
-
-    import warnings
-
-    warnings.warn(
-        "scale_8bit: 'This function is deprecated and will be removed in future versions. "
-        "Please use `scale_value` instead.'",
-        DeprecationWarning,
-    )
-
-    return scale_value(value, 8, clip, ColorRange.FULL, chroma=chroma)
 
 
 @overload
@@ -187,7 +165,7 @@ def get_lowest_values(
     ], fmt.num_planes)
 
 
-def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: MissingT = MISSING) -> float:
+def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> float:
     """
     Returns the neutral point value (e.g. as used by std.MakeDiff) for the specified bit depth,
     or bit depth of the clip/format specified.
@@ -196,14 +174,6 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chr
 
     :return:                Neutral value.
     """
-
-    if chroma is not MISSING:
-        import warnings
-
-        warnings.warn(
-            "get_neutral_value: 'The \'chroma\' parameter is deprecated and will be removed in future versions.'",
-            DeprecationWarning,
-        )
 
     fmt = get_video_format(clip_or_depth)
 
