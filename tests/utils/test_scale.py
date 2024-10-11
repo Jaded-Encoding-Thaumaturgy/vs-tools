@@ -58,16 +58,16 @@ class TestScale(TestCase):
 
     def test_scale_value_from_float(self) -> None:
         result = scale_value(0, vs.YUV444PS, 8)
-        self.assertEqual(result, 0)
+        self.assertEqual(result, 16)
 
         result = scale_value(0.1, vs.YUV444PS, 8)
-        self.assertEqual(result, 25.5)
+        self.assertEqual(result, 38)
 
         result = scale_value(0.25, vs.YUV444PS, 8)
-        self.assertEqual(result, 63.75)
+        self.assertEqual(result, 71)
 
         result = scale_value(1, vs.YUV444PS, 8)
-        self.assertEqual(result, 255)
+        self.assertEqual(result, 235)
 
     def test_scale_value_to_limited(self) -> None:
         result = scale_value(
