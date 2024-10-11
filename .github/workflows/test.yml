@@ -1,35 +1,28 @@
-name: lint
+name: test
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   windows:
     runs-on: windows-latest
     strategy:
       matrix:
-        vs-versions:
+        versions:
           - 68
         python-version:
           - '3.12'
 
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip
-          pip install vapoursynth-portable==${{ matrix.vs-versions }}
+          pip install vapoursynth-portable==${{ matrix.versions }}
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-
-      - name: Running ruff
-        run: ruff check vstools
+      - name: Running tests
+        run: pytest --cov-report=term-missing:skip-covered --cov=vstools tests

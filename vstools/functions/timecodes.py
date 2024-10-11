@@ -314,17 +314,21 @@ class Timecodes(list[Timecode]):
             ])
         elif format == Timecodes.V2:
             acc = 0.0
+
             for time in self:
                 s_acc = str(round(acc / 100, 12) * 100)
-                l, i = len(s_acc), s_acc.index('.')
-                d = l - i - 1
-                if d < 6:
-                    s_acc += '0' * (6 - d)
+
+                str_length, decimal_index = len(s_acc), s_acc.index('.')
+                decimal_places = str_length - decimal_index - 1
+
+                if decimal_places < 6:
+                    s_acc += '0' * (6 - decimal_places)
                 else:
-                    s_acc = s_acc[:i + 7]
+                    s_acc = s_acc[:decimal_index + 7]
 
                 out_text.append(s_acc)
                 acc += (time.denominator * 100) / (time.numerator * 100) * 1000
+
             out_text.append(str(acc))
 
         out_path.unlink(True)

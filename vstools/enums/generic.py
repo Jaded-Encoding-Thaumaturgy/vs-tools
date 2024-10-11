@@ -6,7 +6,8 @@ import vapoursynth as vs
 from stgpytools import FuncExceptT
 
 from ..exceptions import (
-    UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError, UnsupportedFieldBasedError
+    UndefinedChromaLocationError, UndefinedFieldBasedError, UnsupportedChromaLocationError,
+    UnsupportedFieldBasedError, UnsupportedSubsamplingError
 )
 from .stubs import _base_from_video, _ChromaLocationMeta, _FieldBasedMeta
 
@@ -48,16 +49,6 @@ class ChromaLocation(_ChromaLocationMeta):
 
         :return:            ChromaLocation object.
         """
-        from .color import Matrix, Primaries, Transfer
-
-        matrix, transfer, primaries = Matrix(frame), Transfer(frame), Primaries(frame)
-
-        if (
-            primaries == Primaries.BT2020
-            or matrix in (Matrix.BT2020CL, Matrix.BT2020NCL)
-            or transfer in (Transfer.BT2020_10, Transfer.BT2020_12)
-        ):
-            return ChromaLocation.TOP_LEFT
 
         return ChromaLocation.LEFT
 
@@ -102,6 +93,10 @@ class ChromaLocation(_ChromaLocationMeta):
                 offsets = (2.5, 0)
             elif subsampling == (2, 2):
                 offsets = (2.5, 1)
+            elif subsampling == (0, 0):
+                offsets = (0, 0)
+            else:
+                raise UnsupportedSubsamplingError('Unknown subsampling.', cls)
 
             return offsets
 
