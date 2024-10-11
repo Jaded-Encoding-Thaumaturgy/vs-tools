@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Sequence
+from decimal import Decimal, ROUND_HALF_UP
 
 import vapoursynth as vs
 from stgpytools import normalize_seq
@@ -92,7 +93,8 @@ def scale_value(
             out_value += 16 << (out_fmt.bits_per_sample - 8)
 
     if out_fmt.sample_type is vs.INTEGER:
-        out_value = max(min(out_value, get_peak_value(out_fmt, range_in=ColorRange.FULL)), 0.0)
+        out_value = Decimal(out_value).quantize(0, ROUND_HALF_UP)
+        out_value = max(min(out_value, get_peak_value(out_fmt, range_in=ColorRange.FULL)), 0)
 
     return out_value
 
@@ -129,9 +131,9 @@ def get_lowest_value(
         return -0.5 if chroma else 0.0
 
     if ColorRange(range_in).is_limited:
-        return float(16 << get_depth(fmt) - 8)
+        return 16 << get_depth(fmt) - 8
 
-    return 0.0
+    return 0
 
 
 def get_lowest_values(
@@ -163,7 +165,7 @@ def get_neutral_value(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> 
     if fmt.sample_type is vs.FLOAT:
         return 0.0
 
-    return float(1 << (get_depth(fmt) - 1))
+    return 1 << (get_depth(fmt) - 1)
 
 
 def get_neutral_values(clip_or_depth: int | VideoFormatT | HoldsVideoFormatT) -> Sequence[float]:
@@ -205,9 +207,9 @@ def get_peak_value(
         return 0.5 if chroma else 1.0
 
     if ColorRange(range_in).is_limited:
-        return float((240 if chroma else 235) << get_depth(fmt) - 8)
+        return (240 if chroma else 235) << get_depth(fmt) - 8
 
-    return (1 << get_depth(fmt)) - 1.0
+    return (1 << get_depth(fmt)) - 1
 
 
 def get_peak_values(
