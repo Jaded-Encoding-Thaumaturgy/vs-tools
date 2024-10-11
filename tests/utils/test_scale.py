@@ -78,12 +78,12 @@ class TestScale(TestCase):
         result = scale_value(
             24, 8, 8, range_in=ColorRange.FULL, range_out=ColorRange.LIMITED
         )
-        self.assertEqual(result, 36.61176470588235)
+        self.assertEqual(result, 37)
 
         result = scale_value(
             64, 8, 8, range_in=ColorRange.FULL, range_out=ColorRange.LIMITED
         )
-        self.assertEqual(result, 70.96470588235294)
+        self.assertEqual(result, 71)
 
         result = scale_value(
             255, 8, 8, range_in=ColorRange.FULL, range_out=ColorRange.LIMITED
@@ -99,12 +99,12 @@ class TestScale(TestCase):
         result = scale_value(
             24, 8, 8, range_in=ColorRange.LIMITED, range_out=ColorRange.FULL
         )
-        self.assertEqual(result, 9.315068493150685)
+        self.assertEqual(result, 9)
 
         result = scale_value(
             64, 8, 8, range_in=ColorRange.LIMITED, range_out=ColorRange.FULL
         )
-        self.assertEqual(result, 55.89041095890411)
+        self.assertEqual(result, 56)
 
         result = scale_value(
             235, 8, 8, range_in=ColorRange.LIMITED, range_out=ColorRange.FULL

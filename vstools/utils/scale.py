@@ -64,7 +64,7 @@ def scale_value(
         elif any(_ is vs.RGB for _ in [out_fmt.color_family, family]):
             range_out = ColorRange.FULL
         else:
-            range_out = range_in
+            range_out = ColorRange.LIMITED
 
     if any(_ is vs.RGB for _ in [in_fmt.color_family, out_fmt.color_family, family]):
         chroma = False
