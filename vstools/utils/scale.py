@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Sequence
-from decimal import Decimal, ROUND_HALF_UP
 
 import vapoursynth as vs
 from stgpytools import normalize_seq
@@ -27,7 +26,7 @@ def scale_value(
     scale_offsets: bool = True,
     chroma: bool = False,
     family: vs.ColorFamily | None = None
-) -> float:
+) -> int | float:
     """
     Converts the value to the specified bit depth, or bit depth of the clip/format specified.
 
@@ -93,8 +92,7 @@ def scale_value(
             out_value += 16 << (out_fmt.bits_per_sample - 8)
 
     if out_fmt.sample_type is vs.INTEGER:
-        out_value = int(Decimal(out_value).quantize(0, ROUND_HALF_UP))
-        out_value = max(min(out_value, get_peak_value(out_fmt, range_in=ColorRange.FULL)), 0)
+        out_value = max(min(round(out_value), get_peak_value(out_fmt, range_in=ColorRange.FULL)), 0)
 
     return out_value
 
