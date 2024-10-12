@@ -9,6 +9,12 @@ see the [tags page](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/tags)
 
 ## Latest
 
+
+- Improved `FunctionUtil` class functionality ([#152](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/152)):
+  - Removed `strict` parameter
+  - Added support for transfer, primaries, chroma location, and field order parameters
+  - Improved type annotations and docstrings
+
 - Improved scaling defaults and behavior in `vstools.utils.scale` module ([#145](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/145)):
   - Updated default color range handling for RGB and non-RGB formats
   - Removed unnecessary `@overload` declarations for `scale_value` function
