@@ -37,6 +37,7 @@ see the [tags page](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/tags)
   - Removed `chroma` parameter from `get_neutral_value` function
 
 - Testing and linting:
+  - Added tests for `FunctionUtil`
   - Added preliminary test suite ([#149](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/149))
   - Removed smoke test in favor of unit tests ([#153](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/153))
   - Updated lint action to use ruff
