@@ -53,7 +53,7 @@ def scale_value(
     if range_in is None:
         if isinstance(input_depth, vs.VideoNode):
             range_in = ColorRange(input_depth)
-        elif any(_ is vs.RGB for _ in [in_fmt.color_family, family]):
+        elif vs.RGB in (in_fmt.color_family, family):
             range_in = ColorRange.FULL
         else:
             range_in = ColorRange.LIMITED
@@ -61,16 +61,16 @@ def scale_value(
     if range_out is None:
         if isinstance(output_depth, vs.VideoNode):
             range_out = ColorRange(output_depth)
-        elif any(_ is vs.RGB for _ in [out_fmt.color_family, family]):
+        elif vs.RGB in (out_fmt.color_family, family):
             range_out = ColorRange.FULL
         else:
             range_out = ColorRange.LIMITED
 
-    if any(_ is vs.RGB for _ in [in_fmt.color_family, out_fmt.color_family, family]):
-        chroma = False
-
     if input_depth == output_depth and range_in == range_out and in_fmt.sample_type == out_fmt.sample_type:
         return out_value
+
+    if vs.RGB in (in_fmt.color_family, out_fmt.color_family, family):
+        chroma = False
 
     input_peak = get_peak_value(in_fmt, chroma, range_in, family)
     input_lowest = get_lowest_value(in_fmt, chroma, range_in, family)
@@ -114,19 +114,19 @@ def get_lowest_value(
 
     fmt = get_video_format(clip_or_depth)
 
+    if fmt.sample_type is vs.FLOAT:
+        return -0.5 if chroma else 0.0
+
+    if (is_rgb := vs.RGB in (fmt.color_family, family)):
+        chroma = False
+
     if range_in is None:
         if isinstance(clip_or_depth, vs.VideoNode):
             range_in = ColorRange(clip_or_depth)
-        elif any(_ is vs.RGB for _ in [fmt.color_family, family]):
+        elif is_rgb:
             range_in = ColorRange.FULL
         else:
             range_in = ColorRange.LIMITED
-
-    if any(_ is vs.RGB for _ in [fmt.color_family, family]):
-        chroma = False
-
-    if fmt.sample_type is vs.FLOAT:
-        return -0.5 if chroma else 0.0
 
     if ColorRange(range_in).is_limited:
         return 16 << get_depth(fmt) - 8
@@ -190,19 +190,19 @@ def get_peak_value(
 
     fmt = get_video_format(clip_or_depth)
 
+    if fmt.sample_type is vs.FLOAT:
+        return 0.5 if chroma else 1.0
+
+    if (is_rgb := vs.RGB in (fmt.color_family, family)):
+        chroma = False
+
     if range_in is None:
         if isinstance(clip_or_depth, vs.VideoNode):
             range_in = ColorRange(clip_or_depth)
-        elif any(_ is vs.RGB for _ in [fmt.color_family, family]):
+        elif is_rgb:
             range_in = ColorRange.FULL
         else:
             range_in = ColorRange.LIMITED
-
-    if any(_ is vs.RGB for _ in [fmt.color_family, family]):
-        chroma = False
-
-    if fmt.sample_type is vs.FLOAT:
-        return 0.5 if chroma else 1.0
 
     if ColorRange(range_in).is_limited:
         return (240 if chroma else 235) << get_depth(fmt) - 8
