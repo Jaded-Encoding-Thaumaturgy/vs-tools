@@ -9,6 +9,7 @@ from ..enums import (
     ColorRange, ColorRangeT, Matrix, MatrixT, Transfer, TransferT, Primaries, PrimariesT,
     ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
 )
+from ..exceptions import UndefinedMatrixError
 from ..types import ConstantFormatVideoNode, HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import check_variable
 from .normalize import normalize_planes
@@ -134,18 +135,25 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         cfamily = clip.format.color_family
 
-        if self.allowed_cfamilies and cfamily not in self.allowed_cfamilies:
-            if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
-                clip = plane(clip, 0)
-            else:
-                if cfamily is vs.YUV:
-                    clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
-                else:
-                    clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
+        if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
+            return clip
 
-                self.cfamily_converted = True
+        self.cfamily_converted = True
 
-        return clip  # type: ignore
+        if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
+            return plane(clip, 0)
+
+        if cfamily is vs.YUV:
+            return clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
+
+        if not self._matrix:
+            raise UndefinedMatrixError(
+                'You must specify a matrix for RGB to '
+                f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
+                self.func
+            )
+
+        return clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
 
     @cachedproperty
     def work_clip(self) -> ConstantFormatVideoNode:

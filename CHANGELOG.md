@@ -10,6 +10,8 @@ see the [tags page](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/tags)
 ## Latest
 
 - FunctionUtil:
+  - Resolved an issue where it would raise a vs.Error when resampling RGB to YUV or GRAY without a matrix specified instead of an UndefinedMatrixError.
+  - Make use of early exits in `norm_clip` to reduce unnecessary processing
   - Resolved an issue where it would fail when processing clips with bitdepths exceeding the maximum allowed value ([#155](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/156))
   - Added a workaround for us no longer using `range.stop`
   - Improved class functionality ([#152](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/152)):
