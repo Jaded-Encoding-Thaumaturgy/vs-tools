@@ -1,8 +1,9 @@
 # vs-tools
 
-### Functions and utils related to VapourSynth
+[![Coverage Status](https://coveralls.io/repos/github/Jaded-Encoding-Thaumaturgy/vs-tools/badge.svg?branch=master)](https://coveralls.io/github/Jaded-Encoding-Thaumaturgy/vs-tools?branch=master)
 
-<br>
+
+Functions and utils related to VapourSynth
 
 This module is a collection of functions, utils, types, type-utils, and more aimed at helping at having a common ground between VapourSynth packages, and simplify writing them.
 
@@ -21,5 +22,3 @@ Or if you want the latest git version, install it with this command:
 ```sh
 pip install git+https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools.git
 ```
-
-<br>
