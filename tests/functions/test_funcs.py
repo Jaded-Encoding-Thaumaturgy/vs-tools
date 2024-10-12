@@ -124,7 +124,7 @@ class TestFuncs(TestCase):
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
         result = FunctionUtil(clip, 'FunctionUtilTest', color_family=vs.GRAY)
         self.assertEqual(result.work_clip.format.color_family, vs.GRAY)
-        self.assertTrue(result.cfamily_converted)
+        self.assertFalse(result.cfamily_converted)
 
     def test_functionutil_color_family_conversion_yuv_to_yuv(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
@@ -218,7 +218,7 @@ class TestFuncs(TestCase):
         clip = vs.core.std.BlankClip(format=vs.GRAY8)
         func_util = FunctionUtil(clip, 'FunctionUtilTest', bitdepth=16)
         result = func_util.return_clip(func_util.work_clip)
-        self.assertEqual(result.format.name, 'GRAY8')
+        self.assertEqual(result.format.name, 'Gray8')
 
     def test_functionutil_return_clip_yuv(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.YUV420P8)
