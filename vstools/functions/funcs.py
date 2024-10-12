@@ -9,7 +9,6 @@ from ..enums import (
     ColorRange, ColorRangeT, Matrix, MatrixT, Transfer, TransferT, Primaries, PrimariesT,
     ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
 )
-from ..exceptions import InvalidColorFamilyError
 from ..types import ConstantFormatVideoNode, HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import check_variable
 from .normalize import normalize_planes
@@ -91,7 +90,6 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if color_family is not None:
             color_family = [get_color_family(c) for c in to_arr(color_family)]
-            InvalidColorFamilyError.check(clip, color_family, func)
 
         if isinstance(bitdepth, tuple):
             bitdepth = range(*bitdepth)
@@ -128,6 +126,21 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             clip = depth(self.clip, self.bitdepth)
         else:
             clip = self.clip
+
+        assert clip.format
+
+        cfamily = clip.format.color_family
+
+        if self.allowed_cfamilies and cfamily not in self.allowed_cfamilies:
+            if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
+                clip = plane(clip, 0)
+            else:
+                if cfamily is vs.YUV:
+                    clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
+                else:
+                    clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
+
+                self.cfamily_converted = True
 
         return clip  # type: ignore
 
@@ -259,13 +272,19 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         assert check_variable(processed, self.func)
 
         if len(self.chroma_planes):
-            processed = join([processed, *self.chroma_planes], self.clip.format.color_family)
+            processed = join([processed, *self.chroma_planes], self.norm_clip.format.color_family)
+
+        if self.chroma_only:
+            processed = join(self.norm_clip, processed)
 
         if self.bitdepth:
             processed = depth(processed, self.clip)
 
-        if self.chroma_only:
-            processed = join(self.clip, processed)
+        if self.cfamily_converted:
+            processed = processed.resize.Bicubic(
+                format=self.clip.format,
+                matrix=self.matrix if self.norm_clip.format.color_family is vs.RGB else None
+            )
 
         return processed
 
