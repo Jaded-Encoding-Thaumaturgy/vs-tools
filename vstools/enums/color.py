@@ -1212,7 +1212,6 @@ _transfer_name_map = {
     Transfer.STD_B67: 'arib-std-b67'
 }
 
-
 _primaries_name_map = {
     Primaries.BT709: 'bt709',
     Primaries.UNKNOWN: 'unknown',
