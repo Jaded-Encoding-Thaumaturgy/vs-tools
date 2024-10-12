@@ -92,7 +92,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             color_family = [get_color_family(c) for c in to_arr(color_family)]
 
         if isinstance(bitdepth, tuple):
-            bitdepth = range(*bitdepth)
+            bitdepth = range(bitdepth[0], bitdepth[1] + 1)
 
         self.clip = clip
         self.planes = planes
@@ -121,7 +121,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         from .. import get_depth
 
         if isinstance(self.bitdepth, (range, set)) and self.clip.format.bits_per_sample not in self.bitdepth:
-            clip = depth(self.clip, min(bits for bits in self.bitdepth if bits >= get_depth(self.clip)))
+            src_depth = get_depth(self.clip)
+            target_depth = next((bits for bits in self.bitdepth if bits >= src_depth), max(self.bitdepth))
+
+            clip = depth(self.clip, target_depth)
         elif isinstance(self.bitdepth, int):
             clip = depth(self.clip, self.bitdepth)
         else:
