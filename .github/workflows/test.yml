@@ -37,3 +37,6 @@ jobs:
 
       - name: Running tests
         run: pytest --cov-report=term-missing:skip-covered --cov=vstools tests
+
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.3.1
