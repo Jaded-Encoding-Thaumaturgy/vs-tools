@@ -138,10 +138,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
             return clip
 
-        self.cfamily_converted = True
-
         if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
             return plane(clip, 0)
+
+        self.cfamily_converted = True
 
         if cfamily is vs.YUV:
             return clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
