@@ -5,7 +5,10 @@ from typing import Iterable, Sequence
 import vapoursynth as vs
 from stgpytools import FuncExceptT, T, cachedproperty, fallback, iterate, kwargs_fallback, normalize_seq, to_arr
 
-from ..enums import ColorRange, ColorRangeT, Matrix, MatrixT
+from ..enums import (
+    ColorRange, ColorRangeT, Matrix, MatrixT, Transfer, TransferT, Primaries, PrimariesT,
+    ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
+)
 from ..exceptions import InvalidColorFamilyError
 from ..types import ConstantFormatVideoNode, HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import check_variable
@@ -24,7 +27,6 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     Function util to normalize common actions and boilerplate often used in functions.
 
     Main use is:
-        - Automatically convert to OPP if input is RGB and function only supports GRAY, YUV.
         - Automatically dither up and down as required.
         - Automatically check if the input clip has variable formats, resolutions, etc.
         - Fully type safe and removes the need for asserts or typeguards in function code.
@@ -46,8 +48,10 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self, clip: vs.VideoNode, func: FuncExceptT, planes: PlanesT = None,
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
-        ] | None = None, bitdepth: int | range | tuple[int, int] | set[int] | None = None, strict: bool = False,
-        *, matrix: MatrixT | None = None, range_in: ColorRangeT | None = None
+        ] | None = None, bitdepth: int | range | tuple[int, int] | set[int] | None = None,
+        *, matrix: MatrixT | None = None, transfer: TransferT | None = None,
+        primaries: PrimariesT | None = None, range_in: ColorRangeT | None = None,
+        chromaloc: ChromaLocationT | None = None, order: FieldBasedT | None = None
     ) -> None:
         """
         :param clip:            Clip to process.
@@ -55,27 +59,31 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                                 This should only be set by VS package developers.
         :param planes:          Planes that get processed in the function. Default: All planes.
         :param color_family:    Accepted color families. If the input does not adhere to these,
-                                it will be converted automatically. Additionaly, if `planes=0`,
-                                it will extract the luma for processing, and merge back the chroma planes
-                                in `return_clip`. If the input clip is RGB and `planes=0`, it will be
-                                converted to YUV and back again to retrieve the luma plane.
+                                an exception will be raised.
                                 Default: All families.
         :param bitdepth:        The bitdepth or range of bitdepths to work with. Can be an int, range, tuple, or set.
-                                If a range or set is provided and `strict=False`,
-                                automatically convert the work clip to the highest bitdepth allowed.
                                 Range or tuple indicates a range of allowed bitdepths,
                                 set indicates specific allowed bitdepths.
                                 If an int is provided, set the clip's bitdepth to that value.
+
+                                If a range or set is provided and the work clip's bitdepth is not allowed,
+                                the work clip's bitdepth will be converted to the lowest bitdepth that is greater than
+                                or equal to the work clip's current bitdepth.
+
                                 `return_clip` automatically restores the clip to the original bitdepth.
                                 If None, use the input clip's bitdepth. Default: None.
-        :param strict:          Be strict about the input clip's properties.
-                                If True, the input clip must adhere to the given number of planes,
-                                the color family, and the bitdepth. If False, all these properties
-                                will be applied as necessary. Default: False.
         :param matrix:          Color Matrix to work in. Used for YUV <-> RGB conversions.
                                 Default: Get matrix from the input clip.
-        :param range_in:        Color Range to work in. Used for bitdepth conversions.
+        :param transfer:        Transfer to work in.
+                                Default: Get transfer from the input clip.
+        :param primaries:       Color primaries to work in.
+                                Default: Get primaries from the input clip.
+        :param range_in:        Color Range to work in.
                                 Default: Get the color range from the input clip.
+        :param chromaloc:       Chroma location to work in.
+                                Default: Get the chroma location from the input clip.
+        :param order:           Field order to work in.
+                                Default: Get the field order from the input clip.
         """
         from ..utils import get_color_family
 
@@ -83,9 +91,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if color_family is not None:
             color_family = [get_color_family(c) for c in to_arr(color_family)]
-
-            if strict:
-                InvalidColorFamilyError.check(clip, color_family, func)
+            InvalidColorFamilyError.check(clip, color_family, func)
 
         if isinstance(bitdepth, tuple):
             bitdepth = range(*bitdepth)
@@ -93,13 +99,16 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self.clip = clip
         self.planes = planes
         self.func = func
-        self.strict = strict
         self.allowed_cfamilies = color_family
         self.cfamily_converted = False
         self.bitdepth = bitdepth
 
         self._matrix = matrix
+        self._transfer = transfer
+        self._primaries = primaries
         self._range_in = range_in
+        self._chromaloc = chromaloc
+        self._order = order
 
         self.norm_planes = normalize_planes(self.norm_clip, planes)
 
@@ -119,21 +128,6 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             clip = depth(self.clip, self.bitdepth)
         else:
             clip = self.clip
-
-        assert clip.format
-
-        cfamily = clip.format.color_family
-
-        if self.allowed_cfamilies and cfamily not in self.allowed_cfamilies:
-            if cfamily is vs.RGB:
-                from ..utils import Colorspace
-
-                clip = Colorspace.OPP(clip)
-
-                self.cfamily_converted = True
-
-            if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
-                clip = plane(clip, 0)
 
         return clip  # type: ignore
 
@@ -156,13 +150,37 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def matrix(self) -> Matrix:
         """Get the clip's matrix."""
 
-        return Matrix.from_param_or_video(self._matrix, self.work_clip, self.strict, self.func)
+        return Matrix.from_param_or_video(self._matrix, self.work_clip, True, self.func)
+
+    @cachedproperty
+    def transfer(self) -> Transfer:
+        """Get the clip's transfer."""
+
+        return Transfer.from_param_or_video(self._transfer, self.work_clip, True, self.func)
+
+    @cachedproperty
+    def primaries(self) -> Primaries:
+        """Get the clip's primaries."""
+
+        return Primaries.from_param_or_video(self._primaries, self.work_clip, True, self.func)
 
     @cachedproperty
     def color_range(self) -> ColorRange:
         """Get the clip's color range."""
 
-        return ColorRange.from_param_or_video(self._range_in, self.work_clip, self.strict, self.func)
+        return ColorRange.from_param_or_video(self._range_in, self.work_clip, True, self.func)
+
+    @cachedproperty
+    def chromaloc(self) -> ChromaLocation:
+        """Get the clip's chroma location."""
+
+        return ChromaLocation.from_param_or_video(self._chromaloc, self.work_clip, True, self.func)
+
+    @cachedproperty
+    def order(self) -> FieldBased:
+        """Get the clip's field order."""
+
+        return FieldBased.from_param_or_video(self._order, self.work_clip, True, self.func)
 
     @property
     def is_float(self) -> bool:
@@ -242,11 +260,6 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if len(self.chroma_planes):
             processed = join([processed, *self.chroma_planes], self.clip.format.color_family)
-
-        if self.cfamily_converted:
-            from ..utils import Colorspace
-
-            processed = Colorspace.OPP.to_rgb(processed)
 
         if self.bitdepth:
             processed = depth(processed, self.clip)
