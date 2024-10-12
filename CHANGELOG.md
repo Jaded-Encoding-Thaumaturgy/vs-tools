@@ -9,6 +9,9 @@ see the [tags page](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/tags)
 
 ## Latest
 
+- Resolved an issue where `FunctionUtil` would fail when processing clips with bitdepths exceeding the maximum allowed value ([#155](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/156)):
+  - Also added a workaround for us no longer using `range.stop`
+
 
 - Improved `FunctionUtil` class functionality ([#152](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/152)):
   - Removed `strict` parameter
