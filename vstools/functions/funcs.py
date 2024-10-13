@@ -93,7 +93,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if color_family is not None:
             color_family = [get_color_family(c) for c in to_arr(color_family)]
-            if not set(self.allowed_cfamilies) & {vs.YUV, vs.RGB}:
+            if not set(color_family) & {vs.YUV, vs.RGB}:
                 planes = 0
 
         if isinstance(bitdepth, tuple):
