@@ -91,12 +91,11 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if color_family is not None:
             color_family = [get_color_family(c) for c in to_arr(color_family)]
+            if vs.YUV not in color_family and vs.RGB not in color_family:
+                planes = 0
 
         if isinstance(bitdepth, tuple):
             bitdepth = range(bitdepth[0], bitdepth[1] + 1)
-
-        if vs.YUV not in color_family and vs.RGB not in color_family:
-            planes = [0]
         
         self.clip = clip
         self.planes = planes
