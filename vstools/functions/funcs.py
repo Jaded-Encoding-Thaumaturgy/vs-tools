@@ -109,7 +109,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self._chromaloc = chromaloc
         self._order = order
 
-        self.norm_planes = normalize_planes(self.norm_clip, planes)
+        self.norm_planes = normalize_planes(self.norm_clip, self.planes)
 
         super().__init__(self.norm_planes)
 
@@ -262,13 +262,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def normalize_planes(self, planes: PlanesT) -> list[int]:
         """Normalize the given sequence of planes."""
 
-        return normalize_planes(self.work_clip, planes)
+        return normalize_planes(self.work_clip, self.planes)
 
     def with_planes(self, planes: PlanesT) -> list[int]:
-        return self.normalize_planes(sorted(set(self + self.normalize_planes(planes))))
+        return self.normalize_planes(sorted(set(self + self.normalize_planes(self.planes))))
 
     def without_planes(self, planes: PlanesT) -> list[int]:
-        return self.normalize_planes(sorted(set(self) - {*self.normalize_planes(planes)}))
+        return self.normalize_planes(sorted(set(self) - {*self.normalize_planes(self.planes)}))
 
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
         """
