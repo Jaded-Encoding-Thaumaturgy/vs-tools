@@ -95,8 +95,11 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if isinstance(bitdepth, tuple):
             bitdepth = range(bitdepth[0], bitdepth[1] + 1)
 
+        if vs.YUV not in color_family and vs.RGB not in color_family:
+            planes = [0]
+        
         self.clip = clip
-        self.planes = 0 if vs.YUV not in color_family and vs.RGB not in color_family else planes
+        self.planes = planes
         self.func = func
         self.allowed_cfamilies = color_family
         self.cfamily_converted = False
