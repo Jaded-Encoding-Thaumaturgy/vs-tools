@@ -98,7 +98,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             bitdepth = range(bitdepth[0], bitdepth[1] + 1)
         
         self.clip = clip
-        self.planes = 0 if clip.format.num_planes == 1 else planes
+        self.planes = planes
         self.func = func
         self.allowed_cfamilies = color_family
         self.cfamily_converted = False
