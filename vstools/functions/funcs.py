@@ -150,7 +150,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             
             clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
 
-        elif cfamily in (vs.YUV, vs.GRAY) and (vs.YUV or vs.GRAY) not in self.allowed_cfamilies:
+        elif cfamily in (vs.YUV, vs.GRAY) and vs.YUV not in self.allowed_cfamilies and vs.GRAY not in self.allowed_cfamilies:
             clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
 
         return clip
