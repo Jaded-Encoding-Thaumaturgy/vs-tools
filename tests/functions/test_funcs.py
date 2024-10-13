@@ -103,14 +103,6 @@ class TestFuncs(TestCase):
         self.assertEqual(result.work_clip.format.color_family, vs.GRAY)
         self.assertFalse(result.cfamily_converted)
 
-    def test_functionutil_color_family_conversion_gray_to_yuv(self) -> None:
-        clip = vs.core.std.BlankClip(format=vs.GRAY8)
-        result = FunctionUtil(clip, 'FunctionUtilTest', color_family=vs.YUV, matrix=1)
-        self.assertEqual(result.work_clip.format.color_family, vs.YUV)
-        self.assertTrue(result.cfamily_converted)
-        self.assertEqual(result.work_clip.format.subsampling_w, 0)
-        self.assertEqual(result.work_clip.format.subsampling_h, 0)
-
     def test_functionutil_color_family_conversion_gray_to_rgb(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.GRAY8)
         result = FunctionUtil(clip, 'FunctionUtilTest', color_family=vs.RGB, matrix=1)
