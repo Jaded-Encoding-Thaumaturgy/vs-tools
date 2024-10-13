@@ -153,12 +153,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             self.cfamily_converted = True
             clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
 
-        elif cfamily in (vs.YUV, vs.GRAY) and vs.YUV not in self.allowed_cfamilies and vs.GRAY not in self.allowed_cfamilies:
+        elif cfamily in (vs.YUV, vs.GRAY) and not set(self.allowed_cfamilies) & {vs.YUV, vs.GRAY}:
             self.cfamily_converted = True
+
             clip = clip.resize.Bicubic(
                 format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0),
                 matrix_in=self._matrix
-            )
+            ).std.RemoveFrameProps('_Matrix' if self.planes != [0] else None)
 
             InvalidColorspacePathError.check(self.func, clip)
 

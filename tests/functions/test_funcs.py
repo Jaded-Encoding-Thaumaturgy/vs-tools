@@ -243,3 +243,18 @@ class TestFuncs(TestCase):
         clip_rgb = vs.core.std.BlankClip(format=vs.RGB24)
         result_rgb = FunctionUtil(clip_rgb, 'FunctionUtilTest')
         self.assertEqual(result_rgb.num_planes, 3)
+
+    def test_functionutil_planes_0_yuv_to_rgb(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8)
+        func_util = FunctionUtil(clip, 'FunctionUtilTest', planes=0, color_family=vs.RGB, matrix=1)
+        self.assertTrue(func_util.cfamily_converted)
+        self.assertEqual(func_util.work_clip.format.color_family, vs.GRAY)
+        self.assertEqual(func_util.norm_planes, [0])
+
+    def test_functionutil_planes_0_rgb_to_yuv(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.RGB24)
+        func_util = FunctionUtil(clip, 'FunctionUtilTest', planes=0, color_family=vs.YUV, matrix=1)
+        self.assertTrue(func_util.cfamily_converted)
+        self.assertEqual(func_util.work_clip.format.color_family, vs.GRAY)
+        self.assertEqual(func_util.norm_planes, [0])
+
