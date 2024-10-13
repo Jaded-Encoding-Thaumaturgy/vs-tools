@@ -138,9 +138,6 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
             return clip
 
-        if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
-            return plane(clip, 0)
-
         self.cfamily_converted = True
 
         if cfamily is vs.YUV:
@@ -165,7 +162,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def chroma_planes(self) -> list[vs.VideoNode]:
         """Get a list of all chroma planes in the normalised clip."""
 
-        if self == [0] or self.norm_clip.format.num_planes == 1:
+        if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
 
         return [plane(self.norm_clip, i) for i in (1, 2)]
