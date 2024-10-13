@@ -137,20 +137,23 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
             return clip
-
+        
         self.cfamily_converted = True
 
-        if cfamily is vs.YUV:
-            return clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
+        if cfamily is vs.RGB:
+            if not self._matrix:
+                raise UndefinedMatrixError(
+                    'You must specify a matrix for RGB to '
+                    f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
+                    self.func
+                )
+            
+            clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
 
-        if not self._matrix:
-            raise UndefinedMatrixError(
-                'You must specify a matrix for RGB to '
-                f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
-                self.func
-            )
+        elif cfamily in (vs.YUV, vs.GRAY) and self.allowed_cfamilies not in (vs.YUV, vs.GRAY):
+            clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
 
-        return clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
+        return clip
 
     @cachedproperty
     def work_clip(self) -> ConstantFormatVideoNode:
