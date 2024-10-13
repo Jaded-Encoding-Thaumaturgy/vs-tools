@@ -1,7 +1,9 @@
 from typing import Callable, cast
 from unittest import TestCase
 
-from vstools import FunctionUtil, UndefinedMatrixError, fallback, iterate, kwargs_fallback, vs
+from vstools import (
+    FunctionUtil, InvalidColorspacePathError, UndefinedMatrixError, fallback, iterate, kwargs_fallback, vs
+)
 
 
 class TestFuncs(TestCase):
@@ -153,7 +155,7 @@ class TestFuncs(TestCase):
 
     def test_functionutil_color_conversions_yuv_to_rgb_without_matrix(self) -> None:
         yuv_clip = vs.core.std.BlankClip(format=vs.YUV420P8)
-        with self.assertRaises(UndefinedMatrixError):
+        with self.assertRaises(InvalidColorspacePathError):
             FunctionUtil(yuv_clip, 'FunctionUtilTest', color_family=vs.RGB)
 
     def test_functionutil_color_conversions_yuv_to_rgb_with_matrix(self) -> None:
