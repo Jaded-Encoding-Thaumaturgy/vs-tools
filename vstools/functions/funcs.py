@@ -137,8 +137,6 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
             return clip
-        
-        self.cfamily_converted = True
 
         if cfamily is vs.RGB:
             if not self._matrix:
@@ -147,10 +145,12 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                     f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
                     self.func
                 )
-            
+
+            self.cfamily_converted = True
             clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
 
         elif cfamily in (vs.YUV, vs.GRAY) and vs.YUV not in self.allowed_cfamilies and vs.GRAY not in self.allowed_cfamilies:
+            self.cfamily_converted = True
             clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
 
         return clip
