@@ -98,7 +98,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
             bitdepth = range(bitdepth[0], bitdepth[1] + 1)
         
         self.clip = clip
-        self.planes = planes
+        self.planes = 0 if clip.format.num_planes == 1 else planes
         self.func = func
         self.allowed_cfamilies = color_family
         self.cfamily_converted = False
@@ -264,13 +264,13 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def normalize_planes(self, planes: PlanesT) -> list[int]:
         """Normalize the given sequence of planes."""
 
-        return normalize_planes(self.work_clip, self.planes)
+        return normalize_planes(self.work_clip, planes)
 
     def with_planes(self, planes: PlanesT) -> list[int]:
-        return self.normalize_planes(sorted(set(self + self.normalize_planes(self.planes))))
+        return self.normalize_planes(sorted(set(self + self.normalize_planes(planes))))
 
     def without_planes(self, planes: PlanesT) -> list[int]:
-        return self.normalize_planes(sorted(set(self) - {*self.normalize_planes(self.planes)}))
+        return self.normalize_planes(sorted(set(self) - {*self.normalize_planes(planes)}))
 
     def return_clip(self, processed: vs.VideoNode) -> vs.VideoNode:
         """
