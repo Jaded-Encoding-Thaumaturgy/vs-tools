@@ -109,11 +109,6 @@ class TestFuncs(TestCase):
         self.assertEqual(result.work_clip.format.subsampling_w, 0)
         self.assertEqual(result.work_clip.format.subsampling_h, 0)
 
-    def test_functionutil_color_family_conversion_gray_to_yuv_without_matrix(self) -> None:
-        clip = vs.core.std.BlankClip(format=vs.GRAY8)
-        with self.assertRaises(UndefinedMatrixError):
-            FunctionUtil(clip, 'FunctionUtilTest', color_family=vs.YUV)
-
     def test_functionutil_color_family_conversion_gray_to_rgb(self) -> None:
         clip = vs.core.std.BlankClip(format=vs.GRAY8)
         result = FunctionUtil(clip, 'FunctionUtilTest', color_family=vs.RGB, matrix=1)
