@@ -5,6 +5,8 @@ from typing import Iterable, Sequence
 import vapoursynth as vs
 from stgpytools import FuncExceptT, T, cachedproperty, fallback, iterate, kwargs_fallback, normalize_seq, to_arr
 
+from vstools.exceptions.color import InvalidColorspacePathError
+
 from ..enums import (
     ColorRange, ColorRangeT, Matrix, MatrixT, Transfer, TransferT, Primaries, PrimariesT,
     ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
@@ -96,7 +98,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if isinstance(bitdepth, tuple):
             bitdepth = range(bitdepth[0], bitdepth[1] + 1)
-        
+
         self.clip = clip
         self.planes = planes
         self.func = func
@@ -153,7 +155,12 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         elif cfamily in (vs.YUV, vs.GRAY) and vs.YUV not in self.allowed_cfamilies and vs.GRAY not in self.allowed_cfamilies:
             self.cfamily_converted = True
-            clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
+            clip = clip.resize.Bicubic(
+                format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0),
+                matrix_in=self._matrix
+            )
+
+            InvalidColorspacePathError.check(self.func, clip)
 
         return clip
 
