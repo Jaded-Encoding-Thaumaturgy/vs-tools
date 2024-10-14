@@ -123,9 +123,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def norm_clip(self) -> ConstantFormatVideoNode:
         """Get a "normalized" clip. This means color space and bitdepth are converted if necessary."""
 
-        from .. import get_depth
-
         if isinstance(self.bitdepth, (range, set)) and self.clip.format.bits_per_sample not in self.bitdepth:
+            from .. import get_depth
+
             src_depth = get_depth(self.clip)
             target_depth = next((bits for bits in self.bitdepth if bits >= src_depth), max(self.bitdepth))
 
@@ -151,6 +151,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
                 )
 
             self.cfamily_converted = True
+
             clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
 
         elif cfamily in (vs.YUV, vs.GRAY) and not set(self.allowed_cfamilies) & {vs.YUV, vs.GRAY}:
