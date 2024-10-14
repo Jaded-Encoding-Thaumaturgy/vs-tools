@@ -5,6 +5,8 @@ from typing import Iterable, Sequence
 import vapoursynth as vs
 from stgpytools import FuncExceptT, T, cachedproperty, fallback, iterate, kwargs_fallback, normalize_seq, to_arr
 
+from vstools.exceptions.color import InvalidColorspacePathError
+
 from ..enums import (
     ColorRange, ColorRangeT, Matrix, MatrixT, Transfer, TransferT, Primaries, PrimariesT,
     ChromaLocation, ChromaLocationT, FieldBased, FieldBasedT
@@ -91,6 +93,8 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         if color_family is not None:
             color_family = [get_color_family(c) for c in to_arr(color_family)]
+            if not set(color_family) & {vs.YUV, vs.RGB}:
+                planes = 0
 
         if isinstance(bitdepth, tuple):
             bitdepth = range(bitdepth[0], bitdepth[1] + 1)
@@ -109,7 +113,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         self._chromaloc = chromaloc
         self._order = order
 
-        self.norm_planes = normalize_planes(self.norm_clip, planes)
+        self.norm_planes = normalize_planes(self.norm_clip, self.planes)
 
         super().__init__(self.norm_planes)
 
@@ -119,9 +123,9 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def norm_clip(self) -> ConstantFormatVideoNode:
         """Get a "normalized" clip. This means color space and bitdepth are converted if necessary."""
 
-        from .. import get_depth
-
         if isinstance(self.bitdepth, (range, set)) and self.clip.format.bits_per_sample not in self.bitdepth:
+            from .. import get_depth
+
             src_depth = get_depth(self.clip)
             target_depth = next((bits for bits in self.bitdepth if bits >= src_depth), max(self.bitdepth))
 
@@ -138,22 +142,29 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
             return clip
 
-        if cfamily is vs.YUV and vs.GRAY in self.allowed_cfamilies:
-            return plane(clip, 0)
+        if cfamily is vs.RGB:
+            if not self._matrix:
+                raise UndefinedMatrixError(
+                    'You must specify a matrix for RGB to '
+                    f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
+                    self.func
+                )
 
-        self.cfamily_converted = True
+            self.cfamily_converted = True
 
-        if cfamily is vs.YUV:
-            return clip.resize.Bicubic(format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0))
+            clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
 
-        if not self._matrix:
-            raise UndefinedMatrixError(
-                'You must specify a matrix for RGB to '
-                f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
-                self.func
+        elif cfamily in (vs.YUV, vs.GRAY) and not set(self.allowed_cfamilies) & {vs.YUV, vs.GRAY}:
+            self.cfamily_converted = True
+
+            clip = clip.resize.Bicubic(
+                format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0),
+                matrix_in=self._matrix
             )
 
-        return clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
+            InvalidColorspacePathError.check(self.func, clip)
+
+        return clip
 
     @cachedproperty
     def work_clip(self) -> ConstantFormatVideoNode:
@@ -165,7 +176,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def chroma_planes(self) -> list[vs.VideoNode]:
         """Get a list of all chroma planes in the normalised clip."""
 
-        if self == [0] or self.norm_clip.format.num_planes == 1:
+        if self != [0] or self.norm_clip.format.num_planes == 1:
             return []
 
         return [plane(self.norm_clip, i) for i in (1, 2)]

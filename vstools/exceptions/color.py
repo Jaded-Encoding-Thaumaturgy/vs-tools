@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
+import vapoursynth as vs
 from stgpytools import CustomPermissionError, CustomValueError, FuncExceptT, SupportsString
 
 __all__ = [
+    'InvalidColorspacePathError',
+
     'UndefinedMatrixError',
     'UndefinedTransferError',
     'UndefinedPrimariesError',
@@ -22,6 +25,47 @@ __all__ = [
     'UnsupportedPrimariesError',
     'UnsupportedColorRangeError'
 ]
+
+########################################################
+# Colorspace
+
+class InvalidColorspacePathError(CustomValueError):
+    """Raised when there is no path between two colorspaces."""
+
+    def __init__(
+        self, func: FuncExceptT, message: SupportsString | None = None,
+        **kwargs: Any
+    ) -> None:
+        def_msg = 'Unable to convert between colorspaces! '
+        def_msg += 'Please provide more colorspace information (e.g., matrix, transfer, primaries).'
+
+        if isinstance(message, vs.Error):
+            error_msg = str(message)
+            if 'Resize error:' in error_msg:
+                kwargs['reason'] = error_msg[error_msg.find('(') + 1:error_msg.rfind(')')]
+                message = def_msg
+
+        super().__init__(message or def_msg, func, **kwargs)
+
+    @staticmethod
+    def check(func: FuncExceptT, to_check: vs.VideoNode) -> None:
+        """
+        Check if there's a valid colorspace path for the given clip.
+
+        :param func:        Function returned for custom error handling.
+                            This should only be set by VS package developers.
+        :param to_check:    Value to check. Must be a VideoNode.
+
+        :raises InvalidColorspacePathError: If there's no valid colorspace path.
+        """
+
+        try:
+            to_check.get_frame(0)
+        except vs.Error as e:
+            if 'no path between colorspaces' in str(e):
+                raise InvalidColorspacePathError(func, e)
+            raise
+
 
 ########################################################
 # Matrix
