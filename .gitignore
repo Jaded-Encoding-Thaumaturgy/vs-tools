@@ -141,6 +141,9 @@ dmypy.json
 # Local test file
 *test*.py
 
+# Unignore tests dir
+!tests/
+
 # pytype static type analyzer
 .pytype/
 
