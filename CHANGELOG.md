@@ -12,8 +12,6 @@ see the [tags page](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/tags)
 - FunctionUtil:
   - Resolved an issue where it would raise a vs.Error when resampling RGB to YUV or GRAY without a matrix specified instead of an UndefinedMatrixError.
   - Make use of early exits in `norm_clip` to reduce unnecessary processing
-  - Resolved an issue where it would fail when processing clips with bitdepths exceeding the maximum allowed value ([#155](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/156))
-  - Added a workaround for us no longer using `range.stop`
   - Improved class functionality ([#152](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/152)):
     - Removed `strict` parameter
     - Added support for transfer, primaries, chroma location, and field order parameters
@@ -42,6 +40,17 @@ see the [tags page](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/tags)
   - Removed smoke test in favor of unit tests ([#153](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/pull/153))
   - Updated lint action to use ruff
   - Added top-level noqa to `__init__.py`
+
+## v3.3.3
+
+**Full Changelog**: https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/compare/v3.3.1...v3.3.3
+
+Hotfix release to resolve some issues involving FunctionUtil in relation to other packages.
+
+- FunctionUtil:
+  - Resolved an issue where it would fail when processing clips with bitdepths exceeding the maximum allowed value
+  - Extend `range` to be (start, stop + 1) to work around us no longer using `range.stop`
+  - Fix a check in `chroma_planes` which would return in it returning an empty list when it should not
 
 ## v3.3.1
 
