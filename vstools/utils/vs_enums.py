@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 from vapoursynth import FLOAT, GRAY, INTEGER, RGB, YUV
 
 try:
-    from vapoursynth import PresetFormat as VSPresetVideoFormat
-except ImportError:
     from vapoursynth import PresetVideoFormat as VSPresetVideoFormat
+except ImportError:
+    from vapoursynth import PresetFormat as VSPresetVideoFormat
 
 from .other import IS_DOCS
 
