@@ -159,7 +159,8 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
             clip = clip.resize.Bicubic(
                 format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0),
-                matrix_in=self._matrix
+                matrix_in=self._matrix, chromaloc_in=self._chromaloc,
+                range_in=self._range_in.value_zimg if self._range_in else None
             )
 
             InvalidColorspacePathError.check(self.func, clip)
@@ -185,37 +186,37 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def matrix(self) -> Matrix:
         """Get the clip's matrix."""
 
-        return Matrix.from_param_or_video(self._matrix, self.work_clip, True, self.func)
+        return Matrix.from_param_or_video(self._matrix, self.clip, True, self.func)
 
     @cachedproperty
     def transfer(self) -> Transfer:
         """Get the clip's transfer."""
 
-        return Transfer.from_param_or_video(self._transfer, self.work_clip, True, self.func)
+        return Transfer.from_param_or_video(self._transfer, self.clip, True, self.func)
 
     @cachedproperty
     def primaries(self) -> Primaries:
         """Get the clip's primaries."""
 
-        return Primaries.from_param_or_video(self._primaries, self.work_clip, True, self.func)
+        return Primaries.from_param_or_video(self._primaries, self.clip, True, self.func)
 
     @cachedproperty
     def color_range(self) -> ColorRange:
         """Get the clip's color range."""
 
-        return ColorRange.from_param_or_video(self._range_in, self.work_clip, True, self.func)
+        return ColorRange.from_param_or_video(self._range_in, self.clip, True, self.func)
 
     @cachedproperty
     def chromaloc(self) -> ChromaLocation:
         """Get the clip's chroma location."""
 
-        return ChromaLocation.from_param_or_video(self._chromaloc, self.work_clip, True, self.func)
+        return ChromaLocation.from_param_or_video(self._chromaloc, self.clip, True, self.func)
 
     @cachedproperty
     def order(self) -> FieldBased:
         """Get the clip's field order."""
 
-        return FieldBased.from_param_or_video(self._order, self.work_clip, True, self.func)
+        return FieldBased.from_param_or_video(self._order, self.clip, True, self.func)
 
     @property
     def is_float(self) -> bool:
@@ -233,7 +234,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
     def is_hd(self) -> bool:
         """Whether the clip is of an HD resolution (>= 1280x720)."""
 
-        return self.work_clip.width >= 1280 or self.work_clip.height >= 720
+        return self.norm_clip.width >= 1280 or self.norm_clip.height >= 720
 
     @property
     def luma(self) -> bool:
@@ -305,7 +306,8 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if self.cfamily_converted:
             processed = processed.resize.Bicubic(
                 format=self.clip.format,
-                matrix=self.matrix if self.norm_clip.format.color_family is vs.RGB else None
+                matrix=self.matrix if self.norm_clip.format.color_family is vs.RGB else None,
+                chromaloc=self.chromaloc, range=self.color_range.value_zimg
             )
 
         return processed
