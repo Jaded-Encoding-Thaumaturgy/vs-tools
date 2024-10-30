@@ -51,6 +51,7 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         color_family: VideoFormatT | HoldsVideoFormatT | vs.ColorFamily | Iterable[
             VideoFormatT | HoldsVideoFormatT | vs.ColorFamily
         ] | None = None, bitdepth: int | range | tuple[int, int] | set[int] | None = None,
+        subsampling: int | tuple[int] | None = None,
         *, matrix: MatrixT | None = None, transfer: TransferT | None = None,
         primaries: PrimariesT | None = None, range_in: ColorRangeT | None = None,
         chromaloc: ChromaLocationT | None = None, order: FieldBasedT | None = None
@@ -99,12 +100,16 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
         if isinstance(bitdepth, tuple):
             bitdepth = range(bitdepth[0], bitdepth[1] + 1)
 
+        if isinstance(subsampling, int):
+            subsampling = (subsampling, subsampling)
+
         self.clip = clip
         self.planes = planes
         self.func = func
         self.allowed_cfamilies = color_family
         self.cfamily_converted = False
         self.bitdepth = bitdepth
+        self.subsampling = subsampling
 
         self._matrix = matrix
         self._transfer = transfer
@@ -139,31 +144,37 @@ class FunctionUtil(cachedproperty.baseclass, list[int]):
 
         cfamily = clip.format.color_family
 
-        if not self.allowed_cfamilies or cfamily in self.allowed_cfamilies:
-            return clip
+        if self.allowed_cfamilies and cfamily not in self.allowed_cfamilies:
+            if cfamily is vs.RGB:
+                if not self._matrix:
+                    raise UndefinedMatrixError(
+                        'You must specify a matrix for RGB to '
+                        f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
+                        self.func
+                    )
 
-        if cfamily is vs.RGB:
-            if not self._matrix:
-                raise UndefinedMatrixError(
-                    'You must specify a matrix for RGB to '
-                    f'{'/'.join(cf.name for cf in sorted(self.allowed_cfamilies, key=lambda x: x.name))} conversions!',
-                    self.func
+                self.cfamily_converted = True
+
+                clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
+
+            elif cfamily in (vs.YUV, vs.GRAY) and not set(self.allowed_cfamilies) & {vs.YUV, vs.GRAY} or self.planes not in (0, [0]):
+                self.cfamily_converted = True
+
+                clip = clip.resize.Bicubic(
+                    format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0),
+                    matrix_in=self._matrix, chromaloc_in=self._chromaloc,
+                    range_in=self._range_in.value_zimg if self._range_in else None
                 )
 
-            self.cfamily_converted = True
+                InvalidColorspacePathError.check(self.func, clip)
 
-            clip = clip.resize.Bicubic(format=clip.format.replace(color_family=vs.YUV), matrix=self._matrix)
+        if self.subsampling:
+            if cfamily is vs.YUV and (clip.format.subsampling_w, clip.format.subsampling_h) not in self.subsampling:
+                self.cfamily_converted = True
 
-        elif cfamily in (vs.YUV, vs.GRAY) and not set(self.allowed_cfamilies) & {vs.YUV, vs.GRAY} or self.planes not in (0, [0]):
-            self.cfamily_converted = True
-
-            clip = clip.resize.Bicubic(
-                format=clip.format.replace(color_family=vs.RGB, subsampling_h=0, subsampling_w=0),
-                matrix_in=self._matrix, chromaloc_in=self._chromaloc,
-                range_in=self._range_in.value_zimg if self._range_in else None
-            )
-
-            InvalidColorspacePathError.check(self.func, clip)
+                clip = clip.resize.Bicubic(
+                    format=clip.format.replace(subsampling_w=self.subsampling[0], subsampling_h=self.subsampling[1])
+                )
 
         return clip
 
