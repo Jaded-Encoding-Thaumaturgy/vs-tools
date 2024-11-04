@@ -41,6 +41,10 @@ see the [tags page](https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/tags)
   - Updated lint action to use ruff
   - Added top-level noqa to `__init__.py`
 
+- Other:
+  - Improve type-checking for pyright
+  - New `is_gpu_available` function to check if any GPU is available
+
 ## v3.3.3
 
 **Full Changelog**: https://github.com/Jaded-Encoding-Thaumaturgy/vs-tools/compare/v3.3.1...v3.3.3
