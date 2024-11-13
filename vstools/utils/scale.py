@@ -122,10 +122,10 @@ def scale_delta(
     output_depth: int | VideoFormatT | HoldsVideoFormatT,
     range_in: ColorRangeT | None = None,
     range_out: ColorRangeT | None = None,
-    fixed_range: bool = False
 ) -> int | float:
     """
     Converts the value to the specified bit depth, or bit depth of the clip/format specified.
+    Uses the clip's range (if only one clip is passed) for both depths.
     Intended for filter thresholds.
 
     :param value:           Value to scale.
@@ -133,24 +133,19 @@ def scale_delta(
     :param output_depth:    Output bit depth, or clip, frame, format from where to get it.
     :param range_in:        Color range of the input value
     :param range_out:       Color range of the desired output.
-    :param fixed_range:     Whether to use the clip's range for both in & out if a clip is not passed.
 
     :return:                Scaled value.
     """
 
-    if not fixed_range:
-        if (
-            isinstance(input_depth, vs.VideoNode) or isinstance(output_depth, vs.VideoNode)
-            and type(input_depth) is not type(output_depth)
-        ):
-            if isinstance(input_depth, vs.VideoNode):
-                clip_range = input_depth
-            if isinstance(output_depth, vs.VideoNode):
-                clip_range = output_depth
+    if isinstance(input_depth, vs.VideoNode) != isinstance(output_depth, vs.VideoNode):
+        if isinstance(input_depth, vs.VideoNode):
+            clip_range = input_depth
+        if isinstance(output_depth, vs.VideoNode):
+            clip_range = output_depth
 
-            clip_range = ColorRange.from_video(clip_range)
-            range_in = range_in if range_in else clip_range
-            range_out = range_out if range_out else clip_range
+        clip_range = ColorRange.from_video(clip_range)
+        range_in = clip_range if range_in is None else range_in
+        range_out = clip_range if range_out is None else range_out
 
     return scale_value(value, input_depth, output_depth, range_in, range_out, False)
 
