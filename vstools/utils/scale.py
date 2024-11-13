@@ -97,6 +97,64 @@ def scale_value(
     return out_value
 
 
+def scale_mask(
+    value: int | float,
+    input_depth: int | VideoFormatT | HoldsVideoFormatT,
+    output_depth: int | VideoFormatT | HoldsVideoFormatT
+) -> int | float:
+    """
+    Converts the value to the specified bit depth, or bit depth of the clip/format specified.
+    Intended for mask clips which are always full range.
+
+    :param value:           Value to scale.
+    :param input_depth:     Input bit depth, or clip, frame, format from where to get it.
+    :param output_depth:    Output bit depth, or clip, frame, format from where to get it.
+
+    :return:                Scaled value.
+    """
+
+    return scale_value(value, input_depth, output_depth, ColorRange.FULL, ColorRange.FULL)
+
+
+def scale_delta(
+    value: int | float,
+    input_depth: int | VideoFormatT | HoldsVideoFormatT,
+    output_depth: int | VideoFormatT | HoldsVideoFormatT,
+    range_in: ColorRangeT | None = None,
+    range_out: ColorRangeT | None = None,
+    fixed_range: bool = True
+) -> int | float:
+    """
+    Converts the value to the specified bit depth, or bit depth of the clip/format specified.
+    Intended for filter thresholds.
+
+    :param value:           Value to scale.
+    :param input_depth:     Input bit depth, or clip, frame, format from where to get it.
+    :param output_depth:    Output bit depth, or clip, frame, format from where to get it.
+    :param range_in:        Color range of the input value
+    :param range_out:       Color range of the desired output.
+    :param fixed_range:     Whether to use the clip's range for both in & out if a clip is not passed.
+
+    :return:                Scaled value.
+    """
+
+    if not fixed_range:
+        if (
+            isinstance(input_depth, vs.VideoNode) or isinstance(output_depth, vs.VideoNode)
+            and type(input_depth) is not type(output_depth)
+        ):
+            if isinstance(input_depth, vs.VideoNode):
+                clip_range = input_depth
+            if isinstance(output_depth, vs.VideoNode):
+                clip_range = output_depth
+
+            clip_range = ColorRange.from_video(clip_range)
+            range_in = range_in if range_in else clip_range
+            range_out = range_out if range_out else clip_range
+
+    return scale_value(value, input_depth, output_depth, range_in, range_out, False)
+
+
 def get_lowest_value(
     clip_or_depth: int | VideoFormatT | HoldsVideoFormatT, chroma: bool = False,
     range_in: ColorRangeT | None = None, family: vs.ColorFamily | None = None
