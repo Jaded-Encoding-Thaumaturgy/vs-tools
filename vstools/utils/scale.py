@@ -122,7 +122,7 @@ def scale_delta(
     output_depth: int | VideoFormatT | HoldsVideoFormatT,
     range_in: ColorRangeT | None = None,
     range_out: ColorRangeT | None = None,
-    fixed_range: bool = True
+    fixed_range: bool = False
 ) -> int | float:
     """
     Converts the value to the specified bit depth, or bit depth of the clip/format specified.
