@@ -10,7 +10,7 @@ from ..types import HoldsVideoFormatT, VideoFormatT
 from .info import get_depth, get_video_format
 
 __all__ = [
-    'scale_value',
+    'scale_value', 'scale_mask', 'scale_delta',
 
     'get_lowest_value', 'get_neutral_value', 'get_peak_value',
     'get_lowest_values', 'get_neutral_values', 'get_peak_values',
