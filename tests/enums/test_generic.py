@@ -121,6 +121,12 @@ class TestFieldBased(TestCase):
         self.assertFalse(FieldBased.BFF.is_tff)
         self.assertFalse(FieldBased.PROGRESSIVE.is_tff)
 
+    def test_inverted(self) -> None:
+        self.assertEqual(FieldBased.TFF.inverted_field, FieldBased.BFF)
+        self.assertEqual(FieldBased.BFF.inverted_field, FieldBased.TFF)
+        with self.assertRaises(UnsupportedFieldBasedError):
+            FieldBased.PROGRESSIVE.inverted_field
+
 
 class TestResolution(TestCase):
     def test_from_video(self) -> None:

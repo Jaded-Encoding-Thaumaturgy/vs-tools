@@ -201,6 +201,22 @@ class FieldBased(_FieldBasedMeta):
         return self is self.TFF
 
     @property
+    def inverted_field(self) -> FieldBased:
+        """
+        Get the inverted field order.
+
+        :raises UnsupportedFieldBasedError:      PROGRESSIVE value is passed.
+        """
+
+        if self == self.PROGRESSIVE:
+            raise UnsupportedFieldBasedError(
+                'Progressive video aren\'t field based!',
+                f'{self.__class__.__name__}.inverted_field'
+            )
+
+        return FieldBased.BFF if self.is_tff else FieldBased.TFF
+
+    @property
     def pretty_string(self) -> str:
         if self.is_inter:
             return f"{'Top' if self.is_tff else 'Bottom'} Field First"
