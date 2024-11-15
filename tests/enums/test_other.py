@@ -78,3 +78,6 @@ class TestResolution(TestCase):
 
         clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=1920, height=1080)
         self.assertEqual(Resolution.from_video(clip), (1920, 1080))
+
+    def test_transpose(self) -> None:
+        self.assertEqual(Resolution(640, 480).transpose(), Resolution(480, 640))
