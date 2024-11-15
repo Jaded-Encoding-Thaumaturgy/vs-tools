@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from vstools import ChromaLocation, FieldBased, Resolution, UnsupportedFieldBasedError, vs
+from vstools import UnsupportedFieldBasedError, vs
+from vstools.enums.generic import ChromaLocation, FieldBased
 
 
 class TestChromaLocation(TestCase):
@@ -126,12 +127,3 @@ class TestFieldBased(TestCase):
         self.assertEqual(FieldBased.BFF.inverted_field, FieldBased.TFF)
         with self.assertRaises(UnsupportedFieldBasedError):
             FieldBased.PROGRESSIVE.inverted_field
-
-
-class TestResolution(TestCase):
-    def test_from_video(self) -> None:
-        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=640, height=480)
-        self.assertEqual(Resolution.from_video(clip), (640, 480))
-
-        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=1920, height=1080)
-        self.assertEqual(Resolution.from_video(clip), (1920, 1080))

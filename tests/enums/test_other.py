@@ -1,7 +1,8 @@
 from fractions import Fraction
 from unittest import TestCase
 
-from vstools import Dar, Direction, Region, Sar, get_prop, vs
+from vstools import get_prop, vs
+from vstools.enums.other import Dar, Direction, Region, Resolution, Sar
 
 
 class TestDirection(TestCase):
@@ -68,3 +69,12 @@ class TestRegion(TestCase):
         self.assertEqual(Region.from_framerate(Fraction(50, 1)), Region.PALi)
         self.assertEqual(Region.from_framerate(Fraction(24, 1)), Region.FILM)
         self.assertEqual(Region.from_framerate(Fraction(24000, 1001)), Region.NTSC_FILM)
+
+
+class TestResolution(TestCase):
+    def test_from_video(self) -> None:
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=640, height=480)
+        self.assertEqual(Resolution.from_video(clip), (640, 480))
+
+        clip = vs.core.std.BlankClip(format=vs.YUV420P8, width=1920, height=1080)
+        self.assertEqual(Resolution.from_video(clip), (1920, 1080))
