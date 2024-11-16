@@ -176,6 +176,13 @@ def replace_ranges(
 
     b_ranges = normalize_ranges(clip_b, ranges)
     do_splice_trim = len(b_ranges) <= 15
+    min_frame_num = min(clip_a.num_frames, clip_b.num_frames)
+
+    if not do_splice_trim and any(e >= min_frame_num for _, e in b_ranges):
+        raise CustomValueError(
+            f'You cannot replace frames that are out of bounds ({min_frame_num=})!',
+            replace_ranges, [r for r in b_ranges if r[1] >= min_frame_num]
+        )
 
     if clip_a.num_frames != clip_b.num_frames:
         warnings.warn(
