@@ -177,7 +177,22 @@ def replace_ranges(
     b_ranges = normalize_ranges(clip_b, ranges)
     do_splice_trim = len(b_ranges) <= 15
 
+    if clip_a.num_frames != clip_b.num_frames:
+        warnings.warn(
+            f"replace_ranges: 'The number of frames of the clips don't match! "
+            f"({clip_a.num_frames=}, {clip_b.num_frames=})\n"
+            "The function will still work, but you may run into undefined behavior, or a broken output clip!'"
+        )
+
     if not do_splice_trim:
+        if clip_a.num_frames != clip_b.num_frames:
+            diff = abs(clip_a.num_frames - clip_b.num_frames)
+
+            if clip_a.num_frames < clip_b.num_frames:
+                clip_a = clip_a + clip_a[-1] * diff
+            else:
+                clip_b = clip_b + clip_b[-1] * diff
+
         try:
             if hasattr(vs.core, 'julek'):
                 return vs.core.julek.RFS(
@@ -203,13 +218,6 @@ def replace_ranges(
                     raise FramerateMismatchError(replace_ranges, (clip_a, clip_b))
                 case _:
                     raise CustomValueError(msg, replace_ranges)
-
-    if clip_a.num_frames != clip_b.num_frames:
-        warnings.warn(
-            f"replace_ranges: 'The number of frames of the clips don't match! "
-            f"({clip_a.num_frames=}, {clip_b.num_frames=})\n"
-            "The function will still work, but you may run into undefined behavior, or a broken output clip!'"
-        )
 
     if do_splice_trim:
         shift = 1 - exclusive
