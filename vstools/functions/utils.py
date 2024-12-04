@@ -104,6 +104,7 @@ class DitherType(CustomStrEnum):
         assert self != DitherType.AUTO, CustomValueError("Cannot apply AUTO.", self.__class__)
 
         fmt = get_video_format(clip)
+        clip = ColorRange.ensure_presence(clip, range_in)
 
         if not self.is_fmtc:
             return clip.resize.Point(
