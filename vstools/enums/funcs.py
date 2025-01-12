@@ -43,6 +43,22 @@ class ConvMode(CustomStrEnum):
     T = TEMPORAL
     """Alias for `ConvMode.TEMPORAL`"""
 
+    @property
+    def is_one_dim(self) -> bool:
+        return self in ["v", "h", "hv"]
+
+    @property
+    def is_two_dim(self) -> bool:
+        return self in ["s"]
+
+    @property
+    def is_spatial(self) -> bool:
+        return self in ["s", "v", "h", "hv"]
+
+    @property
+    def is_temporal(self) -> bool:
+        return self in ["t"]
+
 
 OneDimConvModeT: TypeAlias = Literal[ConvMode.HORIZONTAL] | Literal[ConvMode.VERTICAL] | Literal[ConvMode.HV]
 """Type alias for one dimension convolution mode"""
