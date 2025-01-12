@@ -27,6 +27,17 @@ class ConvMode(CustomStrEnum):
     TEMPORAL = "t"
     """Temporal convolution"""
 
+    S = SQUARE
+    """Alias for `ConvMode.SQUARE`"""
+
+    V = VERTICAL
+    """Alias for `ConvMode.VERTICAL`"""
+
+    H = HORIZONTAL
+    """Alias for `ConvMode.HORIZONTAL`"""
+
+    T = TEMPORAL
+    """Alias for `ConvMode.TEMPORAL`"""
 class BaseAlign(CustomIntEnum):
     TOP = 1
     MIDDLE = 2
