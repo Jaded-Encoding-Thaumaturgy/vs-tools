@@ -24,6 +24,8 @@ class ConvMode(CustomStrEnum):
     HV = 'hv'
     """Horizontal and Vertical convolution"""
 
+    TEMPORAL = "t"
+    """Temporal convolution"""
 
 class BaseAlign(CustomIntEnum):
     TOP = 1
