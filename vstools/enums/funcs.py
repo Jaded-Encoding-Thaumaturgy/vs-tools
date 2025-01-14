@@ -1,16 +1,20 @@
 from __future__ import annotations
 
-from stgpytools import CustomStrEnum, CustomIntEnum
+from typing import Literal, TypeAlias, Union
+
+from stgpytools import CustomIntEnum, CustomStrEnum
 
 __all__ = [
     'ConvMode',
+
+    'OneDimConvModeT', 'TwoDimConvModeT', 'SpatialConvModeT', 'TempConvModeT',
 
     'BaseAlign', 'Align'
 ]
 
 
 class ConvMode(CustomStrEnum):
-    """Convolution mode for .std.Convolution."""
+    """Convolution mode for .std.Convolution or std.AverageFrames"""
 
     SQUARE = 's'
     """Square horizontal/vertical convolution."""
@@ -23,6 +27,55 @@ class ConvMode(CustomStrEnum):
 
     HV = 'hv'
     """Horizontal and Vertical convolution"""
+
+    TEMPORAL = "t"
+    """Temporal convolution"""
+
+    S = SQUARE
+    """Alias for `ConvMode.SQUARE`"""
+
+    V = VERTICAL
+    """Alias for `ConvMode.VERTICAL`"""
+
+    H = HORIZONTAL
+    """Alias for `ConvMode.HORIZONTAL`"""
+
+    T = TEMPORAL
+    """Alias for `ConvMode.TEMPORAL`"""
+
+    @property
+    def is_one_dim(self) -> bool:
+        return self in ["v", "h", "hv"]
+
+    @property
+    def is_two_dim(self) -> bool:
+        return self in ["s"]
+
+    @property
+    def is_spatial(self) -> bool:
+        return self in ["s", "v", "h", "hv"]
+
+    @property
+    def is_temporal(self) -> bool:
+        return self in ["t"]
+
+
+OneDimConvModeT: TypeAlias = Literal[ConvMode.HORIZONTAL] | Literal[ConvMode.VERTICAL] | Literal[ConvMode.HV]
+"""Type alias for one dimension convolution mode"""
+
+TwoDimConvModeT: TypeAlias = Literal[ConvMode.SQUARE]
+"""Type alias for two dimensions convolution mode"""
+
+SpatialConvModeT: TypeAlias = Union[
+    Literal[ConvMode.SQUARE],
+    Literal[ConvMode.HORIZONTAL],
+    Literal[ConvMode.VERTICAL],
+    Literal[ConvMode.HV]
+]
+"""Type alias for spatial convolution mode only"""
+
+TempConvModeT: TypeAlias = Literal[ConvMode.TEMPORAL]
+"""Type alias for temporal convolution mode only"""
 
 
 class BaseAlign(CustomIntEnum):
