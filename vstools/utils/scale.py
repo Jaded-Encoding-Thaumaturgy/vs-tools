@@ -167,11 +167,11 @@ def get_lowest_value(
 
     fmt = get_video_format(clip_or_depth)
 
-    if fmt.sample_type is vs.FLOAT:
-        return -0.5 if chroma else 0.0
-
     if (is_rgb := vs.RGB in (fmt.color_family, family)):
         chroma = False
+
+    if fmt.sample_type is vs.FLOAT:
+        return -0.5 if chroma else 0.0
 
     if range_in is None:
         if isinstance(clip_or_depth, vs.VideoNode):
@@ -243,11 +243,11 @@ def get_peak_value(
 
     fmt = get_video_format(clip_or_depth)
 
-    if fmt.sample_type is vs.FLOAT:
-        return 0.5 if chroma else 1.0
-
     if (is_rgb := vs.RGB in (fmt.color_family, family)):
         chroma = False
+
+    if fmt.sample_type is vs.FLOAT:
+        return 0.5 if chroma else 1.0
 
     if range_in is None:
         if isinstance(clip_or_depth, vs.VideoNode):
