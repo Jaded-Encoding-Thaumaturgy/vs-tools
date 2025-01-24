@@ -108,9 +108,7 @@ def replace_ranges(
                                                          leaving 1 frame of ``black``
 
     Optional Dependencies:
-        * Either of the following two plugins:
-            * `VS Julek Plugin <https://github.com/dnjulek/vapoursynth-julek-plugin>`_ (recommended!)
-            * `VSRemapFrames <https://github.com/Irrational-Encoding-Wizardry/Vapoursynth-RemapFrames>`_
+        * `vs-zip <https://github.com/dnjulek/vapoursynth-zip>`_ (highly recommended!)
 
     :param clip_a:      Original clip.
     :param clip_b:      Replacement clip.
@@ -154,7 +152,9 @@ def replace_ranges(
 
         if 'f' in params and not prop_src:
             raise CustomValueError(
-                'For passing f to the callback you must specify the node(s) to grab the frame from via prop_src.'
+                'To use frame properties in the callback (parameter "f"), '
+                'you must specify one or more source clips via `prop_src`!',
+                replace_ranges
             )
 
         if 'f' in params and 'n' in params:
@@ -192,39 +192,11 @@ def replace_ranges(
         )
 
     if not do_splice_trim:
-        if clip_a.num_frames != clip_b.num_frames:
-            diff = abs(clip_a.num_frames - clip_b.num_frames)
-
-            if clip_a.num_frames < clip_b.num_frames:
-                clip_a = clip_a + clip_a[-1] * diff
-            else:
-                clip_b = clip_b + clip_b[-1] * diff
-
-        try:
-            if hasattr(vs.core, 'julek'):
-                return vs.core.julek.RFS(
-                    clip_a, clip_b, [y for (s, e) in b_ranges for y in range(s, e + (not exclusive if s != e else 1))],
-                    mismatch=mismatch
-                )
-            elif hasattr(vs.core, 'remap'):
-                return vs.core.remap.ReplaceFramesSimple(
-                    clip_a, clip_b, mismatch=mismatch,
-                    mappings=' '.join(f'[{s} {e + (exclusive if s != e else 0)}]' for s, e in b_ranges)
-                )
-        except vs.Error as e:
-            msg = str(e).replace('vapoursynth.Error: ReplaceFramesSimple: ', '')
-
-            match msg:
-                case "Clip lengths don't match":
-                    raise LengthMismatchError(replace_ranges, (clip_a, clip_b))
-                case "Clip dimensions don't match":
-                    raise ResolutionsMismatchError(replace_ranges, (clip_a, clip_b))
-                case "Clip formats don't match":
-                    raise FormatsMismatchError(replace_ranges, (clip_a, clip_b))
-                case "Clip frame rates don't match":
-                    raise FramerateMismatchError(replace_ranges, (clip_a, clip_b))
-                case _:
-                    raise CustomValueError(msg, replace_ranges)
+        if hasattr(vs.core, 'vszip'):
+            return vs.core.vszip.RFS(
+                clip_a, clip_b, [y for (s, e) in b_ranges for y in range(s, e + (not exclusive if s != e else 1))],
+                mismatch=mismatch
+            )
 
     if do_splice_trim:
         shift = 1 - exclusive
