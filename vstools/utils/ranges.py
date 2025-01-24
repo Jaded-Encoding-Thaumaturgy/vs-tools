@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import re
 import warnings
 from typing import Callable, Sequence, Union, overload
 
 import vapoursynth as vs
 from stgpytools import CustomValueError, flatten, interleave_arr, ranges_product
 
-from ..exceptions import FormatsMismatchError, FramerateMismatchError, LengthMismatchError, ResolutionsMismatchError
 from ..functions import check_ref_clip
 from ..types import FrameRangeN, FrameRangesN
 
@@ -21,8 +19,6 @@ __all__ = [
     'ranges_product',
 
     'interleave_arr',
-
-    'convert_rfs',
 ]
 
 
@@ -237,40 +233,3 @@ def replace_every(
     interleaved = vs.core.std.Interleave([clipa, clipb])
 
     return interleaved.std.SelectEvery(cycle * 2, offsets, modify_duration)
-
-
-def convert_rfs(rfs_string: str) -> FrameRangesN:
-    """
-    Convert `ReplaceFramesSimple`-styled ranges to `replace_ranges`-styled ranges.
-
-    This function accepts RFS ranges as a string, consistent with RFS handling.
-    The input string is validated before processing.
-
-    Supports both '[x y]' and 'x' frame numbering styles.
-    Returns an empty list if no valid frames are found.
-
-    :param rfs_string:          A string representing frame ranges in ReplaceFramesSimple format.
-
-    :return:                    A FrameRangesN list containing frame ranges compatible with `replace_ranges`.
-                                Returns an empty list if no valid frames are found.
-
-    :raises CustomValueError:   If the input string contains invalid characters.
-    """
-
-    rfs_string = str(rfs_string).strip()
-
-    if not rfs_string:
-        return []
-
-    valid_chars = set('0123456789[] ')
-    illegal_chars = set(rfs_string) - valid_chars
-
-    if illegal_chars:
-        reason = ', '.join(f"{c}:{rfs_string.index(c)}" for c in sorted(illegal_chars, key=rfs_string.index))
-
-        raise CustomValueError('Invalid characters found in input string!', convert_rfs, reason)
-
-    return [
-        int(match[2]) if match[2] else (int(match[0]), int(match[1]))
-        for match in re.findall(r'\[(\d+)\s+(\d+)\]|(\d+)', rfs_string)
-    ]
