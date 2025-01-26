@@ -123,7 +123,7 @@ def replace_ranges(
     :return:            Clip with ranges from clip_a replaced with clip_b.
     """
 
-    from ..functions import invert_ranges, normalize_ranges, normalize_ranges_to_list
+    from ..functions import invert_ranges, normalize_ranges
 
     if ranges != 0 and not ranges or clip_a is clip_b:
         return clip_a
@@ -169,40 +169,26 @@ def replace_ranges(
 
         return base_clip.std.FrameEval(_func, prop_src if 'f' in params else None, [clip_a, clip_b])
 
-    b_ranges = normalize_ranges(clip_b, ranges)
-    do_splice_trim = len(b_ranges) <= 15
-    min_frame_num = min(clip_a.num_frames, clip_b.num_frames)
-
-    if not do_splice_trim and any(e >= min_frame_num for _, e in b_ranges):
-        raise CustomValueError(
-            f'You cannot replace frames that are out of bounds ({min_frame_num=})!',
-            replace_ranges, [r for r in b_ranges if r[1] >= min_frame_num]
+    if hasattr(vs.core, 'vszip'):
+        return vs.core.vszip.RFS(
+            clip_a, clip_b, [y for (s, e) in ranges for y in range(s, e + (not exclusive if s != e else 1))],
+            mismatch=mismatch
         )
+    
+    shift = 1 - exclusive
+    b_ranges = normalize_ranges(clip_b, ranges)
 
-    if not do_splice_trim:
-        if hasattr(vs.core, 'vszip'):
-            return vs.core.vszip.RFS(
-                clip_a, clip_b, [y for (s, e) in b_ranges for y in range(s, e + (not exclusive if s != e else 1))],
-                mismatch=mismatch
-            )
+    a_ranges = invert_ranges(clip_b, clip_a, b_ranges)
 
-    if do_splice_trim:
-        shift = 1 - exclusive
+    a_trims = [clip_a[max(0, start - exclusive):end + shift + exclusive] for start, end in a_ranges]
+    b_trims = [clip_b[start:end + shift] for start, end in b_ranges]
 
-        a_ranges = invert_ranges(clip_b, clip_a, b_ranges)
+    if a_ranges:
+        main, other = (a_trims, b_trims) if (a_ranges[0][0] == 0) else (b_trims, a_trims)
+    else:
+        main, other = (b_trims, a_trims) if (b_ranges[0][0] == 0) else (a_trims, b_trims)
 
-        a_trims = [clip_a[max(0, start - exclusive):end + shift + exclusive] for start, end in a_ranges]
-        b_trims = [clip_b[start:end + shift] for start, end in b_ranges]
-
-        if a_ranges:
-            main, other = (a_trims, b_trims) if (a_ranges[0][0] == 0) else (b_trims, a_trims)
-        else:
-            main, other = (b_trims, a_trims) if (b_ranges[0][0] == 0) else (a_trims, b_trims)
-
-        return vs.core.std.Splice(list(interleave_arr(main, other, 1)), mismatch)
-
-    b_frames = set(normalize_ranges_to_list(b_ranges))
-    return replace_ranges(clip_a, clip_b, lambda n: n in b_frames)
+    return vs.core.std.Splice(list(interleave_arr(main, other, 1)), mismatch)
 
 
 def remap_frames(clip: vs.VideoNode, ranges: Sequence[int | tuple[int, int]]) -> vs.VideoNode:
