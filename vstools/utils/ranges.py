@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import warnings
 from typing import Callable, Sequence, Union, overload
 
 import vapoursynth as vs
@@ -178,13 +177,6 @@ def replace_ranges(
         raise CustomValueError(
             f'You cannot replace frames that are out of bounds ({min_frame_num=})!',
             replace_ranges, [r for r in b_ranges if r[1] >= min_frame_num]
-        )
-
-    if clip_a.num_frames != clip_b.num_frames:
-        warnings.warn(
-            f"replace_ranges: 'The number of frames of the clips don't match! "
-            f"({clip_a.num_frames=}, {clip_b.num_frames=})\n"
-            "The function will still work, but you may run into undefined behavior, or a broken output clip!'"
         )
 
     if not do_splice_trim:
