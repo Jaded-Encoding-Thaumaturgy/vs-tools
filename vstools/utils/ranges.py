@@ -169,14 +169,19 @@ def replace_ranges(
 
         return base_clip.std.FrameEval(_func, prop_src if 'f' in params else None, [clip_a, clip_b])
 
-    if hasattr(vs.core, 'vszip'):
-        return vs.core.vszip.RFS(
-            clip_a, clip_b, [y for (s, e) in ranges for y in range(s, e + (not exclusive if s != e else 1))],
-            mismatch=mismatch
-        )
-    
     shift = 1 - exclusive
     b_ranges = normalize_ranges(clip_b, ranges)
+
+    if hasattr(vs.core, 'vszip'):
+        return vs.core.vszip.RFS(
+            clip_a, clip_b,
+            [y for (s, e) in b_ranges
+             for y in range(
+                 s, e + (not exclusive if s != e else 1) + (1 if e == clip_b.num_frames - 1 and exclusive else 0)
+             )
+            ],
+            mismatch=mismatch
+        )
 
     a_ranges = invert_ranges(clip_a, clip_b, b_ranges)
 
