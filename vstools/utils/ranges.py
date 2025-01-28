@@ -174,7 +174,12 @@ def replace_ranges(
 
     if hasattr(vs.core, 'vszip'):
         return vs.core.vszip.RFS(
-            clip_a, clip_b, [y for (s, e) in ranges for y in range(s, e + (not exclusive if s != e else 1))],
+            clip_a, clip_b,
+            [y for (s, e) in b_ranges
+             for y in range(
+                 s, e + (not exclusive if s != e else 1) + (1 if e == clip_b.num_frames - 1 and exclusive else 0)
+             )
+            ],
             mismatch=mismatch
         )
 
