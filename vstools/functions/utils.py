@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import string
+
 from typing import Any, Iterable, Literal, Mapping, Sequence, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
-from stgpytools import CustomIndexError, CustomStrEnum, CustomValueError
+
+from stgpytools import CustomIndexError, CustomRuntimeError, CustomStrEnum, CustomValueError, FuncExceptT
 
 from ..enums import ColorRange, ColorRangeT, Matrix
-from ..exceptions import ClipLengthError, InvalidColorFamilyError
+from ..exceptions import ClipLengthError, InvalidColorFamilyError,
 from ..types import HoldsVideoFormatT, PlanesT, VideoFormatT
-from .check import check_variable_format, disallow_variable_format
+from .check import check_variable, check_variable_format, disallow_variable_format
 
 __all__ = [
     'EXPR_VARS',
@@ -29,7 +31,9 @@ __all__ = [
     'plane',
     'join', 'split',
 
-    'stack_clips'
+    'stack_clips',
+
+    'limiter'
 ]
 
 
@@ -735,3 +739,44 @@ def stack_clips(
         )
         for inner_clips in clips
     ])
+
+
+def limiter(
+    clip: vs.VideoNode,
+    min_val: float | Sequence[float] | None = None,
+    max_val: float | Sequence[float] | None = None,
+    tv_range: bool = False,
+    *,
+    func: FuncExceptT | None = None
+) -> vs.VideoNode:
+    """
+    Wraps `vs-zip <https://github.com/dnjulek/vapoursynth-zip>`.Limiter but only processes
+    if clip format is not integer, a min/max val is specified or tv_range is True.
+
+    :param clip:        Clip to process.
+    :param min_val:     Lower bound. Defaults to the lowest allowed value for the input.
+                        Can be specified for each plane individually.
+    :param max_val:     Upper bound. Defaults to the highest allowed value for the input.
+                        Can be specified for each plane individually.
+    :param tv_range:    Changes min/max defaults values to LIMITED.
+    :param func:        Function returned for custom error handling.
+                        This should only be set by VS package developers.
+    :return:            Clamped clip.
+    """
+    assert check_variable(clip, func or limiter)
+
+    if all([
+        clip.format.sample_type == vs.INTEGER,
+        min_val is None,
+        max_val is None,
+        tv_range is False
+    ]):
+        return clip
+
+    try:
+        return clip.vszip.Limiter(min_val, max_val, tv_range)
+    except vs.Error as e:
+        raise CustomRuntimeError(
+            "`vs-zip <https://github.com/dnjulek/vapoursynth-zip>` is required to run this function!",
+            func=func, 
+        ) from e
