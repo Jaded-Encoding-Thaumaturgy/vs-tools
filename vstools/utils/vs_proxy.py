@@ -169,12 +169,10 @@ def clear_cache() -> None:
         try:
             for output in get_outputs().values():
                 if isinstance(output, VideoOutputTuple):
-                    with output.clip.get_frame(0):
-                        pass
+                    output.clip.get_frame(0).close()
                     break
         except Exception:
-            with core.std.BlankClip().get_frame(0):
-                pass
+            core.std.BlankClip().get_frame(0).close()
         core.max_cache_size = cache_size
     except Exception:
         ...
