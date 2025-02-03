@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, MutableMapping, TypeVar, cast
 
 from stgpytools import T
 
@@ -14,6 +14,8 @@ __all__ = [
     'DynamicClipsCache',
 
     'FramesCache',
+
+    'NodeFramesCache',
 
     'ClipFramesCache',
 
@@ -55,8 +57,8 @@ class DynamicClipsCache(vs_object, dict[T, vs.VideoNode]):
         return super().__getitem__(__key)
 
 
-class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
-    def __init__(self, clip: vs.VideoNode, cache_size: int = 10) -> None:
+class FramesCache(vs_object, Generic[NodeT, FrameT], dict[int, FrameT]):
+    def __init__(self, clip: NodeT, cache_size: int = 10) -> None:
         self.clip = clip
         self.cache_size = cache_size
 
@@ -84,23 +86,27 @@ class FramesCache(vs_object, Generic[FrameT], dict[int, FrameT]):
         self.clip = None
 
 
-class ClipFramesCache(vs_object, dict[vs.VideoNode, FramesCache[vs.VideoFrame]]):
-    def _ensure_key(self, key: vs.VideoNode) -> None:
+class NodeFramesCache(vs_object, dict[NodeT, FramesCache[NodeT, FrameT]]):
+    def _ensure_key(self, key: NodeT) -> None:
         if key not in self:
-            super().__setitem__(key, FramesCache[vs.VideoFrame](key))
+            super().__setitem__(key, FramesCache(key))
 
-    def __setitem__(self, key: vs.VideoNode, value: FramesCache[vs.VideoFrame]) -> None:
+    def __setitem__(self, key: NodeT, value: FramesCache[NodeT, FrameT]) -> None:
         self._ensure_key(key)
 
         return super().__setitem__(key, value)
 
-    def __getitem__(self, key: vs.VideoNode) -> FramesCache[vs.VideoFrame]:
+    def __getitem__(self, key: NodeT) -> FramesCache[NodeT, FrameT]:
         self._ensure_key(key)
 
         return super().__getitem__(key)
 
     def __vs_del__(self, core_id: int) -> None:
         self.clear()
+
+
+class ClipFramesCache(NodeFramesCache[vs.VideoNode, vs.VideoFrame]):
+    ...
 
 
 class SceneBasedDynamicCache(DynamicClipsCache[int]):
@@ -125,7 +131,7 @@ def cache_clip(_clip: NodeT, cache_size: int = 10) -> NodeT:
     if isinstance(_clip, vs.VideoNode):
         clip: vs.VideoNode = _clip
 
-        cache = FramesCache[vs.VideoFrame](clip, cache_size)
+        cache = FramesCache[vs.VideoNode, vs.VideoFrame](clip, cache_size)
 
         blank = clip.std.BlankClip()
 
