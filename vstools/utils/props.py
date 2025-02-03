@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, TypeVar, overload
+from typing import Any, Callable, Literal, TypeVar, overload
 
 import vapoursynth as vs
 from stgpytools import MISSING, FileWasNotFoundError, FuncExceptT, MissingT, SPath, SPathLike, SupportsString
@@ -155,14 +155,21 @@ def merge_clip_props(*clips: vs.VideoNode, main_idx: int = 0) -> vs.VideoNode:
 
 @overload
 def get_clip_filepath(
-    clip: vs.VideoNode, fallback: SPathLike | None = ..., strict: bool = True, *, func: FuncExceptT | None = ...
+    clip: vs.VideoNode, fallback: SPathLike | None = ..., strict: Literal[False] = ..., *, func: FuncExceptT | None = ...
+) -> SPath | None:
+    ...
+
+
+@overload
+def get_clip_filepath(
+    clip: vs.VideoNode, fallback: SPathLike | None = ..., strict: Literal[True] = ..., *, func: FuncExceptT | None = ...
 ) -> SPath:
     ...
 
 
 @overload
-def get_clip_filepath(  # type:ignore[misc]
-    clip: vs.VideoNode, fallback: SPathLike | None = ..., strict: bool = False, *, func: FuncExceptT | None = ...
+def get_clip_filepath(
+    clip: vs.VideoNode, fallback: SPathLike | None = ..., strict: bool = ..., *, func: FuncExceptT | None = ...
 ) -> SPath | None:
     ...
 
