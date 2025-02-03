@@ -85,10 +85,10 @@ def match_clip(
         clip = clip.resize.Bicubic(format=ref.format.id, matrix=Matrix.from_video(ref))
 
     if matrices:
-        ref_frame = ref.get_frame(0)
-        clip = clip.std.SetFrameProps(
-            _Matrix=Matrix(ref_frame), _Transfer=Transfer(ref_frame), _Primaries=Primaries(ref_frame)
-        )
+        with ref.get_frame(0) as ref_frame:
+            clip = clip.std.SetFrameProps(
+                _Matrix=Matrix(ref_frame), _Transfer=Transfer(ref_frame), _Primaries=Primaries(ref_frame)
+            )
 
     return clip.std.AssumeFPS(fpsnum=ref.fps.numerator, fpsden=ref.fps.denominator)
 

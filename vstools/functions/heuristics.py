@@ -59,7 +59,8 @@ def video_heuristics(
     heuristics = dict[str, PropEnum]()
 
     if props is True:
-        props_dict = clip.get_frame(0).props
+        with clip.get_frame(0) as frame:
+            props_dict = frame.props
     else:
         props_dict = props or None
 

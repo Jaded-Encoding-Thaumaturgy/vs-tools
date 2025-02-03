@@ -174,7 +174,8 @@ class Sar(Fraction):
         if isinstance(clip, vs.RawFrame):
             props = clip.props
         elif isinstance(clip, vs.RawNode):
-            props = clip.get_frame(0).props
+            with clip.get_frame(0) as frame:
+                props = frame.props
         else:
             props = clip
 

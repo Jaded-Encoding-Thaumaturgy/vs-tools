@@ -30,7 +30,8 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
     if isinstance(frame, vs.VideoNode) and not (
         frame.width and frame.height and frame.format
     ):
-        frame = frame.get_frame(0)
+        with frame.get_frame(0) as frame:
+            pass
 
     assert frame.format
 
