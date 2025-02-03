@@ -163,12 +163,11 @@ def _base_from_video(
     cls: type[SelfPropEnum], src: vs.VideoNode | vs.VideoFrame | vs.FrameProps, exception: type[CustomError],
     strict: bool, func: FuncExceptT | None = None
 ) -> SelfPropEnum:
-    from ..functions import fallback
     from ..utils import get_prop
 
-    func = fallback(func, cls.from_video)
+    func = func or cls.from_video
 
-    value = get_prop(src, cls, int, default=MISSING if strict else None)
+    value = get_prop(src, cls, int, default=MISSING if strict else None, func=func)
 
     if value is None or cls.is_unknown(value):  # type: ignore
         if strict:
