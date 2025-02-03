@@ -8,6 +8,12 @@ from ..functions import Keyframes
 from ..types import vs_object
 from . import vs_proxy as vs
 
+if TYPE_CHECKING:
+    from vapoursynth import _VapourSynthMapValue
+else:
+    _VapourSynthMapValue = Any
+
+
 __all__ = [
     'ClipsCache',
 
@@ -20,6 +26,8 @@ __all__ = [
     'ClipFramesCache',
 
     'SceneBasedDynamicCache',
+
+    'NodesPropsCache',
 
     'cache_clip'
 ]
@@ -127,6 +135,17 @@ class SceneBasedDynamicCache(DynamicClipsCache[int]):
     @classmethod
     def from_clip(cls, clip: vs.VideoNode, keyframes: Keyframes | str, *args: Any, **kwargs: Any) -> vs.VideoNode:
         return cls(clip, keyframes, *args, **kwargs).get_eval()
+
+
+class NodesPropsCache(vs_object, dict[tuple[NodeT, int], MutableMapping[str, _VapourSynthMapValue]]):
+    def __delitem__(self, __key: tuple[NodeT, int]) -> None:
+        if __key not in self:
+            return
+
+        return super().__delitem__(__key)
+
+    def __vs_del__(self, core_id: int) -> None:
+        self.clear()
 
 
 def cache_clip(_clip: NodeT, cache_size: int = 10) -> NodeT:
