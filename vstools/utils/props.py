@@ -79,7 +79,7 @@ def get_prop(
         props = obj.props
     elif isinstance(obj, vs.RawNode):
         with obj.get_frame(0) as frame:
-            props = frame.props
+            props = frame.props.copy()
     else:
         props = obj
 
@@ -87,7 +87,7 @@ def get_prop(
 
     try:
         try:
-            prop = props[key]
+            prop = props.get(key, MISSING)
         except Exception:
             if isinstance(key, type) and issubclass(key, PropEnum):
                 key = key.prop_key

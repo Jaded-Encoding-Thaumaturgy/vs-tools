@@ -60,7 +60,7 @@ def video_heuristics(
 
     if props is True:
         with clip.get_frame(0) as frame:
-            props_dict = frame.props
+            props_dict = frame.props.copy()
     else:
         props_dict = props or None
 

@@ -175,7 +175,7 @@ class Sar(Fraction):
             props = clip.props
         elif isinstance(clip, vs.RawNode):
             with clip.get_frame(0) as frame:
-                props = frame.props
+                props = frame.props.copy()
         else:
             props = clip
 
