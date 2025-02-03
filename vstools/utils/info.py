@@ -31,7 +31,7 @@ def get_var_infos(frame: vs.VideoNode | vs.VideoFrame) -> tuple[vs.VideoFormat, 
         frame.width and frame.height and frame.format
     ):
         with frame.get_frame(0) as frame:
-            pass
+            return get_var_infos(frame)
 
     assert frame.format
 
