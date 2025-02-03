@@ -102,6 +102,13 @@ def replace_ranges(
         * ``replace_ranges(black, white, [(200, -1)])``: replace 200 until the end with ``white``,
                                                          leaving 1 frame of ``black``
 
+    A callback function can be used to replace frames based on frame properties.
+    The function must return a boolean value.
+
+    Example of using a callback function:
+        * ``replace_ranges(clip_a, clip_b, lambda f: get_prop(f, '_PictType', str) == 'P', prop_src=clip_a)``:
+          Replace frames from ``clip_a`` with ``clip_b`` if the picture type of ``clip_a`` is P.
+
     Optional Dependencies:
         * `vs-zip <https://github.com/dnjulek/vapoursynth-zip>`_ (highly recommended!)
 
@@ -119,6 +126,8 @@ def replace_ranges(
                             * None as second value of tuple: Last frame in clip_b
     :param exclusive:   Use exclusive ranges (Default: False).
     :param mismatch:    Accept format or resolution mismatch between clips.
+    :param prop_src:    Source clip(s) to use for frame properties in the callback.
+                        This is required if you're using a callback.
 
     :return:            Clip with ranges from clip_a replaced with clip_b.
     """
