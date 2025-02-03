@@ -87,7 +87,7 @@ def get_prop(
 
     try:
         try:
-            prop = props.get(key, MISSING)
+            prop = props[key]
         except Exception:
             if isinstance(key, type) and issubclass(key, PropEnum):
                 key = key.prop_key
