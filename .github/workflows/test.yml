@@ -11,12 +11,12 @@ on:
       - '**.py'
 
 jobs:
-  windows:
-    runs-on: windows-latest
+  test:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         vs-versions:
-          - 68
+          - 70
         python-version:
           - '3.12'
 
@@ -28,15 +28,28 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up VapourSynth ${{ matrix.vs-versions }}
+        uses: ./.github/actions/setup-vapoursynth
+        with:
+          vapoursynth-version: ${{ matrix.vs-versions }}
+
+      - name: Set up vszip
+        uses: ./.github/actions/setup-vszip
+        with:
+          vszip-version: 5
+  
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          pip install vapoursynth-portable==${{ matrix.vs-versions }}
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv venv
+          uv pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Running tests
-        run: pytest --cov-report=term-missing:skip-covered --cov=vstools tests
+        run: uv run pytest --cov-report=term-missing:skip-covered --cov=vstools tests
 
       - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v2.3.1
+        uses: coverallsapp/github-action@v2.3.6
