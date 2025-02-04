@@ -25,6 +25,8 @@ runs:
         pushd .vapoursynth-zip
         zig build
         sudo cp zig-out/lib/libvszip.so /usr/lib/vapoursynth/libvszip.so
+        popd
+        rm -rf .vapoursynth-zip
 
     - name: Verify vszip install
       shell: python
