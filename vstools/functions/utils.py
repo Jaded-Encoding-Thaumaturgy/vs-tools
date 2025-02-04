@@ -10,7 +10,7 @@ import vapoursynth as vs
 from stgpytools import CustomIndexError, CustomRuntimeError, CustomStrEnum, CustomValueError, FuncExceptT
 
 from ..enums import ColorRange, ColorRangeT, Matrix
-from ..exceptions import ClipLengthError, InvalidColorFamilyError,
+from ..exceptions import ClipLengthError, InvalidColorFamilyError
 from ..types import HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import check_variable, check_variable_format, disallow_variable_format
 
