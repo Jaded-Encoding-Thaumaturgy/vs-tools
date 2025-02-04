@@ -823,10 +823,10 @@ def limiter(
     ]):
         return clip
 
-    try:
-        return clip.vszip.Limiter(min_val, max_val, tv_range)
-    except vs.Error as e:
-        raise CustomRuntimeError(
-            "`vs-zip <https://github.com/dnjulek/vapoursynth-zip>` is required to run this function!",
-            func=func, 
-        ) from e
+    if not (min_val == max_val is None):
+        from ..utils import get_lowest_values, get_peak_values
+
+        min_val = normalize_seq(min_val or get_lowest_values(clip, clip), clip.format.num_planes)
+        max_val = normalize_seq(max_val or get_peak_values(clip, clip), clip.format.num_planes)
+
+    return clip.vszip.Limiter(min_val, max_val, tv_range)
