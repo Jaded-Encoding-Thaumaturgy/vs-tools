@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import string
 
-from typing import Any, Iterable, Literal, Mapping, Sequence, overload
+from functools import partial, wraps
+from typing import Any, Callable, Iterable, Literal, Mapping, Sequence, cast, overload
 from weakref import WeakValueDictionary
 
 import vapoursynth as vs
 
-from stgpytools import CustomIndexError, CustomRuntimeError, CustomStrEnum, CustomValueError, FuncExceptT
+from stgpytools import CustomIndexError, CustomStrEnum, CustomValueError, FuncExceptT, normalize_seq
 
 from ..enums import ColorRange, ColorRangeT, Matrix
 from ..exceptions import ClipLengthError, InvalidColorFamilyError
-from ..types import HoldsVideoFormatT, PlanesT, VideoFormatT
+from ..types import F_VD, HoldsVideoFormatT, PlanesT, VideoFormatT
 from .check import check_variable, check_variable_format, disallow_variable_format
 
 __all__ = [
@@ -740,15 +741,49 @@ def stack_clips(
         for inner_clips in clips
     ])
 
-
+@overload
 def limiter(
     clip: vs.VideoNode,
+    /,
+    min_val: float | Sequence[float] | None = None,
+    max_val: float | Sequence[float] | None = None,
+    *,
+    tv_range: bool = False,
+    func: FuncExceptT | None = None
+) -> vs.VideoNode:
+    ...
+
+@overload
+def limiter(
+    _func: F_VD,
+    /,
+    min_val: float | Sequence[float] | None = None,
+    max_val: float | Sequence[float] | None = None,
+    *,
+    tv_range: bool = False,
+    func: FuncExceptT | None = None
+) -> F_VD:
+    ...
+
+@overload
+def limiter(
+    *,
     min_val: float | Sequence[float] | None = None,
     max_val: float | Sequence[float] | None = None,
     tv_range: bool = False,
-    *,
     func: FuncExceptT | None = None
-) -> vs.VideoNode:
+) -> Callable[[F_VD], F_VD]:
+    ...
+
+def limiter(
+    clip: vs.VideoNode | F_VD | None = None,
+    /,
+    min_val: float | Sequence[float] | None = None,
+    max_val: float | Sequence[float] | None = None,
+    *,
+    tv_range: bool = False,
+    func: FuncExceptT | None = None
+) -> vs.VideoNode | F_VD | Callable[[F_VD], F_VD]:
     """
     Wraps `vs-zip <https://github.com/dnjulek/vapoursynth-zip>`.Limiter but only processes
     if clip format is not integer, a min/max val is specified or tv_range is True.
@@ -763,7 +798,22 @@ def limiter(
                         This should only be set by VS package developers.
     :return:            Clamped clip.
     """
-    assert check_variable(clip, func or limiter)
+    func = func or limiter
+
+    if callable(clip):
+        @wraps(clip)
+        def _wrapper(*args: Any, **kwargs: Any) -> vs.VideoNode:
+            return limiter(clip(*args, **kwargs), min_val, max_val, tv_range=tv_range, func=func)
+
+        return cast(F_VD, _wrapper)
+
+    if clip is None:
+        return cast(
+            Callable[[F_VD], F_VD],
+            partial(limiter, min_val=min_val, max_val=max_val, tv_range=tv_range, func=func)
+        )
+
+    assert check_variable(clip, func)
 
     if all([
         clip.format.sample_type == vs.INTEGER,
