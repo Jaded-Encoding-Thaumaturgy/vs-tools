@@ -48,7 +48,7 @@ def finalize_clip(
 
     :return:                Dithered down and optionally clamped clip.
     """
-    from ..utils import get_lowest_values, get_peak_values
+    from ..functions import limiter
 
     assert check_variable(clip, func or finalize_clip)
 
@@ -62,10 +62,7 @@ def finalize_clip(
             clamp_tv_range = True
 
     if clamp_tv_range:
-        clip = clip.std.Limiter(
-            get_lowest_values(clip, ColorRange.LIMITED),
-            get_peak_values(clip, ColorRange.LIMITED)
-        )
+        clip = limiter(clip, tv_range=clamp_tv_range)
 
     return clip
 
