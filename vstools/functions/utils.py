@@ -798,14 +798,14 @@ def limiter(
                         This should only be set by VS package developers.
     :return:            Clamped clip.
     """
-    func = func or limiter
-
     if callable(clip):
         @wraps(clip)
         def _wrapper(*args: Any, **kwargs: Any) -> vs.VideoNode:
-            return limiter(clip(*args, **kwargs), min_val, max_val, tv_range=tv_range, func=func)
+            return limiter(clip(*args, **kwargs), min_val, max_val, tv_range=tv_range, func=func or clip)
 
         return cast(F_VD, _wrapper)
+
+    func = func or limiter
 
     if clip is None:
         return cast(
