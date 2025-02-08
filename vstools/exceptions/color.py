@@ -60,7 +60,7 @@ class InvalidColorspacePathError(CustomValueError):
         """
 
         try:
-            to_check.get_frame(0)
+            to_check.get_frame(0).close()
         except vs.Error as e:
             if 'no path between colorspaces' in str(e):
                 raise InvalidColorspacePathError(func, e)

@@ -78,7 +78,8 @@ def get_prop(
     if isinstance(obj, vs.RawFrame):
         props = obj.props
     elif isinstance(obj, vs.RawNode):
-        props = obj.get_frame(0).props
+        with obj.get_frame(0) as frame:
+            props = frame.props.copy()
     else:
         props = obj
 
