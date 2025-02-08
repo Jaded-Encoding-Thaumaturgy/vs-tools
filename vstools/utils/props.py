@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, TypeVar, overload
+from typing import Any, Callable, MutableMapping, Literal, TypeVar, overload
 
 import vapoursynth as vs
+
 from stgpytools import MISSING, FileWasNotFoundError, FuncExceptT, MissingT, SPath, SPathLike, SupportsString
 
 from ..enums import PropEnum
 from ..exceptions import FramePropError
 from ..types import BoundVSMapValue, HoldsPropValueT
+from .cache import NodesPropsCache
 
 __all__ = [
     'get_prop',
@@ -19,109 +21,114 @@ DT = TypeVar('DT')
 CT = TypeVar('CT')
 
 
-@overload
-def get_prop(
-    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-    cast: None = None, default: MissingT = MISSING, func: FuncExceptT | None = None  # type: ignore
-) -> BoundVSMapValue:
-    ...
+class _get_prop:
+    cache = NodesPropsCache[vs.RawNode]()
 
+    @overload
+    def __call__(
+        self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+        cast: None = None, default: MissingT = ..., func: FuncExceptT | None = None
+    ) -> BoundVSMapValue:
+        ...
 
-@overload
-def get_prop(
-    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-    cast: type[CT], default: MissingT = MISSING, func: FuncExceptT | None = None  # type: ignore
-) -> CT:
-    ...
+    @overload
+    def __call__(
+        self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+        cast: type[CT], default: MissingT = ..., func: FuncExceptT | None = None
+    ) -> CT:
+        ...
 
+    @overload
+    def __call__(
+        self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+        cast: None = None, default: DT | MissingT = ...,
+        func: FuncExceptT | None = None
+    ) -> BoundVSMapValue | DT:
+        ...
 
-@overload
-def get_prop(
-    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-    cast: None = None, default: DT | MissingT = MISSING,
-    func: FuncExceptT | None = None
-) -> BoundVSMapValue | DT:
-    ...
+    @overload
+    def __call__(
+        self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+        cast: type[CT] | Callable[[BoundVSMapValue], CT], default: DT | MissingT = ...,
+        func: FuncExceptT | None = None
+    ) -> CT | DT:
+        ...
 
+    def __call__(
+        self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
+        cast: type[CT] | Callable[[BoundVSMapValue], CT] | None = None, default: DT | MissingT = MISSING,
+        func: FuncExceptT | None = None
+    ) -> BoundVSMapValue | CT | DT:
+        """
+        Get FrameProp ``prop`` from frame ``frame`` with expected type ``t`` to satisfy the type checker.
 
-@overload
-def get_prop(
-    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-    cast: type[CT] | Callable[[BoundVSMapValue], CT], default: DT | MissingT = MISSING,
-    func: FuncExceptT | None = None
-) -> CT | DT:
-    ...
+        :param obj:                 Clip or frame containing props.
+        :param key:                 Prop to get.
+        :param t:                   type of prop.
+        :param cast:                Cast value to this type, if specified.
+        :param default:             Fallback value.
 
+        :return:                    frame.prop[key].
 
-def get_prop(
-    obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
-    cast: type[CT] | Callable[[BoundVSMapValue], CT] | None = None, default: DT | MissingT = MISSING,
-    func: FuncExceptT | None = None
-) -> BoundVSMapValue | CT | DT:
-    """
-    Get FrameProp ``prop`` from frame ``frame`` with expected type ``t`` to satisfy the type checker.
+        :raises FramePropError:     ``key`` is not found in props.
+        :raises FramePropError:     Returns a prop of the wrong type.
+        """
+        props: MutableMapping[str, Any]
 
-    :param obj:                 Clip or frame containing props.
-    :param key:                 Prop to get.
-    :param t:                   type of prop.
-    :param cast:                Cast value to this type, if specified.
-    :param default:             Fallback value.
+        if isinstance(obj, MutableMapping):
+            props = obj
+        elif isinstance(obj, vs.RawNode):
+            try:
+                props = self.cache[(obj, 0)]
+            except KeyError:
+                with obj.get_frame(0) as f:
+                    props = f.props.copy()
 
-    :return:                    frame.prop[key].
+                self.cache[(obj, 0)] = props
+        else:
+            props = obj.props
 
-    :raises FramePropError:     ``key`` is not found in props.
-    :raises FramePropError:     Returns a prop of the wrong type.
-    """
+        prop: Any = MISSING
 
-    from ..functions import fallback
-
-    if isinstance(obj, vs.RawFrame):
-        props = obj.props
-    elif isinstance(obj, vs.RawNode):
-        with obj.get_frame(0) as frame:
-            props = frame.props.copy()
-    else:
-        props = obj
-
-    prop: Any = MISSING
-
-    try:
         try:
-            prop = props[key]
-        except Exception:
-            if isinstance(key, type) and issubclass(key, PropEnum):
+            if isinstance(key, str):
+                prop = props[key]
+            elif isinstance(key, type) and issubclass(key, PropEnum):
                 key = key.prop_key
             else:
                 key = str(key)
 
             prop = props[key]
 
-        if not isinstance(prop, t):
-            if issubclass(t, str) and isinstance(prop, bytes):
-                return prop.decode('utf-8')
-            raise TypeError
+            if not isinstance(prop, t):
+                if issubclass(t, str) and isinstance(prop, bytes):
+                    return prop.decode('utf-8')  # type: ignore[return-value]
+                raise TypeError
 
-        if cast is None:
-            return prop
+            if cast is None:
+                return prop
 
-        return cast(prop)  # type: ignore
-    except BaseException as e:
-        if default is not MISSING:
-            return default
+            return cast(prop)  # type: ignore
+        except BaseException as e:
+            if default is not MISSING:
+                return default
 
-        func: FuncExceptT = fallback(func, get_prop)  # type: ignore
+            func = func or get_prop
 
-        if isinstance(e, KeyError) or prop is MISSING:
-            e = FramePropError(func, key, 'Key {key} not present in props!')  # type: ignore
-        elif isinstance(e, TypeError):
-            e = FramePropError(
-                func, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',  # type: ignore
-                t=t, prop_t=type(prop)
-            )
-        else:
-            e = FramePropError(func, key)  # type: ignore
+            if isinstance(e, KeyError) or prop is MISSING:
+                e = FramePropError(func, str(key), 'Key {key} not present in props!')
+            elif isinstance(e, TypeError):
+                e = FramePropError(
+                    func, str(key), 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
+                    t=t, prop_t=type(prop)
+                )
+            else:
+                e = FramePropError(func, str(key))
 
-        raise e
+            raise e
+
+
+get_prop = _get_prop()
 
 
 def merge_clip_props(*clips: vs.VideoNode, main_idx: int = 0) -> vs.VideoNode:
