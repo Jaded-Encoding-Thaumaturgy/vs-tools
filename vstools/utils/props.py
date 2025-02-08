@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, TypeVar, overload
+from typing import Any, Callable, MutableMapping, Literal, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -31,14 +31,12 @@ class _get_prop:
     ) -> BoundVSMapValue:
         ...
 
-
     @overload
     def __call__(
         self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
         cast: type[CT], default: MissingT = ..., func: FuncExceptT | None = None
     ) -> CT:
         ...
-
 
     @overload
     def __call__(
@@ -48,7 +46,6 @@ class _get_prop:
     ) -> BoundVSMapValue | DT:
         ...
 
-
     @overload
     def __call__(
         self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
@@ -56,7 +53,6 @@ class _get_prop:
         func: FuncExceptT | None = None
     ) -> CT | DT:
         ...
-
 
     def __call__(
         self, obj: HoldsPropValueT, key: SupportsString | PropEnum, t: type[BoundVSMapValue],
@@ -77,31 +73,36 @@ class _get_prop:
         :raises FramePropError:     ``key`` is not found in props.
         :raises FramePropError:     Returns a prop of the wrong type.
         """
+        props: MutableMapping[str, Any]
 
-        if isinstance(obj, vs.RawFrame):
-            props = obj.props
-        elif isinstance(obj, vs.RawNode):
-            with obj.get_frame(0) as frame:
-                props = frame.props.copy()
-        else:
+        if isinstance(obj, MutableMapping):
             props = obj
+        elif isinstance(obj, vs.RawNode):
+            try:
+                props = self.cache[(obj, 0)]
+            except KeyError:
+                with obj.get_frame(0) as f:
+                    props = f.props.copy()
+
+                self.cache[(obj, 0)] = props
+        else:
+            props = obj.props
 
         prop: Any = MISSING
 
         try:
-            try:
+            if isinstance(key, str):
                 prop = props[key]
-            except Exception:
-                if isinstance(key, type) and issubclass(key, PropEnum):
-                    key = key.prop_key
-                else:
-                    key = str(key)
+            elif isinstance(key, type) and issubclass(key, PropEnum):
+                key = key.prop_key
+            else:
+                key = str(key)
 
-                prop = props[key]
+            prop = props[key]
 
             if not isinstance(prop, t):
                 if issubclass(t, str) and isinstance(prop, bytes):
-                    return prop.decode('utf-8')
+                    return prop.decode('utf-8')  # type: ignore[return-value]
                 raise TypeError
 
             if cast is None:
@@ -115,14 +116,14 @@ class _get_prop:
             func = func or get_prop
 
             if isinstance(e, KeyError) or prop is MISSING:
-                e = FramePropError(func, key, 'Key {key} not present in props!')  # type: ignore
+                e = FramePropError(func, str(key), 'Key {key} not present in props!')
             elif isinstance(e, TypeError):
                 e = FramePropError(
-                    func, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',  # type: ignore
+                    func, str(key), 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
                     t=t, prop_t=type(prop)
                 )
             else:
-                e = FramePropError(func, key)  # type: ignore
+                e = FramePropError(func, str(key))
 
             raise e
 
