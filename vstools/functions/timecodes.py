@@ -83,10 +83,10 @@ class Timecodes(list[Timecode]):
             start, ltcode = last_tcode
 
             if tcode != ltcode:
-                timecodes_ranges[start, tcode.frame - 1] = ltcode.to_fraction()
+                timecodes_ranges[start, tcode.frame - 1] = 1 / ltcode.to_fraction()
                 last_tcode = (tcode.frame, tcode)
             elif tcode.frame == last_i:
-                timecodes_ranges[start, tcode.frame + 1] = tcode.to_fraction()
+                timecodes_ranges[start, tcode.frame] = 1 / tcode.to_fraction()
 
         return timecodes_ranges
 
@@ -158,7 +158,7 @@ class Timecodes(list[Timecode]):
         """
         if hasattr(vs.core, 'akarin'):
             prop_clip = clip.std.BlankClip(2, 1, vs.GRAY16, keep=True).std.CopyFrameProps(clip)
-            prop_clip = prop_clip.akarin.Expr('X 1 = x._DurationNum x._DurationDen ?')
+            prop_clip = prop_clip.akarin.Expr('X 0 = x._DurationNum x._DurationDen ?')
 
             def _get_timecode(n: int, f: vs.VideoFrame) -> Timecode:
                 return Timecode(n, (m := f[0])[0, 0], m[0, 1])
@@ -217,7 +217,7 @@ class Timecodes(list[Timecode]):
 
         if 'v1' in version:
             def _norm(xd: str) -> Fraction:
-                return Fraction(int(denominator * float(xd)), denominator)
+                return Fraction(round(denominator / float(xd)), denominator)
 
             assume = None
 
@@ -238,7 +238,7 @@ class Timecodes(list[Timecode]):
         elif 'v2' in version:
             timecodes_l = [float(t) for t in _timecodes if not t.startswith('#')]
             norm_timecodes = [
-                Fraction(int(denominator / float(f'{round((x - y) * 100, 4) / 100000:.08f}'[:-1])), denominator)
+                Fraction(int(denominator * float(f'{round((x - y) * 100, 4) / 100000:.08f}'[:-1])), denominator)
                 for x, y in zip(timecodes_l[1:], timecodes_l[:-1])
             ]
         else:
@@ -284,7 +284,7 @@ class Timecodes(list[Timecode]):
         """
         Write timecodes to a file.
 
-        This file shoudl always be muxed into the video container when working with Variable Frame Rate video.
+        This file should always be muxed into the video container when working with Variable Frame Rate video.
 
         :param out:         Path to write the file to.
         :param format:      Format to write the file to.
@@ -313,23 +313,13 @@ class Timecodes(list[Timecode]):
                 for frange, fps in minor_fps.items()
             ])
         elif format == Timecodes.V2:
-            acc = 0.0
+            acc = Fraction()    # in milliseconds
 
-            for time in self:
-                s_acc = str(round(acc / 100, 12) * 100)
-
-                str_length, decimal_index = len(s_acc), s_acc.index('.')
-                decimal_places = str_length - decimal_index - 1
-
-                if decimal_places < 6:
-                    s_acc += '0' * (6 - decimal_places)
-                else:
-                    s_acc = s_acc[:decimal_index + 7]
-
-                out_text.append(s_acc)
-                acc += (time.denominator * 100) / (time.numerator * 100) * 1000
-
-            out_text.append(str(acc))
+            for time in self + [Fraction()]:
+                ns = round(acc * 10 ** 6)
+                ms, dec = divmod(ns, 10 ** 6)
+                out_text.append(f"{ms}.{dec:06}")
+                acc += Fraction(time.numerator * 1000, time.denominator)
 
         out_path.unlink(True)
         out_path.touch()
