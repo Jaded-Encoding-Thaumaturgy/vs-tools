@@ -79,7 +79,8 @@ class _get_prop:
         if TYPE_CHECKING:
             FramePropsT = MutableMapping
         else:
-            FramePropsT = vs.FrameProps
+            # Implicit supports any form of MutableMapping like before
+            FramePropsT = vs.FrameProps | MutableMapping
 
         if isinstance(obj, FramePropsT):
             props = obj
