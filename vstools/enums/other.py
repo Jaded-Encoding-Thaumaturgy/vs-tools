@@ -171,15 +171,7 @@ class Sar(Fraction):
 
         from ..utils import get_prop
 
-        if isinstance(clip, vs.RawFrame):
-            props = clip.props
-        elif isinstance(clip, vs.RawNode):
-            with clip.get_frame(0) as frame:
-                props = frame.props.copy()
-        else:
-            props = clip
-
-        return cls(get_prop(props, '_SARNum', int, None, 1), get_prop(props, '_SARDen', int, None, 1))
+        return cls(get_prop(clip, '_SARNum', int, None, 1), get_prop(clip, '_SARDen', int, None, 1))
 
     @classmethod
     def from_ar(cls: type[SarSelf], num: int, den: int, active_area: float, height: int) -> SarSelf:
