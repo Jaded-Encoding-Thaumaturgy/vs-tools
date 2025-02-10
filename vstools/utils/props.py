@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, MutableMapping, Literal, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, MutableMapping, Literal, TypeVar, overload
 
 import vapoursynth as vs
 
@@ -75,7 +75,13 @@ class _get_prop:
         """
         props: MutableMapping[str, Any]
 
-        if isinstance(obj, MutableMapping):
+        # TODO: mypy being dumb and doesn't recognize the type check properly
+        if TYPE_CHECKING:
+            FramePropsT = MutableMapping
+        else:
+            FramePropsT = vs.FrameProps
+
+        if isinstance(obj, FramePropsT):
             props = obj
         elif isinstance(obj, vs.RawNode):
             try:
