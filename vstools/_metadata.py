@@ -1,6 +1,6 @@
 """Functions and utils related to VapourSynth."""
 
-__version__ = '3.4.3'
+__version__ = '3.4.4'
 
 __author_name__, __author_email__ = 'Setsugen no ao', 'setsugen@setsugen.dev'
 __maintainer_name__, __maintainer_email__ = __author_name__, __author_email__
