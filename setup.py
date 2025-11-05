@@ -28,12 +28,12 @@ setuptools.setup(
     install_requires=requirements,
     python_requires='>=3.12',
     packages=[
-        package_name,
-        f'{package_name}.enums',
-        f'{package_name}.exceptions',
-        f'{package_name}.functions',
-        f'{package_name}.types',
-        f'{package_name}.utils'
+        # package_name,
+        # f'{package_name}.enums',
+        # f'{package_name}.exceptions',
+        # f'{package_name}.functions',
+        # f'{package_name}.types',
+        # f'{package_name}.utils'
     ],
     package_data={
         package_name: ['py.typed', 'utils/*.json']
